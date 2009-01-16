@@ -127,9 +127,9 @@ chain_up_fde(Dwarf_Fde newone, Dwarf_Fde * head, Dwarf_Fde * cur)
 static void
 chain_up_cie(Dwarf_Cie newone, Dwarf_Cie * head, Dwarf_Cie * cur)
 {
-    if (*head == NULL)
+    if (*head == NULL) {
 	*head = newone;
-    else {
+    } else {
 	(*cur)->ci_next = newone;
     }
     *cur = newone;
@@ -185,9 +185,14 @@ _dwarf_get_fde_list_internal(Dwarf_Debug dbg, Dwarf_Cie ** cie_data,
 
     /* 
        New_cie points to the Cie being read, and head_cie_ptr and
-       cur_cie_ptr are used for chaining them up in sequence. */
+       cur_cie_ptr are used for chaining them up in sequence. 
+       In case cie's are reused aggressively we need tail_cie_ptr
+       to add to the chain.  If we re-use an early cie
+       later on, that does not mean we chain a new cie to the early one,
+       we always chain it to the tail.  */
     Dwarf_Cie head_cie_ptr = NULL;
     Dwarf_Cie cur_cie_ptr = NULL;
+    Dwarf_Cie tail_cie_ptr = NULL;
     Dwarf_Word cie_count = 0;
 
     /* 
@@ -275,7 +280,8 @@ _dwarf_get_fde_list_internal(Dwarf_Debug dbg, Dwarf_Cie ** cie_data,
 		/* ASSERT res != DW_DLV_NO_ENTRY */
 		cie_count++;
 		chain_up_cie(cie_ptr_to_use, &head_cie_ptr,
-			     &cur_cie_ptr);
+			     &tail_cie_ptr);
+                cur_cie_ptr = tail_cie_ptr;
 	    } else {		/* res == DW_DLV_ERROR */
 
 		dealloc_fde_cie_list_internal(head_fde_ptr,
@@ -330,7 +336,8 @@ _dwarf_get_fde_list_internal(Dwarf_Debug dbg, Dwarf_Cie ** cie_data,
 		}
 		++cie_count;
 		chain_up_cie(cie_ptr_to_use, &head_cie_ptr,
-			     &cur_cie_ptr);
+			     &tail_cie_ptr);
+                cur_cie_ptr = tail_cie_ptr;
 
 	    } else {
 		/* DW_DLV_ERROR */

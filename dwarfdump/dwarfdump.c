@@ -262,7 +262,7 @@ process_one_file(Elf * elf, string file_name, int archive,
 				      cf_initial_rule_value);
     dwarf_set_frame_rule_table_size(dbg,
 				    config_file_data->
-				    cf_regs_table_size);
+				    cf_table_entry_count);
 
     if (info_flag || line_flag || cu_name_flag)
 	print_infos(dbg);

@@ -544,14 +544,14 @@ add_to_reg_table(struct dwconf_s *conf,
 {
     if (conf->cf_regs_malloced == 0) {
 	conf->cf_regs = 0;
-	conf->cf_regs_table_size = 0;
+	conf->cf_named_regs_table_size = 0;
     }
-    if (rval >= conf->cf_regs_table_size) {
+    if (rval >= conf->cf_named_regs_table_size) {
 	char **newregs = 0;
 	unsigned long newtablen = rval + CONF_TABLE_OVERSIZE;
 	unsigned long newtabsize = newtablen * sizeof(char *);
 	unsigned long oldtabsize =
-	    conf->cf_regs_table_size * sizeof(char *);
+	    conf->cf_named_regs_table_size * sizeof(char *);
 	newregs = realloc(conf->cf_regs, newtabsize);
 	if (!newregs) {
 	    printf("dwarfdump: unable to malloc table %lu bytes. "
@@ -561,7 +561,7 @@ add_to_reg_table(struct dwconf_s *conf,
 	/* Zero out the new entries. */
 	memset((char *) newregs + (oldtabsize), 0,
 	       (newtabsize - oldtabsize));
-	conf->cf_regs_table_size = (unsigned long) newtablen;
+	conf->cf_named_regs_table_size = (unsigned long) newtablen;
 	conf->cf_regs = newregs;
 	conf->cf_regs_malloced = 1;
     }
@@ -1053,7 +1053,7 @@ init_conf_file_data(struct dwconf_s *config_file_data)
 	DW_FRAME_REG_INITIAL_VALUE;
     config_file_data->cf_cfa_reg = DW_FRAME_CFA_COL;
     config_file_data->cf_regs = regnames;
-    config_file_data->cf_regs_table_size = base_table_count;
+    config_file_data->cf_named_regs_table_size = base_table_count;
     config_file_data->cf_regs_malloced = 0;
     if (config_file_data->cf_table_entry_count != base_table_count) {
 	printf("dwarfdump: improper base table initization, "
@@ -1097,7 +1097,7 @@ print_reg_from_config_data(char *intfmt, Dwarf_Signed reg,
 	return;
     }
     if (config_data->cf_regs == 0 ||
-	reg < 0 || reg > config_data->cf_regs_table_size) {
+	reg < 0 || reg > config_data->cf_named_regs_table_size) {
 	printf(intfmt, (signed long long) reg);
 	return;
     }

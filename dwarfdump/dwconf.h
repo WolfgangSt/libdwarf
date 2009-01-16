@@ -57,12 +57,12 @@ struct dwconf_s {
 
     /* Array of cf_table_entry_count reg names. Names not filled in
        from dwarfdump.conf have NULL (0) pointer value. 
-	cf_regs_table_size must match size of cf_regs array.
+	cf_named_regs_table_size must match size of cf_regs array.
 	Set cf_regs_malloced  1  if table was malloced. Set 0
         if static.
 	*/
     char **cf_regs;
-    unsigned long cf_regs_table_size;
+    unsigned long cf_named_regs_table_size;
     int    cf_regs_malloced; 
 
     /* The 'default initial value' when intializing a table. for MIPS

@@ -1,19 +1,16 @@
-\." $Revision: 1.8 $
-\." $Date: 2005/04/01 18:04:37 $
-\."
 \."
 \." the following line may be removed if the ff ligature works on your machine
 .lg 0
 \." set up heading formats
 .ds HF 3 3 3 3 3 2 2
 .ds HP +2 +2 +1 +0 +0
+.nr Hs 5
+.nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
 .ds vE rev 1.18, 31 March 2005
 \." ==============================================
 \." ==============================================
-.nr Hs 5
-.nr Hb 5
 .ds | |
 .ds ~ ~
 .ds ' '
@@ -31,16 +28,16 @@
 .if \\n(.$=9 \&\*(Cw\\$1\fP\\$2\*(Cw\\$3\fP\\$4\*(Cw\\$5\fP\\$6\*(Cw\\$7\fP\\$8\
 *(Cw
 ..
+.nr Cl 4
 .SA 1
 .TL
 MIPS Extensions to DWARF Version 2.0
 .AF ""
-.AU "Silicon Graphics Computer Systems
-.PF "'\*(vE '- \\\\nP -''"
-.PM ""
+.AU "Silicon Graphics Computer Systems"
+.PF "'\*(vE'- \\\\nP -''"
 .AS 1
-This document describes the MIPS/Silicon Graphics extensions to the "DWARF
-Information Format" (version 2.0.0 dated July 27, 1993).
+This document describes the MIPS/Silicon Graphics extensions 
+to the "DWARF Information Format" (version 2.0.0 dated July 27, 1993).
 DWARF3 draft 8 (or draft 9) is out as of 2005, and
 is mentioned below where applicable.
 MIPS/IRIX compilers emit DWARF2 (with extensions).
@@ -53,14 +50,19 @@ The extensions documented here are subject to change.
 It also describes known bugs resulting in incorrect dwarf usage.
 .P
 \*(vE
+
 .AE
 .MT 4
+
 .H 1 "INTRODUCTION"
-This document describes MIPS extensions to the DWARF
-debugging information format.
+.P
+This 
+document describes MIPS extensions 
+to the DWARF debugging information format.  
 The extensions documented here are subject to change at
 any time.
 .H 1 "64 BIT DWARF"
+.P
 The DWARF2 spec has no provision for 64 bit offsets.
 SGI-IRIX/MIPS Elf64 objects contain DWARF 2 with all offsets
 (and addresses) as 64bit values.  
@@ -83,27 +85,27 @@ contain DWARF2 with all offsets (and addresses) 32 bits.
 The following standard DWARF V2 sections may be emitted:
 .AL
 .LI 
- .debug_abbrev
+Section .debug_abbrev
 contains
 abbreviations supporting the .debug_info section.
 .LI
- .debug_info
+Section .debug_info
 contains
 Debug Information Entries (DIEs).
 .LI 
- .debug_frame
+Section .debug_frame
 contains
 stack frame descriptions.
 .LI 
- .debug_line
+Section .debug_line
 contains
 line number information.
 .LI 
- .debug_aranges
+Section .debug_aranges
 contains
 address range descriptions.
 .LI 
- .debug_pubnames
+Section .debug_pubnames
 contains
 names of global functions and data.
 .P
@@ -113,12 +115,12 @@ Theses were created to allow debuggers to
 know names without having to look at
 the .debug_info section.
 .LI 
- .debug_weaknames
+Section .debug_weaknames
 is a MIPS extension
 containing .debug_pubnames-like entries describing weak
 symbols.
 .LI 
- .debug_funcnames
+Section .debug_funcnames
 is a MIPS extension
 containing .debug_pubnames-like entries describing file-static
 functions (C static functions).
@@ -132,25 +134,25 @@ Putting it another way, every function (other than inline code)
 belongs either in .debug_pubnames or in .debug_funcnames
 or else libexc(3C) cannot find the function name.
 .LI 
- .debug_varnames
+Section .debug_varnames
 is a MIPS extension
 containing .debug_pubnames-like entries describing file-static
 data symbols (C static variables).
 .LI 
- .debug_typenames
+Section .debug_typenames
 is a MIPS extension
 containing .debug_pubnames-like entries describing file-level
 types.
 .P
 The following are not currently emitted.
 .LI 
- .debug_macinfo
+Section .debug_macinfo
 Macro information is not currently emitted.
 .LI 
- .debug_loc
+Section .debug_loc
 Location lists are not currently emitted.
 .LI
- .debug_str
+Section .debug_str
 The string section is not currently emitted.
 .LE
 .H 2 "Overview of information emitted"
@@ -498,7 +500,7 @@ as a result of how the compilers and tools are built
 .P
 This has been clarified in the DWARF3 spec and the IRIX use
 of DW_FORM_ref_addr being an offset is correct.
-.H 2 ".debug_macinfo in a debugger"
+.H 2 "Section .debug_macinfo in a debugger"
 It seems quite difficult, in general, to
 tie specific text(code) addresses to points in the
 stream of macro information for a particular compilation unit.
@@ -1260,5 +1262,5 @@ Anything else will break backward compatibility with
 the objects produced earlier.
 .SK
 .S
-.TC
+.TC 1 1 4
 .CS

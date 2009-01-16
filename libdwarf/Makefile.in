@@ -135,45 +135,50 @@ none:
 # the .mm files are in ATT/USL/USG mm form.
 #
 
-psbld:		libdwarf2.1.ps libdwarf2p.1.ps dwarf.v2.ps index.v2.ps mips_extensions.ps
+docbld:pdfbld 
+pdfbld: libdwarf2.1.pdf libdwarf2p.1.pdf dwarf.v2.pdf index.v2.pdf mips_extensions.pdf
 #Oriented to using gsroff now.
 TROFF=/usr/bin/groff
 TROFFDEV="-T ps"
 TROFFDEV=
+PSTOPDF=/usr/bin/ps2pdf
 # pr expands tabs to spaces: this avoids problems with tab
 # interpretation
 
 # The warning about 'cant break line' is a too-long line used
 # in the table of contents.
-# Ignore the warning.
-libdwarf2.1.ps:  $(BUILD_BASE)/libdwarf2.1.mm
-		pr -t -e $(BUILD_BASE)/libdwarf2.1.mm \
+# Ignore the warning (and those like it).
+libdwarf2.1.pdf:  $(BUILD_BASE)/libdwarf2.1.mm
+	-pr -t -e $(BUILD_BASE)/libdwarf2.1.mm \
 		  | tbl | $(TROFF) $(TROFFDEV) -mm >libdwarf2.1.ps
+	$(PSTOPDF) libdwarf2.1.ps libdwarf2.1.pdf
 
-libdwarf2p.1.ps:  $(BUILD_BASE)/libdwarf2p.1.mm
-		pr -t -e  $(BUILD_BASE)/libdwarf2p.1.mm \
+libdwarf2p.1.pdf:  $(BUILD_BASE)/libdwarf2p.1.mm
+	-pr -t -e  $(BUILD_BASE)/libdwarf2p.1.mm \
 		  | tbl | $(TROFF) $(TROFFDEV) -mm >libdwarf2p.1.ps
+	$(PSTOPDF) libdwarf2p.1.ps libdwarf2p.1.pdf
 
 # At present, the newIndex is not usable: we have no tools
 # to build a new index page at the moment.
 
-dwarf.v2.ps:	$(BUILD_BASE)/dwarf.v2.mm
-		pic $(BUILD_BASE)/dwarf.v2.mm \
+dwarf.v2.pdf:	$(BUILD_BASE)/dwarf.v2.mm
+	-pic $(BUILD_BASE)/dwarf.v2.mm \
 		  | tbl | $(TROFF) $(TROFFDEV) -mm >dwarf.v2.ps 2> newIndex
-		-cp dwarf.v2.ps $(BUILD_BASE)
-		-cp newIndex $(BUILD_BASE)
+	$(PSTOPDF) dwarf.v2.ps dwarf.v2.pdf
 
 # the index is only useful till the document changes: it is
 # not autmatically correct. It was prepared by tools internal
 # to USL/Novell
 
-index.v2.ps:  index.v2.mm
-		pic index.v2.mm | tbl | $(TROFF) $(TROFFDEV) -mm >index.v2.ps
+index.v2.pdf:  index.v2.mm
+	-pic index.v2.mm | tbl | $(TROFF) $(TROFFDEV) -mm >index.v2.ps
+	$(PSTOPDF) index.v2.ps  index.v2.pdf
 
 
-mips_extensions.ps: mips_extensions.mm
-		pr $(TROFFDEV) -e mips_extensions.mm | tbl | \
+mips_extensions.pdf: mips_extensions.mm
+	-pr $(TROFFDEV) -e mips_extensions.mm | tbl | \
                  $(TROFF) $(TROFFDEV) -mm >mips_extensions.ps
+	$(PSTOPDF) mips_extensions.ps  mips_extensions.pdf
 
 clean:
 		rm -f *.o libdwarf.a 

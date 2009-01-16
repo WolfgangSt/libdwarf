@@ -35,7 +35,6 @@ A Consumer Library Interface to DWARF
 .AF ""
 .AU "David Anderson"
 .PF "'\*(vE'- \\\\nP -''"
-\.".PM ""
 .AS 1
 This document describes an interface to a library of functions
 .FS 

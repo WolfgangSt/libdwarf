@@ -1,3 +1,9 @@
+2007-05-25 DavidAnderson <davea42@earthlink.net>
+     * dwconf.h dwconf.c: Changed field name to 
+       cf_named_regs_table_size as old name was less than clear.
+     * dwarfdump.c: Call frame table setup with
+       cf_table_entry_count not cf_named_regs_table_size. The newly
+       renamed field makes it clearer the call was wrong.
 2007-05-04 DavidAnderson <davea42@earthlink.net>
      * print_die.c: printing of global offset of DIEs 
        with -G is now more in the style of previous output.
