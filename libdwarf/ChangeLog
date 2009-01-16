@@ -1,3 +1,6 @@
+2005-10-24 David Anderson <davea@sgi.com>
+      * dwarf.h: Updated to match DWARF3 public review document.
+    
 2005-10-03 David Anderson <davea@sgi.com>
       * dwarf_alloc.c: Change some entries to BASE_ALLOC.
       * dwarf_global.h: Add argument to interface so we do not
