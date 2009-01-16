@@ -1,3 +1,8 @@
+2007-02-20 David Anderson <davea42@earthlink.net
+      * dwarf_macro.c  (dwarf_get_macro_details): Now call
+        dwarf_free_macro_stack() at every return so no data
+        is leaked and there is no longer any global data
+        (restoring thread safety).
 2007-02-09 David Anderson <davea42@earthlink.net
       * dwarf_line.c (dwarf_srclines): Added in calls
         to dwarf_free_line_table_prefix() which were omitted

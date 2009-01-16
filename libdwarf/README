@@ -6,6 +6,16 @@ To use dwarf or libdwarf, you may want to install dwarf.h and
 libdwarf.h somewhere convenient, and you may need the libdwarf
 in the accompanying libdwarf directory
 
+Multi Threading, or using threads with libdwarf (Thread Safety):
+  Nothing in libdwarf does any locking.  Every Dwarf_Debug
+  (such as returned by dwarf_init()) is fully independent
+  of all other Dwarf_Debug-s.  However, calls to libdwarf can
+  change a Dwarf_Debug. So it is unsafe to have two different
+  threads accessing a single Dwarf_Debug simultaneously.
+  It is therefore sufficient to ensure than any one Dwarf_Debug
+  is only accessed from a single thread.
+
+
 If your headers are not in the expected places,
 use the configure script to access them (and to add other ld
 or C flags).

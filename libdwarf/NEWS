@@ -1,3 +1,10 @@
+February 20, 2007
+  Documented libdwarf thread safety in README.
+  Fixed memory leak in  dwarf macro reading code.
+  Removed use of static data in dwarf macro
+  reading code: now uses stack/heap (for
+  thread safety).
+
 February 9, 2007
   Maintenance of libdwarf is now outside SGI
   as David Anderson has left SGI.

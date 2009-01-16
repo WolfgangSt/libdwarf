@@ -33,6 +33,13 @@
 
 */
 
+/* Copyright (C) 2007 David Anderson
+   Same terms as the SGI copyright.
+   The address of the Free Software Foundation is 
+   Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, 
+   Boston, MA 02110-1301, USA.
+*/
+
 
 
 #include "config.h"
@@ -91,57 +98,68 @@ dwarf_find_macro_value_start(char *str)
    STARTERMAX is set so that the array need not be expanded for
    most files: it is the initial include file depth.
 */
-static Dwarf_Signed *st_base;
-static long max;
-static long next_to_use;
-static int was_fault = 0;
+struct macro_stack_s {
+  Dwarf_Signed *st_base;
+  long max;
+  long next_to_use;
+  int was_fault;
+};
+
+static void
+free_macro_stack(struct macro_stack_s *ms)
+{
+   free(ms->st_base);
+}
 
 #define STARTERMAX 10
 static void
-_dwarf_reset_index_stack(void)
+_dwarf_reset_index_macro_stack(struct macro_stack_s *ms)
 {
-    next_to_use = 0;
-    was_fault = 0;
+    ms->st_base = 0;
+    ms->max = 0;
+    ms->next_to_use = 0;
+    ms->was_fault = 0;
 }
 static int
-_dwarf_mac_push_index(Dwarf_Debug dbg, Dwarf_Signed indx)
+_dwarf_macro_stack_push_index(Dwarf_Debug dbg, Dwarf_Signed indx, 
+    struct macro_stack_s *ms)
 {
     Dwarf_Signed *newbase;
 
-    if (next_to_use >= max) {
+    if (ms->next_to_use >= ms->max) {
 	long new_size;
 
-	if (max == 0) {
-	    max = STARTERMAX;
+	if (ms->max == 0) {
+	    ms->max = STARTERMAX;
 	}
-	new_size = max * 2;
+	new_size = ms->max * 2;
 	newbase =
 	    _dwarf_get_alloc(dbg, DW_DLA_STRING,
 			     new_size * sizeof(Dwarf_Signed));
 	if (newbase == 0) {
 	    /* just leave the old array in place */
-	    was_fault = 1;
+	    ms->was_fault = 1;
 	    return DW_DLV_ERROR;
 	}
-	memcpy(newbase, st_base, next_to_use * sizeof(Dwarf_Signed));
-	dwarf_dealloc(dbg, st_base, DW_DLA_STRING);
-	st_base = newbase;
-	max = new_size;
+	memcpy(newbase, ms->st_base, ms->next_to_use * sizeof(Dwarf_Signed));
+	dwarf_dealloc(dbg, ms->st_base, DW_DLA_STRING);
+	ms->st_base = newbase;
+	ms->max = new_size;
     }
-    st_base[next_to_use] = indx;
-    ++next_to_use;
+    ms->st_base[ms->next_to_use] = indx;
+    ++ms->next_to_use;
     return DW_DLV_OK;
 }
 
 static Dwarf_Signed
-_dwarf_mac_pop_index(void)
+_dwarf_macro_stack_pop_index(struct macro_stack_s *ms)
 {
-    if (was_fault) {
+    if (ms->was_fault) {
 	return -1;
     }
-    if (next_to_use > 0) {
-	next_to_use--;
-	return (*(st_base + next_to_use));
+    if (ms->next_to_use > 0) {
+	ms->next_to_use--;
+	return (*(ms->st_base + ms->next_to_use));
     }
     return -1;
 }
@@ -188,13 +206,15 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
     unsigned long final_count = 0;
     Dwarf_Signed fileindex = -1;
     Dwarf_Small *latest_str_loc = 0;
+    struct macro_stack_s msdata;
 
     unsigned long count = 0;
     unsigned long max_count = (unsigned long) maximum_count;
 
-    _dwarf_reset_index_stack();
+    _dwarf_reset_index_macro_stack(&msdata);
     if (dbg == NULL) {
 	_dwarf_error(NULL, error, DW_DLE_DBG_NULL);
+         free_macro_stack(&msdata);
 	return (DW_DLV_ERROR);
     }
 
@@ -203,14 +223,17 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
 			    dbg->de_debug_macinfo_index,
 			    &dbg->de_debug_macinfo, error);
     if (res != DW_DLV_OK) {
+         free_macro_stack(&msdata);
 	return res;
     }
 
     macro_base = dbg->de_debug_macinfo;
     if (macro_base == NULL) {
+         free_macro_stack(&msdata);
 	return (DW_DLV_NO_ENTRY);
     }
     if (macro_offset >= dbg->de_debug_macinfo_size) {
+         free_macro_stack(&msdata);
 	return (DW_DLV_NO_ENTRY);
     }
 
@@ -226,9 +249,11 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
     if (endloc >= dbg->de_debug_macinfo_size) {
 	if (endloc == dbg->de_debug_macinfo_size) {
 	    /* normal: found last entry */
+            free_macro_stack(&msdata);
 	    return DW_DLV_NO_ENTRY;
 	}
 	_dwarf_error(dbg, error, DW_DLE_DEBUG_MACRO_LENGTH_BAD);
+        free_macro_stack(&msdata);
 	return (DW_DLV_ERROR);
     }
     for (count = 0; !done && count < max_count; ++count) {
@@ -247,6 +272,7 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
 
 	    pnext += len;
 	    if (((pnext - macro_base)) >= dbg->de_debug_macinfo_size) {
+                free_macro_stack(&msdata);
 		_dwarf_error(dbg, error,
 			     DW_DLE_DEBUG_MACRO_INCONSISTENT);
 		return (DW_DLV_ERROR);
@@ -254,6 +280,7 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
 	    slen = strlen((char *) pnext) + 1;
 	    pnext += slen;
 	    if (((pnext - macro_base)) >= dbg->de_debug_macinfo_size) {
+                free_macro_stack(&msdata);
 		_dwarf_error(dbg, error,
 			     DW_DLE_DEBUG_MACRO_INCONSISTENT);
 		return (DW_DLV_ERROR);
@@ -265,6 +292,7 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
 	    (void) _dwarf_decode_u_leb128(pnext, &len);
 	    pnext += len;
 	    if (((pnext - macro_base)) >= dbg->de_debug_macinfo_size) {
+                free_macro_stack(&msdata);
 		_dwarf_error(dbg, error,
 			     DW_DLE_DEBUG_MACRO_INCONSISTENT);
 		return (DW_DLV_ERROR);
@@ -272,6 +300,7 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
 	    (void) _dwarf_decode_u_leb128(pnext, &len);
 	    pnext += len;
 	    if (((pnext - macro_base)) >= dbg->de_debug_macinfo_size) {
+                free_macro_stack(&msdata);
 		_dwarf_error(dbg, error,
 			     DW_DLE_DEBUG_MACRO_INCONSISTENT);
 		return (DW_DLV_ERROR);
@@ -290,6 +319,7 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
 	    done = 1;
 	    break;
 	default:
+            free_macro_stack(&msdata);
 	    _dwarf_error(dbg, error, DW_DLE_DEBUG_MACRO_INCONSISTENT);
 	    return (DW_DLV_ERROR);
 	    /* bogus macinfo! */
@@ -300,10 +330,12 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
 	    done = 1;
 	} else if (endloc > dbg->de_debug_macinfo_size) {
 	    _dwarf_error(dbg, error, DW_DLE_DEBUG_MACRO_LENGTH_BAD);
+            free_macro_stack(&msdata);
 	    return (DW_DLV_ERROR);
 	}
     }
     if (count == 0) {
+        free_macro_stack(&msdata);
 	_dwarf_error(dbg, error, DW_DLE_DEBUG_MACRO_INTERNAL_ERR);
 	return (DW_DLV_ERROR);
     }
@@ -319,6 +351,7 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
 	_dwarf_get_alloc(dbg, DW_DLA_STRING, space_needed);
     latest_str_loc = pdata + string_offset;
     if (pdata == 0) {
+        free_macro_stack(&msdata);
 	_dwarf_error(dbg, error, DW_DLE_DEBUG_MACRO_MALLOC_SPACE);
 	return (DW_DLV_ERROR);
     }
@@ -340,6 +373,7 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
 
 	endloc = (pnext - macro_base);
 	if (endloc > dbg->de_debug_macinfo_size) {
+            free_macro_stack(&msdata);
 	    _dwarf_error(dbg, error, DW_DLE_DEBUG_MACRO_LENGTH_BAD);
 	    return (DW_DLV_ERROR);
 	}
@@ -361,6 +395,7 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
 
 	    pnext += len;
 	    if (((pnext - macro_base)) >= dbg->de_debug_macinfo_size) {
+                free_macro_stack(&msdata);
 		_dwarf_error(dbg, error,
 			     DW_DLE_DEBUG_MACRO_INCONSISTENT);
 		return (DW_DLV_ERROR);
@@ -371,6 +406,7 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
 	    latest_str_loc += slen;
 	    pnext += slen;
 	    if (((pnext - macro_base)) >= dbg->de_debug_macinfo_size) {
+                free_macro_stack(&msdata);
 		_dwarf_error(dbg, error,
 			     DW_DLE_DEBUG_MACRO_INCONSISTENT);
 		return (DW_DLV_ERROR);
@@ -383,18 +419,20 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
 	    pdmd->dmd_lineno = v1;
 	    pnext += len;
 	    if (((pnext - macro_base)) >= dbg->de_debug_macinfo_size) {
+                free_macro_stack(&msdata);
 		_dwarf_error(dbg, error,
 			     DW_DLE_DEBUG_MACRO_INCONSISTENT);
 		return (DW_DLV_ERROR);
 	    }
 	    v1 = _dwarf_decode_u_leb128(pnext, &len);
 	    pdmd->dmd_fileindex = v1;
-	    (void) _dwarf_mac_push_index(dbg, fileindex);
+	    (void) _dwarf_macro_stack_push_index(dbg, fileindex,&msdata);
 	    /* we ignore the error, we just let fileindex ** be -1 when 
 	       we pop this one */
 	    fileindex = v1;
 	    pnext += len;
 	    if (((pnext - macro_base)) >= dbg->de_debug_macinfo_size) {
+                free_macro_stack(&msdata);
 		_dwarf_error(dbg, error,
 			     DW_DLE_DEBUG_MACRO_INCONSISTENT);
 		return (DW_DLV_ERROR);
@@ -402,7 +440,7 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
 	    break;
 
 	case DW_MACINFO_end_file:
-	    fileindex = _dwarf_mac_pop_index();
+	    fileindex = _dwarf_macro_stack_pop_index(&msdata);
 	    break;		/* no string or number here */
 	case 0:
 	    /* end of cu's entries */
@@ -410,6 +448,7 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
 	    break;
 	default:
 	    /* FIXME: leaks memory via return_data. */
+            free_macro_stack(&msdata);
 	    _dwarf_error(dbg, error, DW_DLE_DEBUG_MACRO_INCONSISTENT);
 	    return (DW_DLV_ERROR);
 	    /* bogus macinfo! */
@@ -418,5 +457,6 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
     *entry_count = count;
     *details = (Dwarf_Macro_Details *) return_data;
 
+    free_macro_stack(&msdata);
     return DW_DLV_OK;
 }

@@ -31,6 +31,14 @@
 
 
 $Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/dwarfdump.c,v 1.48 2006/04/18 18:05:57 davea Exp $ */
+
+/* Copyright (C) 2007 David Anderson
+   Same terms as the SGI copyright.
+   The address of the Free Software Foundation is 
+   Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, 
+   Boston, MA 02110-1301, USA.
+*/
+
 #include "globals.h"
 
 /* for 'open' */
@@ -691,6 +699,8 @@ void
 print_error(Dwarf_Debug dbg, string msg, int dwarf_code,
 	    Dwarf_Error err)
 {
+    fflush(stdout);
+    fflush(stderr);
     if (dwarf_code == DW_DLV_ERROR) {
 	string errmsg = dwarf_errmsg(err);
 	Dwarf_Unsigned myerr = dwarf_errno(err);
@@ -705,6 +715,7 @@ print_error(Dwarf_Debug dbg, string msg, int dwarf_code,
 	fprintf(stderr, "%s InternalError:  %s:  code %d\n",
 		program_name, msg, dwarf_code);
     }
+    fflush(stderr);
     exit(FAILED);
 
 }

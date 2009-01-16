@@ -32,6 +32,15 @@
 
 
 $Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/print_frames.c,v 1.5 2006/06/14 20:34:02 davea Exp $ */
+
+/* Copyright (C) 2007 David Anderson
+   Same terms as the SGI copyright.
+   The address of the Free Software Foundation is 
+   Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, 
+   Boston, MA 02110-1301, USA.
+*/
+
+
 #include "globals.h"
 
 #include "print_frames.h"
@@ -216,6 +225,7 @@ print_one_fde(Dwarf_Debug dbg, Dwarf_Fde fde,
 						   &err);
 	    }
 	    if (fires == DW_DLV_ERROR) {
+                printf("\n");
 		print_error(dbg,
 			    "dwarf_get_fde_info_for_reg", fires, err);
 	    }
@@ -692,6 +702,9 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		len -= uleblen;
 		off += uleblen;
 		{
+                    /* instp is always 1 byte back, so we need +1
+			when we use it. See the final increment
+                        of this for loop. */
 		    Dwarf_Unsigned block_len =
 			local_dwarf_decode_u_leb128(instp + 1,
 						    &uleblen);
@@ -704,7 +717,7 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 			 loff, (unsigned long long) uval,
 			 (unsigned long long)
 			 block_len);
-		    dump_block("\t\t", (char *) instp,
+		    dump_block("\t\t", (char *) instp+1,
 			       (Dwarf_Signed) block_len);
 		    instp += block_len;
 		    len -= block_len;
@@ -718,6 +731,9 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		len -= uleblen;
 		off += uleblen;
 		{
+                    /* instp is always 1 byte back, so we need +1
+			when we use it. See the final increment
+                        of this for loop. */
 		    Dwarf_Signed sval2 =
 			local_dwarf_decode_s_leb128(instp + 1,
 						    &uleblen);
@@ -737,6 +753,9 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		printf("\n");
 		break;
 	    case DW_CFA_def_cfa_sf:	/* DWARF3 */
+                    /* instp is always 1 byte back, so we need +1
+			when we use it. See the final increment
+                        of this for loop. */
 		uval = local_dwarf_decode_u_leb128(instp + 1, &uleblen);
 		instp += uleblen;
 		len -= uleblen;
@@ -757,6 +776,9 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		break;
 	    case DW_CFA_def_cfa_offset_sf:	/* DWARF3 */
 		{
+                    /* instp is always 1 byte back, so we need +1
+			when we use it. See the final increment
+                        of this for loop. */
 		    Dwarf_Signed sval =
 			local_dwarf_decode_s_leb128(instp + 1,
 						    &uleblen);
@@ -770,6 +792,9 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		}
 		break;
 	    case DW_CFA_val_offset:	/* DWARF3 */
+                    /* instp is always 1 byte back, so we need +1
+			when we use it. See the final increment
+                        of this for loop. */
 		uval = local_dwarf_decode_u_leb128(instp + 1, &uleblen);
 		instp += uleblen;
 		len -= uleblen;
@@ -795,6 +820,9 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 
 		break;
 	    case DW_CFA_val_offset_sf:	/* DWARF3 */
+                    /* instp is always 1 byte back, so we need +1
+			when we use it. See the final increment
+                        of this for loop. */
 		uval = local_dwarf_decode_u_leb128(instp + 1, &uleblen);
 		instp += uleblen;
 		len -= uleblen;
@@ -820,6 +848,9 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 
 		break;
 	    case DW_CFA_val_expression:	/* DWARF3 */
+                    /* instp is always 1 byte back, so we need +1
+			when we use it. See the final increment
+                        of this for loop. */
 		uval = local_dwarf_decode_u_leb128(instp + 1, &uleblen);
 		instp += uleblen;
 		len -= uleblen;
@@ -837,7 +868,7 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 			 loff, (unsigned long long) uval,
 			 (unsigned long long)
 			 block_len);
-		    dump_block("\t\t", (char *) instp,
+		    dump_block("\t\t", (char *) instp+1,
 			       (Dwarf_Signed) block_len);
 		    instp += block_len;
 		    len -= block_len;
@@ -870,6 +901,9 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 	    case DW_CFA_GNU_args_size:{
 		    Dwarf_Unsigned lreg;
 
+                    /* instp is always 1 byte back, so we need +1
+			when we use it. See the final increment
+                        of this for loop. */
 		    lreg =
 			local_dwarf_decode_u_leb128(instp + 1,
 						    &uleblen);
