@@ -89,9 +89,11 @@ OBJS= dwarf_abbrev.o \
         dwarf_addr_finder.o \
 	dwarf_sort_line.o \
 	dwarf_print_lines.o \
+	dwarf_macro.o \
         pro_alloc.o \
         pro_arange.o \
         pro_die.o \
+	pro_encode_nm.o \
         pro_error.o \
         pro_expr.o \
         pro_finish.o \
@@ -107,6 +109,7 @@ OBJS= dwarf_abbrev.o \
         pro_section.o \
         pro_types.o \
         pro_vars.o \
+	pro_macinfo.o \
         pro_weaks.o
         
 

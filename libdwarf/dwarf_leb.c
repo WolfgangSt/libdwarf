@@ -49,12 +49,18 @@ _dwarf_decode_u_leb128 (
     Dwarf_Word      	*leb128_length
 )
 {
-    Dwarf_Small     	byte;
-    Dwarf_Word		word_number;
+    unsigned char     	byte;
+    Dwarf_Word		word_number; 
     Dwarf_Unsigned  	number;
     Dwarf_Sword  	shift;
     Dwarf_Sword		byte_length;
 
+    /* The following unrolls-the-loop for the first few bytes 
+       and unpacks into 32 bits 
+       to make this as fast as possible.
+       word_number is assumed big enough that the shift has
+	a defined result.
+    */
     if ((*leb128 & 0x80) == 0) {
 	if (leb128_length != NULL) *leb128_length = 1;
 	return(*leb128);
@@ -84,12 +90,17 @@ _dwarf_decode_u_leb128 (
 	return(word_number);
     }
 
+    /* 	The rest handles long numbers 
+	Because the 'number' may be larger than the default
+	int/unsigned, we must cast the 'byte' before the shift
+	for the shift to have a defined result.
+    */
     number = 0;
     shift = 0;
     byte_length = 1;
     byte = *(leb128);
     for (;;) {
-	number |= (byte & 0x7f) << shift;
+	number |= ((Dwarf_Unsigned)(byte & 0x7f)) << shift;
 	shift += 7;
 
 	if ((byte & 0x80) == 0) {
@@ -98,7 +109,8 @@ _dwarf_decode_u_leb128 (
 	}
 
 	byte_length++;
-	byte = *(++leb128);
+	++leb128;
+	byte = *leb128;
     }
 }
 
@@ -112,15 +124,22 @@ _dwarf_decode_s_leb128 (
     Dwarf_Word          *leb128_length
 )
 {
-    Dwarf_Small     	byte = *leb128;
-    Dwarf_Sword		word_number = 0;
-    Dwarf_Signed    	number;
+    unsigned char     	byte = *leb128;
+    Dwarf_Sword	        word_number = 0;
+    Dwarf_Signed    	number = 0;
     Dwarf_Bool	    	sign = 0;
     Dwarf_Bool		ndone = true;
     Dwarf_Sword  	shift = 0;
     Dwarf_Sword		byte_length = 0;
 
-    while (byte_length++ < 4) {
+    /* initial loop unpacks into 32 bits
+       to make this as fast as possible.
+       'word_number' is assumed big enough that the shift has
+        a defined result.
+
+    */
+    while (byte_length < 4) {
+	byte_length++;
 	sign = byte & 0x40;
 	word_number |= (byte & 0x7f) << shift;
 	shift += 7;
@@ -129,33 +148,32 @@ _dwarf_decode_s_leb128 (
 	    ndone = false;
 	    break;
 	}
-	byte = *(++leb128);
+	++leb128;
+	byte = *leb128;
     }
 
+    /* 	Will not fit in 32 bits, so now use 64 bit value. 
+       	Because the 'number' may be larger than the default
+	int/unsigned, we must cast the 'byte' before the shift
+	for the shift to have a defined result.
+    */
     number = word_number;
     while (ndone) {
+	byte_length++;
 	sign = byte & 0x40;
-        number |= (byte & 0x7f) << shift;
+        number |= ((Dwarf_Signed)((byte & 0x7f))) << shift;
         shift += 7;
 
 	if ((byte & 0x80) == 0) {
 	    break;
 	}
-
-	    /* 
-		Increment after byte has been placed in
-	        number on account of the increment already
-	        done when the first loop terminates.  That
-	        is the fourth byte is picked up and byte_length
-	        updated in the first loop.  So increment not
-	        needed in this loop if break is taken.
-	    */
-	byte_length++;
-        byte = *(++leb128);
+        ++leb128;
+        byte = *leb128;
     }
 
-    if ((shift < sizeof(Dwarf_Signed)*8) && sign) 
-	number |= - (1 << shift);
+    if ((shift < sizeof(Dwarf_Signed)*8) && sign)  {
+	number |=  -((Dwarf_Signed)1 << shift);
+    }
 
     if (leb128_length != NULL) *leb128_length = byte_length;
     return(number);

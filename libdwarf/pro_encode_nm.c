@@ -71,8 +71,9 @@ _dwarf_pro_encode_leb128_nm(Dwarf_Unsigned val, int *nbytes,
 		}
     		uc = val & DATA_MASK;
     		val >>= DIGIT_WIDTH;
-    		if (val != 0)
-      		uc |= MORE_BYTES;
+    		if (val != 0) {
+      		   uc |= MORE_BYTES;
+	        }
 		*a = uc;
 		a++;
     	} while (val);
@@ -108,10 +109,11 @@ _dwarf_pro_encode_signed_leb128_nm(Dwarf_Signed value, int *nbytes,
        * Remaining chunks would just contain the sign bit, and this chunk
        * has already captured at least one sign bit.
        */
-      if (value == sign && ((byte & SIGN_BIT) == (sign & SIGN_BIT)))
+      if (value == sign && ((byte & SIGN_BIT) == (sign & SIGN_BIT))) {
         more = 0;
-      else
+      } else {
         byte |= MORE_BYTES;
+      }
       *str = byte;
       str++;
     } while (more);

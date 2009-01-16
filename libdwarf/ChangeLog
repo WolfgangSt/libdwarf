@@ -1,3 +1,23 @@
+2001-06-07  davea@sgi.com
+	* dwarf_leb.c: shift operator was not being applied
+	  to full size of Dwarf_Signed/Unsigned for 64bit
+	  Dwarf_Signed/Unsigned (ILP32 compile) so
+	  large numbers not decoded if signed.
+	* pro_encode_nm.c: added {} in a couple if/else
+          for 'clarity' and to make inserting debug printf easier.
+	* pro_expr.c: Added comments explaining why possible
+	  compiler (gcc) warnings are ok, the result is safe. 
+
+2001-05-30  davea@sgi.com
+	* pro_reloc_stream.c: Wrote Set_REL32_info and 
+	  Set_REL64_info macros
+	  from generic ELF abi documents to make use acceptable
+	  when IRIX elfaccess.h is not available.
+
+2001-05-30  "kelly o'hair" <kelly.ohair@eng.sun.com>
+	* Makefile.in: was missing   pro_macinfo.o
+ 	  pro_encode_nm.o dwarf_macro.o from the OBJS list.
+
 2001-05-22  davea@sgi.com
 	* dwarf_frame.c, pro_expr.c: Added comments on why
 	  casts are safe in spite of gcc warnings (4 places total).

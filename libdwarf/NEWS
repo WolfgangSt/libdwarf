@@ -1,6 +1,7 @@
-May 23, 2001
-  dwarf.h and libdwarf.h have been changed from GPL to LGPL,
-  making these easier for some folks to use.
+June 07, 2001
+  Major bug in dwarf_leb.c decoding large integers 
+  (Dwarf_Signed 64 bit where library is compiled in ILP32) 
+  found and fixed.
 
 May 21, 2001
   Some small fixes have been found by various folks,
