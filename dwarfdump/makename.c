@@ -31,8 +31,8 @@
   http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
    makename.c
-   $Revision: 1.4 $ 
-   $Date: 2000/04/17 22:00:07 $
+   $Revision: 1.3 $ 
+   $Date: 2000/04/10 20:59:50 $
 
    This used to be elaborate stuff.
    Now it is trivial, as duplicating names is

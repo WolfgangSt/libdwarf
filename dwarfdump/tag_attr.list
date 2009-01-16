@@ -31,7 +31,7 @@
   http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 
-$Header: /isms/cmplrs.src/osprey1.0/dwarfdump/RCS/tag_attr.list,v 1.2 2000/04/17 22:00:07 davea Exp $ 
+$Header: /hosts/bonnie.engr/disks/xlv2/cmplrs.src/osprey1.0/dwarfdump/RCS/tag_attr.list,v 1.1 1993/08/13 22:33:04 miyamoto Exp $ 
 */
 #include <dwarf.h>
 

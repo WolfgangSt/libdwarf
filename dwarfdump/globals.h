@@ -31,7 +31,7 @@
 
 
 
-$Header: /isms/cmplrs.src/osprey1.0/dwarfdump/RCS/globals.h,v 1.20 2000/04/17 22:00:07 davea Exp $ */
+$Header: /hosts/bonnie.engr/disks/xlv2/cmplrs.src/osprey1.0/dwarfdump/RCS/globals.h,v 1.19 2000/04/10 19:10:45 davea Exp $ */
 #ifndef globals_INCLUDED
 #define globals_INCLUDED
 

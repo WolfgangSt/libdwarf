@@ -19,8 +19,8 @@ if test "$ac_cv_header_elf_h" = yes; then
  AC_DEFINE(LOCATION_OF_LIBELFHEADER,[<elf.h>])
 elif test "$ac_cv_header_libelf_h" = yes; then
  AC_DEFINE(LOCATION_OF_LIBELFHEADER, [<libelf.h>])
-elif test "$ac_cf_libelf_libelf_h" = yes; then
- AC_DEFINE(LOCATION_OF_LIBELFHEADER,[libelf/libelf.h])
+elif test "$ac_cv_header_libelf_libelf_h" = yes; then
+ AC_DEFINE(LOCATION_OF_LIBELFHEADER,[<libelf/libelf.h>])
 fi
 
 AC_TRY_COMPILE([#include LOCATION_OF_LIBELFHEADER],  Elf64_Rel *p; int i; i = p->r_info; ,AC_DEFINE(HAVE_ELF64_R_INFO))

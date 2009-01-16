@@ -31,7 +31,7 @@
 
 
 
-$Header: /isms/cmplrs.src/osprey1.0/dwarfdump/RCS/print_sections.c,v 1.57 2000/04/17 22:00:07 davea Exp $ */
+$Header: /hosts/bonnie.engr/disks/xlv2/cmplrs.src/osprey1.0/dwarfdump/RCS/print_sections.c,v 1.56 2000/04/13 23:36:33 davea Exp $ */
 #include "globals.h"
 #include "dwarf_names.h"
 
@@ -539,7 +539,7 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
    Dwarf_Unsigned uval2;
    unsigned int  uleblen;
    unsigned int off = 0;
-   unsigned int loff = 0;
+   unsigned int loff;
    unsigned short u16;
    unsigned int   u32;
    unsigned long long u64;
@@ -553,8 +553,7 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 	switch(top) {
 	case DW_CFA_advance_loc:
 	   delta = ibyte&0x3f;
-	   printf("\t%2u DW_CFA_advance_loc %d\n",off,
-			(int)(delta*code_alignment_factor));
+	   printf("\t%2d DW_CFA_advance_loc %d\n",off,delta*code_alignment_factor);
 	   break;
 	case DW_CFA_offset:
 	   loff = off;
@@ -563,16 +562,14 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 	   instp += uleblen;
 	   len -= uleblen;
 	   off += uleblen;
-	   printf("\t%2u DW_CFA_offset ",loff);
+	   printf("\t%2d DW_CFA_offset ",loff);
 	   printreg(reg);
-	   printf(" %lld\n",
-		(signed long long)
-			(((Dwarf_Signed)uval)*data_alignment_factor));
+	   printf(" %lld\n",((Dwarf_Signed)uval)*data_alignment_factor);
 	   break;
 
 	case DW_CFA_restore:
 	   reg = ibyte&0x3f;
-	   printf("\t%2u DW_CFA_restore \n",off);
+	   printf("\t%2d DW_CFA_restore \n",off);
 	   printreg(reg);
 	   printf("\n");
 	   break;
@@ -603,9 +600,8 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		instp += addr_size;
 		len -= (Dwarf_Signed)addr_size;
 		off += addr_size;
-                printf("\t%2u DW_CFA_set_loc %llu\n",
-                        loff,
-			(unsigned long long)uval);
+                printf("\t%2d DW_CFA_set_loc %llu\n",
+                        loff,uval);
 		break;
 	    case DW_CFA_advance_loc1:
 		delta = (unsigned char)*(instp+1);
@@ -613,8 +609,8 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		instp += 1;
 		len -= 1;
 		off += 1;
-                printf("\t%2u DW_CFA_advance_loc1 %llu\n",
-                        loff,(unsigned long long)uval2);
+                printf("\t%2d DW_CFA_advance_loc1 %llu\n",
+                        loff,uval2);
                 break;
 	    case DW_CFA_advance_loc2:
 		memcpy(&u16,instp+1,2);
@@ -622,8 +618,8 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		instp += 2;
 		len -= 2;
 		off += 2;
-                printf("\t%2u DW_CFA_advance_loc2 %llu\n",
-                        loff,(unsigned long long)uval2);
+                printf("\t%2d DW_CFA_advance_loc2 %llu\n",
+                        loff,uval2);
                 break;
 	    case DW_CFA_advance_loc4:
 		memcpy(&u32,instp+1,4);
@@ -631,8 +627,8 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		instp += 4;
 		len -= 4;
 		off += 4;
-                printf("\t%2u DW_CFA_advance_loc4 %llu\n",
-                        loff,(unsigned long long)uval2);
+                printf("\t%2d DW_CFA_advance_loc4 %llu\n",
+                        loff,uval2);
                 break;
 	    case DW_CFA_MIPS_advance_loc8:
 		memcpy(&u64,instp+1,8);
@@ -640,8 +636,8 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		instp += 8;
 		len -= 8;
 		off += 8;
-                printf("\t%2u DW_CFA_MIPS_advance_loc8 %llu\n",
-                        loff,(unsigned long long)uval2);
+                printf("\t%2d DW_CFA_MIPS_advance_loc8 %llu\n",
+                        loff,uval2);
                 break;
 	    case DW_CFA_offset_extended:
                 uval = local_dwarf_decode_u_leb128(instp+1,&uleblen);
@@ -652,11 +648,9 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
                 instp += uleblen;
                 len -= uleblen;
                 off += uleblen;
-                printf("\t%2u DW_CFA_offset_extended ", loff);
+                printf("\t%2d DW_CFA_offset_extended ", loff);
 		printreg(uval);
-                printf(" %lld\n", 
-			(signed long long)
-			(((Dwarf_Signed)uval2)*data_alignment_factor));
+                printf(" %llu\n", uval2);
                 break;
 
 	    case DW_CFA_restore_extended:
@@ -664,7 +658,7 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 	        instp += uleblen;
 	        len -= uleblen;
 		off += uleblen;
-		printf("\t%2u DW_CFA_restore_extended ",loff);
+		printf("\t%2d DW_CFA_restore_extended ",loff);
 		printreg(uval);
 		printf("\n");
 		break;
@@ -673,7 +667,7 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 	        instp += uleblen;
 	        len -= uleblen;
 		off += uleblen;
-		printf("\t%2u DW_CFA_undefined ",loff);
+		printf("\t%2d DW_CFA_undefined ",loff);
 		printreg(uval);
 		printf("\n");
 		break;
@@ -682,7 +676,7 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 	        instp += uleblen;
 	        len -= uleblen;
 		off += uleblen;
-		printf("\t%2u DW_CFA_same_value ",loff);
+		printf("\t%2d DW_CFA_same_value ",loff);
 		printreg(uval);
 		printf("\n");
 		break;
@@ -695,17 +689,17 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 	        instp += uleblen;
 	        len -= uleblen;
 		off += uleblen;
-		printf("\t%2u DW_CFA_register ", loff);
+		printf("\t%2d DW_CFA_register ", loff);
 		printreg(uval);
 		printf(" = ");
 		printreg(uval2);
 		printf("\n");
 		break;
 	    case DW_CFA_remember_state:
-		printf("\t%2u DW_CFA_remember_state\n",loff);
+		printf("\t%2d DW_CFA_remember_state\n",loff);
 		break;
 	    case DW_CFA_restore_state:
-		printf("\t%2u DW_CFA_restore_state\n",loff);
+		printf("\t%2d DW_CFA_restore_state\n",loff);
 		break;
 	    case DW_CFA_def_cfa:
 	        uval = local_dwarf_decode_u_leb128(instp+1,&uleblen);
@@ -716,9 +710,9 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 	        instp += uleblen;
 	        len -= uleblen;
 		off += uleblen;
-		printf("\t%2u DW_CFA_def_cfa ",loff);
+		printf("\t%2d DW_CFA_def_cfa ",loff);
 		printreg(uval);
-		printf(" %llu",(unsigned long long) uval2);
+		printf(" %llu", uval2);
 		printf("\n");
 		break;
 	    case DW_CFA_def_cfa_register:
@@ -726,7 +720,7 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 	        instp += uleblen;
 	        len -= uleblen;
 		off += uleblen;
-		printf("\t%2u DW_CFA_def_cfa_register ",loff);
+		printf("\t%2d DW_CFA_def_cfa_register ",loff);
 		printreg(uval);
 		printf("\n");
 		break;
@@ -735,12 +729,12 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 	        instp += uleblen;
 	        len -= uleblen;
 		off += uleblen;
-		printf("\t%2u DW_CFA_def_cfa_offset %llu\n",
-			loff,(unsigned long long)uval);
+		printf("\t%2d DW_CFA_def_cfa_offset %llu\n",
+			loff,uval);
 		break;
 		
 	    case DW_CFA_nop:
-		printf("\t%2u DW_CFA_nop\n",loff);
+		printf("\t%2d DW_CFA_nop\n",loff);
 		break;
 #ifdef DW_CFA_GNU_window_save
             case DW_CFA_GNU_window_save: {
@@ -748,7 +742,7 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
                 just tells unwinder to restore the
                 window registers from the previous frame's
                 window save area */
-		printf("\t%2u DW_CFA_GNU_window_save \n",loff);
+		printf("\t%2d DW_CFA_GNU_window_save \n",loff);
                 break;
                 }
 #endif
@@ -759,7 +753,7 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
             case DW_CFA_GNU_args_size: {
                 Dwarf_Unsigned lreg;
 	        lreg = local_dwarf_decode_u_leb128(instp+1,&uleblen);
-		printf("\t%2u DW_CFA_GNU_args_size arg size: %llu\n",
+		printf("\t%2d DW_CFA_GNU_args_size arg size: %llu\n",
 			loff,
 			(unsigned long long)lreg);
 	        instp += uleblen;
@@ -771,8 +765,8 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 #endif
 
 	    default:
-		printf("\t%u Unexpected op 0x%x: unable to print more\n",
-			loff,(unsigned int)bottom);
+		printf("\t%d Unexpected op %x: unable to print more\n",
+			loff,bottom);
 		len =0;
 		break;
 	    }
@@ -1245,14 +1239,12 @@ print_abbrevs (Dwarf_Debug dbg)
 		    if(dense) {
 		        printf("<%lld><%lld><%lld><%s>\n",
 				abbrev_num,
-                                offset,
-				(signed long long)/*abbrev_code*/0,
+                                offset,abbrev_code,
 				"null .debug_abbrev entry");
 		    } else {
 			printf("<%4lld><%5lld><code: %2lld> %-20s\n",
 				abbrev_num,
-                                offset,
-				(signed long long)/*abbrev_code*/0,
+                                offset,abbrev_code,
 				"null .debug_abbrev entry");
 		    }
 			

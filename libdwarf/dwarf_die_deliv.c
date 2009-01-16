@@ -649,7 +649,12 @@ dwarf_child (
     return(DW_DLV_OK);
 }
 
-
+/*
+	Given a die offset, this returns
+	a pointer to a DIE thru *new_die.
+	It is up to the caller to do a
+	dwarf_dealloc(dbg,*new_die,DW_DLE_DIE);
+*/
 int
 dwarf_offdie (
     Dwarf_Debug		dbg,

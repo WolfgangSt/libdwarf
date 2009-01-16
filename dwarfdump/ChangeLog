@@ -1,3 +1,12 @@
+2000-07-14  Fred Fish  <fnf@ninemoons.com>
+ 
+      * configure.in (LOCATION_OF_LIBELFHEADER): Fix typo for configure
+      variable to be tested and enclose libelf/libelf.h in <>.
+      * configure: Regenerated.
+       
+2000-07-10  Fred Fish  <fnf@ninemoons.com>
+ 
+      * Makefile.in (install): Install dwarfdump.1 from $(srcdir).
 
 2000 June 12   davea@sgi.com
   print_sections.c the DW_CFA_offset_extended print 

@@ -96,7 +96,7 @@ dwarf_names.h dwarf_names.c: dwarf_names.awk $(DIRINC)/dwarf.h
 
 install: all
 	$(INSTALL) dwarfdump $(bindir)/dwarfdump
-	$(INSTALL) dwarfdump.1 $(man1dir)/dwarfdump.1
+	$(INSTALL) $(srcdir)/dwarfdump.1 $(man1dir)/dwarfdump.1
 uninstall:
 	-rm -f $(bindir)/dwarfdump
 	-rm -f $(man1dir)/dwarfdump.1

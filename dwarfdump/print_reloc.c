@@ -31,7 +31,7 @@
 
 
 
-$Header: /isms/cmplrs.src/osprey1.0/dwarfdump/RCS/print_reloc.c,v 1.13 2000/04/17 22:00:07 davea Exp $ */
+$Header: /hosts/bonnie.engr/disks/xlv2/cmplrs.src/osprey1.0/dwarfdump/RCS/print_reloc.c,v 1.12 1999/09/02 23:57:24 davea Exp $ */
 
 #include "globals.h"
 

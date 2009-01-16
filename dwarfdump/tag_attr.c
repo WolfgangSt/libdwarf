@@ -31,7 +31,7 @@
 
 
 
-$Header: /isms/cmplrs.src/osprey1.0/dwarfdump/RCS/tag_attr.c,v 1.4 2000/04/17 22:00:07 davea Exp $ */
+$Header: /hosts/bonnie.engr/disks/xlv2/cmplrs.src/osprey1.0/dwarfdump/RCS/tag_attr.c,v 1.3 1999/03/05 21:59:55 davea Exp $ */
 #include <dwarf.h>
 #include <stdio.h>
 
