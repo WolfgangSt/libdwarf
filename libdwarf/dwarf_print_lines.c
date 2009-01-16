@@ -117,16 +117,17 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
 
 
     /* These are the state machine state variables. */
-    Dwarf_Addr address;
-    Dwarf_Word file;
-    Dwarf_Word line;
-    Dwarf_Word column;
-    Dwarf_Bool is_stmt;
-    Dwarf_Bool basic_block;
-    Dwarf_Bool end_sequence;
-    Dwarf_Bool prologue_end;
-    Dwarf_Bool epilogue_begin;
-    Dwarf_Small isa;
+    Dwarf_Addr address = 0;
+    Dwarf_Word file = 1;
+    Dwarf_Word line = 1;
+    Dwarf_Word column = 0;
+    Dwarf_Bool is_stmt = false;
+    Dwarf_Bool basic_block = false;
+    Dwarf_Bool end_sequence = false;
+    Dwarf_Bool prologue_end = false;
+    Dwarf_Bool epilogue_begin = false;
+    Dwarf_Small isa = 0;
+
 
     Dwarf_Sword i;
 
@@ -304,17 +305,9 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
 	       offset, offset);
     }
 
-    /* Initialize the state machine.  */
-    address = 0;
-    file = 1;
-    line = 1;
-    column = 0;
+    /* Initialize the part of the state machine dependent
+       on the prefix.  */
     is_stmt = prefix.pf_default_is_stmt;
-    basic_block = false;
-    end_sequence = false;
-    prologue_end = false;
-    epilogue_begin = false;
-    isa = 0;
 
 
     print_line_header();

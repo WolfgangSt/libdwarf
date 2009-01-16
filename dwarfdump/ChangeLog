@@ -1,3 +1,54 @@
+2006-04-18 David Anderson <davea@sgi.com>
+     * dwarfdump.c: Forgot to call key new functions for
+       handling variable-size frame data and different 
+       frame rule initialization value.
+     * dwconf.c: Add a default print for CFA in case of
+       an omission in dwarfdump.conf. 
+     * dwarfdump.conf: Move setup and rename the ABIs slightly.
+2006-04-17 David Anderson <davea@sgi.com>
+     * dwarfdump.conf: Correct typos. Remove some register names.
+     * dwarfdump.c: Fix compiler warnings, fix -x option usage message.
+     * dwconf.h: Fix compiler warnings by changing types.
+     * dwconf.c: Change error checking so we check all errors, do
+       not stop at first error. Ran indent.  Added code to check
+       for extra junk after operand(s).
+     * print_frames.c: Fix compiler warnings.
+     * Makefile.in: get <prefix> used in install rule and creating
+       places to search for dwarfdump.conf
+2006-04-16 David Anderson <davea@sgi.com>
+     * dwarfdump.conf: New dwarfdump configuration file. Makes using frame
+           information easy to read and correct for any ABI/ISA
+           without rebuilding dwarfdump.
+     * Makefile.in: Added new files dwconf.h dwconf.c
+     * dwconf.h dwconf.c: New files implement reading dwarfdump.conf
+       and help print_frames.c print frame information correctly
+       for ABIs specified at runtime.
+     * dwarfdump.1: document -x commands.
+     * globals.h: Minor changes to support dwarfdump.conf
+     * print_frames.c: Major changes to support a run-time description of 
+       the frames info and dwarfdump.conf.
+     * print_frames.h: Changes  to support a run-time description of 
+       the frames info and dwarfdump.conf.
+     * print_sections.c: Minor tweaks to support a run-time 
+       description of the frames info and dwarfdump.conf.
+
+2006-03-31 David Anderson <davea@sgi.com>
+     * Makefile.in globals.h print_sections.c: Refer to new
+       print_frames.h print_frames.c.
+     * print_frames.h print_frames.c: Extract cie, fde printing
+       to separate file, separating loop logic from the printing
+       of an entry from the loop.
+2006-03-31 David Anderson <davea@sgi.com>
+     * dwarfdump.c global.h print_sections.c: Preparing for 
+       dwarf3 frame interface.
+     * print_die.c: Corrects handling of DW_AT_encoding (etc) value.
+2006-03-29 David Anderson <davea@sgi.com>
+     * print_sections.c: define DWARFDUMP_TURN_OFF_MIPS_REG_NAMES 
+       at compile time
+       to turn off the MIPS register names printing.  Instead
+       (aside from cfa) use a name like  r4 (where the DWARF 
+       register number follows the letter 'r').
+       Indent. Initialize some local variables at declarations.
 2006-03-13 David Anderson <davea@sgi.com>
      * print_sections.c: Now gets gnu eh_augmentation data by calling
        dwarf_get_cie_augmentation_data() or dwarf_get_fde_augmentation_data()

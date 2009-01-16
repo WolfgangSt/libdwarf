@@ -252,6 +252,14 @@ struct Dwarf_Debug_s {
     Dwarf_Half de_debug_info_index;
     Dwarf_Half de_debug_abbrev_index;
     Dwarf_Half de_debug_pubtypes_index; /* DWARF3 .debug_pubtypes */
+
+    /* Default is DW_FRAME_INITIAL_VALUE from header. */
+    Dwarf_Half de_frame_rule_initial_value;  
+
+    /* Default is   DW_FRAME_LAST_REG_NUM. */
+    Dwarf_Half de_frame_reg_rules_entry_count; 
+
+
     unsigned char de_big_endian_object; /* non-zero if big-endian
 		object opened. */
 };

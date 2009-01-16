@@ -1099,7 +1099,6 @@ read_encoded_ptr(Dwarf_Debug dbg,
 
     if (gnu_encoding == 0xff) {
 	/* There is no data here. */
-	Dwarf_Unsigned ret_value = 0;
 
 	*addr = 0;
 	*input_field_updated = input_field;

@@ -41,7 +41,7 @@ extern "C" {
 #endif
 /*
 	libdwarf.h  
-	$Revision: 1.84 $ $Date: 2006/03/18 21:15:35 $
+	$Revision: 1.88 $ $Date: 2006/04/18 04:46:07 $
 
 	For libdwarf producers and consumers
 
@@ -156,12 +156,60 @@ typedef struct {
         Dwarf_Off       fp_instr_offset;
 } Dwarf_Frame_Op3;  /* DWARF3 and DWARF2 compatible */
 
-/* DW_REG_TABLE_SIZE must reflect the number of registers 
- *(DW_FRAME_LAST_REG_NUM) as defined in dwarf.h
+/*  ***IMPORTANT NOTE, TARGET DEPENDENCY ****
+   DW_REG_TABLE_SIZE must be at least as large as
+   the number of registers
+   (DW_FRAME_LAST_REG_NUM) as defined in dwarf.h
+   Preferably identical to DW_FRAME_LAST_REG_NUM.
+   Ensure [0-DW_REG_TABLE_SIZE] does not overlap 
+   DW_FRAME_UNDEFINED_VAL or DW_FRAME_SAME_VAL. 
+   Also ensure DW_FRAME_REG_INITIAL_VALUE is set to what
+   is appropriate to your cpu.
+   For various CPUs  DW_FRAME_UNDEFINED_VAL is correct
+   as the value for DW_FRAME_REG_INITIAL_VALUE.
+
+   For consumer apps, this can be set dynamically: see
+   dwarf_set_frame_rule_table_size();
  */
 #ifndef DW_REG_TABLE_SIZE
 #define DW_REG_TABLE_SIZE  66
 #endif
+
+/* For MIPS, DW_FRAME_SAME_VAL is the correct default value 
+   for a frame register value. For other CPUS another value
+   may be better, such as DW_FRAME_UNDEFINED_VAL.
+   See dwarf_set_frame_rule_table_size
+*/
+#ifndef DW_FRAME_REG_INITIAL_VALUE
+#define DW_FRAME_REG_INITIAL_VALUE DW_FRAME_SAME_VAL
+#endif
+
+/* Taken as meaning 'undefined value', this is not
+   a column or register number.
+   Only present at libdwarf runtime. Never on disk.
+   DW_FRAME_* Values present on disk are in dwarf.h
+   Ensure this is > DW_REG_TABLE_SIZE.
+*/
+#define DW_FRAME_UNDEFINED_VAL          1034
+
+/* Taken as meaning 'same value' as caller had, not a column
+   or register number
+   Only present at libdwarf runtime. Never on disk.
+   DW_FRAME_* Values present on disk are in dwarf.h
+   Ensure this is > DW_REG_TABLE_SIZE.
+*/
+#define DW_FRAME_SAME_VAL               1035
+
+/* For DWARF3 interfaces, make the CFA a column with no
+   real table number.  This is what should have been done
+   for the DWARF2 interfaces.  This actually works for
+   both DWARF2 and DWARF3, but see the libdwarf documentation
+   on Dwarf_Regtable3 and  dwarf_get_fde_info_for_reg3()
+   and  dwarf_get_fde_info_for_all_regs3()  
+   Do NOT use this with the older dwarf_get_fde_info_for_reg()
+   or dwarf_get_fde_info_for_all_regs() consumer interfaces.
+*/
+#define DW_FRAME_CFA_COL3               1036
 
 /* The following are all needed to evaluate DWARF3 register rules.
 */
@@ -190,7 +238,7 @@ typedef struct Dwarf_Regtable_Entry_s {
            software register numbers in the machine hardware)
 	  and the following applies:
 
-          if dw_value_type == DW_EPXR_STANDARD (the only  possible case for dwarf2):
+          if dw_value_type == DW_EXPR_OFFSET (the only  possible case for dwarf2):
 	    If dw_offset_relevant is non-zero, then
 	     the value is stored at at the address CFA+N where N is a signed offset. 
 	     Rule: Offset(N)
@@ -239,7 +287,7 @@ typedef struct Dwarf_Regtable_Entry3_s {
            software register numbers in the machine hardware)
 	  and the following applies:
 
-          if dw_value_type == DW_EPXR_STANDARD (the only  possible case for 
+          if dw_value_type == DW_EXPR_OFFSET (the only  possible case for 
 		dwarf2):
 	    If dw_offset_relevant is non-zero, then
 	     the value is stored at at the address 
@@ -271,9 +319,34 @@ typedef struct Dwarf_Regtable_Entry3_s {
 
 }Dwarf_Regtable_Entry3;
 
+/* For the DWARF3 version, moved the DW_FRAME_CFA_COL
+   out of the array and into its own struct.  
+   Having it part of the array is not very easy to work
+   with from a portability point of view: changing
+   the number for every architecture is a pain (if one fails
+   to set it correctly a register rule gets clobbered when
+   setting CFA).
+   With MIPS it just happened to be easy to use DW_FRAME_CFA_COL.
+
+   rt3_rules and rt3_reg_table_size must be filled in 
+    before calling libdwarf.
+    Filled in with a pointer to an array (pointer and
+    array  set up by the calling application) of rt3_reg_table_size 
+    Dwarf_Regtable_Entry3_s structs.   
+    libdwarf does not allocate or deallocate space for the
+    rules, you must do so.   libdwarf will initialize the
+    contents rules array, you do not need to do so (though
+    if you choose to initialize the array somehow that is ok:
+    libdwarf will overwrite your initializations with its own).
+
+*/
 typedef struct Dwarf_Regtable3_s {
-    struct Dwarf_Regtable_Entry3_s rules[DW_REG_TABLE_SIZE];
+    struct Dwarf_Regtable_Entry3_s   rt3_cfa_rule;
+
+    Dwarf_Half                       rt3_reg_table_size;
+    struct Dwarf_Regtable_Entry3_s * rt3_rules;
 } Dwarf_Regtable3;
+
 
 /* Use for DW_EPXR_STANDARD., DW_EXPR_VAL_OFFSET. 
    Returns DW_DLV_OK if the value is available.
@@ -1259,6 +1332,9 @@ int dwarf_get_fde_info_for_all_regs3(Dwarf_Fde /*fde*/,
     Dwarf_Addr*         /*row_pc*/,
     Dwarf_Error*        /*error*/);
 
+/* In this older interface DW_FRAME_CFA_COL is a meaningful
+    column (which does not work well with DWARF3 or
+    non-MIPS architectures). */
 int dwarf_get_fde_info_for_reg(Dwarf_Fde /*fde*/, 
     Dwarf_Half    	/*table_column*/, 
     Dwarf_Addr    	/*pc_requested*/, 
@@ -1268,12 +1344,27 @@ int dwarf_get_fde_info_for_reg(Dwarf_Fde /*fde*/,
     Dwarf_Addr* 	/*row_pc*/, 
     Dwarf_Error* 	/*error*/);
 
-/* See discussion of dw_value_type, libdwarf.h. */
+/* See discussion of dw_value_type, libdwarf.h. 
+   Use of DW_FRAME_CFA_COL is not meaningful in this interface.
+   Nor is DDW_FRAME_CFA_COL3.
+   See dwarf_get_fde_info_for_cfa_reg3().
+*/
 int dwarf_get_fde_info_for_reg3(Dwarf_Fde /*fde*/, 
     Dwarf_Half    	/*table_column*/, 
     Dwarf_Addr    	/*pc_requested*/, 
     Dwarf_Small  *  	/*value_type*/, 
-    Dwarf_Small *       /*offset_relevant*/,
+    Dwarf_Signed *      /*offset_relevant*/,
+    Dwarf_Signed* 	/*register*/,  
+    Dwarf_Signed* 	/*offset_or_block_len*/, 
+    Dwarf_Ptr   *       /*block_ptr */,
+    Dwarf_Addr* 	/*row_pc_out*/, 
+    Dwarf_Error* 	/*error*/);
+
+/* Use this to get the cfa. */
+int dwarf_get_fde_info_for_cfa_reg3(Dwarf_Fde /*fde*/, 
+    Dwarf_Addr    	/*pc_requested*/, 
+    Dwarf_Small  *  	/*value_type*/, 
+    Dwarf_Signed *      /*offset_relevant*/,
     Dwarf_Signed* 	/*register*/,  
     Dwarf_Signed* 	/*offset_or_block_len*/, 
     Dwarf_Ptr   *       /*block_ptr */,
@@ -1866,6 +1957,13 @@ dwarf_get_section_max_offsets(Dwarf_Debug /*dbg*/,
     Dwarf_Unsigned * /*debug_ranges_size*/,
     Dwarf_Unsigned * /*debug_pubtypes_size*/);
 
+Dwarf_Half
+dwarf_set_frame_rule_inital_value(Dwarf_Debug /*dbg*/,
+	Dwarf_Half /*value*/);
+
+Dwarf_Half
+dwarf_set_frame_rule_table_size(Dwarf_Debug dbg,
+        Dwarf_Half value);
 
 
 #ifdef __cplusplus

@@ -17,6 +17,13 @@ For example, using csh syntax:
 		CPPFLAGS="-I/home/davea/inc" CFLAGS="-I/home/davea/inc"
 Set both CFLAGS and CPPFLAGS so that configure works properly.
 
+If your primary target cpu architecture ( of objects that you are using
+dwarfdump on) is not MIPS, you will probably want to
+add   -DDWARFDUMP_TURN_OFF_MIPS_REG_NAMES=1
+to CPPFLAGS and CFLAGS  to avoid using misleading 
+register names.  See print_sections.c.
+
+
 If $PRIVATE_LIBDIR  has both libelf.so and libelf.a, the libelf.so
 will be picked up and 
   "./tag_tree_build: error while loading shared libraries: 
@@ -32,5 +39,5 @@ only has archive libelf, not shared-library libelf.
 David Anderson.  davea@sgi.com
 
 $Source: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/README,v $
-$Revision: 1.2 $
-$Date: 2004/01/05 22:29:20 $
+$Revision: 1.3 $
+$Date: 2006/03/29 23:26:01 $

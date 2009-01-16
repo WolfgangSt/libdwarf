@@ -145,90 +145,94 @@ struct ial_s {
 
     /* Number of instances per alloc block. MUST be > 0. */
     int ia_base_count;
+
+    int (*specialconstructor)(Dwarf_Debug,void *);
+    void (*specialdestructor)(void *);
 };
 
 static const
 struct ial_s index_into_allocated[ALLOC_AREA_INDEX_TABLE_MAX] = {
-    {0, 1, 1},			/* none */
-    {0, 1, 1,},			/* 1 DW_DLA_STRING */
-    {1, sizeof(Dwarf_Loc), BASE_ALLOC}
+    {0, 1, 1,0,0},			/* none */
+    {0, 1, 1,0,0},			/* 1 DW_DLA_STRING */
+    {1, sizeof(Dwarf_Loc), BASE_ALLOC,0,0}
     ,				/* 2 DW_DLA_LOC */
-    {2, sizeof(Dwarf_Locdesc), BASE_ALLOC}
+    {2, sizeof(Dwarf_Locdesc), BASE_ALLOC,0,0}
     ,				/* 3 DW_DLA_LOCDESC */
-    {0, 1, 1}
+    {0, 1, 1,0,0}
     ,				/* not used *//* 4 DW_DLA_ELLIST */
-    {0, 1, 1}
+    {0, 1, 1,0,0}
     ,				/* not used *//* 5 DW_DLA_BOUNDS */
-    {3, sizeof(Dwarf_Block), BASE_ALLOC}
+    {3, sizeof(Dwarf_Block), BASE_ALLOC,0,0}
     ,				/* 6 DW_DLA_BLOCK */
-    {0, 1, 1}
+    {0, 1, 1,0,0}
     ,				/* the actual dwarf_debug structure *//* 7 DW_DLA_DEBUG */
-    {4, sizeof(struct Dwarf_Die_s), BIG_ALLOC},	/* 8 DW_DLA_DIE */
-    {5, sizeof(struct Dwarf_Line_s), BIG_ALLOC},	/* 9
+    {4, sizeof(struct Dwarf_Die_s), BIG_ALLOC,0,0},	/* 8 DW_DLA_DIE */
+    {5, sizeof(struct Dwarf_Line_s), BIG_ALLOC,0,0},	/* 9
 							   DW_DLA_LINE */
-    {6, sizeof(struct Dwarf_Attribute_s), BIG_ALLOC * 2},
+    {6, sizeof(struct Dwarf_Attribute_s), BIG_ALLOC * 2,0,0},
     /* 10 DW_DLA_ATTR */
-    {0, 1, 1},			/* not used *//* 11 DW_DLA_TYPE */
-    {0, 1, 1},			/* not used *//* 12 DW_DLA_SUBSCR */
-    {7, sizeof(struct Dwarf_Global_s), BASE_ALLOC},	/* 13
+    {0, 1, 1,0,0},			/* not used *//* 11 DW_DLA_TYPE */
+    {0, 1, 1,0,0},			/* not used *//* 12 DW_DLA_SUBSCR */
+    {7, sizeof(struct Dwarf_Global_s), BASE_ALLOC,0,0},	/* 13
 							   DW_DLA_GLOBAL 
 							 */
-    {8, sizeof(struct Dwarf_Error_s), BASE_ALLOC},	/* 14
+    {8, sizeof(struct Dwarf_Error_s), BASE_ALLOC,0,0},	/* 14
 							   DW_DLA_ERROR 
 							 */
-    {0, 1, 1},			/* 15 DW_DLA_LIST */
-    {0, 1, 1},			/* not used *//* 16 DW_DLA_LINEBUF */
-    {9, sizeof(struct Dwarf_Arange_s), BASE_ALLOC},	/* 17
+    {0, 1, 1,0,0},			/* 15 DW_DLA_LIST */
+    {0, 1, 1,0,0},			/* not used *//* 16 DW_DLA_LINEBUF */
+    {9, sizeof(struct Dwarf_Arange_s), BASE_ALLOC,0,0},	/* 17
 							   DW_DLA_ARANGE 
 							 */
-    {10, sizeof(struct Dwarf_Abbrev_s), BIG_ALLOC},	/* 18
+    {10, sizeof(struct Dwarf_Abbrev_s), BIG_ALLOC,0,0},	/* 18
 							   DW_DLA_ABBREV 
 							 */
-    {11, sizeof(Dwarf_Frame_Op), BIG_ALLOC}
+    {11, sizeof(Dwarf_Frame_Op), BIG_ALLOC,0,0}
     ,				/* 19 DW_DLA_FRAME_OP */
-    {12, sizeof(struct Dwarf_Cie_s), BASE_ALLOC},	/* 20
+    {12, sizeof(struct Dwarf_Cie_s), BASE_ALLOC,0,0},	/* 20
 							   DW_DLA_CIE */
-    {13, sizeof(struct Dwarf_Fde_s), BASE_ALLOC},	/* 21
+    {13, sizeof(struct Dwarf_Fde_s), BASE_ALLOC,0,0},	/* 21
 							   DW_DLA_FDE */
-    {0, 1, 1},			/* 22 DW_DLA_LOC_BLOCK */
-    {0, 1, 1},			/* 23 DW_DLA_FRAME_BLOCK */
-    {14, sizeof(struct Dwarf_Global_s), BASE_ALLOC},	/* 24
+    {0, 1, 1,0,0},			/* 22 DW_DLA_LOC_BLOCK */
+    {0, 1, 1,0,0},			/* 23 DW_DLA_FRAME_BLOCK */
+    {14, sizeof(struct Dwarf_Global_s), BASE_ALLOC,0,0},	/* 24
 							   DW_DLA_FUNC 
 							   UNUSED*/
-    {15, sizeof(struct Dwarf_Global_s), BASE_ALLOC},	/* 25
+    {15, sizeof(struct Dwarf_Global_s), BASE_ALLOC,0,0},	/* 25
 							   DW_DLA_TYPENAME
 							   UNUSED 
 							 */
-    {16, sizeof(struct Dwarf_Global_s), BASE_ALLOC},	/* 26
+    {16, sizeof(struct Dwarf_Global_s), BASE_ALLOC,0,0},	/* 26
 							   DW_DLA_VAR 
 							   UNUSED*/
-    {17, sizeof(struct Dwarf_Global_s), BASE_ALLOC},	/* 27
+    {17, sizeof(struct Dwarf_Global_s), BASE_ALLOC,0,0},	/* 27
 							   DW_DLA_WEAK 
 							   UNUSED*/
-    {0, 1, 1},			/* 28 DW_DLA_ADDR */
-    {18, sizeof(struct Dwarf_Abbrev_List_s), BIG_ALLOC},
+    {0, 1, 1,0,0},			/* 28 DW_DLA_ADDR */
+    {18, sizeof(struct Dwarf_Abbrev_List_s), BIG_ALLOC,0,0},
     /* 29 DW_DLA_ABBREV_LIST */
 
-    {19, sizeof(struct Dwarf_Chain_s), BIG_ALLOC},	/* 30
+    {19, sizeof(struct Dwarf_Chain_s), BIG_ALLOC,0,0},	/* 30
 							   DW_DLA_CHAIN 
 							 */
-    {20, sizeof(struct Dwarf_CU_Context_s), BASE_ALLOC},
+    {20, sizeof(struct Dwarf_CU_Context_s), BASE_ALLOC,0,0},
     /* 31 DW_DLA_CU_CONTEXT */
-    {21, sizeof(struct Dwarf_Frame_s), BASE_ALLOC},	/* 32
+    {21, sizeof(struct Dwarf_Frame_s), BASE_ALLOC,_dwarf_frame_constructor,
+		_dwarf_frame_destructor},	/* 32
 							   DW_DLA_FRAME 
 							 */
-    {22, sizeof(struct Dwarf_Global_Context_s), BASE_ALLOC},
+    {22, sizeof(struct Dwarf_Global_Context_s), BASE_ALLOC,0,0},
     /* 33 DW_DLA_GLOBAL_CONTEXT */
-    {23, sizeof(struct Dwarf_File_Entry_s), BASE_ALLOC}, /* 34 */
+    {23, sizeof(struct Dwarf_File_Entry_s), BASE_ALLOC,0,0}, /* 34 */
     /* 34 DW_DLA_FILE_ENTRY */
-    {24, sizeof(struct Dwarf_Line_Context_s), BASE_ALLOC},
+    {24, sizeof(struct Dwarf_Line_Context_s), BASE_ALLOC,0,0},
     /* 35 DW_DLA_LINE_CONTEXT */
-    {25, sizeof(struct Dwarf_Loc_Chain_s), BASE_ALLOC}, /* 36 */
+    {25, sizeof(struct Dwarf_Loc_Chain_s), BASE_ALLOC,0,0}, /* 36 */
     /* 36 DW_DLA_LOC_CHAIN */
 
 	/* See use of ABBREV_HASH_TABLE_SIZE below for final dealloc. */
     {26, ABBREV_HASH_TABLE_SIZE *  sizeof(struct Dwarf_Hash_Table_s),
-     BASE_ALLOC},   /* 37 */
+     BASE_ALLOC,0,0},   /* 37 */
 
 
     /* 37 DW_DLA_HASH_TABLE */
@@ -241,15 +245,15 @@ struct ial_s index_into_allocated[ALLOC_AREA_INDEX_TABLE_MAX] = {
    the global types.
   
 */
-    {27, sizeof(struct Dwarf_Global_Context_s), BASE_ALLOC},
+    {27, sizeof(struct Dwarf_Global_Context_s), BASE_ALLOC,0,0},
     /* 38 DW_DLA_FUNC_CONTEXT */
-    {28, sizeof(struct Dwarf_Global_Context_s), BASE_ALLOC},
+    {28, sizeof(struct Dwarf_Global_Context_s), BASE_ALLOC,0,0},
     /* 39 DW_DLA_TYPENAME_CONTEXT */
-    {29, sizeof(struct Dwarf_Global_Context_s), BASE_ALLOC},
+    {29, sizeof(struct Dwarf_Global_Context_s), BASE_ALLOC,0,0},
     /* 40 DW_DLA_VAR_CONTEXT */
-    {30, sizeof(struct Dwarf_Global_Context_s), BASE_ALLOC},
+    {30, sizeof(struct Dwarf_Global_Context_s), BASE_ALLOC,0,0},
     /* 41 DW_DLA_WEAK_CONTEXT */
-    {31, sizeof(struct Dwarf_Global_Context_s), BASE_ALLOC},	
+    {31, sizeof(struct Dwarf_Global_Context_s), BASE_ALLOC,0,0},	
     /* 42 DW_DLA_PUBTYPES_CONTEXT DWARF3 */
 
 };
@@ -514,6 +518,14 @@ _dwarf_get_alloc(Dwarf_Debug dbg,
 	    {
 	      void *m = _dwarf_find_memory(alloc_hdr);
 	      dwarf_malloc_check_alloc_data(m,type);
+              if(index_into_allocated[type].specialconstructor){
+                int res = index_into_allocated[type].specialconstructor(dbg,m);
+	        if(res != DW_DLV_OK) {
+			/* We leak what we allocated in
+  	                   _dwarf_find_memory when constructor fails. */
+			return NULL;
+                }
+	      }
 	      return m;
 	    }
 #endif
@@ -550,6 +562,15 @@ _dwarf_get_alloc(Dwarf_Debug dbg,
 	memset(ret_mem,0, size);
 
     dwarf_malloc_check_alloc_data(ret_mem,type);
+    if(index_into_allocated[type].specialconstructor){
+        int res = index_into_allocated[type].specialconstructor(dbg,ret_mem);
+	if(res != DW_DLV_OK) {
+	  /* We leak what we allocated in
+  	  _dwarf_find_memory when constructor fails. */
+	  return NULL;
+        }
+    }
+
     return (ret_mem);
 }
 
@@ -706,6 +727,9 @@ dwarf_dealloc(Dwarf_Debug dbg,
 #endif
 	return;
 
+    }
+     if(index_into_allocated[type].specialdestructor){
+	index_into_allocated[type].specialdestructor(space);
     }
 
 #ifdef DWARF_SIMPLE_MALLOC

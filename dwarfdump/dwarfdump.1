@@ -19,6 +19,17 @@ Not all sections actually exist in any given object file.
 .P
 The format may change from release to release, so it is
 unwise to depend too heavily on the format.
+.P
+.PP
+Frame inforation (.debug_frame and .eh_frame) is heavily
+dependent on the ABI/ISA of the object file.  The '-x abi=<abi>'
+flavors below describe how to name an abi and use that to guide
+the -f or -F processing (without '-x abi=<abi>'/ dwarfdump ignores
+the dwarfdump.conf file and uses compiled-in MIPS/IRIX 
+conventions).  If no '-x name=<path>' is given, dwarfdump
+looks for "./dwarfdump.conf", "$HOME/.dwarfdump.conf", "<install-prefix>/lib/dwarfdump.conf" and takes the first it finds.
+If one or more '-x name=<path>' is given the last of these is
+used and all other such files ignored.
 .PP
 The 
 .B dwarfdump
@@ -93,13 +104,22 @@ options are given.
 .B \-w
 Dumps the .debug_weaknames section.
 .TP
+.B \-x abi=<conf>
+where abi=names an abi in dwarfdump.conf (see the
+abiname: command in dwarfdump.conf).
+.TP
+.B \-x name=<conf>
+where name=names the full pathname of a dwarfdump configuration
+file.  Default install location is /usr/local/lib/dwarfdump.conf.
+dwarfdump looks first for local ./dwarfdump.conf, then
+for $HOME/.dwarfdump.conf then  for  /usr/local/lib/dwarfdump.conf.
+.TP
 .B \-y
 Dumps the .debug_types section.
 .SH FILES
 dwarfdump
+./dwarfdump.conf
+$(HOME)/.dwarfdump.conf
+<install-prefix>/lib/dwarfdump.conf
 .SH BUGS
-Currently won't deal with dwarf information
-in objects of a different endianness than the host.
-Won't show .debug_loc information.
-Won't show .debug_macinfo information.
-Restrictions in libdwarf affect  its capabilities.
+Support for DWARF3 is being completed but may not be complete.

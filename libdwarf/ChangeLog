@@ -1,3 +1,47 @@
+2006-04-16 David Anderson <davea@sgi.com>
+      * dwarf.h: Remove #if 0 around some #defines, it is ok to 
+        leave the defines visible (the defines are HP extensions).
+      * libdwarf.h: Add new dwarf3 interface to frames.
+        (which actually is also a better interface to dwarf2 info,
+        not strictly for dwarf3).
+      * dwarf_alloc.c: Add 'constructor/destructor' pointers 
+        to the initialization table so we can handle a more 
+        flexible (dwarf3) frame interface.Call the functions 
+        at the appropriate times.
+      * dwarf_frame.c: Using macro FDE_NULL_CHECKS_AND_SET_DBG 
+        reduce duplicate coding.Internal code now handles dwarf2 
+        and dwarf3 and interfaces to exported interfaces appropriately.
+      * dwarf_frame.h: Alter internal struct to handle frames more flexibly.
+      * dwarf_frame2.c: Remove unused local variable.
+      * dwarf_init_finish.c: Add initialization of new Dwarf_Debug 
+        struct entries allowing handling
+        of run-time-config of frame info.
+      * dwarf_loc.c: Add DWARF3 operators, such as DW_OP_call4.
+      * dwarf_opaque.h: Declaration of new Dwarf_Debug struct 
+        entries allowing handling of run-time-config of frame info.
+      * pro_expr.c: Add entries allowing creation of DWARF3 DW_OP 
+        such as call2. 
+      * pro_section.c: Change crucial code handling section lengths, 
+        using a macro BEGIN_LEN_SIZE to clarify and correct a few places.
+2006-03-31 David Anderson <davea@sgi.com>
+      * libdwarf.h: Added dwarf_get_fde_info_for_cfa_reg3() prototype
+        preparing for dwarf3 frame interface.
+      * dwarf_frame.c: Now uses separate rule, not DW_FRAME_CFA_COL, 
+        to record CFA.
+      * dwarf_frame.h: Add commentary on frame access.
+2006-03-30 David Anderson <davea@sgi.com>
+      * Makefile.in configure.in: Adding --enable-shared --enable-nonshared
+        --disable-shared  and --disable-nonshared.
+      * configure: regenerated with 2.59 autoconf.
+      * README: Added explanation on changing dwarf.h libdwarf.h.
+2006-03-29 David Anderson <davea@sgi.com>
+      * dwarf_print_lines.c dwarf_sort_line.c: Clean up initialization
+        code for line table reading. When returning rules table
+        data to caller ensure fully filled out yet no overrun
+        (handling case where rules table sizes not defined identically
+        by caller and library).
+      * dwarf.h: New commentary on ABI/register-number issues.
+      * libdwarf.h: New commentary on ABI/register-number issues.
 2006-03-26 David Anderson <davea@sgi.com>
       * dwarf_line.c: file_entry_count local was not initialized.
         Initialized some locals at declaration.

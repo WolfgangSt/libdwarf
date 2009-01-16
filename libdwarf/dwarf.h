@@ -41,7 +41,7 @@ extern "C" {
 
 /*
         dwarf.h   DWARF  debugging information values
-        $Revision: 1.38 $    $Date: 2006/03/24 20:56:01 $
+        $Revision: 1.41 $    $Date: 2006/04/17 00:09:56 $
 
         The comment "DWARF3" appears where there are
         new entries from DWARF3 as of 2004, "DWARF3f"
@@ -280,10 +280,12 @@ extern "C" {
 #define DW_AT_pure                              0x67 /* DWARF3f */
 #define DW_AT_recursive                         0x68 /* DWARF3f */
 
-#define DW_AT_lo_user                           0x2000
 
 /* HP extensions. */
 #define DW_AT_HP_block_index                    0x2000  /* HP */
+
+/* Follows extension so dwarfdump prints the most-likely-useful name. */
+#define DW_AT_lo_user                           0x2000
 
 #define DW_AT_MIPS_fde                          0x2001 /* MIPS/SGI */
 #define DW_AT_MIPS_loop_begin                   0x2002 /* MIPS/SGI */
@@ -304,11 +306,9 @@ extern "C" {
 #define DW_AT_MIPS_assumed_size                 0x2011 /* MIPS/SGI */
 
 /* HP extensions. */
-#if 0
 #define DW_AT_HP_unmodifiable                   0x2001 /* conflict: MIPS */
 #define DW_AT_HP_actuals_stmt_list              0x2010 /* conflict: MIPS */
 #define DW_AT_HP_proc_per_section               0x2011 /* conflict: MIPS */
-#endif
 #define DW_AT_HP_raw_data_ptr                   0x2012 /* HP */
 #define DW_AT_HP_pass_by_reference              0x2013 /* HP */
 #define DW_AT_HP_opt_level                      0x2014 /* HP */
@@ -332,6 +332,9 @@ extern "C" {
 
 /* VMS extensions. */
 #define DW_AT_VMS_rtnbeg_pd_address             0x2201 /* VMS */
+
+/* ALTIUM extension: ALTIUM Compliant location lists (flag) */
+#define DW_AT_ALTIUM_loclist    0x2300          /* ALTIUM  */
 
 /* PGI (STMicroelectronics) extensions. */
 #define DW_AT_PGI_lbase                         0x3a00 /* PGI */
@@ -498,15 +501,15 @@ extern "C" {
 #define DW_OP_call_frame_cfa            0x9c /* DWARF3f */
 #define DW_OP_bit_piece                 0x9d /* DWARF3f */
 
-#define DW_OP_lo_user                   0xe0
 
     /* GNU extensions. */
 #define DW_OP_GNU_push_tls_address      0xe0 /* GNU */
 
+/* Follows extension so dwarfdump prints the most-likely-useful name. */
+#define DW_OP_lo_user                   0xe0
+
     /* HP extensions. */
-#if 0
 #define DW_OP_HP_unknown                0xe0 /* HP conflict: GNU */
-#endif
 #define DW_OP_HP_is_value               0xe1 /* HP */
 #define DW_OP_HP_fltconst4              0xe2 /* HP */
 #define DW_OP_HP_fltconst8              0xe3 /* HP */
@@ -533,15 +536,19 @@ extern "C" {
 #define DW_ATE_decimal_float            0xf  /* DWARF3f */
 
 
+/* ALTIUM extensions. x80, x81 */
+#define DW_ATE_ALTIUM_fract           0x80 /* ALTIUM __fract type */
+
+/* Follows extension so dwarfdump prints the most-likely-useful name. */
 #define DW_ATE_lo_user                  0x80
 
-
-/* ALTIUM extensions. */
-#define DW_ATE_ALTIUM_fract           0x80 /* ALTIUM __fract type */
+/* Shown here to help dwarfdump build script. */
 #define DW_ATE_ALTIUM_accum           0x81 /* ALTIUM __accum type */
 
 /* HP Floating point extensions. */
 #define DW_ATE_HP_float80             0x80 /* (80 bit). HP */
+
+
 #define DW_ATE_HP_complex_float80     0x81 /* Complex (80 bit). HP  */
 #define DW_ATE_HP_float128            0x82 /* (128 bit). HP */
 #define DW_ATE_HP_complex_float128    0x83 /* Complex (128 bit). HP */
@@ -773,7 +780,10 @@ extern "C" {
 
                              Rule describes:
 */
-#define DW_FRAME_CFA_COL 0  /* column used for CFA */
+/* Column used for CFA. Assumes reg 0 never appears as
+   a register in DWARF info.  */
+#define DW_FRAME_CFA_COL 0  
+
 #define DW_FRAME_REG1   1  /* integer reg 1 */
 #define DW_FRAME_REG2   2  /* integer reg 2 */
 #define DW_FRAME_REG3   3  /* integer reg 3 */
@@ -844,16 +854,55 @@ extern "C" {
 #define DW_FRAME_FREG30 62 /* 64-bit floating point reg 30 */
 #define DW_FRAME_FREG31 63 /* 64-bit floating point reg 31 */
 
-#define DW_FRAME_RA_COL 64 /* column recording ra */
+/*  ***IMPORTANT NOTE, TARGET DEPENDENCY ****
+    The following 4 #defines are dependent on 
+    the target cpu(s) that you apply libdwarf to.
+    Ensure that DW_FRAME_UNDEFINED_VAL  and DW_FRAME_SAME_VAL
+    do not conflict with the range [0-DW_FRAME_STATIC_LINK].
+    The value 63 works for MIPS cpus at least up to the R16000.
 
-#define DW_FRAME_STATIC_LINK 65 /* column recording static link*/
-                                /* applicable to up-level      */
-                                /* addressing, as in mp code,  */
-                                /* pascal, etc */
+    For a cpu with more than 63 real registers
+    DW_FRAME_HIGHEST_NORMAL_REGISTER
+    must be increased for things to work properly!
+    Also ensure that DW_FRAME_UNDEFINED_VAL DW_FRAME_SAME_VAL
+    are not in the range [0-DW_FRAME_STATIC_LINK]
 
-/* This is the number of columns in the Frame Table. This constant should
-   be kept in sync with DW_REG_TABLE_SIZE defined in libdwarf.h */
-#define DW_FRAME_LAST_REG_NUM   (DW_FRAME_STATIC_LINK + 1)
+    Having DW_FRAME_HIGHEST_NORMAL_REGISTER be higher than
+    is strictly needed is safe.
+
+*/
+
+#ifndef DW_FRAME_HIGHEST_NORMAL_REGISTER
+#define DW_FRAME_HIGHEST_NORMAL_REGISTER 63
+#endif
+/* This is the number of columns in the Frame Table. 
+   This constant should
+   be kept in sync with DW_REG_TABLE_SIZE defined in libdwarf.h 
+   It must also be large enough to be beyond the highest 
+   compiler-defined-register (meaning DW_FRAME_RA_COL DW_FRAME_STATIC_LINK
+   in the MIPS/IRIX case */
+#ifndef DW_FRAME_LAST_REG_NUM
+#define DW_FRAME_LAST_REG_NUM   (DW_FRAME_HIGHEST_NORMAL_REGISTER + 3)
+#endif
+
+
+/* Column recording ra (return addrress from a function call). 
+   This is common to many architectures, but as a 'simple register'
+   is not necessarily adequate for all architectures.
+   For MIPS/IRIX this register number is actually recorded on disk
+   in the .debug_frame section.
+   */
+#define DW_FRAME_RA_COL  (DW_FRAME_HIGHEST_NORMAL_REGISTER + 1)
+
+/* Column recording static link applicable to up-level      
+   addressing, as in IRIX mp code, pascal, etc.
+   This is common to many architectures but
+   is not necessarily adequate for all architectures.
+   For MIPS/IRIX this register number is actually recorded on disk
+   in the .debug_frame section.
+*/
+#define DW_FRAME_STATIC_LINK (DW_FRAME_HIGHEST_NORMAL_REGISTER + 2)
+
 
 
 /*

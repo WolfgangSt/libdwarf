@@ -425,6 +425,50 @@ dwarf_add_expr_gen(Dwarf_P_Expr expr,
 
     case DW_OP_nop:
 	break;
+    case     DW_OP_push_object_address:  /* DWARF3 */
+	break;
+    case     DW_OP_call2: /* DWARF3 */
+        operand = (Dwarf_Small *) & operand_buffer[0];
+        WRITE_UNALIGNED(dbg, operand, &val1, sizeof(val1), 2);
+        operand_size = 2;
+        break;
+
+    case     DW_OP_call4: /* DWARF3 */
+        operand = (Dwarf_Small *) & operand_buffer[0];
+        WRITE_UNALIGNED(dbg, operand, &val1, sizeof(val1), 4);
+        operand_size = 4;
+        break;
+
+    case     DW_OP_call_ref:/* DWARF3 */
+        operand = (Dwarf_Small *) & operand_buffer[0];
+        WRITE_UNALIGNED(dbg, operand, &val1, sizeof(val1), dbg->de_offset_size);
+        operand_size = dbg->de_offset_size;
+        break;
+    case     DW_OP_form_tls_address: /* DWARF3f */
+	break;
+    case     DW_OP_call_frame_cfa: /* DWARF3f */
+	break;
+    case     DW_OP_bit_piece:  /* DWARF3f */
+       res = _dwarf_pro_encode_leb128_nm(val1, &operand_size,
+                                          encode_buffer,
+                                          sizeof(encode_buffer));
+        if (res != DW_DLV_OK) {
+            _dwarf_p_error(expr->ex_dbg, error, DW_DLE_EXPR_LENGTH_BAD);
+            return (DW_DLV_NOCOUNT);
+        }
+        operand = (Dwarf_Small *) encode_buffer;
+        /* put this one directly into 'operand' at tail of prev value */
+        res = _dwarf_pro_encode_leb128_nm(val2, &operand2_size,
+                                                 ((char *) operand) +
+                                                 operand_size,
+                                                 sizeof
+                                                 (encode_buffer2));
+        if (res != DW_DLV_OK) {
+            _dwarf_p_error(expr->ex_dbg, error, DW_DLE_EXPR_LENGTH_BAD);
+            return (DW_DLV_NOCOUNT);
+        }
+        operand_size += operand2_size;
+
 
     default:
 	_dwarf_p_error(expr->ex_dbg, error, DW_DLE_BAD_EXPR_OPCODE);

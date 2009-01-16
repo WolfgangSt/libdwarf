@@ -31,7 +31,7 @@
 
 
 
-$Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/globals.h,v 1.22 2005/12/01 17:34:59 davea Exp $ */
+$Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/globals.h,v 1.25 2006/04/17 00:09:56 davea Exp $ */
 #ifndef globals_INCLUDED
 #define globals_INCLUDED
 
@@ -113,6 +113,7 @@ extern int verbose;
 extern boolean dense;
 extern boolean ellipsis;
 extern boolean dst_format;
+extern boolean use_mips_regnames;
 
 extern boolean check_pubname_attr;
 extern boolean check_attr_tag;
@@ -141,8 +142,9 @@ extern Dwarf_Error err;
 extern void print_error (Dwarf_Debug dbg, string msg,int res, Dwarf_Error err);
 
 extern void print_line_numbers_this_cu (Dwarf_Debug dbg, Dwarf_Die in_die);
+struct dwconf_s;
 extern void print_frames (Dwarf_Debug dbg, int print_debug_frame,
-		int print_eh_frame);
+		int print_eh_frame,struct dwconf_s *);
 extern void print_pubnames (Dwarf_Debug dbg);
 extern void print_macinfo (Dwarf_Debug dbg);
 extern void print_locs (Dwarf_Debug dbg);
@@ -187,5 +189,21 @@ extern void print_one_die(
 extern Dwarf_Die current_cu_die_for_print_frames; /* This is
         an awful hack, making this public. But it enables
         cleaning up (doing all dealloc needed). */
+extern void printreg(Dwarf_Signed reg,struct dwconf_s *config_data);
+extern void print_frame_inst_bytes(Dwarf_Debug dbg,
+                       Dwarf_Ptr cie_init_inst, Dwarf_Signed len,
+                       Dwarf_Signed data_alignment_factor,
+                       int code_alignment_factor, Dwarf_Half addr_size,
+			struct dwconf_s *config_data);
+
+
+extern Dwarf_Unsigned local_dwarf_decode_u_leb128(unsigned char *leb128,
+                            unsigned int *leb128_length);
+
+extern Dwarf_Signed local_dwarf_decode_s_leb128(unsigned char *leb128,
+                            unsigned int *leb128_length);
+
+extern void dump_block(char *prefix, char *data, Dwarf_Signed len);
+
 
 #endif /* globals_INCLUDED */

@@ -275,9 +275,9 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
     Dwarf_Debug dbg = &dbg_data;
 
     /* These are the state machine state variables. */
-    Dwarf_Addr address;
-    Dwarf_Word line;
-    Dwarf_Bool is_stmt;
+    Dwarf_Addr address = 0;
+    Dwarf_Word line = 1;
+    Dwarf_Bool is_stmt = false;
 
     /* Dwarf_Bool prologue_end; Dwarf_Bool epilogue_begin; */
     Dwarf_Small isa;
@@ -358,9 +358,7 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 
 
     /* Initialize the state machine.  */
-    address = 0;
     /* file = 1; */
-    line = 1;
     /* column = 0; */
     is_stmt = prefix.pf_default_is_stmt;
     /* basic_block = false; */

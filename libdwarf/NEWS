@@ -1,3 +1,12 @@
+March 29, 2006
+  The March  27, 2006 version accomodates DWARF3.
+  Some people have been using the library without
+  altering dwarf.h, libdwarf.h to accomodate
+  large numbers of registers.  This exposed a bug
+  (an off-by-one error) but also makes it clear
+  additional documentation is needed.  So 
+  in libdwarf large new comments near 'TARGET DEPENDENCY'
+  attempt to explain better.
 Oct 03, 2005
   The July version had an incompatible interface: old
   dealloc code did not always work right. The incompatibility

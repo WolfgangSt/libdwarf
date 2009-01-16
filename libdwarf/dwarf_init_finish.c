@@ -551,6 +551,9 @@ dwarf_init(int fd,
     }
     dbg->de_errhand = errhand;
     dbg->de_errarg = errarg;
+    dbg->de_frame_rule_initial_value = DW_FRAME_REG_INITIAL_VALUE;
+    dbg->de_frame_reg_rules_entry_count =  DW_FRAME_LAST_REG_NUM;
+
 
     if (fstat(fd, &fstat_buf) != 0) {
 	DWARF_DBG_ERROR(dbg, DW_DLE_FSTAT_ERROR, DW_DLV_ERROR);
@@ -631,6 +634,8 @@ dwarf_elf_init(dwarf_elf_handle elf_file_pointer,
     }
     dbg->de_errhand = errhand;
     dbg->de_errarg = errarg;
+    dbg->de_frame_rule_initial_value = DW_FRAME_REG_INITIAL_VALUE;
+    dbg->de_frame_reg_rules_entry_count =  DW_FRAME_LAST_REG_NUM;
 
     if (access != DW_DLC_READ) {
 	DWARF_DBG_ERROR(dbg, DW_DLE_INIT_ACCESS_WRONG, DW_DLV_ERROR);

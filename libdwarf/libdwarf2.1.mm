@@ -8,7 +8,7 @@
 .nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.60, 27 February 2006
+.ds vE rev 1.61, 3 Apr 2006
 \." ==============================================
 \." ==============================================
 .ds | |
@@ -166,6 +166,13 @@ The following is a brief mention of the changes in this libdwarf from
 the libdwarf draft for DWARF Version 1 and recent changes.
 .H 2 "Items Changed"
 .P
+Added support for various DWARF3 features, but primarily
+a new frame-information interface tailorable at run-time
+to more than a single ABI.
+See dwarf_set_frame_rule_inital_value() and dwarf_set_frame_rule_table_size().
+See also dwarf_get_fde_info_for_reg3() and
+dwarf_get_fde_info_for_cfa_reg3().  (April 2006)
+.P
 Added support for DWARF3 .debug_pubtypes section.
 Corrected various leaks (revising dealloc() calls, adding
 new functions) and corrected dwarf_formstring() documentation.
@@ -201,7 +208,7 @@ was removed since bounds have been generalized.
 .P
 dwarf_nextdie()
 was replaced by dwarf_next_cu_header() to reflect the
-real way dwarf is organized.
+real way DWARF is organized.
 The dwarf_nextdie() was only useful for getting to compilation
 unit beginnings, so it does not seem harmful to remove it in favor
 of a more direct function.
@@ -214,7 +221,7 @@ is better left to a debugger to do.
 Similarly, dwarf_dieline() was removed.
 .P
 dwarf_is1stline() was removed as it was not meaningful for the
-revised dwarf line operations.
+revised DWARF line operations.
 .P
 Any libdwarf implementation might well decide to support all the
 removed functionality and to retain the DWARF Version 1 meanings
@@ -228,10 +235,12 @@ exceptional conditions like failures and 'no more data' indications.
 .H 2 "Revision History"
 .VL 15
 .LI "March 93"
-Work on dwarf2 SGI draft begins
+Work on DWARF2 SGI draft begins
 .LI "June 94"
 The function returns are changed to return an error/success code
 only.
+.LI "April 2006:
+Support for DWARF3 consumer operations is close to completion.
 .LE
 
 .H 1 "Types Definitions"
@@ -414,12 +423,14 @@ other type (typically an \f(CWunsigned char *\fP) so one can add increments
 to index through the data.  The data pointed to by \f(CWbl_data\fP is not 
 necessarily at any useful alignment.
 
-.H 3 "Frame Operation Codes"
-The \f(CWDwarf_Frame_Op\fP type is used to contain the data of a single
+.H 3 "Frame Operation Codes: DWARF 2"
+This interface is adequate for DWARF2 but not for DWARF3.
+A separate interface usable for DWARF3 and for DWARF2 is described below.
+.P
+The DWARF2 \f(CWDwarf_Frame_Op\fP type is used to contain the data of a single
 instruction of an instruction-sequence of low-level information from the 
 section containing frame information.  This is ordinarily used by 
-Internal-level 
-Consumers trying to print everything in detail.
+Internal-level Consumers trying to print everything in detail.
 
 .DS
 \f(CWtypedef struct {
@@ -455,7 +466,10 @@ If not used with the op it is 0.
 stream of the frame instructions) of this operation.  It starts at 0
 for a given frame descriptor.
 
-.H 3 "Frame Regtable"
+.H 3 "Frame Regtable: DWARF 2"
+This interface is adequate for DWARF2 but not for DWARF3.
+A separate interface usable for DWARF3 and for DWARF2 is described below.
+.P
 The \f(CWDwarf_Regtable\fP type is used to contain the 
 register-restore information for all registers at a given
 PC value.
@@ -471,7 +485,7 @@ Normally used by debuggers.
         Dwarf_Half          dw_regnum;
         Dwarf_Addr          dw_offset;
     }                       rules[DW_REG_TABLE_SIZE];
-} Dwarf_Regtable;
+} Dwarf_Regtable;\fP
 .DE
 .P
 The array is indexed by register number.
@@ -479,24 +493,196 @@ The field values for each index are described next.
 For clarity we describe the field values for index rules[M]
 (M being any legal array element index).
 .P
-\f(CWdw_offset_relevant is non-zero to indicate the \f(CWdw_offset
-field is meaningful. If zero then the \f(CWdw_offset is zero
+\f(CWdw_offset_relevant\fP is non-zero to indicate the \f(CWdw_offset\fP
+field is meaningful. If zero then the \f(CWdw_offset\fP is zero
 and should be ignored.
 .P
-\f(CWdw_regnum is the register number applicable.
-If \f(CWdw_offset_relevant is zero, then this is the register
+\f(CWdw_regnum \fPis the register number\fP applicable.
+If \f(CWdw_offset_relevant\fP is zero, then this is the register
 number of the register containing the value for register M.
-If \f(CWdw_offset_relevant is non-zero, then this is
+If \f(CWdw_offset_relevant\fP is non-zero, then this is
 the register number of the register to use as a base (M may be
-DW_FRAME_CFA_COL, for example) and the \f(CWdw_offset
+DW_FRAME_CFA_COL, for example) and the \f(CWdw_offset\fP
 value applies.  The value of register M is therefore
-the value of register \f(CWdw_regnum.
+the value of register \f(CWdw_regnum\vP .
 .P
-\f(CWdw_offset should be ignored if \f(CWdw_offset_relevant is zero.
-If \f(CWdw_offset_relevant is non-zero, then 
+\f(CWdw_offset\fP should be ignored if \f(CWdw_offset_relevant\fP is zero.
+If \f(CWdw_offset_relevant\fP is non-zero, then 
 the consumer code should add the value to
-the value of the register \f(CWdw_regnum to produce the
+the value of the register \f(CWdw_regnum\fP to produce the
 value.  
+
+.H 3 "Frame Operation Codes: DWARF 3 (and DWARF2)"
+This interface is adequate for DWARF3 and for DWARF2.
+It is new in libdwarf in April 2006.
+.P
+The DWARF2 \f(CWDwarf_Frame_Op3\fP type is used to contain the data of a single
+instruction of an instruction-sequence of low-level information from the 
+section containing frame information.  This is ordinarily used by 
+Internal-level Consumers trying to print everything in detail.
+
+.DS
+\f(CWtypedef struct {
+        Dwarf_Small     fp_base_op;
+        Dwarf_Small     fp_extended_op;
+        Dwarf_Half      fp_register;
+
+        /* Value may be signed, depends on op.
+           Any applicable data_alignment_factor has
+           not been applied, this is the  raw offset. */
+        Dwarf_Unsigned  fp_offset_or_block_len;
+        Dwarf_Small     *fp_expr_block;
+
+        Dwarf_Off       fp_instr_offset;
+} Dwarf_Frame_Op3;\fP
+.DE
+
+\f(CWfp_base_op\fP is the 2-bit basic op code.  \f(CWfp_extended_op\fP is 
+the 6-bit extended opcode (if \f(CWfp_base_op\fP indicated there was an 
+extended op code) and is zero otherwise.
+.P
+\f(CWfp_register\fP 
+is any (or the first) register value as defined
+in the \f(CWCall Frame Instruction Encodings\fP figure
+in the \f(CWdwarf\fP document.
+If not used with the Op it is 0.
+.P
+\f(CWfp_offset_or_block_len\fP
+is the address, delta, offset, or second register as defined
+in the \f(CWCall Frame Instruction Encodings\fP figure
+in the \f(CWdwarf\fP document. Or (depending on the op, it
+may be the length of the dwarf-expression block pointed to
+by \f(CWfp_expr_block\fP.
+If this is an \f(CWaddress\fP then the value should be cast to
+\f(CW(Dwarf_Addr)\fP before being used.
+In any implementation this field *must* be as large as the
+larger of Dwarf_Signed and Dwarf_Addr for this to work properly.
+If not used with the op it is 0.
+.P
+\f(CWfp_expr_block\fP (if applicable to the op)
+points to a dwarf-expression block whch is \f(CWfp_offset_or_block_len\fP
+bytes long.
+.P
+\f(CWfp_instr_offset\fP is the byte_offset (within the instruction
+stream of the frame instructions) of this operation.  It starts at 0
+for a given frame descriptor.
+
+.H 3 "Frame Regtable: DWARF 3"
+This interface is adequate for DWARF3 and for DWARF2.
+It is new in libdwarf as of April 2006.
+.P
+The \f(CWDwarf_Regtable3\fP type is used to contain the 
+register-restore information for all registers at a given
+PC value.
+Normally used by debuggers.
+.DS
+\f(CWtypedef struct Dwarf_Regtable_Entry3_s {
+        Dwarf_Small         dw_offset_relevant;
+        Dwarf_Small         dw_value_type;
+        Dwarf_Half          dw_regnum;
+        Dwarf_Unsigned      dw_offset_or_block_len;
+        Dwarf_Ptr           dw_block_ptr;
+}Dwarf_Regtable_Entry3;
+
+typedef struct Dwarf_Regtable3_s {
+    struct Dwarf_Regtable_Entry3_s   rt3_cfa_rule;
+
+    Dwarf_Half                       rt3_reg_table_size;
+    struct Dwarf_Regtable_Entry3_s * rt3_rules;
+} Dwarf_Regtable3;\fP
+
+.DE
+.P
+The array is indexed by register number.
+The field values for each index are described next.
+For clarity we describe the field values for index rules[M]
+(M being any legal array element index).
+(DW_FRAME_CFA_COL3  DW_FRAME_SAME_VAL, DW_FRAME_UNDEFINED_VAL
+are not legal array indexes, nor is any index < 0 or >
+rt3_reg_table_size);
+The caller  of routines using this
+struct must create data space for rt3_reg_table_size entries
+of struct Dwarf_Regtable_Entry3_s and arrange that
+rt3_rules points to that space and that rt3_reg_table_size
+is set correctly.  The caller need not (but may)
+initialize the contents of the rt3_cfa_rule or the rt3_rules array.
+The following applies to each rt3_rules rule M:
+.P
+.in +4
+\f(CWdw_regnum\fP is the register number applicable.
+If \f(CWdw_regnum\fP is DW_FRAME_UNDEFINED_VAL, then the
+register I has undefined value.
+If \f(CWdw_regnum\fP is DW_FRAME_SAME_VAL, then the
+register I has the same value as in the previous frame.
+.P
+If \f(CWdw_regnum\fP is neither of these two, then the following apply:
+.P
+.P
+\f(CWdw_value_type\fP determines the meaning of the other fields.
+It is one of DW_EXPR_OFFSET (0),
+DW_EXPR_VAL_OFFSET(1), DW_EXPR_EXPRESSION(2) or 
+DW_EXPR_VAL_EXPRESSION(3).
+
+.P
+If \f(CWdw_value_type\fP  is DW_EXPR_OFFSET (0) then
+this is as in DWARF2 and the offset(N) rule  or the register(R)
+rule
+of the DWARF3 and DWARF2 document applies.
+The value is either:
+.in +4
+If \f(CWdw_offset_relevant\fP is non-zero, then \f(CWdw_regnum\fP  
+is effectively ignored but must be identical to
+DW_FRAME_CFA_COL3 and the \f(CWdw_offset\fP value applies. 
+The value of register M is therefore
+the value of CFA plus the value
+of \f(CWdw_offset\fP.   The result of the calculation
+is the address in memory where the value of register M resides.
+This is the offset(N) rule of the DWARF2 and DWARF3 documents.
+.P
+\f(CWdw_offset_relevant\fP is zero it indicates the \f(CWdw_offset\fP
+field is not meaningful. 
+The value of register M is 
+the value currently in register \f(CWdw_regnum\fP (the
+value DW_FRAME_CFA_COL3 must not appear, only real registers).
+This is the register(R) rule of the DWARF3 spec.
+.in -4
+
+.P
+If \f(CWdw_value_type\fP  is DW_EXPR_OFFSET (1) then
+this is the the val_offset(N) rule of the DWARF3 spec applies.
+The calculation is identical to that of DW_EXPR_OFFSET (0) 
+but the value is interpreted as the value of register M
+(rather than the address where register M's value is stored).
+.P
+If \f(CWdw_value_type\fP  is DW_EXPR_EXPRESSION (2) then
+this is the the expression(E) rule of the DWARF3 document.
+.P
+.in +4
+\f(CWdw_offset_or_block_len\fP is the length in bytes of
+the in-memory block  pointed at by \f(CWdw_block_ptr\fP.
+\f(CWdw_block_ptr\fP is a DWARF expression.
+Evaluate that expression and the result is the address
+where the previous value of register M is found.
+.in -4
+.P
+If \f(CWdw_value_type\fP  is DW_EXPR_VAL_EXPRESSION (3) then
+this is the the val_expression(E) rule of the DWARF3 spec.
+.P
+.in +4
+\f(CWdw_offset_or_block_len\fP is the length in bytes of
+the in-memory block  pointed at by \f(CWdw_block_ptr\fP.
+\f(CWdw_block_ptr\fP is a DWARF expression.
+Evaluate that expression and the result is the 
+previous value of register M.
+.in -4
+.P
+The rule \f(CWrt3_cfa_rule\fP is the current value of
+the CFA. It is interpreted exactly like
+any register M rule (as described just above) except that 
+\f(CWdw_regnum\fP cannot be CW_FRAME_CFA_REG3 or
+DW_FRAME_UNDEFINED_VAL or DW_FRAME_SAME_VAL but must
+be a real register number.
+.in -4
 
 
 
@@ -543,7 +729,7 @@ For other \f(CWdmd_type\fPs this is 0.
 
 .H 2 "Opaque Types"
 The opaque types declared in \fIlibdwarf.h\fP are used as descriptors
-for queries against dwarf information stored in various debugging 
+for queries against DWARF information stored in various debugging 
 sections.  Each time an instance of an opaque type is returned as a 
 result of a \fIlibdwarf\fP operation (\f(CWDwarf_Debug\fP excepted), 
 it should be free'd, using \f(CWdwarf_dealloc()\fP when it is no longer 
@@ -1857,7 +2043,7 @@ for the form to not belong to this class.
 The storage pointed 
 to by a successful return of \f(CWdwarf_formstring()\fP 
 should not be free'd.  The pointer points into
-existing dwarf memory and the pointer becomes stale/invalid
+existing DWARF memory and the pointer becomes stale/invalid
 after a call to \f(CWdwarf_finish\fP.
 \f(CWdwarf_formstring()\fP returns \f(CWDW_DLV_ERROR\fP on error.
 
@@ -3427,6 +3613,28 @@ of a table with a row per instruction and a column per register
 and a column for the canonical frame address (CFA, which corresponds
 to the notion of a frame pointer), 
 as well as a column for the return address.  
+.P
+From 1993-2006 the interface we'll here refer to as DWARF2
+made the CFA be a column in the matrix, but left
+DW_FRAME_UNDEFINED_VAL, and DW_FRAME_SAME_VAL out of the matrix
+(giving them high numbers). As of the DWARF3 interfaces
+introduced in this document in April 2006, there are *two*
+interfaces. 
+.P
+The original still exists (see.
+dwarf_get_fde_info_for_reg() and dwarf_get_fde_info_for_all_regs() below)
+and works adequately for MIPS/IRIX DWARF2 and ABI/ISA sets
+that are sufficiently similar (but the settings for non-MIPS
+must be set into libdwarf.h and cannot be changed at runtime).
+.P
+A new interface  set of dwarf_get_fde_info_for_reg3(),
+dwarf_get_fde_info_for_cfa_reg3(), dwarf_get_fde_info_for_all_regs3()
+dwarf_set_frame_rule_inital_value(), dwarf_set_frame_rule_table_size()
+is more flexible
+and should work for many more architectures
+and the setting of  DW_FRAME_CFA_COL and the size of
+the table can be set at runtime.
+.P
 Each cell in the table contains one of the following:
 
 .AL 
@@ -3436,6 +3644,7 @@ A register + offset(a)(b)
 .LI
 A register(c)(d)
 
+
 .LI
 A marker (DW_FRAME_UNDEFINED_VAL) meaning \fIregister value undefined\fP
 
@@ -3443,7 +3652,7 @@ A marker (DW_FRAME_UNDEFINED_VAL) meaning \fIregister value undefined\fP
 A marker (DW_FRAME_SAME_VAL) meaning \fIregister value same as in caller\fP
 .LE
 .P
-(a) When  the column is DW_FRAME_CFA_COL: the register
+(a old DWARF2 interface) When  the column is DW_FRAME_CFA_COL: the register
 number is a real hardware register, not a reference
 to DW_FRAME_CFA_COL, not  DW_FRAME_UNDEFINED_VAL,
 and not DW_FRAME_SAME_VAL. 
@@ -3460,6 +3669,13 @@ so those real registers should be marked DW_FRAME_UNDEFINED_VAL,
 and the CFA column content (whatever register it
 specifies) becomes unreferenced by anything.
 .P
+(a new April 2006 DWARF2/3 interface): The CFA is
+separately accessible and not part of the table.
+The 'rule number' for the CFA is a number outside the table. 
+So the CFA is a marker, not a register number.
+See  DW_FRAME_CFA_COL3 in libdwarf.h and
+dwarf_get_fde_info_for_cfa_reg3().
+.P
 (b) When the column is not DW_FRAME_CFA_COL, the 'register'
 will and must be DW_FRAME_CFA_COL, implying that
 to get the final location for the column one must add
@@ -3475,7 +3691,6 @@ may be a hardware register.
 It will not be DW_FRAME_CFA_COL.
 .P
 There is no 'column' for DW_FRAME_UNDEFINED_VAL or DW_FRAME_SAME_VAL.
-
 
 Figure \n(aX
 is machine dependent and represents MIPS cpu register
@@ -3513,6 +3728,8 @@ special cell values: these values mean
 that the cell has the value \fIundefined\fP or \fIsame value\fP
 respectively, rather than containing a \fIregister\fP or
 \fIregister+offset\fP.  
+It assumes DW_FRAME_CFA_COL is a table rule, which
+is not readily accomplished or sensible for some architectures.
 .P
 .DS
 .TS
@@ -3530,6 +3747,34 @@ DW_FRAME_SAME_VAL:1035:means 'same value' as
 .FG "Frame Information Special Values"
 .DE
 
+.P
+The following table shows more general special cell values. 
+These values mean
+that the cell register-number refers to the \fIcfa-register\fP or 
+\fIundefined-value\fP or \fIsame-value\fP
+respectively, rather than referring to a \fIregister in the table\fP.
+The generality arises from making DW_FRAME_CFA_COL3 be
+outside the set of registers and making the cfa rule accessible
+from outside the rule-table.
+.P
+.DS
+.TS
+center box, tab(:);
+lfB lfB lfB
+l c l.
+NAME:value:PURPOSE
+_
+DW_FRAME_UNDEFINED_VAL:1034:means undefined value.
+::Not a column or register value
+DW_FRAME_SAME_VAL:1035:means 'same value' as
+::caller had. Not a column or
+::register value
+DW_FRAME_CFA_COL3:1036:means 'cfa register'is referred to,
+::not a real register, not a column, but the cfa (the cfa
+::does have a value, but in the DWARF3 libdwarf interface
+::it does not have a 'real register number').
+.TE
+.DE
 .\"#if 0
 .\".P
 .\"Since the cie and fde entries are not "organized" by anything
@@ -3821,6 +4066,8 @@ must not be changed and there
 is nothing to free.
 
 .H 4 "dwarf_get_fde_info_for_reg()"
+This interface is suitable for DWARF2 but is not
+sufficient for DWARF3.  See \f(CWint dwarf_get_fde_info_for_reg3\fP.
 .DS
 \f(CWint dwarf_get_fde_info_for_reg(
         Dwarf_Fde fde,
@@ -3877,7 +4124,9 @@ It is usable with either
 .DE
 \f(CWdwarf_get_fde_info_for_all_regs()\fP returns
 \f(CWDW_DLV_OK\fP and sets \f(CW*reg_table\fP for the row specified by
-\f(CWpc_requested\fP for the FDE specified by \f(CWfde\fP. The intent is
+\f(CWpc_requested\fP for the FDE specified by \f(CWfde\fP. 
+.P
+The intent is
 to return the rules for decoding all the registers, given a pc value.
 \f(CWreg_table\fP is an array of rules, one for each register specified in
 \f(CWdwarf.h\fP. The rule for each register contains three items - 
@@ -3886,17 +4135,238 @@ to return the rules for decoding all the registers, given a pc value.
 \f(CWdw_offset_relevant\fP which is set to zero if offset is not relevant 
 for that rule. See \f(CWdwarf_get_fde_info_fo_reg()\fP for a description 
 of \f(CWrow_pc\fP.
+.P
+\f(CWdwarf_get_fde_info_for_all_regs\fP returns \f(CWDW_DLV_ERROR\fP if there is an error. 
+.P
+\f(CWint dwarf_get_fde_info_for_all_regs\fP is SGI/MIPS specific.
+
+
+.H 4 "dwarf_set_frame_rule_table_size()"
+.P
+This allows consumers to set the size of the (internal to libdwarf)
+rule table.  It should be at least as large as the
+number of real registers in the ABI which is to be read in
+for the dwarf_get_fde_info_for_reg3() or dwarf_get_fde_info_for_all_regs3()
+functions to work properly.
+It must be less than the marker values
+DW_FRAME_UNDEFINED_VAL, DW_FRAME_SAME_VAL, DW_FRAME_CFA_COL3.
+.P
+.DS
+\f(CWDwarf_Half
+dwarf_set_frame_rule_table_size(Dwarf_Debug dbg,
+         Dwarf_Half value);\fP
+
+.DE
+\f(CWddwarf_set_frame_rule_table_size()\fP sets the
+value \f(CWvalue\fP as the size of libdwarf-internal
+rules tables  of \f(CWdbg\fP.
+The function returns
+the previous value of the rules table size setting (taken from the 
+\f(CWdbg\fP structure).
+
+.H 4 "dwarf_set_frame_rule_inital_value()"
+This allows consumers to set the initial value
+for rows in the frame tables.  By default it
+is taken from libdwarf.h and is DW_FRAME_REG_INITIAL_VALUE
+(which itself is either DW_FRAME_SAME_VAL or DW_FRAME_UNDEFINED_VAL).
+The MIPS/IRIX default is DW_FRAME_SAME_VAL.
+Comsumer code should set this appropriately and for
+many architectures (but probably not MIPS) DW_FRAME_UNDEFINED_VAL is an
+appropriate setting.
+.DS
+\f(CWDwarf_Half
+dwarf_set_frame_rule_inital_value(Dwarf_Debug dbg,
+         Dwarf_Half value);\fP
+
+.DE
+\f(CWdwarf_set_frame_rule_inital_value()\fP sets the
+value \f(CWvalue\fP as the initial value for this \f(CWdbg\fP
+when initializing rules tables.  The function returns
+the previous value of the initial setting (taken from the 
+\f(CWdbg\fP structure).
+
+
+
+.H 4 "dwarf_get_fde_info_for_reg3()"
+This interface is suitable for DWARF3 and DWARF2.
+It returns the values for a particular real register
+(Not for the CFA register, see dwarf_get_fde_info_for_cfa_reg3()
+below).
+.DS
+\f(CWint dwarf_get_fde_info_for_reg3(
+        Dwarf_Fde fde,
+        Dwarf_Half table_column,
+        Dwarf_Addr pc_requested,
+	Dwarf_Small  *value_type,
+	Dwarf_Signed *offset_relevant,
+        Dwarf_Signed *register_num,
+        Dwarf_Signed *offset_or_block_len,
+	Dwarf_Ptr    *block_ptr,
+        Dwarf_Addr   *row_pc,
+        Dwarf_Error  *error);\fP
+.DE
+\f(CWdwarf_get_fde_info_for_re3()\fP returns
+\f(CWDW_DLV_OK\fP on success. 
+It sets \f(CW*value_type\fP
+to one of  DW_EXPR_OFFSET (0),
+DW_EXPR_VAL_OFFSET(1), DW_EXPR_EXPRESSION(2) or
+DW_EXPR_VAL_EXPRESSION(3).
+On call, \f(CWtable_column\fP must be set to the
+register number of a real register. Not
+the cfa 'register' or DW_FRAME_SAME_VALUE or
+DW_FRAME_UNDEFINED_VALUE.
+
+
+if \f(CW*value_type\fP has the value DW_EXPR_OFFSET (0) then:
+.in +4
+.P
+It sets \f(CW*offset_relevant\fP to
+non-zero if the offset is relevant for the
+row specified by \f(CWpc_requested\fP and column specified by
+\f(CWtable_column\fP or, for the FDE specified by \f(CWfde\fP.  
+In this case  the  \f(CW*register_num\fP will be set
+to DW_FRAME_CFA_COL3.  This is an offset(N) rule
+as specified in the DWARF3/2 documents.
+Adding the value of \f(CW*offset_or_block_len\fP
+to the value of the CFA register gives the address
+of a location holding the previous value of 
+register \f(CWtable_column\fP.
+
+.P
+If offset is not relevant for this rule, \f(CW*offset_relevant\fP is
+set to zero.  \f(CW*register_num\fP will be set
+to the number of the real register holding the value of 
+the \f(CWtable_column\fP register.
+This is the register(R) rule as specifified in DWARF3/2 documents.
+.P
+The
+intent is to return the rule for the given pc value and register.
+The location pointed to by \f(CWregister_num\fP is set to the register
+value for the rule.  
+The location pointed to by \f(CWoffset\fP 
+is set to the offset value for the rule.  
+Since more than one pc 
+value will have rows with identical entries, the user may want to
+know the earliest pc value after which the rules for all the columns
+remained unchanged.  
+Recall that in the virtual table that the frame information
+represents there may be one or more table rows with identical data
+(each such table row at a different pc value).
+Given a \f(CWpc_requested\fP which refers to a pc in such a group
+of identical rows, 
+the location pointed to by \f(CWrow_pc\fP is set 
+to the lowest pc value
+within the group of  identical rows.
+
+.in -4
+
+.P
+If \f(CW*value_type\fP has the value DW_EXPR_VAL_OFFSET (1) then:
+.in +4
+This will be a val_offset(N) rule as specified in the
+DWARF3/2 documents so  \f(CW*offset_relevant\fP will
+be non zero. 
+The calculation  is identical to the  DW_EXPR_OFFSET (0)
+calculation with  \f(CW*offset_relevant\fP non-zero, 
+but the value  resulting is the actual \f(CWtable_column\fP
+value (rather than the address where the value may be found).
+.in -4
+.P
+If \f(CW*value_type\fP has the value DW_EXPR_EXPRESSION (1) then:
+.in+4
+ \f(CW*offset_or_block_len\fP
+is set to the length in bytes of a block of memory
+with a DWARF expression in the block.
+\f(CW*block_ptr\fP is set to point at the block of memory.
+The consumer code should  evaluate the block as
+a DWARF-expression. The result is the address where
+the previous value of the register may be found.
+This is a DWARF3/2 expression(E) rule.
+.in -4
+.P
+If \f(CW*value_type\fP has the value DW_EXPR_VAL_EXPRESSION (1) then:
+.in +4
+The calculation is exactly as for DW_EXPR_EXPRESSION (1)
+but the result of the DWARF-expression evaluation is
+the value of the   \f(CWtable_column\fP (not
+the address of the value).
+This is a DWARF3/2 val_expression(E) rule.
+.in -4
+
+\f(CWdwarf_get_fde_info_for_reg\fP 
+returns \f(CWDW_DLV_ERROR\fP if there is an error and
+if there is an error only the \f(CWerror\fP pointer is set, none
+of the other output arguments are touched.
+
+It is usable with either 
+\f(CWdwarf_get_fde_n()\fP or \f(CWdwarf_get_fde_at_pc()\fP.
+
+
+.H 4 "dwarf_get_fde_info_for_cfa_reg3()"
+.DS
+ \f(CWint dwarf_get_fde_info_for_cfa_reg3(Dwarf_Fde fde,
+      Dwarf_Addr          pc_requested,
+      Dwarf_Small *       value_type,
+      Dwarf_Signed*       offset_relevant,
+      Dwarf_Signed*       register_num,
+      Dwarf_Signed*       offset_or_block_len,
+      Dwarf_Ptr   *       block_ptr ,
+      Dwarf_Addr  *       row_pc_out,
+      Dwarf_Error *       error)\fP
+.DE
+.P
+This is identical to  \f(CWdwarf_get_fde_info_for_reg3()\fP
+except the returned values are for the CFA rule.
+So register number \f(CW*register_num\fP will be set
+to a real register, not 
+DW_FRAME_CFA_COL3, DW_FRAME_SAME_VALUE, or
+DW_FRAME_UNDEFINED_VALUE.
+
+
+
+.H 4 "dwarf_get_fde_info_for_all_regs3()"
+.DS
+\f(CWint dwarf_get_fde_info_for_all_regs3(
+        Dwarf_Fde fde,
+        Dwarf_Addr pc_requested,
+	Dwarf_Regtable3 *reg_table,
+        Dwarf_Addr *row_pc,
+        Dwarf_Error *error)\fP
+.DE
+\f(CWdwarf_get_fde_info_for_all_regs3()\fP returns
+\f(CWDW_DLV_OK\fP and sets \f(CW*reg_table\fP 
+for the row specified by
+\f(CWpc_requested\fP for the FDE specified by \f(CWfde\fP. 
+The intent is
+to return the rules for decoding all the registers, given a pc
+value.  
+\f(CWreg_table\fP is an array of rules, the 
+array size specifed by the caller.
+plus a rule for the CFA.
+The rule for the cfa returned in  \f(CW*reg_table\fP
+defines the CFA value at  \f(CWpc_requested\fP
+The rule for each
+register contains  several values that enable
+the consumer to determine the previous value
+of the register (see the earlier documentation of Dwarf_Regtable3).
+\f(CWdwarf_get_fde_info_for_reg3()\fP  and
+the Dwarf_Regtable3 documentation above for a description of
+the values for each row.
 
 \f(CWdwarf_get_fde_info_for_all_regs\fP returns \f(CWDW_DLV_ERROR\fP if there is an error. 
 
-\f(CWint dwarf_get_fde_info_for_all_regs\fP is SGI/MIPS specific.
+It's up to the caller to allocate space for 
+\f(CW*reg_table\fP and initialize it properly.
+
+
+
 .H 4 "dwarf_get_fde_n()"
 .DS
 \f(CWint   dwarf_get_fde_n(
         Dwarf_Fde *fde_data,
         Dwarf_Unsigned fde_index,
 	Dwarf_Fde      *returned_fde
-        Dwarf_Error *error);\fP
+        Dwarf_Error *error)\fP
 .DE
 \f(CWdwarf_get_fde_n()\fP returns
 \f(CWDW_DLV_OK\fP and sets \f(CWreturned_fde\fP to
@@ -3920,7 +4390,7 @@ the block of \f(CWDwarf_Fde\fP descriptors has been created by a call to
         Dwarf_Fde *returned_fde,
         Dwarf_Addr *lopc,
         Dwarf_Addr *hipc,
-        Dwarf_Error *error);\fP
+        Dwarf_Error *error)\fP
 .DE
 \f(CWdwarf_get_fde_at_pc()\fP returns
 \f(CWDW_DLV_OK\fP and sets \f(CWreturned_fde\fP to
@@ -4238,8 +4708,8 @@ if (res == DW_DLV_OK) {
         Dwarf_Arange *aranges,
         Dwarf_Unsigned arange_count,
         Dwarf_Addr address,
-	Dwarf_Arange   *returned_arange,
-        Dwarf_Error *error)\fP
+	Dwarf_Arange *returned_arange,
+        Dwarf_Error *error);\fP
 .DE
 The function \f(CWdwarf_get_arange()\fP takes as input a pointer 
 to a block of \f(CWDwarf_Arange\fP pointers, and a count of the
@@ -4260,7 +4730,7 @@ entry covering that address.
 \f(CWint dwarf_get_cu_die_offset(
         Dwarf_Arange arange,
         Dwarf_Off   *returned_cu_die_offset,
-        Dwarf_Error *error)\fP
+        Dwarf_Error *error);\fP
 .DE
 The function \f(CWdwarf_get_cu_die_offset()\fP takes a
 \f(CWDwarf_Arange\fP descriptor as input, and 

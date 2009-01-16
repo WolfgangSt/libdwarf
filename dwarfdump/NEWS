@@ -1,3 +1,12 @@
+April 17, 2006
+  New -x name=<conf file> -x abi=<abiname> and configuration file
+  enable sensible printing of a wide range of .debug_frame eh_frame
+  correctly without recompiling dwarfdump or touching libdwarf.h or
+  dwarf.h.
+March 29, 2005
+  Now handles DWARF3. For non-MIPS objects, the list of register
+  names in print_sections.c is not appropriate, #define
+  DWARFDUMP_TURN_OFF_MIPS_REG_NAMES to turn off the MIPS names.
 December 1, 2005
   Added new DWARF3 TAGs and ATtributes to the -k lists,
   clarified the -k reporting, and made the build more robust

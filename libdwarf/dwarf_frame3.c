@@ -52,6 +52,9 @@
 	Returns DW_DLV_NO_ENTRY if no section. ?? (How do I tell?)
 	Returns DW_DLV_ERROR if there is an error.
 
+        Uses DW_FRAME_CFA_COL because IRIX is only DWARF2
+        and that is what IRIX compilers and compatible
+	compilers support on IRIX.
 */
 int
 _dwarf_frame_address_offsets(Dwarf_Debug dbg, Dwarf_Addr ** addrlist,
@@ -115,7 +118,9 @@ _dwarf_frame_address_offsets(Dwarf_Debug dbg, Dwarf_Addr ** addrlist,
 				      instr_end,
 				      /* Dwarf_frame= */ 0,
 				      /* cie= */ 0,
-				      dbg, &icount, &dw_err);
+				      dbg, 
+				DW_FRAME_CFA_COL,
+				&icount, &dw_err);
 	if (res == DW_DLV_ERROR) {
 	    _dwarf_error(dbg, err, dw_err);
 	    return (res);
@@ -209,7 +214,9 @@ _dwarf_frame_address_offsets(Dwarf_Debug dbg, Dwarf_Addr ** addrlist,
 				      instr_end,
 				      /* Dwarf_frame= */ 0,
 				      /* cie= */ 0,
-				      dbg, &icount, &dw_err);
+				      dbg, 
+				DW_FRAME_CFA_COL,
+					&icount, &dw_err);
 	if (res == DW_DLV_ERROR) {
 	    _dwarf_error(dbg, err, dw_err);
 	    return (res);

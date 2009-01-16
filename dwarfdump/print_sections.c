@@ -31,10 +31,12 @@
 
 
 
-$Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/print_sections.c,v 1.63 2006/03/18 21:15:35 davea Exp $ */
+$Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/print_sections.c,v 1.69 2006/04/17 00:09:56 davea Exp $ */
 #include "globals.h"
 #include "dwarf_names.h"
+#include "dwconf.h"
 
+#include "print_frames.h"
 /*
  * Print line number information:
  * 	filename
@@ -42,57 +44,16 @@ $Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/print_sections.c,v 1.6
  *	[line] [address] <new statement>
  */
 
-static Dwarf_Unsigned local_dwarf_decode_u_leb128(unsigned char *leb128,
-						  unsigned int
-						  *leb128_length);
-static Dwarf_Signed local_dwarf_decode_s_leb128(unsigned char *leb128,
-						  unsigned int
-						  *leb128_length);
-
-static void dump_block(char *prefix, char *data, Dwarf_Signed len);
 
 static void
-print_pubname_style_entry(Dwarf_Debug dbg,
-                char *line_title,
-                char *name, 
-                Dwarf_Unsigned die_off,
-                Dwarf_Unsigned cu_off,
-		Dwarf_Unsigned global_cu_off,
-                Dwarf_Unsigned maxoff);
+  print_pubname_style_entry(Dwarf_Debug dbg,
+			    char *line_title,
+			    char *name,
+			    Dwarf_Unsigned die_off,
+			    Dwarf_Unsigned cu_off,
+			    Dwarf_Unsigned global_cu_off,
+			    Dwarf_Unsigned maxoff);
 
-
-/* These are IRIX/MIPS register names. */
-
-static char *regnames[] = {
-    "cfa", "r1/at", "r2/v0", "r3/v1",
-    "r4/a0", "r5/a1", "r6/a2", "r7/a3",
-    "r8/t0", "r9/t1", "r10/t2", "r11/t3",
-    "r12/t4", "r13/t5", "r14/t6", "r15/t7",
-    "r16/s0", "r17/s1", "r18/s2", "r19/s3",
-    "r20/s4", "r21/s5", "r22/s6", "r23/s7",
-    "r24/t8", "r25/t9", "r26/k0", "r27/k1",
-    "r28/gp", "r29/sp", "r30/s8", "r31",
-
-    "$f0", "$f1",
-    "$f2", "$f3",
-    "$f4", "$f5",
-    "$f6", "$f7",
-    "$f8", "$f9",
-    "$f10", "$f11",
-    "$f12", "$f13",
-    "$f14", "$f15",
-    "$f16", "$f17",
-    "$f18", "$f19",
-    "$f20", "$f21",
-    "$f22", "$f23",
-    "$f24", "$f25",
-    "$f26", "$f27",
-    "$f28", "$f29",
-    "$f30", "$f31",
-    "ra", "slk",
-
-};
-static void printreg(Dwarf_Signed);
 
 /* referred in dwarfdump.c */
 Dwarf_Die current_cu_die_for_print_frames;
@@ -111,20 +72,20 @@ Dwarf_Die current_cu_die_for_print_frames;
 
 static void
 deal_with_name_offset_err(Dwarf_Debug dbg,
-		char *err_loc,
-                char *name, Dwarf_Unsigned die_off,
-		int nres,Dwarf_Error err)
+			  char *err_loc,
+			  char *name, Dwarf_Unsigned die_off,
+			  int nres, Dwarf_Error err)
 {
     if (nres == DW_DLV_ERROR) {
-          Dwarf_Unsigned myerr = dwarf_errno(err);
-	  if(myerr == DW_DLE_OFFSET_BAD) {
-	    printf("Error: bad offset %s, %s %lld (0x%llx)\n", 
-		err_loc,
-		name,
-		(long long)die_off,
-		(unsigned long long)die_off);
-	  }
-          print_error(dbg, err_loc, nres, err);
+	Dwarf_Unsigned myerr = dwarf_errno(err);
+
+	if (myerr == DW_DLE_OFFSET_BAD) {
+	    printf("Error: bad offset %s, %s %lld (0x%llx)\n",
+		   err_loc,
+		   name,
+		   (long long) die_off, (unsigned long long) die_off);
+	}
+	print_error(dbg, err_loc, nres, err);
     }
 }
 
@@ -132,12 +93,14 @@ static void
 print_source_intro(Dwarf_Die cu_die)
 {
     Dwarf_Off off = 0;
-    int ores = dwarf_dieoffset(cu_die,&off, &err);
-    if(ores == DW_DLV_OK) {
-        printf("Source lines (from CU-DIE at .debug_info offset %llu):\n",
-             (unsigned long long)off);
+    int ores = dwarf_dieoffset(cu_die, &off, &err);
+
+    if (ores == DW_DLV_OK) {
+	printf
+	    ("Source lines (from CU-DIE at .debug_info offset %llu):\n",
+	     (unsigned long long) off);
     } else {
-        printf("Source lines (for the CU-DIE at unknown location):\n");
+	printf("Source lines (for the CU-DIE at unknown location):\n");
     }
 }
 
@@ -145,27 +108,27 @@ print_source_intro(Dwarf_Die cu_die)
 extern void
 print_line_numbers_this_cu(Dwarf_Debug dbg, Dwarf_Die cu_die)
 {
-    Dwarf_Signed linecount;
-    Dwarf_Line *linebuf;
-    Dwarf_Signed i;
-    Dwarf_Addr pc;
-    Dwarf_Unsigned lineno;
-    Dwarf_Signed column;
+    Dwarf_Signed linecount = 0;
+    Dwarf_Line *linebuf = NULL;
+    Dwarf_Signed i = 0;
+    Dwarf_Addr pc = 0;
+    Dwarf_Unsigned lineno = 0;
+    Dwarf_Signed column = 0;
     string filename;
-    Dwarf_Bool newstatement;
-    Dwarf_Bool lineendsequence;
-    Dwarf_Bool new_basic_block;
-    int lres;
-    int sres;
-    int ares;
-    int lires;
-    int cores;
+    Dwarf_Bool newstatement = 0;
+    Dwarf_Bool lineendsequence = 0;
+    Dwarf_Bool new_basic_block = 0;
+    int lres = 0;
+    int sres = 0;
+    int ares = 0;
+    int lires = 0;
+    int cores = 0;
 
     printf("\n.debug_line: line number info for a single cu\n");
     if (verbose > 1) {
 	print_source_intro(cu_die);
-	print_one_die(dbg, cu_die, /*print_information= */ 1,
-		/*srcfiles= */0,/* cnt= */0);
+	print_one_die(dbg, cu_die, /* print_information= */ 1,
+		      /* srcfiles= */ 0, /* cnt= */ 0);
 
 	lres = _dwarf_print_lines(cu_die, &err);
 	if (lres == DW_DLV_ERROR) {
@@ -180,9 +143,9 @@ print_line_numbers_this_cu(Dwarf_Debug dbg, Dwarf_Die cu_die)
 	/* no line information is included */
     } else {
 	print_source_intro(cu_die);
-	if(verbose) {
-	   print_one_die(dbg, cu_die, /*print_information= */ 1,
-		/*srcfiles= */0,/* cnt= */0);
+	if (verbose) {
+	    print_one_die(dbg, cu_die, /* print_information= */ 1,
+			  /* srcfiles= */ 0, /* cnt= */ 0);
 	}
 	printf
 	    ("<source>\t[row,column]\t<pc>\t//<new statement or basic block\n");
@@ -252,7 +215,7 @@ print_line_numbers_this_cu(Dwarf_Debug dbg, Dwarf_Die cu_die)
 	    printf("\n");
 
 	}
-	dwarf_srclines_dealloc(dbg,linebuf,linecount);
+	dwarf_srclines_dealloc(dbg, linebuf, linecount);
     }
 }
 
@@ -283,10 +246,11 @@ static int
 get_proc_name(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Addr low_pc,
 	      char *proc_name_buf, int proc_name_buf_len)
 {
-    Dwarf_Signed atcnt, i;
-    Dwarf_Attribute *atlist;
+    Dwarf_Signed atcnt = 0; 
+    Dwarf_Signed i = 0;
+    Dwarf_Attribute *atlist = NULL;
     Dwarf_Addr low_pc_die = 0;
-    int atres;
+    int atres = 0;
     int funcres = 1;
     int funcpcfound = 0;
     int funcnamefound = 1;
@@ -322,17 +286,13 @@ get_proc_name(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Addr low_pc,
 		    print_error(dbg,
 				"formstring in get_proc_name failed",
 				sres, err);
-		    safe_strcpy(proc_name_buf, proc_name_buf_len, 
-			"ERROR in dwarf_formstring!", 
-			50	/* Safe wrong length since is bigger
-				than the actual string */ );
+                    /* 50 is safe wrong length since is bigger than the actual string */ 
+		    safe_strcpy(proc_name_buf, proc_name_buf_len, "ERROR in dwarf_formstring!", 50	);
 		} else if (sres == DW_DLV_NO_ENTRY) {
-		    safe_strcpy(proc_name_buf, proc_name_buf_len, 
-			"NO ENTRY on dwarf_formstring?!", 
-			50	/* Safe wrong length since is bigger
-				than the actual string. */ );
+                    /* 50 is safe wrong length since is bigger than the actual string */ 
+		    safe_strcpy(proc_name_buf, proc_name_buf_len, "NO ENTRY on dwarf_formstring?!", 50	);
 		} else {
-		    long len = (long)strlen(temps);
+		    long len = (long) strlen(temps);
 
 		    safe_strcpy(proc_name_buf, proc_name_buf_len, temps,
 				len);
@@ -407,7 +367,7 @@ get_nested_proc_name(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Addr low_pc,
 		if (proc_name_v) {
 		    /* this is it */
 		    safe_strcpy(ret_name_buf, ret_name_buf_len,
-				name_buf, (long)strlen(name_buf));
+				name_buf, (long) strlen(name_buf));
 		    if (die_locally_gotten) {
 			/* If we got this die from the parent, we do
 			   not want to dealloc here! */
@@ -424,18 +384,19 @@ get_nested_proc_name(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Addr low_pc,
 		    int newprog =
 			get_nested_proc_name(dbg, newchild, low_pc,
 					     name_buf, BUFSIZ);
+
 		    dwarf_dealloc(dbg, newchild, DW_DLA_DIE);
 		    if (newprog) {
 			/* Found it.  We could just take this name or
 			   we could concatenate names together For now, 
 			   just take name */
-		        if (die_locally_gotten) {
-			    /* If we got this die from the parent, we do
-			       not want to dealloc here! */
+			if (die_locally_gotten) {
+			    /* If we got this die from the parent, we
+			       do not want to dealloc here! */
 			    dwarf_dealloc(dbg, curdie, DW_DLA_DIE);
-		        }
+			}
 			safe_strcpy(ret_name_buf, ret_name_buf_len,
-				    name_buf, (long)strlen(name_buf));
+				    name_buf, (long) strlen(name_buf));
 			return 1;
 		    }
 		} else if (lchres == DW_DLV_NO_ENTRY) {
@@ -563,6 +524,7 @@ get_fde_proc_name(Dwarf_Debug dbg, Dwarf_Addr low_pc)
 	    int gotname =
 		get_nested_proc_name(dbg, child, low_pc, proc_name,
 				     BUFSIZ);
+
 	    dwarf_dealloc(dbg, child, DW_DLA_DIE);
 	    if (gotname) {
 		return (proc_name);
@@ -622,6 +584,7 @@ get_fde_proc_name(Dwarf_Debug dbg, Dwarf_Addr low_pc)
 		int gotname =
 		    get_nested_proc_name(dbg, child, low_pc, proc_name,
 					 BUFSIZ);
+
 		dwarf_dealloc(dbg, child, DW_DLA_DIE);
 		if (gotname) {
 		    return (proc_name);
@@ -632,475 +595,22 @@ get_fde_proc_name(Dwarf_Debug dbg, Dwarf_Addr low_pc)
     return (NULL);
 }
 
- /*ARGSUSED*/ static void
-print_frame_inst_bytes(Dwarf_Debug dbg,
-		       Dwarf_Ptr cie_init_inst, Dwarf_Signed len,
-		       Dwarf_Signed data_alignment_factor,
-		       int code_alignment_factor, Dwarf_Half addr_size)
-{
-    unsigned char *instp = (unsigned char *) cie_init_inst;
-    Dwarf_Unsigned uval;
-    Dwarf_Unsigned uval2;
-    unsigned int uleblen;
-    unsigned int off = 0;
-    unsigned int loff = 0;
-    unsigned short u16;
-    unsigned int u32;
-    unsigned long long u64;
-
-    for (; len > 0;) {
-	unsigned char ibyte = *instp;
-	int top = ibyte & 0xc0;
-	int bottom = ibyte & 0x3f;
-	int delta;
-	int reg;
-
-	switch (top) {
-	case DW_CFA_advance_loc:
-	    delta = ibyte & 0x3f;
-	    printf("\t%2u DW_CFA_advance_loc %d", off,
-		   (int) (delta * code_alignment_factor));
-	    if (verbose) {
-		printf("  (%d * %d)", (int) delta,
-		       (int) code_alignment_factor);
-	    }
-	    printf("\n");
-	    break;
-	case DW_CFA_offset:
-	    loff = off;
-	    reg = ibyte & 0x3f;
-	    uval = local_dwarf_decode_u_leb128(instp + 1, &uleblen);
-	    instp += uleblen;
-	    len -= uleblen;
-	    off += uleblen;
-	    printf("\t%2u DW_CFA_offset ", loff);
-	    printreg((Dwarf_Signed)reg);
-	    printf(" %lld", (signed long long)
-		   (((Dwarf_Signed) uval) * data_alignment_factor));
-	    if (verbose) {
-		printf("  (%llu * %d)", (unsigned long long) uval,
-		       (int) data_alignment_factor);
-	    }
-	    printf("\n");
-	    break;
-
-	case DW_CFA_restore:
-	    reg = ibyte & 0x3f;
-	    printf("\t%2u DW_CFA_restore \n", off);
-	    printreg((Dwarf_Signed)reg);
-	    printf("\n");
-	    break;
-
-	default:
-	    loff = off;
-	    switch (bottom) {
-	    case DW_CFA_set_loc:
-		/* operand is address, so need address size */
-		/* which will be 4 or 8. */
-		switch (addr_size) {
-		case 4:
-		    {
-			__uint32_t v32;
-
-			memcpy(&v32, instp + 1, addr_size);
-			uval = v32;
-		    }
-		    break;
-		case 8:
-		    {
-			__uint64_t v64;
-
-			memcpy(&v64, instp + 1, addr_size);
-			uval = v64;
-		    }
-		    break;
-		default:
-		    printf
-			("Error: Unexpected address size %d in DW_CFA_set_loc!\n",
-			 addr_size);
-		    uval = 0;
-		}
-
-		instp += addr_size;
-		len -= (Dwarf_Signed) addr_size;
-		off += addr_size;
-		printf("\t%2u DW_CFA_set_loc %llu\n",
-		       loff, (unsigned long long) uval);
-		break;
-	    case DW_CFA_advance_loc1:
-		delta = (unsigned char) *(instp + 1);
-		uval2 = delta;
-		instp += 1;
-		len -= 1;
-		off += 1;
-		printf("\t%2u DW_CFA_advance_loc1 %llu\n",
-		       loff, (unsigned long long) uval2);
-		break;
-	    case DW_CFA_advance_loc2:
-		memcpy(&u16, instp + 1, 2);
-		uval2 = u16;
-		instp += 2;
-		len -= 2;
-		off += 2;
-		printf("\t%2u DW_CFA_advance_loc2 %llu\n",
-		       loff, (unsigned long long) uval2);
-		break;
-	    case DW_CFA_advance_loc4:
-		memcpy(&u32, instp + 1, 4);
-		uval2 = u32;
-		instp += 4;
-		len -= 4;
-		off += 4;
-		printf("\t%2u DW_CFA_advance_loc4 %llu\n",
-		       loff, (unsigned long long) uval2);
-		break;
-	    case DW_CFA_MIPS_advance_loc8:
-		memcpy(&u64, instp + 1, 8);
-		uval2 = u64;
-		instp += 8;
-		len -= 8;
-		off += 8;
-		printf("\t%2u DW_CFA_MIPS_advance_loc8 %llu\n",
-		       loff, (unsigned long long) uval2);
-		break;
-	    case DW_CFA_offset_extended:
-		uval = local_dwarf_decode_u_leb128(instp + 1, &uleblen);
-		instp += uleblen;
-		len -= uleblen;
-		off += uleblen;
-		uval2 =
-		    local_dwarf_decode_u_leb128(instp + 1, &uleblen);
-		instp += uleblen;
-		len -= uleblen;
-		off += uleblen;
-		printf("\t%2u DW_CFA_offset_extended ", loff);
-		printreg((Dwarf_Signed)uval);
-		printf(" %lld", (signed long long)
-		       (((Dwarf_Signed) uval2) *
-			data_alignment_factor));
-		if (verbose) {
-		    printf("  (%llu * %d)", (unsigned long long) uval2,
-			   (int) data_alignment_factor);
-		}
-		printf("\n");
-		break;
-
-	    case DW_CFA_restore_extended:
-		uval = local_dwarf_decode_u_leb128(instp + 1, &uleblen);
-		instp += uleblen;
-		len -= uleblen;
-		off += uleblen;
-		printf("\t%2u DW_CFA_restore_extended ", loff);
-		printreg((Dwarf_Signed)uval);
-		printf("\n");
-		break;
-	    case DW_CFA_undefined:
-		uval = local_dwarf_decode_u_leb128(instp + 1, &uleblen);
-		instp += uleblen;
-		len -= uleblen;
-		off += uleblen;
-		printf("\t%2u DW_CFA_undefined ", loff);
-		printreg((Dwarf_Signed)uval);
-		printf("\n");
-		break;
-	    case DW_CFA_same_value:
-		uval = local_dwarf_decode_u_leb128(instp + 1, &uleblen);
-		instp += uleblen;
-		len -= uleblen;
-		off += uleblen;
-		printf("\t%2u DW_CFA_same_value ", loff);
-		printreg((Dwarf_Signed)uval);
-		printf("\n");
-		break;
-	    case DW_CFA_register:
-		uval = local_dwarf_decode_u_leb128(instp + 1, &uleblen);
-		instp += uleblen;
-		len -= uleblen;
-		off += uleblen;
-		uval2 =
-		    local_dwarf_decode_u_leb128(instp + 1, &uleblen);
-		instp += uleblen;
-		len -= uleblen;
-		off += uleblen;
-		printf("\t%2u DW_CFA_register ", loff);
-		printreg((Dwarf_Signed)uval);
-		printf(" = ");
-		printreg((Dwarf_Signed)uval2);
-		printf("\n");
-		break;
-	    case DW_CFA_remember_state:
-		printf("\t%2u DW_CFA_remember_state\n", loff);
-		break;
-	    case DW_CFA_restore_state:
-		printf("\t%2u DW_CFA_restore_state\n", loff);
-		break;
-	    case DW_CFA_def_cfa:
-		uval = local_dwarf_decode_u_leb128(instp + 1, &uleblen);
-		instp += uleblen;
-		len -= uleblen;
-		off += uleblen;
-		uval2 =
-		    local_dwarf_decode_u_leb128(instp + 1, &uleblen);
-		instp += uleblen;
-		len -= uleblen;
-		off += uleblen;
-		printf("\t%2u DW_CFA_def_cfa ", loff);
-		printreg((Dwarf_Signed)uval);
-		printf(" %llu", (unsigned long long) uval2);
-		printf("\n");
-		break;
-	    case DW_CFA_def_cfa_register:
-		uval = local_dwarf_decode_u_leb128(instp + 1, &uleblen);
-		instp += uleblen;
-		len -= uleblen;
-		off += uleblen;
-		printf("\t%2u DW_CFA_def_cfa_register ", loff);
-		printreg((Dwarf_Signed)uval);
-		printf("\n");
-		break;
-	    case DW_CFA_def_cfa_offset:
-		uval = local_dwarf_decode_u_leb128(instp + 1, &uleblen);
-		instp += uleblen;
-		len -= uleblen;
-		off += uleblen;
-		printf("\t%2u DW_CFA_def_cfa_offset %llu\n",
-		       loff, (unsigned long long) uval);
-		break;
-
-	    case DW_CFA_nop:
-		printf("\t%2u DW_CFA_nop\n", loff);
-		break;
-
-	    case DW_CFA_def_cfa_expression : /* DWARF3 */
-		{
-		  Dwarf_Unsigned block_len = 
-		      local_dwarf_decode_u_leb128(instp + 1, &uleblen);
-		  instp += uleblen;
-		  len -= uleblen;
-		  off += uleblen;
-		  printf("\t%2u DW_CFA_def_cfa_expression expr block len %lld\n", 
-			loff,
-		      (unsigned long long)
-			block_len);
-		  dump_block("\t\t",(char *)instp,block_len);
-		  instp += block_len;
-		  len -= block_len;
-		  off += block_len;
-		}
-		break;
-	    case DW_CFA_expression       : /* DWARF3 */
-                uval = local_dwarf_decode_u_leb128(instp + 1, &uleblen);
-                instp += uleblen;
-                len -= uleblen;
-                off += uleblen;
-                {
-                  Dwarf_Unsigned block_len =
-                      local_dwarf_decode_u_leb128(instp + 1, &uleblen);
-                  instp += uleblen;
-                  len -= uleblen;
-                  off += uleblen;
-                  printf("\t%2u DW_CFA_expression %llu expr block len %lld\n", loff,
-                      (unsigned long long)uval,(unsigned long long)
-                        block_len);
-                  dump_block("\t\t",(char *)instp,block_len);
-                  instp += block_len;
-                  len -= block_len;
-                  off += block_len;
-		}
-
-		break;
-            case DW_CFA_cfa_offset_extended_sf : /* DWARF3 */
-                uval = local_dwarf_decode_u_leb128(instp + 1, &uleblen);
-                instp += uleblen;
-                len -= uleblen;
-                off += uleblen;
-		{
-                   Dwarf_Signed sval2 =
-                    local_dwarf_decode_s_leb128(instp + 1, &uleblen);
-                   instp += uleblen;
-                   len -= uleblen;
-                   off += uleblen;
-                printf("\t%2u DW_CFA_offset_extended_sf ", loff);
-                printreg((Dwarf_Signed)uval);
-                printf(" %lld", (signed long long)
-                       (( sval2) * data_alignment_factor));
-                if (verbose) {
-                    printf("  (%lld * %d)", (long long) sval2,
-                           (int) data_alignment_factor);
-                }
-	        }
-                printf("\n");
-		break;
-            case DW_CFA_def_cfa_sf       :        /* DWARF3 */
- 		uval = local_dwarf_decode_u_leb128(instp + 1, &uleblen);
-                instp += uleblen;
-                len -= uleblen;
-                off += uleblen;
-		{
-                  Dwarf_Signed sval2 =
-                    local_dwarf_decode_s_leb128(instp + 1, &uleblen);
-                  instp += uleblen;
-                  len -= uleblen;
-                  off += uleblen;
-                  printf("\t%2u DW_CFA_def_cfa_sf ", loff);
-                  printreg(uval);
-                  printf(" %lld", (long long) sval2);
-                }
-                printf("\n");
-		break;
-            case DW_CFA_def_cfa_offset_sf : /* DWARF3 */
-		{
-		  Dwarf_Signed sval = local_dwarf_decode_s_leb128(instp + 1, 
-			&uleblen);
-                  instp += uleblen;
-                  len -= uleblen;
-                  off += uleblen;
-                  printf("\t%2u DW_CFA_def_cfa_offset_sf %lld\n",
-                       loff, (long long) sval);
-
-		}
-		break;
-            case DW_CFA_val_offset : /* DWARF3 */
- 		uval = local_dwarf_decode_u_leb128(instp + 1, &uleblen);
-                instp += uleblen;
-                len -= uleblen;
-                off += uleblen;
-                {
-                   uval2 =
-                    local_dwarf_decode_s_leb128(instp + 1, &uleblen);
-                   instp += uleblen;
-                   len -= uleblen;
-                   off += uleblen;
-                   printf("\t%2u DW_CFA_val_offset ", loff);
-                   printreg((Dwarf_Signed)uval);
-                   printf(" %lld", (unsigned long long)
-                       (( (Dwarf_Signed)uval2) * data_alignment_factor));
-                   if (verbose) {
-                    printf("  (%lld * %d)", (long long) uval2,
-                           (int) data_alignment_factor);
-                   }
-                }
-                printf("\n");
-
-		break;
-            case DW_CFA_val_offset_sf : /* DWARF3 */
-                uval = local_dwarf_decode_u_leb128(instp + 1, &uleblen);
-                instp += uleblen;
-                len -= uleblen;
-                off += uleblen;
-                {
-                   Dwarf_Signed sval2 =
-                    local_dwarf_decode_s_leb128(instp + 1, &uleblen);
-                   instp += uleblen;
-                   len -= uleblen;
-                   off += uleblen;
-                printf("\t%2u DW_CFA_val_offset_sf ", loff);
-                printreg((Dwarf_Signed)uval);
-                printf(" %lld", (signed long long)
-                       (( sval2) * data_alignment_factor));
-                if (verbose) {
-                    printf("  (%lld * %d)", (long long) sval2,
-                           (int) data_alignment_factor);
-                }
-                }
-                printf("\n");
-
-		break;
-            case DW_CFA_val_expression : /* DWARF3 */
-                uval = local_dwarf_decode_u_leb128(instp + 1, &uleblen);
-                instp += uleblen;
-                len -= uleblen;
-                off += uleblen;
-                {
-                  Dwarf_Unsigned block_len =
-                      local_dwarf_decode_u_leb128(instp + 1, &uleblen);
-                  instp += uleblen;
-                  len -= uleblen;
-                  off += uleblen;
-                  printf("\t%2u DW_CFA_val_expression %llu expr block len %lld\n", loff,
-                      (unsigned long long)uval,(unsigned long long)
-                        block_len);
-                  dump_block("\t\t",(char *)instp,block_len);
-                  instp += block_len;
-                  len -= block_len;
-                  off += block_len;
-                }
-
-
-		break;
-
-
-#ifdef DW_CFA_GNU_window_save
-	    case DW_CFA_GNU_window_save:{
-		    /* no information: this just tells unwinder to
-		       restore the window registers from the previous
-		       frame's window save area */
-		    printf("\t%2u DW_CFA_GNU_window_save \n", loff);
-		    break;
-		}
-#endif
-#ifdef DW_CFA_GNU_negative_offset_extended
-	    case DW_CFA_GNU_negative_offset_extended: {
-		    printf("\t%2u DW_CFA_GNU_negative_offset_extended \n", loff);
-	     }
-#endif
-#ifdef  DW_CFA_GNU_args_size
-		/* single uleb128 is the current arg area size in
-		   bytes. no register exists yet to save this in */
-	    case DW_CFA_GNU_args_size:{
-		    Dwarf_Unsigned lreg;
-
-		    lreg =
-			local_dwarf_decode_u_leb128(instp + 1,
-						    &uleblen);
-		    printf
-			("\t%2u DW_CFA_GNU_args_size arg size: %llu\n",
-			 loff, (unsigned long long) lreg);
-		    instp += uleblen;
-		    len -= uleblen;
-		    off += uleblen;
-
-		    break;
-		}
-#endif
-
-	    default:
-		printf("\t%u Unexpected op 0x%x: \n",
-		     loff, (unsigned int) bottom);
-		len = 0;
-		break;
-	    }
-	}
-	instp++;
-	len--;
-	off++;
-    }
-}
-
-/* get all the data in .debug_frame (or .eh_frame). */
+/* get all the data in .debug_frame (or .eh_frame). 
+ The '3' versions mean print using the dwarf3 new interfaces.
+ The non-3 mean use the old interfaces.
+ All combinations of requests are possible.
+*/
 extern void
-print_frames(Dwarf_Debug dbg, int print_debug_frame,
-	int print_eh_frame)
+print_frames(Dwarf_Debug dbg, int print_debug_frame, int print_eh_frame,
+	struct dwconf_s *config_data)
 {
-    Dwarf_Cie *cie_data;
-    Dwarf_Signed cie_element_count;
-    Dwarf_Fde *fde_data;
-    Dwarf_Signed fde_element_count;
-    Dwarf_Signed i, j, k;
-    Dwarf_Addr low_pc;
-    Dwarf_Unsigned func_length;
-    Dwarf_Ptr fde_bytes;
-    Dwarf_Unsigned fde_bytes_length;
-    Dwarf_Off cie_offset;
-    Dwarf_Signed cie_index;
-    Dwarf_Off fde_offset;
-    Dwarf_Signed reg;
-    Dwarf_Signed offset;
-    Dwarf_Signed eh_table_offset;
-    Dwarf_Addr row_pc;
-    int fres;
-    Dwarf_Half address_size;
-    int offres;
+    Dwarf_Cie *cie_data = NULL;
+    Dwarf_Signed cie_element_count = 0;
+    Dwarf_Fde *fde_data = NULL;
+    Dwarf_Signed fde_element_count = 0;
+    Dwarf_Signed i;
+    int fres = 0;
+    Dwarf_Half address_size = 0;
     int framed = 0;
 
     fres = dwarf_get_address_size(dbg, &address_size, &err);
@@ -1113,7 +623,7 @@ print_frames(Dwarf_Debug dbg, int print_debug_frame,
 	int is_eh = 0;
 
 	if (framed == 0) {
-	    if(! print_debug_frame) {
+	    if (!print_debug_frame) {
 		continue;
 	    }
 	    framename = ".debug_frame";
@@ -1128,7 +638,7 @@ print_frames(Dwarf_Debug dbg, int print_debug_frame,
 		dwarf_get_fde_list(dbg, &cie_data, &cie_element_count,
 				   &fde_data, &fde_element_count, &err);
 	} else {
-	    if(! print_eh_frame) {
+	    if (!print_eh_frame) {
 		continue;
 	    }
 	    is_eh = 1;
@@ -1140,9 +650,8 @@ print_frames(Dwarf_Debug dbg, int print_debug_frame,
 	       difference between the fde address and the beginning of
 	       the cie it belongs to. This makes sense as this is
 	       intended to be referenced at run time, and is part of
-	       the running image. 
-	       For more on augmentation strings, see
-	       libdwarf/dwarf_frame.c.  */
+	       the running image. For more on augmentation strings,
+	       see libdwarf/dwarf_frame.c.  */
 
 	    /* 
 	     * Big question here is how to print all the info?
@@ -1171,321 +680,52 @@ print_frames(Dwarf_Debug dbg, int print_debug_frame,
 	    printf("\nfde:\n");
 
 	    for (i = 0; i < fde_element_count; i++) {
-		string temps = 0;
-		int fres;
-
-		fres = dwarf_get_fde_range(fde_data[i],
-					   &low_pc, &func_length,
-					   &fde_bytes,
-					   &fde_bytes_length,
-					   &cie_offset, &cie_index,
-					   &fde_offset, &err);
-		if (fres == DW_DLV_ERROR) {
-		    print_error(dbg, "dwarf_get_fde_range", fres, err);
-		}
-		if (fres == DW_DLV_NO_ENTRY) {
-		    continue;
-		}
-		if (cu_name_flag &&
-		    fde_offset_for_cu_low != DW_DLV_BADOFFSET &&
-		    (fde_offset < fde_offset_for_cu_low ||
-		     fde_offset > fde_offset_for_cu_high)) {
-		    continue;
-		}
-		/* eh_table_offset is IRIX ONLY. */
-		fres = dwarf_get_fde_exception_info(fde_data[i],
-						    &eh_table_offset,
-						    &err);
-		if (fres == DW_DLV_ERROR) {
-		    print_error(dbg, "dwarf_get_fde_exception_info",
-				fres, err);
-		}
-		temps = get_fde_proc_name(dbg, low_pc);
-		printf
-		    ("<%3lld><%#llx:%#llx><%s><fde offset 0x%llx length: 0x%llx>",
-		     cie_index, low_pc, (low_pc + func_length),
-		     temps ? temps : "", fde_offset, fde_bytes_length);
-
-		
-	        if (!is_eh) {
-		  /* IRIX  uses eh_table_offset. */
-		  if (eh_table_offset == DW_DLX_NO_EH_OFFSET) {
-		    printf("<eh offset %s>\n", "none");
-		  } else if (eh_table_offset ==
-			   DW_DLX_EH_OFFSET_UNAVAILABLE) {
-		    printf("<eh offset %s>\n", "unknown");
-		  } else {
-		    printf("<eh offset 0x%llx>\n", eh_table_offset);
-		  }
-                } else {
-		   int ares = 0;
-	           Dwarf_Small *data = 0;
-	           Dwarf_Unsigned len = 0;
-
-		   ares = dwarf_get_fde_augmentation_data(fde_data[i],
-				&data, &len, &err);
-		   if(ares == DW_DLV_NO_ENTRY) {
-			/* do nothing. */
-		   } else if (ares == DW_DLV_OK) {
-		     int k2;
-		     printf("<eh aug data len 0x%llx bytes 0x",
-				(long long)len);
-		     for(k2 = 0; k2 < len; ++k2) {
-			 printf("%02x ",(unsigned char)data[k2]);
-		     }
-		     printf(">");
-		   } /* else DW_DLV_ERROR, do nothing */
-		}
-		/* call dwarf_get_fde_info_for_reg() to get whole
-		   matrix */
-		for (j = low_pc; j < low_pc + func_length; j++) {
-		    for (k = 0; k < DW_FRAME_LAST_REG_NUM; k++) {
-			Dwarf_Signed offset_relevant;
-			int fires;
-
-			fires = dwarf_get_fde_info_for_reg(fde_data[i],
-							   (Dwarf_Half)
-							   k,
-							   (Dwarf_Addr)
-							   j,
-							   &offset_relevant,
-							   &reg,
-							   &offset,
-							   &row_pc,
-							   &err);
-			if (fires == DW_DLV_ERROR) {
-			    print_error(dbg,
-					"dwarf_get_fde_info_for_reg",
-					fires, err);
-			}
-			if (fires == DW_DLV_NO_ENTRY) {
-			    continue;
-			}
-			if (row_pc != j) {
-			    /* duplicate row */
-			    break;
-			}
-			if (k == 0)
-			    printf("    %08llx:\t", j);
-			switch (reg) {
-			case DW_FRAME_UNDEFINED_VAL:
-			    printreg((Dwarf_Signed)k);
-			    printf("=u ");
-			    break;
-			case DW_FRAME_SAME_VAL:
-			    break;
-			default:
-			    printreg((Dwarf_Signed)k);
-			    printf("=");
-			    if (offset_relevant == 0) {
-				printreg((Dwarf_Signed)reg);
-				printf(" ");
-			    } else {
-				printf("%02lld", offset);
-				printf("(");
-				printreg((Dwarf_Signed)reg);
-				printf(") ");
-			    }
-			    break;
-			}
-			if (k == DW_FRAME_LAST_REG_NUM - 1) {
-			    printf("\n");
-			}
-		    }
-		}
-		if (verbose > 1) {
-		    Dwarf_Off fde_off;
-		    Dwarf_Off cie_off;
-
-		    /* get the fde instructions and print them in raw
-		       form, just like cie instructions */
-		    Dwarf_Ptr instrs;
-		    Dwarf_Unsigned ilen;
-		    int res;
-
-		    res = dwarf_get_fde_instr_bytes(fde_data[i],
-						    &instrs, &ilen,
-						    &err);
-		    offres =
-			_dwarf_fde_section_offset(dbg, fde_data[i],
-						  &fde_off, &cie_off,
-						  &err);
-		    if (offres == DW_DLV_OK) {
-			printf("\tfde sec. offset %llu 0x%llx"
-			       " cie offset for fde: %llu 0x%llx\n",
-			       (unsigned long long) fde_off,
-			       (unsigned long long) fde_off,
-			       (unsigned long long) cie_off,
-			       (unsigned long long) cie_off);
-
-		    }
-
-
-		    if (res == DW_DLV_OK) {
-			int cires;
-			Dwarf_Unsigned cie_length;
-			Dwarf_Small version;
-			string augmenter;
-			Dwarf_Unsigned code_alignment_factor;
-			Dwarf_Signed data_alignment_factor;
-			Dwarf_Half return_address_register_rule;
-			Dwarf_Ptr initial_instructions;
-			Dwarf_Unsigned initial_instructions_length;
-
-			cires = dwarf_get_cie_info(cie_data[cie_index],
-						   &cie_length,
-						   &version,
-						   &augmenter,
-						   &code_alignment_factor,
-						   &data_alignment_factor,
-						   &return_address_register_rule,
-						   &initial_instructions,
-						   &initial_instructions_length,
-						   &err);
-			if (cires == DW_DLV_ERROR) {
-			    printf
-				("Bad cie index %lld with fde index %lld!\n",
-				 (long long) cie_index, (long long) i);
-			    print_error(dbg, "dwarf_get_cie_info",
-					cires, err);
-			}
-			if (cires == DW_DLV_NO_ENTRY) {
-			    ;	/* ? */
-			} else {
-
-			    print_frame_inst_bytes(dbg, instrs, ilen,
-						   data_alignment_factor,
-						   code_alignment_factor,
-						   address_size);
-			}
-		    } else if (res == DW_DLV_NO_ENTRY) {
-			printf
-			    ("Impossible: no instr bytes for fde index %d?\n",
-			     (int) i);
-		    } else {
-			/* DW_DLV_ERROR */
-			printf
-			    ("Error: on gettinginstr bytes for fde index %d?\n",
-			     (int) i);
-			print_error(dbg, "dwarf_get_fde_instr_bytes",
-				    res, err);
-		    }
-
-		}
+		print_one_fde(dbg,fde_data[i],
+		    i, cie_data, cie_element_count,
+		    address_size,is_eh,config_data);
 	    }
 	    /* 
 	       Print the cie set. */
 	    if (verbose) {
 		printf("\ncie:\n");
 		for (i = 0; i < cie_element_count; i++) {
-		    int cires = 0;
-		    Dwarf_Unsigned cie_length = 0;
-		    Dwarf_Small version = 0;
-		    string augmenter = "";
-		    Dwarf_Unsigned code_alignment_factor = 0;
-		    Dwarf_Signed data_alignment_factor = 0;
-		    Dwarf_Half return_address_register_rule = 0;
-		    Dwarf_Ptr initial_instructions = 0;
-		    Dwarf_Unsigned initial_instructions_length = 0;
-		    Dwarf_Off cie_off = 0;
-
-		    cires = dwarf_get_cie_info(cie_data[i],
-					       &cie_length,
-					       &version,
-					       &augmenter,
-					       &code_alignment_factor,
-					       &data_alignment_factor,
-					       &return_address_register_rule,
-					       &initial_instructions,
-					       &initial_instructions_length,
-					       &err);
-		    if (cires == DW_DLV_ERROR) {
-			print_error(dbg, "dwarf_get_cie_info", cires,
-				    err);
-		    }
-		    if (cires == DW_DLV_NO_ENTRY) {
-			;	/* ? */
-			printf("Impossible DW_DLV_NO_ENTRY on cie %d\n",
-				(int)i);\
-			continue;
-		    }
-		    {
-			printf("<%3lld>\tversion\t\t\t\t%d\n", i,
-			       version);
-			cires =
-			    _dwarf_cie_section_offset(dbg, cie_data[i],
-						      &cie_off, &err);
-			if (cires == DW_DLV_OK) {
-			    printf("\tcie sec. offset %llu 0x%llx\n",
-				   (unsigned long long) cie_off,
-				   (unsigned long long) cie_off);
-
-			}
-
-			printf("\taugmentation\t\t\t%s\n", augmenter);
-			printf("\tcode_alignment_factor\t\t%llu\n",
-			       code_alignment_factor);
-			printf("\tdata_alignment_factor\t\t%lld\n",
-			       data_alignment_factor);
-			printf("\treturn_address_register\t\t%d\n",
-			       return_address_register_rule);
-			{
-                           int ares = 0;
-                           Dwarf_Small *data = 0;
-                           Dwarf_Unsigned len = 0;
-        
-                           ares = dwarf_get_cie_augmentation_data(cie_data[i],
-                                        &data, &len, &err);
-                           if(ares == DW_DLV_NO_ENTRY) {
-                                /* do nothing. */
-                           } else if (ares == DW_DLV_OK && len > 0) {
-                             int k2;
-                             printf("\teh aug data len 0x%llx bytes 0x",
-                                        (long long)len);
-                             for(k2 = 0; data && k2 < len; ++k2) {
-                                 printf("%02x ",(unsigned char)data[k2]);
-                             }
-                             printf("\n");
-                           } /* else DW_DLV_ERROR or no data, do nothing */
-                        }
-
-			printf
-			    ("\tbytes of initial instructions:\t%lld\n",
-			     (long long) initial_instructions_length);
-			printf("\tcie length :\t\t\t%lld\n",
-			       (long long) cie_length);
-			print_frame_inst_bytes(dbg,
-					       initial_instructions,
-					       initial_instructions_length,
-					       data_alignment_factor,
-					       code_alignment_factor,
-					       address_size);
-		    }
-		}
+	            print_one_cie(dbg, cie_data[i],i, address_size,
+			config_data);
+	        }
 	    }
 	    dwarf_fde_cie_list_dealloc(dbg, cie_data, cie_element_count,
-        		fde_data, fde_element_count);
+				       fde_data, fde_element_count);
 	}
     }
-    if( current_cu_die_for_print_frames) {
-	dwarf_dealloc(dbg,current_cu_die_for_print_frames, DW_DLA_DIE);
+    if (current_cu_die_for_print_frames) {
+	dwarf_dealloc(dbg, current_cu_die_for_print_frames, DW_DLA_DIE);
 	current_cu_die_for_print_frames = 0;
     }
 }
 
+
+
+
 int
-dwarf_get_section_max_offsets(Dwarf_Debug /*dbg*/,
-    Dwarf_Unsigned * /*debug_info_size*/,
-    Dwarf_Unsigned * /*debug_abbrev_size*/,
-    Dwarf_Unsigned * /*debug_line_size*/,
-    Dwarf_Unsigned * /*debug_loc_size*/,
-    Dwarf_Unsigned * /*debug_aranges_size*/,
-    Dwarf_Unsigned * /*debug_macinfo_size*/,
-    Dwarf_Unsigned * /*debug_pubnames_size*/,
-    Dwarf_Unsigned * /*debug_str_size*/,
-    Dwarf_Unsigned * /*debug_frame_size*/,
-    Dwarf_Unsigned * /*debug_ranges_size*/,
-    Dwarf_Unsigned * /*debug_pubtypes_size*/);
+  dwarf_get_section_max_offsets(Dwarf_Debug /* dbg */ ,
+				Dwarf_Unsigned * /* debug_info_size */ ,
+				Dwarf_Unsigned * /* debug_abbrev_size */
+				,
+				Dwarf_Unsigned * /* debug_line_size */ ,
+				Dwarf_Unsigned * /* debug_loc_size */ ,
+				Dwarf_Unsigned *
+				/* debug_aranges_size */ ,
+				Dwarf_Unsigned *
+				/* debug_macinfo_size */ ,
+				Dwarf_Unsigned *
+				/* debug_pubnames_size */ ,
+				Dwarf_Unsigned * /* debug_str_size */ ,
+				Dwarf_Unsigned * /* debug_frame_size */
+				,
+				Dwarf_Unsigned * /* debug_ranges_size */
+				,
+				Dwarf_Unsigned *
+				/* debug_pubtypes_size */ );
 
 /* The new (April 2005) dwarf_get_section_max_offsets()
    in libdwarf returns all max-offsets, but we only
@@ -1494,7 +734,7 @@ dwarf_get_section_max_offsets(Dwarf_Debug /*dbg*/,
    making functions needing this offset as readable as possible.
    (avoiding code duplication).
 */
-static Dwarf_Unsigned 
+static Dwarf_Unsigned
 get_info_max_offset(Dwarf_Debug dbg)
 {
     Dwarf_Unsigned debug_info_size = 0;
@@ -1510,19 +750,19 @@ get_info_max_offset(Dwarf_Debug dbg)
     Dwarf_Unsigned debug_pubtypes_size = 0;
 
     dwarf_get_section_max_offsets(dbg,
-    		&debug_info_size,
-    		&debug_abbrev_size,
-    		&debug_line_size,
-    		&debug_loc_size,
-    		&debug_aranges_size,
-    		&debug_macinfo_size,
-    		&debug_pubnames_size,
-    		&debug_str_size,
-    		&debug_frame_size,
-    		&debug_ranges_size,
-    		&debug_pubtypes_size);
+				  &debug_info_size,
+				  &debug_abbrev_size,
+				  &debug_line_size,
+				  &debug_loc_size,
+				  &debug_aranges_size,
+				  &debug_macinfo_size,
+				  &debug_pubnames_size,
+				  &debug_str_size,
+				  &debug_frame_size,
+				  &debug_ranges_size,
+				  &debug_pubtypes_size);
 
-   return debug_info_size;
+    return debug_info_size;
 }
 
 /* This unifies the code for some error checks to
@@ -1530,24 +770,23 @@ get_info_max_offset(Dwarf_Debug dbg)
 */
 static void
 check_info_offset_sanity(char *sec,
- 	char *field,
- 	char * global,
-	Dwarf_Unsigned offset,
-	Dwarf_Unsigned maxoff)
+			 char *field,
+			 char *global,
+			 Dwarf_Unsigned offset, Dwarf_Unsigned maxoff)
 {
-    if(maxoff == 0) {
-		/* Lets make a heuristic check. */
-	if(offset > 0xffffffff) {
-	  printf("Warning: section %s %s %s offset 0x%llx "
-		"exceptionally large \n", 
-		sec,field,global,(unsigned long long)offset);
+    if (maxoff == 0) {
+	/* Lets make a heuristic check. */
+	if (offset > 0xffffffff) {
+	    printf("Warning: section %s %s %s offset 0x%llx "
+		   "exceptionally large \n",
+		   sec, field, global, (unsigned long long) offset);
 	}
     }
-    if(offset >= maxoff) {
+    if (offset >= maxoff) {
 	printf("Warning: section %s %s %s offset 0x%llx "
-		"larger than max of 0x%llx\n", 
-		sec,field,global,(unsigned long long)offset,
-		(unsigned long long)maxoff);
+	       "larger than max of 0x%llx\n",
+	       sec, field, global, (unsigned long long) offset,
+	       (unsigned long long) maxoff);
     }
 }
 
@@ -1560,69 +799,68 @@ check_info_offset_sanity(char *sec,
 */
 static void
 print_pubname_style_entry(Dwarf_Debug dbg,
-                char *line_title,
-                char *name, 
-		Dwarf_Unsigned die_off,
-		Dwarf_Unsigned cu_off,
-		Dwarf_Unsigned global_cu_offset,
-	        Dwarf_Unsigned maxoff)
+			  char *line_title,
+			  char *name,
+			  Dwarf_Unsigned die_off,
+			  Dwarf_Unsigned cu_off,
+			  Dwarf_Unsigned global_cu_offset,
+			  Dwarf_Unsigned maxoff)
 {
-    Dwarf_Die die;
-    Dwarf_Die cu_die;
-    Dwarf_Off die_CU_off;
-    int dres;
-    int ddres;
-    int cudres;
+    Dwarf_Die die = NULL;
+    Dwarf_Die cu_die = NULL;
+    Dwarf_Off die_CU_off = 0;
+    int dres = 0;
+    int ddres = 0;
+    int cudres = 0;
 
     /* get die at die_off */
     dres = dwarf_offdie(dbg, die_off, &die, &err);
     if (dres != DW_DLV_OK)
-                print_error(dbg, "dwarf_offdie", dres, err);
+	print_error(dbg, "dwarf_offdie", dres, err);
 
     /* get offset of die from its cu-header */
     ddres = dwarf_die_CU_offset(die, &die_CU_off, &err);
     if (ddres != DW_DLV_OK) {
-        print_error(dbg, "dwarf_die_CU_offset", ddres, err);
+	print_error(dbg, "dwarf_die_CU_offset", ddres, err);
     }
 
     /* get die at offset cu_off */
     cudres = dwarf_offdie(dbg, cu_off, &cu_die, &err);
     if (cudres != DW_DLV_OK) {
-        dwarf_dealloc(dbg,die,DW_DLA_DIE);
-        print_error(dbg, "dwarf_offdie", cudres, err);
+	dwarf_dealloc(dbg, die, DW_DLA_DIE);
+	print_error(dbg, "dwarf_offdie", cudres, err);
     }
     printf("%s %-15s die %lld, cu-die %lld,"
-        " off-in-cu %lld, cu %lld",
-	line_title,
-        name, (long long) die_off, (long long) cu_off,
-        /* the cu die offset */
-        (long long) die_CU_off,
-        /* following is absolute offset of the ** beginning
-        of the cu */
-        (long long) (die_off - die_CU_off));
-            
+	   " off-in-cu %lld, cu %lld",
+	   line_title, name, (long long) die_off, (long long) cu_off,
+	   /* the cu die offset */
+	   (long long) die_CU_off,
+	   /* following is absolute offset of the ** beginning of the
+	      cu */
+	   (long long) (die_off - die_CU_off));
+
     if ((die_off - die_CU_off) != global_cu_offset) {
-        printf(" error: real cuhdr %llu", global_cu_offset);
-        exit(1);
+	printf(" error: real cuhdr %llu", global_cu_offset);
+	exit(1);
     }
     if (verbose) {
-        printf(" cuhdr %llu", global_cu_offset);
+	printf(" cuhdr %llu", global_cu_offset);
     }
 
 
-    dwarf_dealloc(dbg,die,DW_DLA_DIE);
-    dwarf_dealloc(dbg,cu_die,DW_DLA_DIE);
+    dwarf_dealloc(dbg, die, DW_DLA_DIE);
+    dwarf_dealloc(dbg, cu_die, DW_DLA_DIE);
 
 
     printf("\n");
 
     check_info_offset_sanity(line_title,
-                "die offset",name,die_off,maxoff);
+			     "die offset", name, die_off, maxoff);
     check_info_offset_sanity(line_title,
-                "die cu offset",name,die_CU_off,maxoff);
+			     "die cu offset", name, die_CU_off, maxoff);
     check_info_offset_sanity(line_title,
-                "cu offset",name,
-                (die_off - die_CU_off),maxoff);
+			     "cu offset", name,
+			     (die_off - die_CU_off), maxoff);
 
 }
 
@@ -1631,13 +869,13 @@ print_pubname_style_entry(Dwarf_Debug dbg,
 extern void
 print_pubnames(Dwarf_Debug dbg)
 {
-    Dwarf_Global *globbuf;
-    Dwarf_Signed count;
-    Dwarf_Signed i;
-    Dwarf_Off die_off;
-    Dwarf_Off cu_off;
-    char *name;
-    int res;
+    Dwarf_Global *globbuf = NULL;
+    Dwarf_Signed count = 0;
+    Dwarf_Signed i = 0;
+    Dwarf_Off die_off = 0;
+    Dwarf_Off cu_off = 0;
+    char *name = 0;
+    int res = 0;
 
     printf("\n.debug_pubnames\n");
     res = dwarf_get_globals(dbg, &globbuf, &count, &err);
@@ -1647,7 +885,8 @@ print_pubnames(Dwarf_Debug dbg)
 	/* (err == 0 && count == DW_DLV_NOCOUNT) means there are no
 	   pubnames.  */
     } else {
-        Dwarf_Unsigned maxoff =  get_info_max_offset(dbg);
+	Dwarf_Unsigned maxoff = get_info_max_offset(dbg);
+
 	for (i = 0; i < count; i++) {
 	    int nres;
 	    int cures3;
@@ -1656,19 +895,19 @@ print_pubnames(Dwarf_Debug dbg)
 	    nres = dwarf_global_name_offsets(globbuf[i],
 					     &name, &die_off, &cu_off,
 					     &err);
-	    deal_with_name_offset_err(dbg,"dwarf_global_name_offsets",
-			name,die_off,nres,err);
+	    deal_with_name_offset_err(dbg, "dwarf_global_name_offsets",
+				      name, die_off, nres, err);
 
-            cures3 = dwarf_global_cu_offset(globbuf[i],
-              	&global_cu_off, &err);
-            if (cures3 != DW_DLV_OK) {
-               print_error(dbg, "dwarf_global_cu_offset", cures3,
-                                err);
-            }
+	    cures3 = dwarf_global_cu_offset(globbuf[i],
+					    &global_cu_off, &err);
+	    if (cures3 != DW_DLV_OK) {
+		print_error(dbg, "dwarf_global_cu_offset", cures3, err);
+	    }
 
 	    print_pubname_style_entry(dbg,
-		"global",
-		name, die_off,cu_off,global_cu_off,maxoff);
+				      "global",
+				      name, die_off, cu_off,
+				      global_cu_off, maxoff);
 
 	    /* print associated die too? */
 
@@ -1678,14 +917,15 @@ print_pubnames(Dwarf_Debug dbg)
 		int dres;
 		Dwarf_Die die;
 
-		 /* get die at die_off */
-    	        dres = dwarf_offdie(dbg, die_off, &die, &err);
-                if (dres != DW_DLV_OK) {
-                   print_error(dbg, "dwarf_offdie", dres, err);
+		/* get die at die_off */
+		dres = dwarf_offdie(dbg, die_off, &die, &err);
+		if (dres != DW_DLV_OK) {
+		    print_error(dbg, "dwarf_offdie", dres, err);
 		}
 
 
-		ares = dwarf_hasattr(die, DW_AT_external, &has_attr, &err);
+		ares =
+		    dwarf_hasattr(die, DW_AT_external, &has_attr, &err);
 		if (ares == DW_DLV_ERROR) {
 		    print_error(dbg, "hassattr on DW_AT_external", ares,
 				err);
@@ -1698,111 +938,108 @@ print_pubnames(Dwarf_Debug dbg)
 		    DWARF_CHECK_ERROR2(name,
 				       "pubname does not have DW_AT_external")
 		}
-		dwarf_dealloc(dbg,die,DW_DLA_DIE);
+		dwarf_dealloc(dbg, die, DW_DLA_DIE);
 	    }
 	}
-	dwarf_globals_dealloc(dbg,globbuf,count);
+	dwarf_globals_dealloc(dbg, globbuf, count);
     }
-} /* print_pubnames() */
+}				/* print_pubnames() */
 
 
 struct macro_counts_s {
-	long mc_start_file;
-	long mc_end_file;
-	long mc_define;
-	long mc_undef;
-	long mc_extension;
-	long mc_code_zero;
-	long mc_unknown;
+    long mc_start_file;
+    long mc_end_file;
+    long mc_define;
+    long mc_undef;
+    long mc_extension;
+    long mc_code_zero;
+    long mc_unknown;
 };
 
-static void 
-print_one_macro_entry_detail(long i, 
-		char *type,
-		struct Dwarf_Macro_Details_s *mdp)
+static void
+print_one_macro_entry_detail(long i,
+			     char *type,
+			     struct Dwarf_Macro_Details_s *mdp)
 {
-    /*"DW_MACINFO_*: section-offset file-index [line] string\n" */
-    if(mdp->dmd_macro) {
-        printf( "%3ld %s: %6llu %2lld [%4lld] \"%s\" \n",
-                        i,
-                        type,
-                        mdp->dmd_offset,
-                        mdp->dmd_fileindex,
-                        mdp->dmd_lineno,
-                          mdp->dmd_macro);
-    }else {
-        printf( "%3ld %s: %6llu %2lld [%4lld] 0\n",
-                        i,
-                        type,
-                        mdp->dmd_offset,
-                        mdp->dmd_fileindex,
-                        mdp->dmd_lineno );
+    /* "DW_MACINFO_*: section-offset file-index [line] string\n" */
+    if (mdp->dmd_macro) {
+	printf("%3ld %s: %6llu %2lld [%4lld] \"%s\" \n",
+	       i,
+	       type,
+	       mdp->dmd_offset,
+	       mdp->dmd_fileindex, mdp->dmd_lineno, mdp->dmd_macro);
+    } else {
+	printf("%3ld %s: %6llu %2lld [%4lld] 0\n",
+	       i,
+	       type,
+	       mdp->dmd_offset, mdp->dmd_fileindex, mdp->dmd_lineno);
     }
 
 }
 
-static void 
-print_one_macro_entry(long i, 
-		struct Dwarf_Macro_Details_s *mdp,
-		struct macro_counts_s*counts)
+static void
+print_one_macro_entry(long i,
+		      struct Dwarf_Macro_Details_s *mdp,
+		      struct macro_counts_s *counts)
 {
 
-   switch (mdp->dmd_type) {
-   case  0:
+    switch (mdp->dmd_type) {
+    case 0:
 	counts->mc_code_zero++;
-        print_one_macro_entry_detail(i,"DW_MACINFO_type-code-0",mdp);
+	print_one_macro_entry_detail(i, "DW_MACINFO_type-code-0", mdp);
 	break;
 
-   case  DW_MACINFO_start_file :
+    case DW_MACINFO_start_file:
 	counts->mc_start_file++;
-        print_one_macro_entry_detail(i,"DW_MACINFO_start_file",mdp);
+	print_one_macro_entry_detail(i, "DW_MACINFO_start_file", mdp);
 	break;
 
-   case  DW_MACINFO_end_file  :
+    case DW_MACINFO_end_file:
 	counts->mc_end_file++;
-        print_one_macro_entry_detail(i,"DW_MACINFO_end_file  ",mdp);
+	print_one_macro_entry_detail(i, "DW_MACINFO_end_file  ", mdp);
 	break;
 
-   case  DW_MACINFO_vendor_ext :
+    case DW_MACINFO_vendor_ext:
 	counts->mc_extension++;
-        print_one_macro_entry_detail(i,"DW_MACINFO_vendor_ext",mdp);
+	print_one_macro_entry_detail(i, "DW_MACINFO_vendor_ext", mdp);
 	break;
 
-   case DW_MACINFO_define:
+    case DW_MACINFO_define:
 	counts->mc_define++;
-        print_one_macro_entry_detail(i,"DW_MACINFO_define    ",mdp);
+	print_one_macro_entry_detail(i, "DW_MACINFO_define    ", mdp);
 	break;
 
-   case DW_MACINFO_undef:
+    case DW_MACINFO_undef:
 	counts->mc_undef++;
-        print_one_macro_entry_detail(i,"DW_MACINFO_undef     ",mdp);
+	print_one_macro_entry_detail(i, "DW_MACINFO_undef     ", mdp);
 	break;
 
-   default:
+    default:
 	{
-        char  create_type[50]; /* More than large enough. */
-	counts->mc_unknown++;
-	snprintf(create_type,sizeof(create_type),
-			"DW_MACINFO_0x%x", mdp->dmd_type);	
-        print_one_macro_entry_detail(i,create_type,mdp);
+	    char create_type[50];	/* More than large enough. */
+
+	    counts->mc_unknown++;
+	    snprintf(create_type, sizeof(create_type),
+		     "DW_MACINFO_0x%x", mdp->dmd_type);
+	    print_one_macro_entry_detail(i, create_type, mdp);
 	}
 	break;
-   }
+    }
 }
 
 /* print data in .debug_macinfo */
 /* FIXME: should print name of file whose index is in macro data
    here  --  somewhere.
 */
-/*ARGSUSED*/ extern void
+ /*ARGSUSED*/ extern void
 print_macinfo(Dwarf_Debug dbg)
 {
     Dwarf_Off offset = 0;
     Dwarf_Unsigned max = 0;
-    Dwarf_Signed count;
+    Dwarf_Signed count = 0;
     long group = 0;
-    Dwarf_Macro_Details *maclist;
-    int lres;
+    Dwarf_Macro_Details *maclist = NULL;
+    int lres = 0;
 
     printf("\n.debug_macinfo\n");
 
@@ -1810,52 +1047,53 @@ print_macinfo(Dwarf_Debug dbg)
 					   max, &count, &maclist,
 					   &err)) == DW_DLV_OK) {
 	long i;
-	struct macro_counts_s  counts;
+	struct macro_counts_s counts;
 
 
-	memset(&counts, 0,sizeof(counts));
+	memset(&counts, 0, sizeof(counts));
 
-        printf("\n");
-        printf("compilation-unit .debug_macinfo # %ld\n",group);
-        printf("num name section-offset file-index [line] \"string\"\n");
+	printf("\n");
+	printf("compilation-unit .debug_macinfo # %ld\n", group);
+	printf
+	    ("num name section-offset file-index [line] \"string\"\n");
 	for (i = 0; i < count; i++) {
-	    struct Dwarf_Macro_Details_s *mdp = &
-			maclist[i];
-	    print_one_macro_entry(i,mdp,&counts);
+	    struct Dwarf_Macro_Details_s *mdp = &maclist[i];
+
+	    print_one_macro_entry(i, mdp, &counts);
 	}
 
-	if(counts.mc_start_file ==  0) {
-	  printf("DW_MACINFO file count of zero is invalid DWARF2/3\n");
+	if (counts.mc_start_file == 0) {
+	    printf
+		("DW_MACINFO file count of zero is invalid DWARF2/3\n");
 	}
-	if(counts.mc_start_file != counts.mc_end_file) {
-	  printf("Counts of DW_MACINFO file (%ld) end_file (%ld) "
-		"do not match!.\n",
-		counts.mc_start_file,counts.mc_end_file);
+	if (counts.mc_start_file != counts.mc_end_file) {
+	    printf("Counts of DW_MACINFO file (%ld) end_file (%ld) "
+		   "do not match!.\n",
+		   counts.mc_start_file, counts.mc_end_file);
 	}
-	if(counts.mc_code_zero < 1) {
-	  printf("Count of zeros in macro group should be non-zero "
-		"(1 preferred), count is %ld\n",
-		counts.mc_code_zero );
+	if (counts.mc_code_zero < 1) {
+	    printf("Count of zeros in macro group should be non-zero "
+		   "(1 preferred), count is %ld\n",
+		   counts.mc_code_zero);
 	}
 	printf("Macro counts: start file %ld, "
-		"end file %ld, "
-		"define %ld, "
-		"undef %ld "
-		"ext %ld, "
-		"code-zero %ld, "
-		"unknown %ld\n",
-		counts.mc_start_file,
-		counts.mc_end_file,
-		counts.mc_define,
-		counts.mc_undef,
-		counts.mc_extension,
-		counts.mc_code_zero,
-		counts.mc_unknown);
+	       "end file %ld, "
+	       "define %ld, "
+	       "undef %ld "
+	       "ext %ld, "
+	       "code-zero %ld, "
+	       "unknown %ld\n",
+	       counts.mc_start_file,
+	       counts.mc_end_file,
+	       counts.mc_define,
+	       counts.mc_undef,
+	       counts.mc_extension,
+	       counts.mc_code_zero, counts.mc_unknown);
 
 
-	/* int type=  maclist[count - 1].dmd_type; */
+	/* int type= maclist[count - 1].dmd_type; */
 	/* ASSERT: type is zero */
-        
+
 	offset = maclist[count - 1].dmd_offset + 1;
 	dwarf_dealloc(dbg, maclist, DW_DLA_STRING);
 	++group;
@@ -1870,12 +1108,12 @@ extern void
 print_locs(Dwarf_Debug dbg)
 {
     Dwarf_Unsigned offset = 0;
-    Dwarf_Addr hipc_offset;
-    Dwarf_Addr lopc_offset;
-    Dwarf_Ptr data;
-    Dwarf_Unsigned entry_len;
-    Dwarf_Unsigned next_entry;
-    int lres;
+    Dwarf_Addr hipc_offset = 0;
+    Dwarf_Addr lopc_offset = 0;
+    Dwarf_Ptr data = 0;
+    Dwarf_Unsigned entry_len = 0;
+    Dwarf_Unsigned next_entry = 0;
+    int lres = 0;
 
     printf("\n.debug_loc format <o b e l> means "
 	   "section-offset begin-addr end-addr length-of-block-entry\n");
@@ -1900,19 +1138,19 @@ print_abbrevs(Dwarf_Debug dbg)
 {
     Dwarf_Abbrev ab;
     Dwarf_Unsigned offset = 0;
-    Dwarf_Unsigned length;
-    Dwarf_Unsigned attr_count;
-    Dwarf_Half tag;
-    Dwarf_Half attr;
-    Dwarf_Signed form;
-    Dwarf_Off off;
-    Dwarf_Unsigned i;
+    Dwarf_Unsigned length = 0;
+    Dwarf_Unsigned attr_count = 0;
+    Dwarf_Half tag = 0;
+    Dwarf_Half attr = 0;
+    Dwarf_Signed form = 0;
+    Dwarf_Off off = 0;
+    Dwarf_Unsigned i = 0;
     string child_name;
     Dwarf_Unsigned abbrev_num = 1;
-    Dwarf_Signed child_flag;
-    int abres;
-    int tres;
-    int acres;
+    Dwarf_Signed child_flag = 0;
+    int abres = 0;
+    int tres = 0;
+    int acres = 0;
     Dwarf_Unsigned abbrev_code = 0;
 
     printf("\n.debug_abbrev\n");
@@ -1923,30 +1161,28 @@ print_abbrevs(Dwarf_Debug dbg)
 	if (attr_count == 0) {
 	    /* Simple innocuous zero : null abbrev entry */
 	    if (dense) {
-		printf("<%lld><%lld><%lld><%s>\n",
-		       abbrev_num,
-		       offset, (signed long long) /* abbrev_code */ 0,
+		printf("<%lld><%lld><%lld><%s>\n", abbrev_num, offset, (signed long long)	/* abbrev_code 
+												 */ 0,
 		       "null .debug_abbrev entry");
 	    } else {
-		printf("<%4lld><%5lld><code: %2lld> %-20s\n",
-		       abbrev_num,
-		       offset, (signed long long) /* abbrev_code */ 0,
+		printf("<%4lld><%5lld><code: %2lld> %-20s\n", abbrev_num, offset, (signed long long)	/* abbrev_code 
+													 */ 0,
 		       "null .debug_abbrev entry");
 	    }
 
 	    offset += length;
 	    ++abbrev_num;
-	    dwarf_dealloc(dbg,ab,DW_DLA_ABBREV);
+	    dwarf_dealloc(dbg, ab, DW_DLA_ABBREV);
 	    continue;
 	}
 	tres = dwarf_get_abbrev_tag(ab, &tag, &err);
 	if (tres != DW_DLV_OK) {
-	    dwarf_dealloc(dbg,ab,DW_DLA_ABBREV);
+	    dwarf_dealloc(dbg, ab, DW_DLA_ABBREV);
 	    print_error(dbg, "dwarf_get_abbrev_tag", tres, err);
 	}
 	tres = dwarf_get_abbrev_code(ab, &abbrev_code, &err);
 	if (tres != DW_DLV_OK) {
-	    dwarf_dealloc(dbg,ab,DW_DLA_ABBREV);
+	    dwarf_dealloc(dbg, ab, DW_DLA_ABBREV);
 	    print_error(dbg, "dwarf_get_abbrev_code", tres, err);
 	}
 	if (dense)
@@ -1958,7 +1194,7 @@ print_abbrevs(Dwarf_Debug dbg)
 	++abbrev_num;
 	acres = dwarf_get_abbrev_children_flag(ab, &child_flag, &err);
 	if (acres == DW_DLV_ERROR) {
-	    dwarf_dealloc(dbg,ab,DW_DLA_ABBREV);
+	    dwarf_dealloc(dbg, ab, DW_DLA_ABBREV);
 	    print_error(dbg, "dwarf_get_abbrev_children_flag", acres,
 			err);
 	}
@@ -1979,7 +1215,7 @@ print_abbrevs(Dwarf_Debug dbg)
 	    aeres =
 		dwarf_get_abbrev_entry(ab, i, &attr, &form, &off, &err);
 	    if (aeres == DW_DLV_ERROR) {
-	        dwarf_dealloc(dbg,ab,DW_DLA_ABBREV);
+		dwarf_dealloc(dbg, ab, DW_DLA_ABBREV);
 		print_error(dbg, "dwarf_get_abbrev_entry", aeres, err);
 	    }
 	    if (aeres == DW_DLV_NO_ENTRY) {
@@ -1989,13 +1225,13 @@ print_abbrevs(Dwarf_Debug dbg)
 	    if (dense)
 		printf(" <%ld>%s<%s>", (unsigned long) off,
 		       get_AT_name(dbg, attr),
-		       get_FORM_name(dbg, (Dwarf_Half)form));
+		       get_FORM_name(dbg, (Dwarf_Half) form));
 	    else
 		printf("      <%5ld>\t%-28s%s\n",
 		       (unsigned long) off, get_AT_name(dbg, attr),
-		       get_FORM_name(dbg, (Dwarf_Half)form));
+		       get_FORM_name(dbg, (Dwarf_Half) form));
 	}
-	dwarf_dealloc(dbg,ab,DW_DLA_ABBREV);
+	dwarf_dealloc(dbg, ab, DW_DLA_ABBREV);
 	offset += length;
 	if (dense)
 	    printf("\n");
@@ -2009,10 +1245,10 @@ print_abbrevs(Dwarf_Debug dbg)
 extern void
 print_strings(Dwarf_Debug dbg)
 {
-    Dwarf_Signed length;
+    Dwarf_Signed length = 0;
     string name;
     Dwarf_Off offset = 0;
-    int sres;
+    int sres = 0;
 
     printf("\n.debug_string\n");
     while ((sres = dwarf_get_str(dbg, offset, &name, &length, &err))
@@ -2030,15 +1266,15 @@ print_strings(Dwarf_Debug dbg)
 extern void
 print_aranges(Dwarf_Debug dbg)
 {
-    Dwarf_Signed count;
-    Dwarf_Signed i;
-    Dwarf_Arange *arange_buf;
-    Dwarf_Addr start;
-    Dwarf_Unsigned length;
-    Dwarf_Off cu_die_offset;
-    Dwarf_Die cu_die;
-    int ares;
-    int aires;
+    Dwarf_Signed count = 0;
+    Dwarf_Signed i = 0;
+    Dwarf_Arange *arange_buf = NULL;
+    Dwarf_Addr start = 0;
+    Dwarf_Unsigned length = 0;
+    Dwarf_Off cu_die_offset = 0;
+    Dwarf_Die cu_die = NULL;
+    int ares = 0;
+    int aires = 0;
 
     printf("\n.debug_aranges\n");
     ares = dwarf_get_aranges(dbg, &arange_buf, &count, &err);
@@ -2131,6 +1367,7 @@ print_aranges(Dwarf_Debug dbg)
 							      [i],
 							      &off,
 							      &err);
+
 			if (cures3 != DW_DLV_OK) {
 			    print_error(dbg, "dwarf_get_cu_hdr_offset",
 					cures3, err);
@@ -2159,12 +1396,12 @@ print_aranges(Dwarf_Debug dbg)
 extern void
 print_static_funcs(Dwarf_Debug dbg)
 {
-    Dwarf_Func *funcbuf;
-    Dwarf_Signed count;
-    Dwarf_Signed i;
-    Dwarf_Off die_off;
-    Dwarf_Off cu_off;
-    int gfres;
+    Dwarf_Func *funcbuf = NULL;
+    Dwarf_Signed count = 0;
+    Dwarf_Signed i = 0;
+    Dwarf_Off die_off = 0;
+    Dwarf_Off cu_off = 0;
+    int gfres = 0;
 
     printf("\n.debug_static_func\n");
     gfres = dwarf_get_funcs(dbg, &funcbuf, &count, &err);
@@ -2173,28 +1410,29 @@ print_static_funcs(Dwarf_Debug dbg)
     } else if (gfres == DW_DLV_NO_ENTRY) {
 	/* no static funcs */
     } else {
-        Dwarf_Unsigned maxoff =   get_info_max_offset(dbg);
+	Dwarf_Unsigned maxoff = get_info_max_offset(dbg);
+
 	for (i = 0; i < count; i++) {
 	    int fnres;
 	    int cures3;
 	    Dwarf_Unsigned global_cu_off = 0;
-            char *name = 0;
+	    char *name = 0;
 
 	    fnres =
 		dwarf_func_name_offsets(funcbuf[i], &name, &die_off,
 					&cu_off, &err);
 	    deal_with_name_offset_err(dbg, "dwarf_func_name_offsets",
-			name,die_off,fnres,err);
+				      name, die_off, fnres, err);
 
-            cures3 = dwarf_func_cu_offset(funcbuf[i],
-              		&global_cu_off, &err);
-            if (cures3 != DW_DLV_OK) {
-               print_error(dbg, "dwarf_global_cu_offset", cures3,
-                                err);
-            }
+	    cures3 = dwarf_func_cu_offset(funcbuf[i],
+					  &global_cu_off, &err);
+	    if (cures3 != DW_DLV_OK) {
+		print_error(dbg, "dwarf_global_cu_offset", cures3, err);
+	    }
 
 	    print_pubname_style_entry(dbg,
-		"static-func", name, die_off,cu_off,global_cu_off,maxoff);
+				      "static-func", name, die_off,
+				      cu_off, global_cu_off, maxoff);
 
 
 	    /* print associated die too? */
@@ -2204,14 +1442,15 @@ print_static_funcs(Dwarf_Debug dbg)
 		int dres;
 		Dwarf_Die die;
 
-		 /* get die at die_off */
-    	        dres = dwarf_offdie(dbg, die_off, &die, &err);
-                if (dres != DW_DLV_OK) {
-                   print_error(dbg, "dwarf_offdie", dres, err);
+		/* get die at die_off */
+		dres = dwarf_offdie(dbg, die_off, &die, &err);
+		if (dres != DW_DLV_OK) {
+		    print_error(dbg, "dwarf_offdie", dres, err);
 		}
 
 
-		ares = dwarf_hasattr(die, DW_AT_external, &has_attr, &err);
+		ares =
+		    dwarf_hasattr(die, DW_AT_external, &has_attr, &err);
 		if (ares == DW_DLV_ERROR) {
 		    print_error(dbg, "hassattr on DW_AT_external", ares,
 				err);
@@ -2224,24 +1463,24 @@ print_static_funcs(Dwarf_Debug dbg)
 		    DWARF_CHECK_ERROR2(name,
 				       "pubname does not have DW_AT_external")
 		}
-		dwarf_dealloc(dbg,die,DW_DLA_DIE);
+		dwarf_dealloc(dbg, die, DW_DLA_DIE);
 	    }
 	}
-	dwarf_funcs_dealloc(dbg,funcbuf,count);
+	dwarf_funcs_dealloc(dbg, funcbuf, count);
     }
-} /* print_static_funcs() */  
+}				/* print_static_funcs() */
 
 /* get all the data in .debug_static_vars */
 extern void
 print_static_vars(Dwarf_Debug dbg)
 {
-    Dwarf_Var *varbuf;
-    Dwarf_Signed count;
-    Dwarf_Signed i;
-    Dwarf_Off die_off;
-    Dwarf_Off cu_off;
-    char *name;
-    int gvres;
+    Dwarf_Var *varbuf = NULL;
+    Dwarf_Signed count = 0;
+    Dwarf_Signed i = 0;
+    Dwarf_Off die_off = 0;
+    Dwarf_Off cu_off = 0;
+    char *name = 0;
+    int gvres = 0;
 
     printf("\n.debug_static_vars\n");
     gvres = dwarf_get_vars(dbg, &varbuf, &count, &err);
@@ -2250,7 +1489,8 @@ print_static_vars(Dwarf_Debug dbg)
     } else if (gvres == DW_DLV_NO_ENTRY) {
 	/* no static vars */
     } else {
-	Dwarf_Unsigned maxoff =   get_info_max_offset(dbg);
+	Dwarf_Unsigned maxoff = get_info_max_offset(dbg);
+
 	for (i = 0; i < count; i++) {
 	    int vnres;
 	    int cures3;
@@ -2260,60 +1500,63 @@ print_static_vars(Dwarf_Debug dbg)
 		dwarf_var_name_offsets(varbuf[i], &name, &die_off,
 				       &cu_off, &err);
 	    deal_with_name_offset_err(dbg,
-		"dwarf_var_name_offsets",
-			name,die_off,vnres,err);
+				      "dwarf_var_name_offsets",
+				      name, die_off, vnres, err);
 
 	    cures3 = dwarf_var_cu_offset(varbuf[i],
-                &global_cu_off, &err);
-            if (cures3 != DW_DLV_OK) {
-               print_error(dbg, "dwarf_global_cu_offset", cures3,
-                                err);
-            }
+					 &global_cu_off, &err);
+	    if (cures3 != DW_DLV_OK) {
+		print_error(dbg, "dwarf_global_cu_offset", cures3, err);
+	    }
 
-            print_pubname_style_entry(dbg,
-                "static-var",
-                name, die_off,cu_off,global_cu_off,maxoff);
+	    print_pubname_style_entry(dbg,
+				      "static-var",
+				      name, die_off, cu_off,
+				      global_cu_off, maxoff);
 
 	    /* print associated die too? */
 	}
-	dwarf_vars_dealloc(dbg,varbuf,count);
+	dwarf_vars_dealloc(dbg, varbuf, count);
     }
-} /* print_static_vars */
+}				/* print_static_vars */
 
 /* get all the data in .debug_types */
 extern void
-print_types(Dwarf_Debug dbg,enum type_type_e type_type)
+print_types(Dwarf_Debug dbg, enum type_type_e type_type)
 {
-    Dwarf_Type *typebuf;
-    Dwarf_Signed count;
-    Dwarf_Signed i;
-    Dwarf_Off die_off;
-    Dwarf_Off cu_off;
-    char *name;
-    int gtres;
+    Dwarf_Type *typebuf = NULL;
+    Dwarf_Signed count = 0;
+    Dwarf_Signed i = 0;
+    Dwarf_Off die_off = 0;
+    Dwarf_Off cu_off = 0;
+    char *name = NULL;
+    int gtres = 0;
 
-    char * section_name =  NULL;
-    char * offset_err_name =  NULL;
-    char * section_open_name = NULL;
-    char * print_name_prefix = NULL;
-    int (*get_types)(Dwarf_Debug, Dwarf_Type**, Dwarf_Signed *, Dwarf_Error*)
-		= 0;
-    int (*get_offset)(Dwarf_Type, char   **, Dwarf_Off*, Dwarf_Off*, 
-			Dwarf_Error*) = NULL;
-    int (*get_cu_offset)(Dwarf_Type, Dwarf_Off*, Dwarf_Error*) = NULL;
-    void (*dealloctype)(Dwarf_Debug,Dwarf_Type* , Dwarf_Signed ) =  NULL;
+    char *section_name = NULL;
+    char *offset_err_name = NULL;
+    char *section_open_name = NULL;
+    char *print_name_prefix = NULL;
+    int (*get_types) (Dwarf_Debug, Dwarf_Type **, Dwarf_Signed *,
+		      Dwarf_Error *)
+	= 0;
+    int (*get_offset) (Dwarf_Type, char **, Dwarf_Off *, Dwarf_Off *,
+		       Dwarf_Error *) = NULL;
+    int (*get_cu_offset) (Dwarf_Type, Dwarf_Off *, Dwarf_Error *) =
+	NULL;
+    void (*dealloctype) (Dwarf_Debug, Dwarf_Type *, Dwarf_Signed) =
+	NULL;
 
 
-    if(type_type == DWARF_PUBTYPES) {
+    if (type_type == DWARF_PUBTYPES) {
 	section_name = ".debug_pubtypes";
-	offset_err_name  = "dwarf_pubtype_name_offsets";
+	offset_err_name = "dwarf_pubtype_name_offsets";
 	section_open_name = "dwarf_get_pubtypes";
 	print_name_prefix = "pubtype";
 	get_types = dwarf_get_pubtypes;
-	get_offset =  dwarf_pubtype_name_offsets;
+	get_offset = dwarf_pubtype_name_offsets;
 	get_cu_offset = dwarf_pubtype_cu_offset;
-	dealloctype =  dwarf_pubtypes_dealloc;
-    }else {
+	dealloctype = dwarf_pubtypes_dealloc;
+    } else {
 	/* SGI_TYPENAME */
 	section_name = ".debug_typenames";
 	offset_err_name = "dwarf_type_name_offsets";
@@ -2322,10 +1565,10 @@ print_types(Dwarf_Debug dbg,enum type_type_e type_type)
 	get_types = dwarf_get_types;
 	get_offset = dwarf_type_name_offsets;
 	get_cu_offset = dwarf_type_cu_offset;
-	dealloctype =  dwarf_types_dealloc;
+	dealloctype = dwarf_types_dealloc;
     }
 
-    
+
 
     gtres = get_types(dbg, &typebuf, &count, &err);
     if (gtres == DW_DLV_ERROR) {
@@ -2333,50 +1576,50 @@ print_types(Dwarf_Debug dbg,enum type_type_e type_type)
     } else if (gtres == DW_DLV_NO_ENTRY) {
 	/* no types */
     } else {
-        Dwarf_Unsigned maxoff =   get_info_max_offset(dbg);
+	Dwarf_Unsigned maxoff = get_info_max_offset(dbg);
 
 	/* Before July 2005, the section name was printed
-	   unconditionally, now only prints if non-empty	
-	   section really exists. */
-	printf("\n%s\n",section_name);
+	   unconditionally, now only prints if non-empty section
+	   really exists. */
+	printf("\n%s\n", section_name);
 
 	for (i = 0; i < count; i++) {
 	    int tnres;
 	    int cures3;
 	    Dwarf_Off global_cu_off = 0;
 
-	    tnres = get_offset(typebuf[i], &name, &die_off, &cu_off, &err);
-	    deal_with_name_offset_err(dbg,
-		offset_err_name, name,die_off,tnres,err);
+	    tnres =
+		get_offset(typebuf[i], &name, &die_off, &cu_off, &err);
+	    deal_with_name_offset_err(dbg, offset_err_name, name,
+				      die_off, tnres, err);
 
-            cures3 = get_cu_offset(typebuf[i],
-                &global_cu_off, &err);
+	    cures3 = get_cu_offset(typebuf[i], &global_cu_off, &err);
 
-            if (cures3 != DW_DLV_OK) {
-               print_error(dbg, "dwarf_var_cu_offset", cures3,
-                                err);
-            }
-            print_pubname_style_entry(dbg,
-                print_name_prefix,
-                name, die_off,cu_off,global_cu_off,maxoff);
+	    if (cures3 != DW_DLV_OK) {
+		print_error(dbg, "dwarf_var_cu_offset", cures3, err);
+	    }
+	    print_pubname_style_entry(dbg,
+				      print_name_prefix,
+				      name, die_off, cu_off,
+				      global_cu_off, maxoff);
 
 	    /* print associated die too? */
 	}
-	dealloctype(dbg,typebuf,count);
+	dealloctype(dbg, typebuf, count);
     }
-} /* print_types() */
+}				/* print_types() */
 
 /* get all the data in .debug_weaknames */
 extern void
 print_weaknames(Dwarf_Debug dbg)
 {
-    Dwarf_Weak *weaknamebuf;
-    Dwarf_Signed count;
-    Dwarf_Signed i;
-    Dwarf_Off die_off;
-    Dwarf_Off cu_off;
-    char *name;
-    int wkres;
+    Dwarf_Weak *weaknamebuf = NULL;
+    Dwarf_Signed count = 0;
+    Dwarf_Signed i = 0;
+    Dwarf_Off die_off = 0;
+    Dwarf_Off cu_off = 0;
+    char *name = NULL;
+    int wkres = 0;
 
     printf("\n.debug_weaknames\n");
     wkres = dwarf_get_weaks(dbg, &weaknamebuf, &count, &err);
@@ -2385,7 +1628,8 @@ print_weaknames(Dwarf_Debug dbg)
     } else if (wkres == DW_DLV_NO_ENTRY) {
 	/* no weaknames */
     } else {
-	Dwarf_Unsigned maxoff =   get_info_max_offset(dbg);
+	Dwarf_Unsigned maxoff = get_info_max_offset(dbg);
+
 	for (i = 0; i < count; i++) {
 	    int tnres;
 	    int cures3;
@@ -2396,55 +1640,41 @@ print_weaknames(Dwarf_Debug dbg)
 					    &name, &die_off, &cu_off,
 					    &err);
 	    deal_with_name_offset_err(dbg,
-		"dwarf_weak_name_offsets",
-			name,die_off,tnres,err);
+				      "dwarf_weak_name_offsets",
+				      name, die_off, tnres, err);
 
 	    cures3 = dwarf_weak_cu_offset(weaknamebuf[i],
-                        &global_cu_off, &err);
+					  &global_cu_off, &err);
 
 	    if (cures3 != DW_DLV_OK) {
-		    print_error(dbg, "dwarf_weakname_cu_offset",
-				cures3, err);
+		print_error(dbg, "dwarf_weakname_cu_offset",
+			    cures3, err);
 	    }
 	    print_pubname_style_entry(dbg,
-		"weakname",
-		name, die_off,cu_off,global_cu_off,maxoff);
+				      "weakname",
+				      name, die_off, cu_off,
+				      global_cu_off, maxoff);
 
 	    /* print associated die too? */
 	}
-	dwarf_weaks_dealloc(dbg,weaknamebuf,count);
+	dwarf_weaks_dealloc(dbg, weaknamebuf, count);
     }
-} /* print_weaknames() */
+}				/* print_weaknames() */
 
-/* Print our register names for the cases we have a name.
-*/
-static void
-printreg(Dwarf_Signed reg)
-{
-    int tablemax = sizeof(regnames)/(sizeof(regnames[0]));
-    if(reg< 0 || reg >= tablemax) {
-	printf("r%lld", (long long)reg);
-    } else  {
-       printf("%s", regnames[reg]);
-    }
-}
 
 
 /*
     decode ULEB
 */
-static Dwarf_Unsigned
+Dwarf_Unsigned
 local_dwarf_decode_u_leb128(unsigned char *leb128,
 			    unsigned int *leb128_length)
 {
-    unsigned char byte;
-    Dwarf_Unsigned number;
-    unsigned int shift;
-    unsigned int byte_length;
+    unsigned char byte = 0;
+    Dwarf_Unsigned number = 0;
+    unsigned int shift = 0;
+    unsigned int byte_length = 1;
 
-    number = 0;
-    shift = 0;
-    byte_length = 1;
     byte = *leb128;
     for (;;) {
 	number |= (byte & 0x7f) << shift;
@@ -2462,9 +1692,9 @@ local_dwarf_decode_u_leb128(unsigned char *leb128,
 }
 
 #define BITSINBYTE 8
-static Dwarf_Signed
+Dwarf_Signed
 local_dwarf_decode_s_leb128(unsigned char *leb128,
-                            unsigned int *leb128_length)
+			    unsigned int *leb128_length)
 {
     Dwarf_Signed number = 0;
     Dwarf_Bool sign = 0;
@@ -2476,42 +1706,44 @@ local_dwarf_decode_s_leb128(unsigned char *leb128,
        turning the leb into a Dwarf_Signed. */
 
     for (;;) {
-        sign = byte & 0x40;
-        number |= ((Dwarf_Signed) ((byte & 0x7f))) << shift;
-        shift += 7;
+	sign = byte & 0x40;
+	number |= ((Dwarf_Signed) ((byte & 0x7f))) << shift;
+	shift += 7;
 
-        if ((byte & 0x80) == 0) {
-            break;
-        }
-        ++leb128;
-        byte = *leb128;
-        byte_length++;
+	if ((byte & 0x80) == 0) {
+	    break;
+	}
+	++leb128;
+	byte = *leb128;
+	byte_length++;
     }
 
     if ((shift < sizeof(Dwarf_Signed) * BITSINBYTE) && sign) {
-        number |= -((Dwarf_Signed) 1 << shift);
+	number |= -((Dwarf_Signed) 1 << shift);
     }
 
     if (leb128_length != NULL)
-        *leb128_length = byte_length;
+	*leb128_length = byte_length;
     return (number);
 }
 
 
 /* Dumping a dwarf-expression as a byte stream. */
-static void
+void
 dump_block(char *prefix, char *data, Dwarf_Signed len)
 {
-  char *end_data = data+len;
-  char *cur = data;
-  int i = 0;
-  printf("%s ",prefix);
-  for( ; cur < end_data; ++cur,++i) {
-    if(i > 0 && i%4 == 0) printf(" ");
-    printf("%02x",0xff&*cur);
+    char *end_data = data + len;
+    char *cur = data;
+    int i = 0;
 
-  }
-  
-  printf("\n");
+    printf("%s ", prefix);
+    for (; cur < end_data; ++cur, ++i) {
+	if (i > 0 && i % 4 == 0)
+	    printf(" ");
+	printf("%02x", 0xff & *cur);
+
+    }
+
+    printf("\n");
 
 }
