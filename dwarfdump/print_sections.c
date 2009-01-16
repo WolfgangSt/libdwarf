@@ -31,7 +31,7 @@
 
 
 
-$Header: /hosts/bonnie.engr/disks/xlv2/cmplrs.src/osprey1.0/dwarfdump/RCS/print_sections.c,v 1.58 2000/06/12 22:18:55 davea Exp $ */
+$Header: /hosts/bonnie.engr/disks/xlv6/cmplrs.src/cmplrs.src_v7.4/dwarfdump/RCS/print_sections.c,v 1.49 2001/01/16 17:47:55 davea Exp $ */
 #include "globals.h"
 #include "dwarf_names.h"
 
@@ -553,8 +553,12 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 	switch(top) {
 	case DW_CFA_advance_loc:
 	   delta = ibyte&0x3f;
-	   printf("\t%2u DW_CFA_advance_loc %d\n",off,
+	   printf("\t%2u DW_CFA_advance_loc %d",off,
 			(int)(delta*code_alignment_factor));
+	   if(verbose) {
+		printf("  (%d * %d)",(int)delta,(int)code_alignment_factor);
+	   }
+	   printf("\n");
 	   break;
 	case DW_CFA_offset:
 	   loff = off;
@@ -565,9 +569,14 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 	   off += uleblen;
 	   printf("\t%2u DW_CFA_offset ",loff);
 	   printreg(reg);
-	   printf(" %lld\n",
+	   printf(" %lld",
 		(signed long long)
 			(((Dwarf_Signed)uval)*data_alignment_factor));
+	   if(verbose) {
+		printf("  (%llu * %d)",(unsigned long long)uval,
+				(int)data_alignment_factor);
+	   }
+	   printf("\n");
 	   break;
 
 	case DW_CFA_restore:
@@ -654,9 +663,14 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
                 off += uleblen;
                 printf("\t%2u DW_CFA_offset_extended ", loff);
 		printreg(uval);
-                printf(" %lld\n", 
+                printf(" %lld", 
 			(signed long long)
 			(((Dwarf_Signed)uval2)*data_alignment_factor));
+	        if(verbose) {
+		     printf("  (%llu * %d)",(unsigned long long)uval2,
+				(int)data_alignment_factor);
+	        }
+	        printf("\n");
                 break;
 
 	    case DW_CFA_restore_extended:
@@ -1078,7 +1092,11 @@ print_frames (Dwarf_Debug dbg)
 			   (long long)initial_instructions_length);
 		    printf("\tcie length :\t\t\t%lld\n", 
 			   (long long)cie_length);
-		    print_frame_inst_bytes(dbg,initial_instructions,initial_instructions_length,data_alignment_factor,code_alignment_factor,address_size);
+		    print_frame_inst_bytes(dbg,initial_instructions,
+				initial_instructions_length,
+				data_alignment_factor,
+				code_alignment_factor,
+				address_size);
 		}
 	      }
 	    }
@@ -1142,7 +1160,7 @@ print_pubnames (Dwarf_Debug dbg)
 		    print_error (dbg, "dwarf_offdie",cudres, err);
                 }
 		printf("global %-15s die %lld, cu-die %lld,"
-			" off-in-cu %lld, cu %lld\n", 
+			" off-in-cu %lld, cu %lld", 
 			name,(long long)die_off,
 			(long long)cu_off, 
 			/* the cu die offset */
@@ -1150,7 +1168,23 @@ print_pubnames (Dwarf_Debug dbg)
 			/* following is absolute offset of the
 			** beginning of the cu
 			*/
-			(long long)die_off - die_CU_off);
+			(long long)(die_off - die_CU_off));
+	 	{	
+		   /* get the offset of the cu header itself in the section */
+	           Dwarf_Off off = 0;
+		   int cures3 = 
+			dwarf_global_cu_offset(globbuf[i],
+				&off,&err);
+		   if(cures3 != DW_DLV_OK) {
+		    print_error (dbg, "dwarf_global_cu_offset",cudres, err);
+		   }
+		   if((die_off - die_CU_off) != off) {
+		     printf(" error: real cuhdr %llu",off);
+		     exit(1);
+		   }
+		
+		}
+		printf("\n");
 		dwarf_dealloc (dbg, name, DW_DLA_STRING);
 		/* print associated die too? */
 
@@ -1436,9 +1470,27 @@ print_aranges (Dwarf_Debug dbg)
 				}
 				dwarf_dealloc(dbg, attrib, DW_DLA_ATTR);
 			    }
-			    printf("\narange starts at %llx, length of %lld, cu_die_offset = %lld\n", 
+			    printf("\narange starts at %llx, "
+				"length of %lld, cu_die_offset = %lld",
 				   start, length, cu_die_offset);
+                   	    /* get the offset of the cu 
+				  header itself in the section */
+			    {
+                   	     Dwarf_Off off = 0;
+                   	     int cures3 =
+                        		dwarf_get_arange_cu_header_offset(
+						arange_buf[i],
+                                		&off,&err);
+                   	     if(cures3 != DW_DLV_OK) {
+                    		print_error (dbg, "dwarf_get_cu_hdr_offset",
+					cures3, err);
+                   	     }
+		             if(verbose) 
+		     	        printf(" cuhdr %llu",off);
+                   	    }
+			    printf("\n");
 			    print_one_die(dbg, cu_die, (boolean)TRUE);
+
 			    dwarf_dealloc(dbg, cu_die, DW_DLA_DIE);
 			}
 		    }
@@ -1495,7 +1547,7 @@ print_static_funcs(Dwarf_Debug dbg)
 		print_error (dbg, "dwarf_offdie2",dores, err);
 	    }
 	    printf("static-func %-15s die %lld, cu-die %lld,"
-			" off-in-cu %lld, cu %lld\n", 
+			" off-in-cu %lld, cu %lld", 
                         name,(long long)die_off,
                         (long long)cu_off,
                         /* the cu die offset */
@@ -1503,8 +1555,21 @@ print_static_funcs(Dwarf_Debug dbg)
                         /* following is absolute offset of the
                         ** beginning of the cu
                         */
-                        (long long)die_off - die_CU_off);
-
+                        (long long)(die_off - die_CU_off));
+            if(verbose){
+              Dwarf_Off off = 0;
+              int cures3 = dwarf_func_cu_offset(funcbuf[i],
+                                                &off,&err);
+              if(cures3 != DW_DLV_OK) {
+                                print_error (dbg, "dwarf_arange_cu_offset",
+                                        cures3, err);
+              }
+	      if(((die_off - die_CU_off)) != off) {
+		printf(" error: real cuhdr %llu",off);
+		exit(1);
+	      }
+            }
+	    printf("\n");
 	    dwarf_dealloc (dbg, name, DW_DLA_STRING);
 	    /* print associated die too? */
 	    dwarf_dealloc (dbg, funcbuf[i], DW_DLA_FUNC);
@@ -1559,7 +1624,7 @@ print_static_vars(Dwarf_Debug dbg)
 		print_error (dbg, "dwarf_offdie2",dores, err);
 	    }
             printf("static-var %-15s die %lld, cu-die %lld,"
-			" off-in-cu %lld, cu %lld\n", 
+			" off-in-cu %lld, cu %lld", 
                         name,(long long)die_off,
                         (long long)cu_off,
                         /* the cu die offset */
@@ -1567,7 +1632,25 @@ print_static_vars(Dwarf_Debug dbg)
                         /* following is absolute offset of the
                         ** beginning of the cu
                         */
-                        (long long)die_off - die_CU_off);
+                        (long long)(die_off - die_CU_off));
+	    { 
+              Dwarf_Off off = 0;
+              int cures3 = dwarf_var_cu_offset(varbuf[i],
+                                                &off,&err);
+              if(cures3 != DW_DLV_OK) {
+                                print_error (dbg, "dwarf_arange_cu_offset",
+                                        cures3, err);
+              }
+	      if((die_off - die_CU_off) != off) {
+		printf(" error: real cuhdr %llu",off);
+	 	exit(1);
+	      }
+              if(verbose){
+                printf(" cuhdr %llu",off);
+	      }
+            }
+	    printf("\n");
+
 
 	    dwarf_dealloc (dbg, name, DW_DLA_STRING);
 	    /* print associated die too? */
@@ -1624,7 +1707,7 @@ print_types(Dwarf_Debug dbg)
 		print_error (dbg, "dwarf_offdie2",dores, err);
 	    }
             printf("type %-15s die %lld, cu-die %lld,"
-			" off-in-cu %lld, cu %lld\n", 
+			" off-in-cu %lld, cu %lld", 
                         name,(long long)die_off,
                         (long long)cu_off,
                         /* the cu die offset */
@@ -1632,7 +1715,25 @@ print_types(Dwarf_Debug dbg)
                         /* following is absolute offset of the
                         ** beginning of the cu
                         */
-                        (long long)die_off - die_CU_off);
+                        (long long)(die_off - die_CU_off));
+            {
+              Dwarf_Off off = 0;
+              int cures3 = dwarf_type_cu_offset(typebuf[i],
+                                                &off,&err);
+              if(cures3 != DW_DLV_OK) {
+                  print_error (dbg, "dwarf_arange_cu_offset",
+                    cures3, err);
+              }
+	      if((die_off - die_CU_off) != off) {
+		 printf(" error: real cuhdr %llu",off);
+		 exit(1);
+	      }
+	      if(verbose)
+              	printf(" cuhdr %llu",off);
+
+            }
+            printf("\n");
+
 	    dwarf_dealloc (dbg, name, DW_DLA_STRING);
 	    /* print associated die too? */
 	    dwarf_dealloc (dbg, typebuf[i], DW_DLA_TYPENAME);
@@ -1688,7 +1789,7 @@ print_weaknames(Dwarf_Debug dbg)
 		print_error (dbg, "dwarf_offdie2",dores, err);
 	    }
             printf("weakname %-15s die %lld, cu-die %lld,"
-			" off-in-cu %lld, cu %lld\n", 
+			" off-in-cu %lld, cu %lld", 
                         name,(long long)die_off,
                         (long long)cu_off,
                         /* the cu die offset */
@@ -1696,7 +1797,26 @@ print_weaknames(Dwarf_Debug dbg)
                         /* following is absolute offset of the
                         ** beginning of the cu
                         */
-                        (long long)die_off - die_CU_off);
+                        (long long)(die_off - die_CU_off));
+
+            {
+              Dwarf_Off off = 0;
+              int cures3 = dwarf_weak_cu_offset(weaknamebuf[i],
+                                                &off,&err);
+              if(cures3 != DW_DLV_OK) {
+                                print_error (dbg, "dwarf_arange_cu_offset",
+                                        cures3, err);
+              }
+	      if((die_off - die_CU_off) != off) {
+		printf(" error: real cuhdr %llu",off);
+		exit(1);
+	      }
+	      if(verbose)
+                printf(" cuhdr %llu",off);
+
+            }
+            printf("\n");
+
 
 	    dwarf_dealloc (dbg, name, DW_DLA_STRING);
 	    /* print associated die too? */

@@ -58,6 +58,12 @@
 #define R_MIPS_NONE 0
 #endif
 
+#ifndef TRUE
+#define TRUE 1
+#endif
+#ifndef FALSE
+#define FALSE 0
+#endif
 
 /* must match up with pro_section.h defines of DEBUG_INFO etc 
 and sectnames (below)
@@ -145,6 +151,23 @@ static int _dwarf_pro_get_opc(Dwarf_Unsigned addr_adv, int line_adv);
 
 
 
+/*
+	Return TRUE if we need the section, FALSE otherwise
+
+        If any of the 'line-data-related' calls were made
+        including file or directory entries,
+        produce .debug_line .
+
+*/
+static int
+dwarf_need_debug_line_section(Dwarf_P_Debug       dbg)
+{
+    if (dbg->de_lines == NULL && dbg->de_file_entries == NULL
+                        && dbg->de_inc_dirs == NULL) {
+	return FALSE;
+    }
+    return TRUE;
+}
 
 /*
     Convert debug information to  a format such that 
@@ -184,7 +207,9 @@ dwarf_transform_to_disk_form (
                 break;
 
             case DEBUG_LINE :
-                if (dbg->de_lines == NULL) continue;
+                if (dwarf_need_debug_line_section(dbg) == FALSE) {
+			continue;
+	        }
                 break;
 
             case DEBUG_ABBREV :
@@ -279,7 +304,7 @@ dwarf_transform_to_disk_form (
 	    may cause problems because of relocations. 
 	*/
 
-    if (dbg->de_lines) {
+    if (dwarf_need_debug_line_section(dbg) == TRUE) {
 	nbufs = _dwarf_pro_generate_debugline(dbg, error);
 	if (nbufs < 0) {
 	    DWARF_P_DBG_ERROR(dbg, DW_DLE_DEBUGLINE_ERROR, DW_DLV_NOCOUNT);
@@ -1324,7 +1349,7 @@ _dwarf_pro_generate_debuginfo(Dwarf_P_Debug dbg,Dwarf_Error *error)
 	}
 
 	/* create AT_stmt_list attribute if necessary */
-	if (dbg->de_lines != NULL) 
+	if (dwarf_need_debug_line_section(dbg) == TRUE) 
 	    if (_dwarf_pro_add_AT_stmt_list(dbg,curdie,error) < 0)
 		return -1;
 
@@ -1821,21 +1846,26 @@ _dwarf_pro_get_opc(Dwarf_Unsigned addr_adv, int line_adv)
 static Dwarf_P_Abbrev 
 _dwarf_pro_getabbrev(Dwarf_P_Die die, Dwarf_P_Abbrev head)
 {
-	Dwarf_P_Abbrev curabbrev;
+	Dwarf_P_Abbrev     curabbrev;
 	Dwarf_P_Attribute  curattr;
 	int res1;
 	int nattrs;
 	int match;
-	Dwarf_ufixed *forms, *attrs;	/* holds attr and form names */
+	Dwarf_ufixed *forms = 0; 
+	Dwarf_ufixed *attrs = 0;
 
 	curabbrev = head;
 	while (curabbrev) {
 	    if ((die->di_tag == curabbrev->abb_tag) &&
-	       ((die->di_child != NULL && curabbrev->abb_children == DW_CHILDREN_yes) || 
-		   (die->di_child == NULL && curabbrev->abb_children == DW_CHILDREN_no)) &&
-	       (die->di_n_attr == curabbrev->abb_n_attr)) {	/* chance of a match */
+	       ((die->di_child != NULL && 
+	           curabbrev->abb_children == DW_CHILDREN_yes) || 
+		(die->di_child == NULL && 
+	           curabbrev->abb_children == DW_CHILDREN_no)) &&
+	       (die->di_n_attr == curabbrev->abb_n_attr)) {	
+
+	        /* There is a chance of a match. */
 		curattr = die->di_attrs;
-		match = 1;	/* assume match found */
+		match = 1;	/* Assume match found. */
 		while (match && curattr) {
 		    res1 = _dwarf_pro_match_attr(curattr, 
 			curabbrev, (int)curabbrev->abb_n_attr);

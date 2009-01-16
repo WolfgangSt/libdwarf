@@ -101,12 +101,12 @@ _dwarf_decode_u_leb128 (
     byte = *(leb128);
     for (;;) {
 	number |= ((Dwarf_Unsigned)(byte & 0x7f)) << shift;
-	shift += 7;
 
 	if ((byte & 0x80) == 0) {
 	    if (leb128_length != NULL) *leb128_length = byte_length;
 	    return(number);
 	}
+	shift += 7;
 
 	byte_length++;
 	++leb128;
@@ -114,6 +114,7 @@ _dwarf_decode_u_leb128 (
     }
 }
 
+#define BITSINBYTE 8
 
 /*
     decode SLEB
@@ -124,42 +125,16 @@ _dwarf_decode_s_leb128 (
     Dwarf_Word          *leb128_length
 )
 {
-    unsigned char     	byte = *leb128;
-    Dwarf_Sword	        word_number = 0;
     Dwarf_Signed    	number = 0;
     Dwarf_Bool	    	sign = 0;
-    Dwarf_Bool		ndone = true;
     Dwarf_Sword  	shift = 0;
-    Dwarf_Sword		byte_length = 0;
+    unsigned char     	byte = *leb128;
+    Dwarf_Sword		byte_length = 1; 	
+	/* byte_length being the number of bytes of data absorbed
+	   so far in turning the leb into a Dwarf_Signed.
+	*/
 
-    /* initial loop unpacks into 32 bits
-       to make this as fast as possible.
-       'word_number' is assumed big enough that the shift has
-        a defined result.
-
-    */
-    while (byte_length < 4) {
-	byte_length++;
-	sign = byte & 0x40;
-	word_number |= (byte & 0x7f) << shift;
-	shift += 7;
-
-	if ((byte & 0x80) == 0) {
-	    ndone = false;
-	    break;
-	}
-	++leb128;
-	byte = *leb128;
-    }
-
-    /* 	Will not fit in 32 bits, so now use 64 bit value. 
-       	Because the 'number' may be larger than the default
-	int/unsigned, we must cast the 'byte' before the shift
-	for the shift to have a defined result.
-    */
-    number = word_number;
-    while (ndone) {
-	byte_length++;
+    for (;;) {
 	sign = byte & 0x40;
         number |= ((Dwarf_Signed)((byte & 0x7f))) << shift;
         shift += 7;
@@ -169,14 +144,13 @@ _dwarf_decode_s_leb128 (
 	}
         ++leb128;
         byte = *leb128;
+	byte_length++;
     }
 
-    if ((shift < sizeof(Dwarf_Signed)*8) && sign)  {
+    if ((shift < sizeof(Dwarf_Signed)*BITSINBYTE) && sign)  {
 	number |=  -((Dwarf_Signed)1 << shift);
     }
 
     if (leb128_length != NULL) *leb128_length = byte_length;
     return(number);
 }
-
-

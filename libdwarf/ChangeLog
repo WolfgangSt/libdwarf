@@ -1,3 +1,38 @@
+2001-08-21  "kelly o'hair" <kelly.ohair@eng.sun.com>
+	* pro_section.c:  If one called dwarf_add_file_decl()
+	  or dwarf_add_directory_decl() but never added a line,
+	  .debug_line was not produced.  This was a mistake,
+	  as if any file or directory was provided .debug_line
+	  should be produced. 
+
+2001-08-06  davea@sgi.com
+	* libdwarf2.1.mm: documented dwarf_dealloc rules
+	  more clearly. (.ps updated too)
+	* mips_extensions.mm: documented the way SGI
+	  gets frame stack pointer out of debug_frame.
+	  (.ps updated too)
+
+2001-06-14  davea@sgi.com
+	* dwarf_leb.c: changed around where bytes counted in
+	  _dwarf_decode_s_leb128 so it's easier to tell it is correct.
+	  And removed one loop completely: it was
+	  an early attempt at performance improvement and
+	  is no longer relevant.
+
+	* dwarf_global.c: added new 
+	  dwarf_get_cu_die_offset_given_cu_header_offset function
+	  to get CU die offset (as the long name says).
+	  A variety of functions return cu-header-offsets, so
+	  this is useful at times.
+	  Used locals to reduce the number of indirections
+	  and make things easier to follow.
+
+	* dwarf_arange.c: added new dwarf_get_arange_cu_header_offset
+	  function so dwarfdump could print the cu header offset
+	  (which appears in the arange headers).
+
+	* libdwarf2.1.mm: documented the above new functions.
+
 2001-06-07  davea@sgi.com
 	* dwarf_leb.c: shift operator was not being applied
 	  to full size of Dwarf_Signed/Unsigned for 64bit

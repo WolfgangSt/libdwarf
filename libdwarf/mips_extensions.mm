@@ -1,5 +1,5 @@
-\." $Revision: 1.15 $
-\." $Date: 2000/04/01 21:24:20 $
+\." $Revision: 1.5 $
+\." $Date: 2001/01/16 17:08:43 $
 \."
 \."
 \." the following line may be removed if the ff ligature works on your machine
@@ -9,7 +9,7 @@
 .ds HP +2 +2 +1 +0 +0
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.15, 31 Mar 2000
+.ds vE rev 1.17, 29 Aug 2001
 \." ==============================================
 \." ==============================================
 .nr Hs 5
@@ -302,6 +302,25 @@ If the CIE augmentation string neither starts with 'z' nor is ""
 nor is "mti v1" then libdwarf (incorrectly) assumes that the
 table defining instructions start next.  
 Processing (in libdwarf) will be incorrect.
+.H 2 "Stack Pointer recovery from debug_frame"
+There is no identifiable means in
+DWARF2 to say that the stack register is
+recovered by any particular operation.
+A 'register rule' works if the caller's
+stack pointer was copied to another
+register.
+An 'offset(N)' rule works if the caller's
+stack pointer was stored on the stack.
+However if the stack pointer is
+some register value plus/minus some offset,
+there is no means to say this in an FDE.
+For MIPS/IRIX, the recovered stack pointer
+of the next frame up the stack (towards main())
+is simply the CFA value of the current
+frame, and the CFA value is
+precisely a register (value of a register)
+or a register plus offset (value of a register
+plus offset).  This is a software convention.
 .H 1 "egcs dwarf extensions (egcs-1.1.2 extensions)"
 This and following egcs sections describe
 the extensions currently shown in egcs dwarf2.

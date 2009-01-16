@@ -1,7 +1,7 @@
 '\"#ident	"%W%"
-'\" $Source: /hosts/bonnie.engr/disks/xlv2/cmplrs.src/osprey1.0/libdwarf/RCS/dwarf.v2.mm,v $
+'\" $Source: /hosts/bonnie.engr/disks/xlv6/cmplrs.src/cmplrs.src_v7.4/libdwarf/RCS/dwarf.v2.mm,v $
 '\"
-'\" $Revision: 1.1 $
+'\" $Revision: 1.2 $
 '\"
 '\" DESCRIPTION
 '\"
@@ -49,6 +49,9 @@
 '\"	UNIX International members.
 '\"
 '\" $Log: dwarf.v2.mm,v $
+'\" Revision 1.2  2001/01/16 17:08:36  davea
+'\" Bringing in latest from osprey tree
+'\"
 '\" Revision 1.1  1994/05/18 18:50:42  davea
 '\" Initial revision
 '\"

@@ -41,7 +41,7 @@ extern "C" {
 #endif
 /*
 	libdwarf.h  
-	$Revision: 1.81 $ $Date: 2001/03/10 03:59:02 $
+	$Revision: 1.71 $ $Date: 2001/05/23 23:34:52 $
 
 	For libdwarf producers and consumers
 
@@ -783,6 +783,15 @@ int dwarf_global_die_offset(Dwarf_Global /*global*/,
     Dwarf_Off*          /*return_offset*/,
     Dwarf_Error * 	/*error*/);
 
+int dwarf_get_cu_die_offset_given_cu_header_offset(
+	Dwarf_Debug     /*dbg*/,
+	Dwarf_Off       /*in_cu_header_offset*/,
+        Dwarf_Off *     /*out_cu_die_offset*/, 
+	Dwarf_Error *   /*err*/);
+#ifdef __sgi /* pragma is sgi MIPS only */
+#pragma optional dwarf_get_cu_die_offset_given_cu_header_offset
+#endif
+
 int dwarf_global_cu_offset(Dwarf_Global /*global*/, 
     Dwarf_Off*          /*return_offset*/,
     Dwarf_Error* 	/*error*/);
@@ -1043,6 +1052,14 @@ int dwarf_get_cu_die_offset(
     Dwarf_Arange 	/*arange*/, 
     Dwarf_Off*          /*return_offset*/,
     Dwarf_Error* 	/*error*/);
+
+int dwarf_get_arange_cu_header_offset(
+    Dwarf_Arange 	/*arange*/, 
+    Dwarf_Off*          /*return_cu_header_offset*/,
+    Dwarf_Error* 	/*error*/);
+#ifdef __sgi /* pragma is sgi MIPS only */
+#pragma optional dwarf_get_arange_cu_header_offset
+#endif
 
 int dwarf_get_arange_info(
     Dwarf_Arange 	/*arange*/, 

@@ -544,15 +544,19 @@ dwarf_init (
 
     elf_version(EV_CURRENT); 
     /* changed to mmap request per bug 281217. 6/95 */
-#ifndef ELF_C_READ_MMAP
-/* ELF_C_READ_MMAP is an SGI IRIX specific value 
-   from IRIX libelf.h meaning read but use mmap  
-   (ELF_C_READ is a portable value ) */
-#define ELF_C_READ_MMAP ELF_C_READ
+#ifdef HAVE_ELF_C_READ_MMAP
+   /* ELF_C_READ_MMAP is an SGI IRIX specific enum value 
+      from IRIX libelf.h meaning read but use mmap */
+#   define WHAT_KIND_OF_ELF_READ  ELF_C_READ_MMAP
+#else
+   /*ELF_C_READ is a portable value ) */
+#   define WHAT_KIND_OF_ELF_READ  ELF_C_READ
 #endif
-    if ((elf=elf_begin(fd,ELF_C_READ_MMAP,0)) == NULL) {
+
+    if ((elf=elf_begin(fd,WHAT_KIND_OF_ELF_READ,0)) == NULL) {
 	DWARF_DBG_ERROR(dbg,DW_DLE_ELF_BEGIN_ERROR,DW_DLV_ERROR);
     }
+#undef WHAT_KIND_OF_ELF_READ
 
     if ((res =_dwarf_setup(dbg, elf,  error)) != DW_DLV_OK) {
 	free(dbg);

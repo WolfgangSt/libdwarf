@@ -522,6 +522,29 @@ dwarf_get_cu_die_offset (
 	offset + _dwarf_length_of_cu_header(dbg, offset);
     return DW_DLV_OK;
 }
+/*
+    This function takes an Dwarf_Arange,
+    and returns the offset of the CU header
+    in the compilation-unit that the
+    arange belongs to.  Returns DW_DLV_ERROR
+    on error.
+*/
+int
+dwarf_get_arange_cu_header_offset (
+    Dwarf_Arange        arange,
+    Dwarf_Off      *    cu_header_offset_returned,
+    Dwarf_Error         *error
+)
+{
+    if (arange == NULL) {
+        _dwarf_error(NULL, error, DW_DLE_ARANGE_NULL);
+        return(DW_DLV_ERROR);
+    }
+
+    *cu_header_offset_returned = arange->ar_info_offset;
+    return DW_DLV_OK;
+}
+
 
 
 /*

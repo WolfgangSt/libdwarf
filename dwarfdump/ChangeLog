@@ -1,3 +1,10 @@
+2001-06-14  David Anderson <davea@sgi.com>
+
+      * print_sections.c: Calling the new libdwarf function
+	dwarf_get_arange_cu_header_offset() so we can print
+	the cu header offset for aranges.
+
+
 2000-07-14  Fred Fish  <fnf@ninemoons.com>
  
       * configure.in (LOCATION_OF_LIBELFHEADER): Fix typo for configure

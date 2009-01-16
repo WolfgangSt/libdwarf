@@ -30,7 +30,7 @@
   http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 
-$Header: /hosts/bonnie.engr/disks/xlv2/cmplrs.src/osprey1.0/dwarfdump/RCS/dwarfdump.c,v 1.36 2000/04/10 19:10:35 davea Exp $ */
+$Header: /hosts/bonnie.engr/disks/xlv6/cmplrs.src/cmplrs.src_v7.4/dwarfdump/RCS/dwarfdump.c,v 1.32 2001/01/16 17:47:54 davea Exp $ */
 #include "globals.h"
 
 /* for 'open' */

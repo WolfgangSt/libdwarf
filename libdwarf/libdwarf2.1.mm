@@ -8,7 +8,7 @@
 .nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.44, 23 Aug 2000
+.ds vE rev 1.46, 08 Jul 2001
 \." ==============================================
 \." ==============================================
 .ds | |
@@ -731,13 +731,19 @@ of the integers in the above figure.
 If \f(CWDW_DLV_ERROR\fP is returned and a pointer to a \f(CWDwarf_Error\fP
 pointer is passed to the function, then a Dwarf_Error handle is returned
 thru the pointer. No other pointer value in the interface returns a value.
+After the \f(CWDwarf_Error\fP is no longer of interest,
+a  \f(CWdwarf_dealloc(dbg,dw_err,DW_DLA_ERROR)\fP on the error
+pointer is appropriate to free any space used by the error information.
 .P
 If \f(CWDW_DLV_NO_ENTRY\fP is returned no pointer value in the
 interface returns a value.
 .P
-If \f(CWDW_DLV_NO_OK\fP is returned  the \f(CWDwarf_Error\fP pointer, if
+If \f(CWDW_DLV_OK\fP is returned  the \f(CWDwarf_Error\fP pointer, if
 supplied, is not touched, but any other values to be returned
 through pointers are returned.
+In this case calls (depending on the exact function
+returning the error) to \f(CWdwarf_dealloc()\fP may be appropriate
+once the particular pointer returned is no longer of interest.
 .P
 Pointers passed to allow values to be returned thru them are 
 uniformly the last pointers
@@ -784,6 +790,11 @@ to write to a region pointed to by a value returned by a
 call.
 
 .H 2 "Storage Deallocation"
+See the section "Returned values in the functional interface",
+above, for the general rules where 
+calls to \f(CWdwarf_dealloc()\fP
+is appropriate.
+.P
 In some cases the pointers returned by a \fIlibdwarf\fP call are pointers
 to data which is not free-able.  
 The library knows from the allocation type
@@ -2173,6 +2184,42 @@ by the \f(CWDwarf_Global\fP descriptor, \f(CWglobal\fP.
 It returns \f(CWDW_DLV_ERROR\fP on error.
 It never returns \f(CWDW_DLV_NO_ENTRY\fP.
 
+.H 4 "dwarf_get_cu_die_offset_given_cu_header_offset()"
+.DS
+\f(CWint dwarf_get_cu_die_offset_given_cu_header_offset(
+	Dwarf_Debug dbg,
+	Dwarf_Off   in_cu_header_offset,
+        Dwarf_Off * out_cu_die_offset,
+        Dwarf_Error *error)\fP
+.DE
+The function \f(CWdwarf_get_cu_die_offset_given_cu_header_offset()\fP 
+returns
+\f(CWDW_DLV_OK\fP and sets \f(CW*out_cu_die_offset\fP to
+the offset of the compilation-unit DIE given the
+offset \f(CWin_cu_header_offset\fP of a compilation-unit header.
+It returns \f(CWDW_DLV_ERROR\fP on error.
+It never returns \f(CWDW_DLV_NO_ENTRY\fP.
+
+
+This effectively turns a compilation-unit-header offset
+into a compilation-unit DIE offset (by adding the
+size of the applicable CU header).
+This function is also sometimes useful with the 
+\f(CWdwarf_weak_cu_offset()\fP,
+\f(CWdwarf_func_cu_offset()\fP,
+\f(CWdwarf_type_cu_offset()\fP,
+and
+\f(CWint dwarf_var_cu_offset()\fP 
+functions.
+
+\f(CWdwarf_get_cu_die_offset_given_cu_header_offset()\fP 
+added Rev 1.45, June, 2001.
+
+This function is declared as 'optional' in libdwarf.h
+on IRIX systems so the _MIPS_SYMBOL_PRESENT
+predicate may be used at run time to determine if the version of
+libdwarf linked into an application has this function.
+
 .H 4 "dwarf_global_name_offsets()"
 .DS
 \f(CWint dwarf_global_name_offsets(
@@ -2425,7 +2472,8 @@ The function \f(CWdwarf_func_cu_offset()\fP returns
 \f(CWDW_DLV_OK\fP and sets \f(CW*return_offset\fP to
 the offset in
 the section containing DIE's, i.e. .debug_info, of the compilation-unit
-header of the compilation-unit that contains the static function
+header of the 
+compilation-unit that contains the static function
 described by the \f(CWDwarf_Func\fP descriptor, \f(CWfunc\fP.  
 It returns \f(CWDW_DLV_ERROR\fP on error.
 It never returns \f(CWDW_DLV_NO_ENTRY\fP.
@@ -3576,17 +3624,42 @@ entry covering that address.
 .DS
 \f(CWDwarf_Off dwarf_get_cu_die_offset(
         Dwarf_Arange arange,
-        Dwarf_Off   *returned_offset,
+        Dwarf_Off   *returned_cu_die_offset,
         Dwarf_Error *error)\fP
 .DE
 The function \f(CWdwarf_get_cu_die_offset()\fP takes a
 \f(CWDwarf_Arange\fP descriptor as input, and 
 if successful returns
-\f(CWDW_DLV_OK\fP and sets \f(CW*returned_offset\fP to
+\f(CWDW_DLV_OK\fP and sets \f(CW*returned_cu_die_offset\fP to
 the offset
 in the .debug_info section of the compilation-unit DIE for the 
 compilation-unit represented by the given address range.
 It returns \f(CWDW_DLV_ERROR\fP on error.
+
+.H 3 "dwarf_get_arange_cu_header_offset()"
+.DS
+\f(CWDwarf_Off dwarf_get_arange_cu_header_offset(
+        Dwarf_Arange arange,
+        Dwarf_Off   *returned_cu_header_offset,
+        Dwarf_Error *error)\fP
+.DE
+The function \f(CWdwarf_get_arange_cu_header_offset()\fP takes a
+\f(CWDwarf_Arange\fP descriptor as input, and 
+if successful returns
+\f(CWDW_DLV_OK\fP and sets \f(CW*returned_cu_header_offset\fP to
+the offset
+in the .debug_info section of the compilation-unit header for the 
+compilation-unit represented by the given address range.
+It returns \f(CWDW_DLV_ERROR\fP on error.
+
+This function added Rev 1.45, June, 2001.
+
+This function is declared as 'optional' in libdwarf.h
+on IRIX systems so the _MIPS_SYMBOL_PRESENT
+predicate may be used at run time to determine if the version of
+libdwarf linked into an application has this function.
+
+
 
 .H 3 "dwarf_get_arange_info()"
 .DS

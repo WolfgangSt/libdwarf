@@ -312,26 +312,42 @@ dwarf_global_die_offset (
 	Given a pubnames entry (or other like section entry)
 	return thru the ret_off pointer the
 	offset of the compilation unit header of the
-        compilation unit the  entry's DIE is part of.
+        compilation unit the global is part of.
+
+	In early versions of this, the value returned was
+        the offset of the compilation unit die, and
+	other cu-local die offsets were faked so adding this to 
+        such a cu-local offset got a true section offset.
+        Now things do as they say (adding *cu_header_offset to
+        a cu-local offset gets the section offset).
+
 */
 int
 dwarf_global_cu_offset (
     Dwarf_Global	global,
-    Dwarf_Off          *ret_off,
+    Dwarf_Off          *cu_header_offset,
     Dwarf_Error		*error
 )
 {
+    Dwarf_Global_Context con;
+
     if (global == NULL) {
 	_dwarf_error(NULL, error, DW_DLE_GLOBAL_NULL); 
 	return(DW_DLV_ERROR);
     }
 
-    if (global->gl_context == NULL) {
+    con = global->gl_context;
+    if (con == NULL) {
 	_dwarf_error(NULL, error, DW_DLE_GLOBAL_CONTEXT_NULL);
 	return(DW_DLV_ERROR);
     }
 
-    *ret_off = (global->gl_context->pu_offset_of_cu_header);
+    /* In early libdwarf, this incorrectly returned
+       the offset of the CU DIE.
+       Now correctly returns the header offset.
+    */
+    *cu_header_offset = con->pu_offset_of_cu_header;
+
     return DW_DLV_OK;
 }
 
@@ -349,6 +365,7 @@ dwarf_global_name_offsets (
 )
 {
     Dwarf_Global_Context con;
+    Dwarf_Debug dbg;
     Dwarf_Off off;
     if (global == NULL)
 	{_dwarf_error(NULL, error, DW_DLE_GLOBAL_NULL); return(DW_DLV_ERROR);}
@@ -363,12 +380,41 @@ dwarf_global_name_offsets (
 	*die_offset = global->gl_named_die_offset_within_cu + off;
     }
 
+    dbg = con->pu_dbg;
+    if (dbg == NULL) {
+	_dwarf_error(NULL, error, DW_DLE_DBG_NULL);
+	return(DW_DLV_ERROR);
+    }
+
     if (cu_die_offset != NULL) {
-	*cu_die_offset = off + 
-          _dwarf_length_of_cu_header(global->gl_context->pu_dbg, off);
+	*cu_die_offset = off + _dwarf_length_of_cu_header(dbg, off);
     }
 
     *ret_name = (char *)global->gl_name;
     return DW_DLV_OK;
 }
 
+/*
+	We have the offset to a CU header.
+	Return thru outFileOffset the offset of the CU DIE.
+	
+	New June, 2001.
+	Used by SGI debuggers.
+	No error is possible.
+*/
+
+/* ARGSUSED */
+int dwarf_get_cu_die_offset_given_cu_header_offset(
+        Dwarf_Debug dbg,
+	Dwarf_Off in_cu_header_offset,
+	Dwarf_Off * out_cu_die_offset,
+	Dwarf_Error * err)
+{
+	Dwarf_Off len =
+		_dwarf_length_of_cu_header(dbg, in_cu_header_offset);
+
+	Dwarf_Off newoff = in_cu_header_offset + len;
+
+        *out_cu_die_offset = newoff;
+	return DW_DLV_OK;
+}
