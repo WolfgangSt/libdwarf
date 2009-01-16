@@ -85,7 +85,7 @@ int
 dwarf_die_CU_offset(Dwarf_Die die,
                     Dwarf_Off * cu_off, Dwarf_Error * error)
 {
-    Dwarf_CU_Context cu_context;
+    Dwarf_CU_Context cu_context = 0;
 
     CHECK_DIE(die, DW_DLV_ERROR);
     cu_context = die->di_cu_context;
@@ -95,6 +95,30 @@ dwarf_die_CU_offset(Dwarf_Die die,
          cu_context->cc_debug_info_offset);
     return DW_DLV_OK;
 }
+
+/*
+    This function returns the global offset 
+    (meaning the section offset) and length of
+    the CU that this die is a part of.
+    Used for correctness checking by dwarfdump.
+*/
+int
+dwarf_die_CU_offset_range(Dwarf_Die die,
+     Dwarf_Off * cu_off, 
+     Dwarf_Off * cu_length,
+     Dwarf_Error * error)
+{
+    Dwarf_CU_Context cu_context = 0;
+
+    CHECK_DIE(die, DW_DLV_ERROR);
+    cu_context = die->di_cu_context;
+
+    *cu_off = cu_context->cc_debug_info_offset;
+    *cu_length = cu_context->cc_length + cu_context->cc_length_size
+            + cu_context->cc_extension_size;
+    return DW_DLV_OK;
+}
+
 
 
 int

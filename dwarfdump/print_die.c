@@ -40,6 +40,7 @@ $ Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/print_die.c,v 1.51 20
 #include "makename.h"           /* Non-duplicating string table. */
 
 static void get_attr_value(Dwarf_Debug dbg, Dwarf_Half tag,
+                           Dwarf_Die die,
                            Dwarf_Attribute attrib, 
                            char **srcfiles,
                            Dwarf_Signed cnt, struct esb_s *esbp);
@@ -482,10 +483,10 @@ print_attribute(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Half attr,
 
     atname = get_AT_name(dbg, attr);
 
-    /* the following gets the real attribute, even in the face of an 
-       incorrect doubling, or worse, of attributes */
+    /* The following gets the real attribute, even in the face of an 
+       incorrect doubling, or worse, of attributes. */
     attrib = attr_in;
-    /* do not get attr via dwarf_attr: if there are (erroneously) 
+    /* Do not get attr via dwarf_attr: if there are (erroneously) 
        multiple of an attr in a DIE, dwarf_attr will not get the
        second, erroneous one and dwarfdump will print the first one
        multiple times. Oops. */
@@ -635,7 +636,8 @@ print_attribute(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Half attr,
                 break;
             default:
                 esb_empty_string(&esb_base);
-                get_attr_value(dbg, tag, attrib, srcfiles, cnt, &esb_base);
+                get_attr_value(dbg, tag, die,
+                    attrib, srcfiles, cnt, &esb_base);
                 valname = esb_get_string(&esb_base);
                 break;
             }
@@ -654,7 +656,7 @@ print_attribute(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Half attr,
                 break;
             }
             esb_empty_string(&esb_base);
-            get_attr_value(dbg, tag, attrib, srcfiles, cnt, &esb_base);
+            get_attr_value(dbg, tag, die, attrib, srcfiles, cnt, &esb_base);
             if( theform != DW_FORM_addr) {
               /* New in DWARF4: other forms are not an address
                  but are instead offset from pc.
@@ -669,7 +671,7 @@ print_attribute(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Half attr,
         }
     default:
         esb_empty_string(&esb_base);
-        get_attr_value(dbg, tag, attrib, srcfiles, cnt, &esb_base);
+        get_attr_value(dbg, tag,die, attrib, srcfiles, cnt, &esb_base);
         valname = esb_get_string(&esb_base);
         break;
     }
@@ -957,11 +959,14 @@ formxdata_print_value(Dwarf_Attribute attrib, struct esb_s *esbp,
    We pass in tag so we can try to do the right thing with
    broken compiler DW_TAG_enumerator 
 
+   We pass in die so  
+
    We append to esbp's buffer.
 
 */
 static void
-get_attr_value(Dwarf_Debug dbg, Dwarf_Half tag, Dwarf_Attribute attrib,
+get_attr_value(Dwarf_Debug dbg, Dwarf_Half tag, 
+               Dwarf_Die die, Dwarf_Attribute attrib,
                char **srcfiles, Dwarf_Signed cnt, struct esb_s *esbp)
 {
     Dwarf_Half theform;
@@ -984,8 +989,11 @@ get_attr_value(Dwarf_Debug dbg, Dwarf_Half tag, Dwarf_Attribute attrib,
     char small_buf[100];
 
 
+    /* Dwarf_whatform gets the real form, DW_FORM_indir is
+       never returned: instead the real form following
+       DW_FORM_indir is returned. */
     fres = dwarf_whatform(attrib, &theform, &err);
-    /* depending on the form and the attribute, process the form */
+    /* Depending on the form and the attribute, process the form. */
     if (fres == DW_DLV_ERROR) {
         print_error(dbg, "dwarf_whatform cannot find attr form", fres,
                     err);
@@ -993,8 +1001,10 @@ get_attr_value(Dwarf_Debug dbg, Dwarf_Half tag, Dwarf_Attribute attrib,
         return;
     }
 
+    /* dwarf_whatform_direct gets the 'direct' form, so if
+       the form is DW_FORM_indir that is what is returned. */
     dwarf_whatform_direct(attrib, &direct_form, &err);
-    /* ignore errors in dwarf_whatform_direct() */
+    /* Ignore errors in dwarf_whatform_direct() */
 
 
     switch (theform) {
@@ -1023,6 +1033,32 @@ get_attr_value(Dwarf_Debug dbg, Dwarf_Half tag, Dwarf_Attribute attrib,
                         "DW_FORM_ref_addr form with no reference?!",
                         bres, err);
         }
+        wres = dwarf_whatattr(attrib, &attr, &err);
+        if (wres == DW_DLV_ERROR) {
+        } else if (wres == DW_DLV_NO_ENTRY) {
+        } else {
+            if (attr == DW_AT_sibling) {
+                /* The value had better be inside the current CU
+                   else there is a nasty error here, as a sibling
+                   has to be in the same CU, it seems. */
+                tag_tree_result.checks++;
+                Dwarf_Off cuoff = 0;
+                Dwarf_Off culen = 0;
+                int res = dwarf_die_CU_offset_range(die,&cuoff,
+                    &culen,&err);
+                if(res != DW_DLV_OK) {
+                } else {
+                    Dwarf_Off cuend = cuoff+culen;
+                    if(off <  cuoff || off >= cuend) { 
+                        tag_tree_result.errors++;
+                        DWARF_CHECK_ERROR(
+                            "DW_AT_sibling DW_FORM_ref_addr offset points "
+                            "outside of current CU")
+                    }
+                }
+            }
+        }
+
         break;
     case DW_FORM_ref1:
     case DW_FORM_ref2:
@@ -1299,10 +1335,15 @@ get_attr_value(Dwarf_Debug dbg, Dwarf_Half tag, Dwarf_Attribute attrib,
         print_error(dbg, "dwarf_whatform unexpected value", DW_DLV_OK,
                     err);
     }
-    if (verbose && direct_form && direct_form == DW_FORM_indirect) {
+    if ((verbose || show_form_used)
+        && direct_form && direct_form == DW_FORM_indirect) {
         char *form_indir = " (used DW_FORM_indirect) ";
-
         esb_append(esbp, form_indir);
+    }
+    if(show_form_used) {
+        esb_append(esbp," <form ");
+        esb_append(esbp,get_FORM_name(dbg,theform));
+        esb_append(esbp,">");
     }
 }
 

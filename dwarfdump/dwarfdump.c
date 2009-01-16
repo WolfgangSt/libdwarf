@@ -100,6 +100,7 @@ boolean dense = FALSE;
 boolean ellipsis = FALSE;
 boolean dst_format = FALSE;
 boolean show_global_offsets = FALSE;
+boolean show_form_used = FALSE;
 
 boolean check_abbrev_code = FALSE;
 boolean check_pubname_attr = FALSE;
@@ -370,8 +371,11 @@ process_args(int argc, char *argv[])
 
     while ((c =
             getopt(argc, argv,
-                   "abcdefFgGhH:ik:lmnoprRst:u:vVwx:yz")) != EOF) {
+                   "abcdefFgGhH:ik:lmMnoprRst:u:vVwx:yz")) != EOF) {
         switch (c) {
+        case 'M':
+            show_form_used =  TRUE;
+            break;
         case 'x':               /* Select abi/path to use */
             {
                 char *path = 0;
@@ -602,6 +606,7 @@ print_usage_message(void)
     fprintf(stderr, "\t\t   y\texamine type info\n");
     fprintf(stderr, "\t\t-l\tprint line section\n");
     fprintf(stderr, "\t\t-m\tprint macinfo section\n");
+    fprintf(stderr, "\t\t-M\tprint the form name for each attribute\n");
     fprintf(stderr, "\t\t-o\tprint relocation info\n");
     fprintf(stderr, "\t\t-p\tprint pubnames section\n");
     fprintf(stderr, "\t\t-r\tprint aranges section\n");

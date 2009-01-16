@@ -101,17 +101,21 @@ struct Dwarf_Attribute_s {
 */
 struct Dwarf_CU_Context_s {
     Dwarf_Debug cc_dbg;
+    /* The sum of cc_length, cc_length_size, and cc_extension_size
+       is the total length of the CU including its header. */
     Dwarf_Word cc_length;
     Dwarf_Small cc_length_size;
     Dwarf_Small cc_extension_size;
     Dwarf_Half cc_version_stamp;
     Dwarf_Sword cc_abbrev_offset;
     Dwarf_Small cc_address_size;
+    /* cc_debug_info_offset is the offset in the section
+       of the CU header of this CU. */
     Dwarf_Word cc_debug_info_offset;
     Dwarf_Byte_Ptr cc_last_abbrev_ptr;
     Dwarf_Hash_Table cc_abbrev_hash_table;
     Dwarf_CU_Context cc_next;
-    unsigned char cc_offset_length;
+    /*unsigned char cc_offset_length; */
 };
 
 struct Dwarf_Debug_s {

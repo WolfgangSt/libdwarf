@@ -1,3 +1,19 @@
+2008-11-19  DavidAnderson <davea42@earthlink.net>
+      * dwarf_die_deliv.c: Handle the case where DW_AT_sibling
+        uses DW_FORM_ref_addr.
+      * dwarf_util.c: Add a comment about DW_FORM_ref_addr.
+      * dwarf_opaque.h: Add a comment about CU fields,
+        comment out an unused CU header field.
+      * dwarf_query.c: Added dwarf_die_CU_offset_range()
+        so dwarfdump can check for additional errors.
+      * dwarf_form.c: Clarifying a comment.
+      * dwarf_print_lines.c: Add additional print detail on
+        line table headers (used by dwarfdump).
+      * libdwarf2.1.mm: Documenting the new function
+        dwarf_die_CU_offset_range().
+      * libdwarf2.1.pdf: Regenerated.
+      * libdwarf.h: Added dwarf_die_CU_offset_range() interface
+        declaration.
 2008-10-13  DavidAnderson <davea42@earthlink.net>
       * dwarf_frame2.c: Removed last use of DW_FRAME_LAST_REG_NUM:
         use dbg->de_frame_reg_rules_entry_count instead.

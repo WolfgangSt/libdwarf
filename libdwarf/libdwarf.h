@@ -1048,6 +1048,11 @@ int dwarf_die_CU_offset(Dwarf_Die /*die*/,
     Dwarf_Off*       /*return_offset*/,
     Dwarf_Error*     /*error*/);
 
+int dwarf_die_CU_offset_range(Dwarf_Die /*die*/,
+    Dwarf_Off*       /*return_CU_header__offset*/,
+    Dwarf_Off*       /*return_CU_length_bytes*/,
+    Dwarf_Error*     /*error*/);
+
 int dwarf_attr (Dwarf_Die /*die*/, 
     Dwarf_Half        /*attr*/, 
     Dwarf_Attribute * /*returned_attr*/,

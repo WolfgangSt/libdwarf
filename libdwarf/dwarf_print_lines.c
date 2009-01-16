@@ -265,17 +265,23 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
            prefix.pf_line_base);
     printf("  line_range             %d\n", (int)
            prefix.pf_line_range);
-
+    printf("  opcode base            %d\n", (int)
+           prefix.pf_opcode_base);
 
     for (i = 1; i < prefix.pf_opcode_base; i++) {
-        printf("  opcode[%d] length %d\n", (int) i,
+        printf("  opcode[%d] length  %d\n", (int) i,
                (int) prefix.pf_opcode_length_table[i - 1]);
     }
+    printf("  include directories count %d\n", (int)
+           prefix.pf_include_directories_count);
 
+    
     for (i = 0; i < prefix.pf_include_directories_count; ++i) {
         printf("  include dir[%d] %s\n",
                (int) i, prefix.pf_include_directories[i]);
     }
+    printf("  include files count    %d\n", (int)
+           prefix.pf_files_count);
 
 
     for (i = 0; i < prefix.pf_files_count; ++i) {

@@ -8,7 +8,7 @@
 .nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.69, 29 Sep 2008
+.ds vE rev 1.70, 19 Nov 2008
 \." ==============================================
 \." ==============================================
 .ds | |
@@ -1561,6 +1561,20 @@ The function \f(CWdwarf_die_CU_offset()\fP is similar to
 represented by the \f(CWDwarf_Die\fP \f(CWdie\fP, from the 
 start of the compilation-unit that it belongs to rather than the start 
 of .debug_info (the \f(CWreturn_offset\fP is a CU-relative offset).  
+.H 3 "dwarf_die_CU_offset_range()"
+.DS
+\f(CWint dwarf_die_CU_offset_range(
+        Dwarf_Die die,
+        Dwarf_Off *cu_global_offset,
+        Dwarf_Off *cu_length,
+        Dwarf_Error *error)\fP
+.DE
+The function \f(CWdwarf_die_CU_offset_range()\fP 
+returns the offset of the beginning of the CU and the length of the CU.
+The offset and length are of the entire CU that this DIE is
+a part of.  It is used by dwarfdump (for example) to check
+the validity of offsets.
+Most applications will have no reason to call this function.
 
 
 .H 3 "dwarf_diename()"

@@ -74,6 +74,10 @@ _dwarf_get_size_of_val(Dwarf_Debug dbg,
     case DW_FORM_addr:
         return (dbg->de_pointer_size);
 
+    /* DWARF2 was wrong on the size of the attribute for
+       DW_FORM_ref_addr.  We assume compilers are using the 
+       corrected DWARF3 text (for 32bit pointer target objects pointer and
+       offsets are the same size anyway). */
     case DW_FORM_ref_addr:
         return (v_length_size);
 

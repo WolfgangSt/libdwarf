@@ -414,7 +414,7 @@ _dwarf_next_die_info_ptr(Dwarf_Byte_Ptr die_info_ptr,
         if (attr_form == DW_FORM_indirect) {
             Dwarf_Unsigned utmp6;
 
-            /* READ_UNALIGNED does update info_ptr */
+            /* DECODE_LEB128_UWORD updates info_ptr */
             DECODE_LEB128_UWORD(info_ptr, utmp6);
             attr_form = (Dwarf_Half) utmp6;
 
@@ -426,6 +426,7 @@ _dwarf_next_die_info_ptr(Dwarf_Byte_Ptr die_info_ptr,
                 offset = *(Dwarf_Small *) info_ptr;
                 break;
             case DW_FORM_ref2:
+                /* READ_UNALIGNED does not update info_ptr */
                 READ_UNALIGNED(dbg, offset, Dwarf_Unsigned,
                                info_ptr, sizeof(Dwarf_Half));
                 break;
@@ -441,6 +442,19 @@ _dwarf_next_die_info_ptr(Dwarf_Byte_Ptr die_info_ptr,
                 offset =
                     _dwarf_decode_u_leb128(info_ptr, &leb128_length);
                 break;
+            case DW_FORM_ref_addr:
+                /* Very unusual.  The FORM is intended to refer to
+                   a different CU, but a different CU cannot
+                   be a sibling, can it? 
+                   We could ignore this and treat as if no DW_AT_sibling
+                   present.   Or derive the offset from it and if
+                   it is in the same CU use it directly. 
+                   The offset here is *supposed* to be a global offset,
+                   so adding cu_info_start is wrong  to any offset
+                   we find here unless cu_info_start
+                   is zero! Lets pretend there is no DW_AT_sibling
+                   attribute.  */
+                goto no_sibling_attr;
             default:
                 return (NULL);
             }
@@ -460,6 +474,7 @@ _dwarf_next_die_info_ptr(Dwarf_Byte_Ptr die_info_ptr,
             return (cu_info_start + offset);
         }
 
+        no_sibling_attr:
         if (attr_form != 0) {
             info_ptr += _dwarf_get_size_of_val(cu_context->cc_dbg,
                                                attr_form, info_ptr,

@@ -411,8 +411,7 @@ dwarf_global_formref(Dwarf_Attribute attr,
         return (DW_DLV_ERROR);
     }
 
-    /* Check that offset is within current cu portion of .debug_info. */
-
+    /* FIXME:Check that offset is within current cu portion of .debug_info. */
     *ret_offset = (offset);
     return DW_DLV_OK;
 }

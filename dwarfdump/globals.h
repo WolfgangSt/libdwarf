@@ -125,6 +125,7 @@ extern boolean ellipsis;
 extern boolean dst_format;
 extern boolean use_mips_regnames;
 extern boolean show_global_offsets;
+extern boolean show_form_used;
 
 extern boolean check_pubname_attr;
 extern boolean check_attr_tag;

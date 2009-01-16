@@ -1,3 +1,9 @@
+2008-11-19 David Anderson <davea42@earthlink.net>
+      * globals.h: Added new boolean to support -M.
+      * dwarfdump.1: Mentioning the -M option.
+      * dwarfdump.c: Implementing -M, which has each attribute line
+        show the name of the form.
+      * print_die.c: Implementing -M option.
 2008-10-12 David Anderson <davea42@earthlink.net>
       * dwarfdump.conf: Adding power pc register names and table
         size for use with -x abi=ppc  .
