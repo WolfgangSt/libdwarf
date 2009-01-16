@@ -1,3 +1,8 @@
+2006-11-08 David Anderson <davea@sgi.com>
+      * pro_expr.c (dwarf_add_expr_gen): DW_OP_deref_size,
+        DW_OP_xderef_size, and  DW_OP_pick were incorrect, missing
+        & operator. Would coredump.  Thanks to Alan Chambers for mentioning
+        the coredump.
 2006-09-26 David Anderson <davea@sgi.com>
       * dwarf_die_deliv.c (dwarf_offdie): Now returns the
         correct die (worked before, almost always, but worked by accident).

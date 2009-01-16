@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2004,2006 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -341,11 +341,7 @@ dwarf_add_expr_gen(Dwarf_P_Expr expr,
 
     case DW_OP_pick:
 	operand = (Dwarf_Small *) & operand_buffer[0];
-	/* Cast of val1 to pointer is ok as if val1 does not point into 
-	   our (process) address space we are in big trouble anyway
-	   (internal error in libdwarf or in libdwarf caller). Compiler 
-	   may warn about cast to pointer. */
-	WRITE_UNALIGNED(dbg, operand, (const void *) val1,
+	WRITE_UNALIGNED(dbg, operand, (const void *) &val1,
 			sizeof(val1), 1);
 	operand_size = 1;
 	break;
@@ -360,11 +356,7 @@ dwarf_add_expr_gen(Dwarf_P_Expr expr,
     case DW_OP_deref_size:
     case DW_OP_xderef_size:
 	operand = (Dwarf_Small *) & operand_buffer[0];
-	/* Cast of val1 to pointer is ok as if val1 does not point into 
-	   our (process) address space we are in big trouble anyway
-	   (internal error in libdwarf or in libdwarf caller). Compiler 
-	   may warn about cast to pointer. */
-	WRITE_UNALIGNED(dbg, operand, (const void *) val1,
+	WRITE_UNALIGNED(dbg, operand, (const void *) &val1,
 			sizeof(val1), 1);
 	operand_size = 1;
 	break;
