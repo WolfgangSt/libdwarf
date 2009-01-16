@@ -32,6 +32,20 @@
   http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 */
+/* The versions applicable by section are:
+                       DWARF2    DWARF3
+ .debug_info             2         3
+ .debug_abbrev           -         -
+ .debug_frame            1         3
+ .debug_str              -         -
+ .debug_loc              -         -
+ .debug_line             2         3
+ .debug_aranges          2         2
+ .debug_ranges           x         -
+ .debug_pubtypes         x         2
+ .debug_pubnames         2         2
+ .debug_macinfo          -         -
+*/
 
 #include <stddef.h>
 
@@ -244,7 +258,9 @@ struct Dwarf_Chain_s {
     Dwarf_Chain ch_next;
 };
 
-#define CURRENT_VERSION_STAMP		2
+
+#define CURRENT_VERSION_STAMP		2 /* DWARF2 */
+#define CURRENT_VERSION_STAMP3		3 /* DWARF3 */
 
     /* Size of cu header version stamp field. */
 #define CU_VERSION_STAMP_SIZE   sizeof(Dwarf_Half)

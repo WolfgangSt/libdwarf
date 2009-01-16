@@ -80,7 +80,8 @@
  * the exception handling tables.
  */
 
-#define DW_DEBUG_FRAME_VERSION                 	1
+#define DW_DEBUG_FRAME_VERSION                 	1 /* DWARF2 */
+#define DW_DEBUG_FRAME_VERSION3                	3 /* DWARF3 */
 #define DW_DEBUG_FRAME_AUGMENTER_STRING     	"mti v1"
 
 /* The value of the offset field for Cie's. */
@@ -170,6 +171,7 @@ struct Dwarf_Cie_s {
     Dwarf_Cie ci_next;
     Dwarf_Small ci_length_size;
     Dwarf_Small ci_extension_size;
+    Dwarf_Half ci_cie_version_number;
 };
 
 /*

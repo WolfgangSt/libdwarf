@@ -42,7 +42,8 @@
 
 /* to identify a cie */
 #define DW_CIE_ID 		~(0x0)
-#define DW_CIE_VERSION		1
+#define DW_CIE_VERSION		1 /* DWARF2 */
+#define DW_CIE_VERSION3		3 /* DWARF3 */
 #define ABBREV_HASH_TABLE_SIZE	10
 
 

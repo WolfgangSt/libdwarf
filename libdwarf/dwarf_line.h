@@ -103,6 +103,9 @@ struct Dwarf_Line_Context_s {
     Dwarf_Small *lc_compilation_directory;
 
     Dwarf_Debug lc_dbg;
+
+    Dwarf_Half lc_version_number; /* DWARF2/3 version number,
+		2 for DWARF2, 3 for DWARF3. */
 };
 
 

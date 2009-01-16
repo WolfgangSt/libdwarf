@@ -1,3 +1,17 @@
+2005-02-14 David Anderson <davea@sgi.com>
+      * pro_incl.h: Added #elif defined(HAVE_LIBELF_H)
+        enabling build on a platform missing normal elf.h.
+
+2005-02-11 David Anderson <davea@sgi.com>
+      * dwarf_base_types.h: Added DW_CIE_VERSION3 define.
+      * dwarf_die_deliv.c: Allowed CURRENT_VERSION_STAMP3.
+      * dwarf_frame.c: Allowed DW_CIE_VERSION3.
+      *	dwarf_frame.h: Define DW_DEBUG_FRAME_VERSION3.
+      *	dwarf_line.c: Allow CURRENT_VERSION_STAMP3.
+      *	dwarf_line.h: Add lc_version_number to line structure.
+      *	dwarf_opaque.h: Add CURRENT_VERSION_STAMP3 and comment showing
+		version numbers (DWARF3 vs DWARF2) by DWARF section.
+
 2004-11-21 David Anderson <davea@sgi.com>
      *  configure.in libdwarfdefs.h: Now tests more precisely for __uint32_t
 	and __uint64_t (previous test was not sufficient for debian/mips). 
@@ -5,7 +19,7 @@
 
 2004-10-28 David Anderson <davea@sgi.com>
       * LIBDWARFCOPYRIGHT Makefile.in NEWS config.h dwarf_abbrev.c 
-        dwarf_abbrev.h dwarf_addr_finder.c dwarf_alloc.c dwarf_alloc.h
+       dwarf_abbrev.h dwarf_addr_finder.c dwarf_alloc.c dwarf_alloc.h
         dwarf_arange.c dwarf_arange.h dwarf_base_types.h dwarf_die_deliv.c
         dwarf_die_deliv.h dwarf_error.c dwarf_error.h dwarf_form.c
         dwarf_frame.c dwarf_frame.h dwarf_funcs.c dwarf_funcs.h

@@ -197,7 +197,8 @@ _dwarf_make_CU_Context(Dwarf_Debug dbg,
 	return (NULL);
     }
 
-    if (cu_context->cc_version_stamp != CURRENT_VERSION_STAMP) {
+    if (cu_context->cc_version_stamp != CURRENT_VERSION_STAMP
+	&& cu_context->cc_version_stamp != CURRENT_VERSION_STAMP3) {
 	_dwarf_error(dbg, error, DW_DLE_VERSION_STAMP_ERROR);
 	return (NULL);
     }

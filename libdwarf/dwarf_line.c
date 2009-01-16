@@ -218,7 +218,8 @@ dwarf_srcfiles(Dwarf_Die die,
     READ_UNALIGNED(dbg, version, Dwarf_Half,
 		   line_ptr, sizeof(Dwarf_Half));
     line_ptr += sizeof(Dwarf_Half);
-    if (version != CURRENT_VERSION_STAMP) {
+    if (version != CURRENT_VERSION_STAMP &&
+	version != CURRENT_VERSION_STAMP3) {
 	_dwarf_error(dbg, error, DW_DLE_VERSION_STAMP_ERROR);
 	return (DW_DLV_ERROR);
     }
@@ -561,7 +562,8 @@ _dwarf_internal_srclines(Dwarf_Die die,
     READ_UNALIGNED(dbg, version, Dwarf_Half,
 		   line_ptr, sizeof(Dwarf_Half));
     line_ptr += sizeof(Dwarf_Half);
-    if (version != CURRENT_VERSION_STAMP) {
+    if (version != CURRENT_VERSION_STAMP &&
+	version != CURRENT_VERSION_STAMP3) {
 	_dwarf_error(dbg, error, DW_DLE_VERSION_STAMP_ERROR);
 	return (DW_DLV_ERROR);
     }
@@ -1078,6 +1080,7 @@ _dwarf_internal_srclines(Dwarf_Die die,
 	include_directories_count;
     line_context->lc_line_count = line_count;
     line_context->lc_compilation_directory = comp_dir;
+    line_context->lc_version_number = version;	
     line_context->lc_dbg = dbg;
     *count = line_count;
 
