@@ -1,0 +1,71 @@
+
+
+
+1999 Aug 20
+Stan Shebs (shebs@cygnus.com) pointed out that the pro_util.h
+use of R_MIPS* was a problem compiling on Sun.
+Since the producer code is not really used at present except for
+MIPS/sgi, I've added #ifndefs to pro_util.h which provide zero values
+when <elf.h> does not provide the macros.
+When anyone needs the producer code to actually *work* for non-MIPS
+something better will have to be done.
+
+This has no effect on those simply compiling libdwarf for 
+use by dwarfdump.
+davea@sgi.com
+
+1999 July 21
+Changed the READ_UNALAGNED macro to call a function
+depending on endianness of the host and the object being read.
+So all the dwarf_* source changed in a trivial way.
+Added support for printing egcs eh_frame section.
+Added a local memcpy-like function to do the cross-endian
+thing where applicable (called by READ_UNALIGNED macro). 
+Because the .eh_frame section 
+after linking can have some zeroed out bytes at the
+end of the CIE/FDE data the code looking for CIEs and FDEs
+now assumes a zero CIE/FDE length means it has reached
+the end of the CIE/FDE data.
+davea@sgi.com
+
+
+1999 June 14
+  Fred Fish fnf@ninemoons.com contributed
+  autoconf'ing of the libdwarf and dwarfdump source.  
+  
+
+  mips_extensions.*  Documented additional old errors
+  in the Dwarf Version 2 spec.
+
+  The ChangeLog before this is incomplete. 
+
+-------------------------------------------------------------
+Since Oct 95 and before May, 1996 davea@sgi.com David Anderson
+
+Added the function dwarf_get_cie_of_fde() which makes it possible
+to remember a single fde/cie set out of a block usefully.
+
+Enhanced doc of dwarf_bitoffset()
+
+Added new function dwarf_global_formref() so all reference
+forms can be retrieved.
+
+Fixed bug in retrieving array bounds: was failing to sign extend
+formsdata.
+
+Added function dwarf_get_fde_info_for_all_regs(), which makes
+retrieval of the complete set of registers (as needed by
+debuggers and exception handlers) effectively N times faster
+than getting them one a time where N is the number of registers.
+
+Added support for exception table handling (really just support
+for a reference to an exception table for c++ exceptions).
+
+Fixed a bug where useless extra space (several megabytes)
+were malloc'ed for the abbreviations table by the libdwarf
+consumer code.
+
+-------------------------------------------------------------
+June 10, 1999
+ Changelog started.
+-------------------------------------------------------------

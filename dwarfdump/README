@@ -1,0 +1,19 @@
+
+This implementation of dwarfdump is not complete.  Among the
+missing features are consumer support for .debug_macinfo and
+support for .debug_loc. 
+
+To build dwarfdump, first build libdwarf in the neighboring
+directory then type
+	./configure
+	make
+
+To use dwarf or libdwarf, you may want to install dwarf.h and
+libdwarf.h somewhere convenient, and you may need the libdwarf
+in the accompanying libdwarf directory
+
+David Anderson.  davea@sgi.com
+
+$Source: /isms/cmplrs.src/osprey1.0/dwarfdump/RCS/README,v $
+$Revision: 1.2 $
+$Date: 1999/06/22 16:33:17 $

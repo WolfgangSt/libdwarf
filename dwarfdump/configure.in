@@ -1,0 +1,32 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(dwarfdump.c)
+AC_CONFIG_HEADER(config.h)
+
+AC_PROG_CC
+AC_GCC_TRADITIONAL
+AC_PROG_INSTALL
+AC_CHECK_TOOL(RANLIB, ranlib, :)
+AC_CHECK_TOOL(AR, ar)
+dnl AC_ARFLAGS
+
+
+
+AC_CHECK_HEADERS(elf.h getopt.h libelf.h libelf/libelf.h sgidefs.h sys/types.h)
+AC_CHECK_LIB(elf,elf64_getehdr,AC_DEFINE(HAVE_ELF64_GETEHDR))
+
+dnl Find out where the elf header is.
+if test "$ac_cv_header_elf_h" = yes; then
+ AC_DEFINE(LOCATION_OF_LIBELFHEADER,[<elf.h>])
+elif test "$ac_cv_header_libelf_h" = yes; then
+ AC_DEFINE(LOCATION_OF_LIBELFHEADER, [<libelf.h>])
+elif test "$ac_cf_libelf_libelf_h" = yes; then
+ AC_DEFINE(LOCATION_OF_LIBELFHEADER,[libelf/libelf.h])
+fi
+
+AC_TRY_COMPILE([#include LOCATION_OF_LIBELFHEADER],  Elf64_Rel *p; int i; i = p->r_info; ,AC_DEFINE(HAVE_ELF64_R_INFO))
+AC_TRY_COMPILE([],  __uint32_t p; p = 3; ,AC_DEFINE(HAVE___UINT32_T))
+AC_TRY_COMPILE([],  __uint64_t p; p = 3; ,AC_DEFINE(HAVE___UINT64_T))
+AC_TRY_COMPILE([#include <sys/types.h>],[  __uint32_t p; p = 3]; ,AC_DEFINE(HAVE___UINT32_T_IN_SYS_TYPES_H))
+
+
+AC_OUTPUT(Makefile)

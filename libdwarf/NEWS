@@ -1,0 +1,94 @@
+December 08, 1999
+  The dwarf committee has adopted the offset-extension
+  proposal. This allows compatibly emitting
+  dwarf with 64bit offsets.
+
+  The dwarf reader now automatically figures out which is in use.
+  The dwarf writer configures itself at the time the
+  writer initialization routine is called, though
+  the writer is restricted, at libdwarf 
+  compile time, to one of
+		mips/sgi pure 32/pure 64 offsets/pointers.
+
+		32bit offsets only (per dwarf 2.0.0 and cygnus)
+
+		32bit offsets with extension to 64bit offsets
+		allowed (the offset-extension newly passed).
+  
+  In addition, a great deal of duplicate code
+  for the sgi  .debug_weaknames, .debug_funcnames, 
+  .debug_varnames and .debug_typenames sections has
+  been removed: a single set of functions does the real work now.
+  
+Sept 29, 1999
+  Just found out that cygnus is, on 64bit targets, generating
+  32bit offsets (as elf32 has, for example) with 64 bit
+  pointers (in references to text and data).
+  Whereas sgi has always generated 64bit dwarf with
+  64 bit offsets (as in elf64) and 64bit pointers for
+  64bit pointer objects.
+  I'll call the sgi approach 64-bit and the cygnus approach
+  32bit-offsets.
+
+  Cygnus is following the DWARF2 spec as written, so they are
+  right in doing only 32bit-offsets.
+
+  Folks at sgi (including me) think that, as for elf64,
+  the offsets in dwarf for 64bit pointer-apps should be
+  64 bits.  We think it is only a matter of time
+  before we really *need* 64bit offsets and when that happens
+  it will be on an important app.  Disk space is cheap,
+  so lets just go 64 bit on 64bit apps (such as ia64 apps)
+  to avoid a future problem.
+  I(davea@sgi.com) think the 'pointer-size' references in the dwarf
+  spec were really written for 64-bit pointer apps.
+  I don't recall serious consideration of 64bit pointer
+  apps in the committee deliberations (I did miss
+  a couple of meetings) and think 64bit offsets
+  are consistent with dwarf2, even though the speci
+  was not written for such. We think true full 64 bit
+  dwarf2 is the right way to go (the spec changes
+  are obvious: file and section offsets become 64bit
+  with 64bit pointer objects.
+ 
+  MIPS/SGI is definitely 64-bit offsets for 64 bit objects,
+  cygnus is definitely 32bit-offsets for earlier 64bit pointer
+  environments.
+
+  At any rate, now the dwarf reader allows and accomodates
+  both and the dwarf producer also accomodates both.
+  Some tweaking of the pro_init.c or dwarf_init_finish.c
+  files may be necessary in future: no other changes should
+  be needed to accomodate the two 64bit approaches, as
+  the library (and dwarfdump) now deal with both forms.
+
+
+August 20, 1999
+  Added some #ifndef/#define to pro_util.h to let libdwarf build
+  on more hosts.  (since those hosts don't need the producer
+  code, AFAIK, zero values suffice for missing #defines.)
+
+July 21, 1999
+  Now reader transparently reads either-endianness data
+  from an either-endianness object.
+  Updated dwarf.h and libdwarf.h to recognize
+  GNU egcs dwarf extensions and to print the egcs eh_frame
+  section.
+
+June 10, 1999
+  gnu configure version of libdwarf made available for the
+  first time.  
+  Still allows only same-endian-as-host in objects.
+  
+August, 1994
+  libdwarf source made available for ftp on sgigate.sgi.com
+	/ftp/pub
+
+June, 1994
+  Consumer interface changed completely, following
+  "Candy Machine Interfaces" chapter from
+   "Writing Solid Code" by Steve Maguire (Microsoft Press).
+
+April,  1993
+  Initial version of libdwarf  for dwarf version 2
+  written at sgi.

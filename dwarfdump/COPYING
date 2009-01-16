@@ -1,0 +1,11 @@
+
+
+The files:
+	dwarfdump.c
+	and all the .h and .c files in this implementation of
+	dwarfdump are copyrighted according to the file
+	DWARFDUMPCOPYRIGHT.   
+
+$Source: /isms/cmplrs.src/osprey1.0/dwarfdump/RCS/COPYING,v $
+$Revision: 1.1 $
+$Date: 1999/03/05 21:31:58 $

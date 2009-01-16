@@ -1,0 +1,14 @@
+1999 July 21
+  davea@sgi.com 
+  print_sections changed to allow printing
+  of dwarf-ish egcs c++ .eh_frame data
+
+
+1999 June 14
+  Fred Fish fnf@ninemoons.com contributed
+  autoconf'ing of the libdwarf and dwarfdump source.  
+
+
+
+1999 June 10
+ ChangeLog started. davea@sgi.com  David Anderson

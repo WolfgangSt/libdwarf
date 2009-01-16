@@ -1,0 +1,15 @@
+July 21, 1999
+  Added gnu extensions to the frame information printer
+  and handling for egcs eh_frame printing.
+  libdwarf changes mean this now can print little-endian
+  object dwarf on a big-endian system and vice-versa.
+
+December, 1998
+  added dwarfdump to the dwarf public source distribution.
+
+June, 1994
+  libdwarf consumer interface changed completely so updated to match.
+
+May,  1993
+  Initial version of dwarfdump  for dwarf version 2
+  written at sgi.

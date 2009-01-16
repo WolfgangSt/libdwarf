@@ -1,0 +1,32 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(libdwarf.h)
+AC_CONFIG_HEADER(config.h)
+
+dnl the endian one is temporary till endianness issues fixed
+AC_C_BIGENDIAN
+AC_PROG_CC
+AC_GCC_TRADITIONAL
+AC_PROG_INSTALL
+AC_CHECK_TOOL(RANLIB, ranlib, :)
+AC_CHECK_TOOL(AR, ar)
+
+dnl AC_ARFLAGS
+
+AC_CHECK_HEADERS(bstring.h elf.h elfaccess.h libelf.h libelf/libelf.h sgidefs.h sys/types.h sys/ia64/elf.h)
+
+AC_CHECK_LIB(elf,elf64_getehdr,AC_DEFINE(HAVE_ELF64_GETEHDR))
+AC_CHECK_LIB(elf,elf64_getshdr,AC_DEFINE(HAVE_ELF64_GETSHDR))
+AC_TRY_COMPILE( ,  __uint32_t p; p = 3; ,AC_DEFINE(HAVE___UINT32_T))
+AC_TRY_COMPILE( ,  __uint64_t p; p = 3; ,AC_DEFINE(HAVE___UINT64_T))
+AC_TRY_COMPILE([#include <sys/types.h>],[  __uint32_t p; p = 3;] ,AC_DEFINE(HAVE___UINT32_T_IN_SYS_TYPES_H))
+dnl checking for ia 64 types, which might be enums, using HAVE_R_IA_64_DIR32LSB
+dnl to stand in for a small set.
+AC_TRY_COMPILE([#include <elf.h>],[  int p; p = R_IA_64_DIR32LSB;] ,AC_DEFINE(HAVE_R_IA_64_DIR32LSB))
+
+dnl Lets just assume, if ia64, compatibility with cygnus before
+dnl HAVE_DWARF2_99_EXTENSION defined.
+dnl Only applies to producer code, as consumer adapts itself.
+dnl This is not the right test, really.
+AC_TRY_COMPILE([#include <elf.h>],[  int p; p = R_IA_64_DIR32LSB;] ,AC_DEFINE(HAVE_OLD_DWARF2_32BIT_OFFSET))
+
+AC_OUTPUT(Makefile)
