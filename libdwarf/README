@@ -27,6 +27,16 @@ For example
         ./configure  CPPFLAGS="-I/home/davea/inc" CFLAGS="-I/home/davea/inc"
 Set both CFLAGS and CPPFLAGS so that configure works properly.
 
+To generate SGI IRIX 64 bit offsets (in the producer code)
+configure with   --enable-dwarf-format-sgi-irix.
+To configure with only 32bit offsets (aka DWARF2) configure
+with --enable-dwarf-format-strict-32bit.
+By default the producer now generates 32bit offsets by default
+but one can turn on DWARF3 64bit offset generation at runtime by ORing
+DW_DLC_OFFSET_SIZE_64 onto the flags in the call to 
+dwarf_producer_init() (or dwarf_producer_init_b) [when the
+address size is specified as 64 bit].
+
 It is now possible to request shared library build with
 	--enable-shared
 (--enable-nonshared is on by default).

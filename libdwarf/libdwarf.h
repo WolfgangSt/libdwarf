@@ -2,6 +2,7 @@
 
   Copyright (C) 2000,2001,2002,2005,2006 Silicon Graphics, Inc.  All Rights Reserved.
   Portions Copyright 2007 Sun Microsystems, Inc. All rights reserved.
+  Portions Copyright 2008 David Anderson. All rights reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License
@@ -486,10 +487,14 @@ typedef void  (*Dwarf_Handler)(Dwarf_Error /*error*/, Dwarf_Ptr /*errarg*/);
 #define DW_DLC_WRITE       1        /* write only access */
 #define DW_DLC_RDWR        2        /* read/write access NOT SUPPORTED*/
 
-/* dwarf_init() access flag modifiers
+/* pro_init() access flag modifiers
+   If HAVE_DWARF2_99_EXTENSION is defined at libdwarf build time
+   and DW_DLC_OFFSET_SIZE_64  is passed in pro_init() flags then the DWARF3 
+   64 bit offset extension is used to generate 64 bit offsets.
 */
-#define DW_DLC_SIZE_64     0x40000000 /* 32-bit target */
-#define DW_DLC_SIZE_32     0x20000000 /* 64-bit target */
+#define DW_DLC_SIZE_64     0x40000000 /* 32-bit address-size target */
+#define DW_DLC_SIZE_32     0x20000000 /* 64-bit address-size target */
+#define DW_DLC_OFFSET_SIZE_64 0x10000000 /* 64-bit offset-size DWARF */
 
 /* dwarf_init() access flag modifiers
 */
@@ -778,7 +783,7 @@ typedef void  (*Dwarf_Handler)(Dwarf_Error /*error*/, Dwarf_Ptr /*errarg*/);
 /*===========================================================================*/
 /*  Dwarf consumer interface initialization and termination operations */
 
-/* non-elf initialization */
+/* Initialization based on Unix open fd (using libelf internally). */
 int dwarf_init(int 	/*fd*/, 
     Dwarf_Unsigned 	/*access*/, 
     Dwarf_Handler 	/*errhand*/, 
@@ -786,7 +791,7 @@ int dwarf_init(int 	/*fd*/,
     Dwarf_Debug      *  /*dbg*/,
     Dwarf_Error* 	/*error*/);
 
-/* elf intialization */
+/* Initialization based on libelf/sgi-fastlibelf open pointer. */
 int dwarf_elf_init(dwarf_elf_handle /*elf*/,
     Dwarf_Unsigned 	/*access*/, 
     Dwarf_Handler 	/*errhand*/, 
@@ -796,7 +801,6 @@ int dwarf_elf_init(dwarf_elf_handle /*elf*/,
 
 /* Undocumented function for memory allocator. */
 void dwarf_print_memory_stats(Dwarf_Debug  /*dbg*/);
-
 
 int dwarf_get_elf(Dwarf_Debug /*dbg*/,
     dwarf_elf_handle*   /*return_elfptr*/,

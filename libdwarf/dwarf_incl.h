@@ -1,6 +1,7 @@
 /*
 
   Copyright (C) 2000, 2002, 2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright 2008 David Anderson. All rights reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -54,8 +55,8 @@
 #endif
 
 #include <limits.h>
-#include <libdwarf.h>
 #include <dwarf.h>
+#include <libdwarf.h>
 
 #include "dwarf_base_types.h"
 #include "dwarf_alloc.h"

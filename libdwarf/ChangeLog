@@ -1,3 +1,37 @@
+2008-02-08  DavidAnderson <davea42@earthlink.net>
+     * dwarf_print_lines.c: Added commentary to clarify that
+       dwarf_print_lines() and _dwarf_print_lines are intentionally
+       identical.  Initialized local variables so they are alll
+       visibly set to some sensible value.
+2008-02-07  DavidAnderson <davea42@earthlink.net>
+     * dwarf_frame.c (_dwarf_fde_section_offset): A typo
+       in the last release made this an infinite loop.
+       A one character change fixed it. Thanks to Carlos Alberto
+       Enciso for noticing the bug.
+2008-02-04  DavidAnderson <davea42@earthlink.net>
+     * dwarf_incl.h, pro_incl.h: Moved #include of dwarf.h before libdwarf.h
+     * pro_forms.c: Some newer attributes are now handled.
+     * dwarf_print_lines.c: Removed unused #include.
+     * dwarf_sort_line.c: Removed alloca use in favor of
+       malloc and removed the alloca #include.
+     * dwarf_line.c: Removed unused #include.
+     * dwarf_line2.c: Removed unused #include.
+
+2008-02-04  DavidAnderson <davea42@earthlink.net>
+     * libdwarf.h: Fix commentary mistakes.
+2008-02-02  DavidAnderson <davea42@earthlink.net>
+     * libdwarf.h: Add DW_DLC_OFFSET_SIZE_64 for run-time
+       selection of DWARF3 64bit extension producer offset generation.
+     * libdwarf2p.1.mm: Document DW_DLC_OFFSET_SIZE_64.
+     * pro_init.c (dwarf_producer_init): Now standard DWARF3 is the default.
+     * configure.in: Add --enable-dwarf-format-sgi-irix for those
+       wanting IRIX offset-style DWARF2. Add --enable-dwarf-format-strict-32bit
+       for those wanting strictly 32bit offsets.
+       Otherwise default to generating 64bit offsets from the producer code,
+       but allow the DWARF3 extended 64bit offsets if the flag
+        DW_DLC_OFFSET_SIZE_64 is turned on in the call to dwarf_producer_init().
+     * config.h.in: Provide undefs for the offset macros.
+
 2008-01-25  DavidAnderson <davea42@earthlink.net>
      * pro_die.c: Changed leading tabs to spaces.
 2008-01-23  DavidAnderson <davea42@earthlink.net>

@@ -1,7 +1,7 @@
 /*
 
   Copyright (C) 2000,2002,2004,2005,2006 Silicon Graphics, Inc.  All Rights Reserved.
-  Portions Copyright (C) 2007 David Anderson. All Rights Reserved.
+  Portions Copyright (C) 2007,2008 David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -47,9 +47,6 @@
 #include <stdio.h>
 #include <time.h>
 #include "dwarf_line.h"
-#ifdef HAVE_ALLOCA_H
-#include <alloca.h>
-#endif
 
 /* FIXME Need to add prologue_end epilogue_begin isa fields. */
 static void
@@ -96,8 +93,8 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
     /* 
        This pointer is used to scan the portion of the .debug_line
        section for the current cu. */
-    Dwarf_Small *line_ptr;
-    Dwarf_Small *orig_line_ptr;
+    Dwarf_Small *line_ptr = 0;
+    Dwarf_Small *orig_line_ptr = 0;
 
     /* 
        This points to the last byte of the .debug_line portion for the
@@ -107,10 +104,10 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
     /* 
        Pointer to a DW_AT_stmt_list attribute in case it exists in the
        die. */
-    Dwarf_Attribute stmt_list_attr;
+    Dwarf_Attribute stmt_list_attr = 0;
 
     /* Pointer to DW_AT_comp_dir attribute in die. */
-    Dwarf_Attribute comp_dir_attr;
+    Dwarf_Attribute comp_dir_attr = 0;
 
     /* Pointer to name of compilation directory. */
     Dwarf_Small *comp_dir = NULL;
@@ -118,7 +115,7 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
     /* 
        Offset into .debug_line specified by a DW_AT_stmt_list
        attribute. */
-    Dwarf_Unsigned line_offset;
+    Dwarf_Unsigned line_offset = 0;
 
     struct Line_Table_Prefix_s prefix;
 
@@ -136,33 +133,33 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
     Dwarf_Small isa = 0;
 
 
-    Dwarf_Sword i;
+    Dwarf_Sword i=0;
 
     /* 
        This is the current opcode read from the statement program. */
-    Dwarf_Small opcode;
+    Dwarf_Small opcode=0;
 
 
     /* 
        These variables are used to decode leb128 numbers. Leb128_num
        holds the decoded number, and leb128_length is its length in
        bytes. */
-    Dwarf_Word leb128_num;
-    Dwarf_Word leb128_length;
-    Dwarf_Sword advance_line;
+    Dwarf_Word leb128_num=0;
+    Dwarf_Word leb128_length=0;
+    Dwarf_Sword advance_line=0;
 
     /* 
        This is the operand of the latest fixed_advance_pc extended
        opcode. */
-    Dwarf_Half fixed_advance_pc;
+    Dwarf_Half fixed_advance_pc=0;
 
 
     /* The Dwarf_Debug this die belongs to. */
-    Dwarf_Debug dbg;
-    int resattr;
-    int lres;
+    Dwarf_Debug dbg=0;
+    int resattr=0;
+    int lres=0;
 
-    int res;
+    int res=0;
 
     /* ***** BEGIN CODE ***** */
 
@@ -316,7 +313,7 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
     print_line_header();
     /* Start of statement program.  */
     while (line_ptr < line_ptr_end) {
-	int type;
+	int type = 0;
 
 	printf(" [0x%06llx] ", (long long) (line_ptr - orig_line_ptr));
 	opcode = *(Dwarf_Small *) line_ptr;
@@ -568,14 +565,11 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
 		}
 
 	    case DW_LNE_define_file:{
+		    Dwarf_Unsigned di = 0;
+		    Dwarf_Unsigned tlm = 0;
+		    Dwarf_Unsigned fl = 0;
 
-
-		    Dwarf_Small *fn;
-		    Dwarf_Unsigned di;
-		    Dwarf_Unsigned tlm;
-		    Dwarf_Unsigned fl;
-
-		    fn = (Dwarf_Small *) line_ptr;
+		    Dwarf_Small *fn = (Dwarf_Small *) line_ptr;
 		    line_ptr = line_ptr + strlen((char *) line_ptr) + 1;
 
 		    di = _dwarf_decode_u_leb128(line_ptr,
@@ -627,16 +621,18 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
         to get that detail without including internal libdwarf
         header information.
 	Caller passes in compilation unit DIE.
-        The _dwarf version is obsolete (though supported for
-        compatibility.
+        The _dwarf_ version is obsolete (though supported for
+        compatibility).
         The dwarf_ version is preferred.
+        The functions are intentionally identical: having
+        _dwarf_print_lines call dwarf_print_lines might
+        better emphasize they are intentionally identical, but
+        that seemed slightly silly given how short the functions are.
 */
 int
 dwarf_print_lines(Dwarf_Die die, Dwarf_Error * error)
 {
-    int res;
-
-    res = _dwarf_internal_printlines(die, error);
+    int res = _dwarf_internal_printlines(die, error);
     if (res != DW_DLV_OK) {
 	return res;
     }
@@ -645,9 +641,7 @@ dwarf_print_lines(Dwarf_Die die, Dwarf_Error * error)
 int
 _dwarf_print_lines(Dwarf_Die die, Dwarf_Error * error)
 {
-    int res;
-
-    res = _dwarf_internal_printlines(die, error);
+    int res = _dwarf_internal_printlines(die, error);
     if (res != DW_DLV_OK) {
 	return res;
     }

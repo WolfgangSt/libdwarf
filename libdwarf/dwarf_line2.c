@@ -1,6 +1,7 @@
 /*
 
-  Copyright (C) 2000,2002,2004,2005,2006 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2002,2004,2005,2006 Silicon Graphics, Inc. All Rights Reserved.
+  Portions Copyright 2008 David Anderson, Inc. All rights reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -42,11 +43,6 @@
 #include "dwarf_incl.h"
 #include <stdio.h>
 #include "dwarf_line.h"
-#ifdef HAVE_ALLOCA_H
-#include <alloca.h>
-#endif
-
-
 
 /*
 	Return DW_DLV_OK or, if error,

@@ -11,7 +11,7 @@
 .nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.21, 14 Jan 2008
+.ds vE rev 1.22, 2 Feb 2008
 \." ==============================================
 \." ==============================================
 .ds | |
@@ -63,7 +63,7 @@ information.
 .H 2 "Copyright"
 Copyright 1993-2006 Silicon Graphics, Inc.
 
-Copyright 2007 David Anderson.
+Copyright 2007-2008 David Anderson.
 
 Permission is hereby granted to
 copy or republish or use any or all of this document without
@@ -464,6 +464,27 @@ then
 \f(CWDW_DLC_SIZE_32\fP
 is assumed.
 Oring in both is an error.
+
+If 
+\f(CWDW_DLC_OFFSET_SIZE_64\fP
+is not OR'd into \f(CWflags\fP
+then 64 bit offsets (as defined in the 1999 DWARF3)
+may be used (see next paragraph) to generate DWARF (if and only if
+DW_DLC_SIZE_64 is also OR'd into \f(CWflags\fP).
+
+If \f(CWHAVE_STRICT_32BIT_OFFSET\fP is set at configure time
+only 32bit DWARF offsets are generated 
+(use configure option --enable-dwarf-format-strict-32bit)
+and \f(CWDW_DLC_OFFSET_SIZE_64\fP is ignored. 
+If \f(CWHAVE_SGI_IRIX_OFFSETS\fP is set at configure time
+SGI IRIX offsets (standard 32bit, a special 64bit offset
+for 64bit address objects) are generated
+(use configure option --enable-dwarf-format-sgi-irix)
+and \f(CWDW_DLC_OFFSET_SIZE_64\fP is ignored.
+If neither \f(CWHAVE_STRICT_32BIT_OFFSET\fP nor \f(CWHAVE_SGI_IRIX_OFFSETS\fP
+is set at configure time then standard 
+offset sizes are used ( and \f(CWHAVE_DWARF2_99_EXTENSION\fP is
+set) and \f(CWDW_DLC_OFFSET_SIZE_64\fP is honored.
 
 If
 \f(CWDW_DLC_ISA_IA64\fP

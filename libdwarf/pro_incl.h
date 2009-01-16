@@ -2,6 +2,7 @@
 
   Copyright (C) 2000,2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
   Portions Copyright 2002 Sun Microsystems, Inc. All rights reserved.
+  Portions Copyright 2008 David Anderson. All rights reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -81,10 +82,9 @@
 #define REL_SEC_PREFIX ".rel"
 #endif
 
-
+#include "dwarf.h"
 #include "libdwarf.h"
 
-#include "dwarf.h"
 #include "pro_opaque.h"
 #include "pro_error.h"
 #include "pro_util.h"

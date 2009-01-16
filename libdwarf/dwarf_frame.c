@@ -2071,7 +2071,7 @@ _dwarf_fde_section_offset(Dwarf_Debug dbg, Dwarf_Fde in_fde,
 			  Dwarf_Off * fde_off, Dwarf_Off * cie_off,
 			  Dwarf_Error * err) 
 {
-  return _dwarf_fde_section_offset(dbg,in_fde,fde_off,
+  return dwarf_fde_section_offset(dbg,in_fde,fde_off,
      cie_off,err);
 }
 /* ARGSUSED 4 */

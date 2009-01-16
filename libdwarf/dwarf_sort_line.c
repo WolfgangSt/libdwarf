@@ -1,6 +1,6 @@
 /*
   Copyright (C) 2000,2002,2004,2006 Silicon Graphics, Inc.  All Rights Reserved.
-  Portions Copyright (C) 2007 David Anderson. All Rights Reserved.
+  Portions Copyright (C) 2007,2008 David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -39,6 +39,13 @@
 */
 
 
+/* This file was designed for SGI IRIX compiler use.
+   The static linker can rearrange the order of functions
+   in the layout in memory
+   and provided each has the right  form
+   this will (when called by the SGI IRIX
+   static linker) rearrange the table so the line table
+   is arranged in the same order as the memory layout. */
 
 
 
@@ -238,6 +245,17 @@ cmpr(const void *lin, const void *rin)
     return 0;			/* should never happen. */
 }
 
+/* The list of line area records is no longer needed.
+   Free the data allocated. */
+static void
+free_area_data(struct a_line_area *arp)
+{
+    while(arp) {
+        struct a_line_area *next = arp->ala_next;
+        free(arp);
+        arp = next;
+    }    
+}
 
 /*
 	On entry:
@@ -374,6 +392,7 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 	    dwarf_free_line_table_prefix(&prefix);
 	    *err_code = dwarf_errno(error);
 	    dwarf_dealloc(dbg, error, DW_DLA_ERROR);
+	    free_area_data(area_base);
 	    return dres;
 	}
 	if (dres == DW_DLV_NO_ENTRY) {
@@ -548,6 +567,7 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 			dwarf_free_line_table_prefix(&prefix);
 
 			*err_code = DW_DLE_LINE_NUM_OPERANDS_BAD;
+			free_area_data(area_base);
 			return (DW_DLV_ERROR);
 		    }
 		    break;
@@ -555,7 +575,6 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 
 	    }
 	} else if (type == LOP_EXTENDED) {
-
 
 	    Dwarf_Unsigned utmp3;
 
@@ -577,8 +596,6 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 		    /* end_sequence = false; */
 		    /* prologue_end = false; */
 		    /* epilogue_begin = false; */
-
-
 		    break;
 		}
 
@@ -596,7 +613,7 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 			}
 			last_address = address;
 
-			area = alloca(sizeof(struct a_line_area));
+			area = malloc(sizeof(struct a_line_area));
 			area->ala_address = address;
 			area->ala_offset = stmt_prog_entry_start -
 			    orig_line_ptr;
@@ -619,21 +636,20 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 		    } else {
 			*err_code = DW_DLE_LINE_SET_ADDR_ERROR;
 			dwarf_free_line_table_prefix(&prefix);
+			free_area_data(area_base);
 			return (DW_DLV_ERROR);
 		    }
-
-
 		    break;
 		}
 
 	    case DW_LNE_define_file:{
-
 		    break;
 		}
 
 	    default:{
 		    *err_code = DW_DLE_LINE_EXT_OPCODE_BAD;
 		    dwarf_free_line_table_prefix(&prefix);
+		    free_area_data(area_base);
 		    return (DW_DLV_ERROR);
 		}
 	    }
@@ -645,14 +661,13 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
     *new_line_ptr = line_ptr;
     if (!need_to_sort) {
 	dwarf_free_line_table_prefix(&prefix);
+	free_area_data(area_base);
 	return (DW_DLV_OK);
     }
 
-    /* so now we have something to sort. First, finish off the last
+    /* So now we have something to sort. First, finish off the last
        area record: */
-    area_current->ala_length = (line_ptr - orig_line_ptr)	/* final 
-								   offset 
-								 */
+    area_current->ala_length = (line_ptr - orig_line_ptr)
 	-area_current->ala_offset;
 
     /* Build and sort a simple array of sections. Forcing a stable sort 
@@ -673,6 +688,7 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 	if (!ala_array) {
 	    dwarf_free_line_table_prefix(&prefix);
 	    *err_code = DW_DLE_ALLOC_FAIL;
+	    free_area_data(area_base);
 	    return DW_DLV_ERROR;
 	}
 
@@ -681,6 +697,10 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 
 	    ala_array[i] = *local;
 	}
+	free_area_data(area_base);
+        /* Zero the stale pointers so we don't use them accidentally. */
+	area_base = 0;
+	area_current = 0;
 
 	qsort(ala_array, area_count, sizeof(struct a_line_area), cmpr);
 

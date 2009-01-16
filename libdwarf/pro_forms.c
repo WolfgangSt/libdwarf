@@ -1,8 +1,7 @@
 /*
-
   Copyright (C) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
   Portions Copyright 2002 Sun Microsystems, Inc. All rights reserved.
-  Portions Copyright 2007 David Anderson. All rights reserved.
+  Portions Copyright 2007,2008 David Anderson. All rights reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -570,9 +569,17 @@ dwarf_add_AT_signed_const(Dwarf_P_Debug dbg,
     }
 
     switch (attr) {
-    case DW_AT_upper_bound:
     case DW_AT_lower_bound:
+    case DW_AT_upper_bound:
     case DW_AT_const_value:
+    case DW_AT_bit_offset:
+    case DW_AT_bit_size:
+    case DW_AT_byte_size:
+    case DW_AT_count:
+    case DW_AT_byte_stride:
+    case DW_AT_bit_stride:
+    case DW_AT_allocated:
+    case DW_AT_associated:
         break;
 
     default:{ 
@@ -680,19 +687,24 @@ dwarf_add_AT_location_expr(Dwarf_P_Debug dbg,
     case DW_AT_frame_base:
     case DW_AT_static_link:
     case DW_AT_vtable_elem_location:
-	case DW_AT_lower_bound:
-	case DW_AT_upper_bound:
-	case DW_AT_count:
-	case DW_AT_associated:
-	case DW_AT_allocated:
-	break;
+    case DW_AT_lower_bound:
+    case DW_AT_upper_bound:
+    case DW_AT_count:
+    case DW_AT_associated:
+    case DW_AT_allocated:
+    case DW_AT_data_location:
+    case DW_AT_byte_stride:
+    case DW_AT_bit_stride:
+    case DW_AT_byte_size:
+    case DW_AT_bit_size:
+    break;
 
-        default:
-	    if ( attr < DW_AT_lo_user || attr > DW_AT_hi_user ) {
-	    _dwarf_p_error(dbg, error, DW_DLE_INPUT_ATTR_BAD);
-	    return ((Dwarf_P_Attribute) DW_DLV_BADADDR);
-	}
-	    break;
+    default:
+        if ( attr < DW_AT_lo_user || attr > DW_AT_hi_user ) {
+            _dwarf_p_error(dbg, error, DW_DLE_INPUT_ATTR_BAD);
+            return ((Dwarf_P_Attribute) DW_DLV_BADADDR);
+        }
+    break;
     }
 
     /* 
@@ -818,7 +830,12 @@ dwarf_add_AT_reference(Dwarf_P_Debug dbg,
     case DW_AT_count:
     case DW_AT_associated:
     case DW_AT_allocated:
+    case DW_AT_bit_offset:
+    case DW_AT_bit_size:
+    case DW_AT_byte_size:
     case DW_AT_sibling:
+    case DW_AT_bit_stride:
+    case DW_AT_byte_stride:
     case DW_AT_namelist_item:
 	break;
 

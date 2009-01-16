@@ -1,3 +1,25 @@
+February 2, 2008
+  Now pro_init() defaults to standard DWARF3 generated offset sizes.
+  But if a new flag DW_DLC_OFFSET_SIZE_64 or'd into flags passed to
+  dwarf_produser_init() or dwarf_producer_init_b, 
+  the DWARF3 extended offset size is generated (if the address size
+  is 64 bit).
+  The new configure option  --enable-dwarf-format-strict-32bit 
+  forces pro_init() to always cause 32bit offset dwarf generation.
+  The new configure option --enable-dwarf-format-sgi-irix forces
+  the old SGI IRIX 64bit offset generation for 64bit pointer size objects.
+
+  This is intended to simplify standard DWARF3 generation with
+  the now-normal use of 32bit DWARF offsets for both 32 and 64
+  bit pointer objects.
+ 
+  It does require that anyone wanting SGI IRIX dwarf generation
+  with its non-standard offsets for 64bit objects use the new
+  --enable-dwarf-format-sgi-irix configure time option.
+
+  This has no effect on dwarf reader code. It affects code calling
+  the libdwarf producer interfaces.
+
 December 8, 2007
   Had to add an ugly configure conditional as libelf has
   unconditional use of off64_t in recent libelf.h
