@@ -193,17 +193,17 @@ struct ial_s index_into_allocated[ALLOC_AREA_INDEX_TABLE_MAX] = {
 							   DW_DLA_FDE */
     {0, 1, 1},			/* 22 DW_DLA_LOC_BLOCK */
     {0, 1, 1},			/* 23 DW_DLA_FRAME_BLOCK */
-    {14, sizeof(struct Dwarf_Global_s), SMALL_ALLOC},	/* 24
+    {14, sizeof(struct Dwarf_Global_s), BASE_ALLOC},	/* 24
 							   DW_DLA_FUNC 
 							   UNUSED*/
-    {15, sizeof(struct Dwarf_Global_s), SMALL_ALLOC},	/* 25
+    {15, sizeof(struct Dwarf_Global_s), BASE_ALLOC},	/* 25
 							   DW_DLA_TYPENAME
 							   UNUSED 
 							 */
-    {16, sizeof(struct Dwarf_Global_s), SMALL_ALLOC},	/* 26
+    {16, sizeof(struct Dwarf_Global_s), BASE_ALLOC},	/* 26
 							   DW_DLA_VAR 
 							   UNUSED*/
-    {17, sizeof(struct Dwarf_Global_s), SMALL_ALLOC},	/* 27
+    {17, sizeof(struct Dwarf_Global_s), BASE_ALLOC},	/* 27
 							   DW_DLA_WEAK 
 							   UNUSED*/
     {0, 1, 1},			/* 28 DW_DLA_ADDR */
@@ -238,8 +238,8 @@ struct ial_s index_into_allocated[ALLOC_AREA_INDEX_TABLE_MAX] = {
    per type, but now merged (11/99).  The opaque types
    are visible in the interface. The types  for
    DW_DLA_FUNC,
-   DW_DLA_TYPENAME, DW_DLA_VAR, DW_DLA_WEAK are left in existence,
-   with unchanged numbers, but really unused.
+   DW_DLA_TYPENAME, DW_DLA_VAR, DW_DLA_WEAK also use
+   the global types.
   
 */
     {27, sizeof(struct Dwarf_Global_Context_s), BASE_ALLOC},

@@ -57,16 +57,17 @@ dwarf_get_vars(Dwarf_Debug dbg,
 	return res;
     }
 
-    return _dwarf_internal_get_pubnames_like_data(dbg, dbg->de_debug_varnames, dbg->de_debug_varnames_size, (Dwarf_Global **) vars,	/* type 
-																	   punning,
-																	   Dwarf_Type 
-																	   is never
-																	   a
-																	   completed 
-																	   type */
+    return _dwarf_internal_get_pubnames_like_data(dbg, dbg->de_debug_varnames, dbg->de_debug_varnames_size, (Dwarf_Global **) vars,	/* type
+							punning,
+						        Dwarf_Type
+						        is never
+						        a
+							completed 
+							type */
 						  ret_var_count,
 						  error,
 						  DW_DLA_VAR_CONTEXT,
+						  DW_DLA_VAR,
 						  DW_DLE_DEBUG_VARNAMES_LENGTH_BAD,
 						  DW_DLE_DEBUG_VARNAMES_VERSION_ERROR);
 }
@@ -82,7 +83,7 @@ dwarf_vars_dealloc(Dwarf_Debug dbg, Dwarf_Var *dwgl, Dwarf_Signed count)
    _dwarf_internal_globals_dealloc(dbg, (Dwarf_Global *)dwgl,
                 count,
         DW_DLA_VAR_CONTEXT,
-        DW_DLA_GLOBAL,
+        DW_DLA_VAR,
         DW_DLA_LIST);
    return;
 }

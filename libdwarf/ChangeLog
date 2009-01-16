@@ -1,3 +1,11 @@
+2005-10-03 David Anderson <davea@sgi.com>
+      * dwarf_alloc.c: Change some entries to BASE_ALLOC.
+      * dwarf_global.h: Add argument to interface so we do not
+        universally use DW_DLA_GLOBAL, but cater to compatibility.
+      * dwarf_funcs.c, dwarf_global.c, dwarf_weaks.c,
+        dwarf_funcs.c, dwarf_types.c: Restored use of DW_DLA_*
+        instead of universally using DW_DLA_GLOBAL.
+      * dwarf_pubtypes.c: added comments about DW_DLA_GLOBAL use.
 2005-08-01 David Anderson <davea@sgi.com>
       * malloc_check.c: Moved the #ifdef WANT_LIBBDWARF_MALLOC_CHECK
         down after #includes so the test is meaningful.

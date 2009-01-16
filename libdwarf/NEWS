@@ -1,3 +1,8 @@
+Oct 03, 2005
+  The July version had an incompatible interface: old
+  dealloc code did not always work right. The incompatibility
+  is now fixed and the new features remain.
+
 July 15, 2005
   New optional alloc-check code optionally checks all
   allocated memory is freed (malloc_check.h malloc_check.c)

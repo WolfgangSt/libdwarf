@@ -100,7 +100,8 @@ int _dwarf_internal_get_pubnames_like_data(Dwarf_Debug dbg,
 					   Dwarf_Global ** globals,
 					   Dwarf_Signed * return_count,
 					   Dwarf_Error * error,
-					   int allocation_code,
+					   int context_code,
+					   int global_code,
 					   int length_err_num,
 					   int version_err_num);
 

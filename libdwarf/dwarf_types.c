@@ -57,16 +57,14 @@ dwarf_get_types(Dwarf_Debug dbg,
 	return res;
     }
 
-    return _dwarf_internal_get_pubnames_like_data(dbg, dbg->de_debug_typenames, dbg->de_debug_typenames_size, (Dwarf_Global **) types,	/* type 
-																	   punning,
-																	   Dwarf_Type 
-																	   is never
-																	   a
-																	   completed 
-																	   type */
+    return _dwarf_internal_get_pubnames_like_data(dbg, dbg->de_debug_typenames, dbg->de_debug_typenames_size, 
+	(Dwarf_Global **) types,	/* type punning, Dwarf_Type 
+	is never a completed type */
+
 						  ret_type_count,
 						  error,
 						  DW_DLA_TYPENAME_CONTEXT,
+						  DW_DLA_TYPENAME,
 						  DW_DLE_DEBUG_TYPENAMES_LENGTH_BAD,
 						  DW_DLE_DEBUG_TYPENAMES_VERSION_ERROR);
 
@@ -83,7 +81,7 @@ dwarf_types_dealloc(Dwarf_Debug dbg, Dwarf_Type *dwgl, Dwarf_Signed count)
    _dwarf_internal_globals_dealloc(dbg, (Dwarf_Global *)dwgl,
                 count,
         DW_DLA_TYPENAME_CONTEXT,
-        DW_DLA_GLOBAL,
+        DW_DLA_TYPENAME,
         DW_DLA_LIST);
    return;
 }

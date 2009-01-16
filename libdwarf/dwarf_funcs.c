@@ -64,6 +64,7 @@ dwarf_get_funcs(Dwarf_Debug dbg,
 	ret_func_count,
 	error,
 	DW_DLA_FUNC_CONTEXT,
+	DW_DLA_FUNC,
 	DW_DLE_DEBUG_FUNCNAMES_LENGTH_BAD,
 	DW_DLE_DEBUG_FUNCNAMES_VERSION_ERROR);
 
@@ -79,7 +80,7 @@ dwarf_funcs_dealloc(Dwarf_Debug dbg, Dwarf_Func *dwgl, Dwarf_Signed count)
    _dwarf_internal_globals_dealloc(dbg, (Dwarf_Global *)dwgl,
                 count,
         DW_DLA_FUNC_CONTEXT,
-        DW_DLA_GLOBAL,
+        DW_DLA_FUNC,
         DW_DLA_LIST);
    return;
 }

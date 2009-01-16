@@ -105,6 +105,7 @@ dwarf_get_globals(Dwarf_Debug dbg,
 						  globals, return_count,
 						  error,
 						  DW_DLA_GLOBAL_CONTEXT,
+						  DW_DLA_GLOBAL,
 						  DW_DLE_PUBNAMES_LENGTH_BAD,
 						  DW_DLE_PUBNAMES_VERSION_ERROR);
 
@@ -160,7 +161,8 @@ _dwarf_internal_get_pubnames_like_data(Dwarf_Debug dbg,
 				       Dwarf_Global ** globals,
 				       Dwarf_Signed * return_count,
 				       Dwarf_Error * error,
-				       int allocation_code,
+				       int context_code,
+				       int global_code,
 				       int length_err_num,
 				       int version_err_num)
 {
@@ -236,7 +238,7 @@ _dwarf_internal_get_pubnames_like_data(Dwarf_Debug dbg,
 	
 
 	pubnames_context = (Dwarf_Global_Context)
-	    _dwarf_get_alloc(dbg, allocation_code, 1);
+	    _dwarf_get_alloc(dbg, context_code, 1);
 	if (pubnames_context == NULL) {
 	    _dwarf_error(dbg, error, DW_DLE_ALLOC_FAIL);
 	    return (DW_DLV_ERROR);
@@ -297,7 +299,7 @@ _dwarf_internal_get_pubnames_like_data(Dwarf_Debug dbg,
 	    /* Already read offset, pubnames_like_ptr now points to the 
 	       string */
 	    global =
-		(Dwarf_Global) _dwarf_get_alloc(dbg, DW_DLA_GLOBAL, 1);
+		(Dwarf_Global) _dwarf_get_alloc(dbg, global_code, 1);
 	    if (global == NULL) {
 		_dwarf_error(dbg, error, DW_DLE_ALLOC_FAIL);
 		return (DW_DLV_ERROR);

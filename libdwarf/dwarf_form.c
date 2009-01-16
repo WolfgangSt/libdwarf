@@ -147,10 +147,14 @@ dwarf_whatattr(Dwarf_Attribute attr,
     for this call because this function returns an 
     offset  within the local CU thru the pointer.
 
-    DW_FORM_ref_addr has a value which is an address-size value which
-    is a global-offset into the debug_info section.
+    DW_FORM_ref_addr is a global-offset into the debug_info section.
     A DW_FORM_ref_addr cannot be returned by this interface:
     see dwarf_global_formref();
+
+    DW_FORM_ref_addr has a value which was documented in
+    DWARF2 as address-size but which was always an offset
+    so should have always been offset size (wording
+    corrected in DWARF3). 
     
 */
 int
@@ -222,9 +226,14 @@ dwarf_formref(Dwarf_Attribute attr,
 }
 
 /* 
-	Since this returns section-relative debug_info offsets,
-	this can represent all REFERENCE forms correctly
-	and allows all forms.
+    Since this returns section-relative debug_info offsets,
+    this can represent all REFERENCE forms correctly
+    and allows all forms.
+
+    DW_FORM_ref_addr has a value which was documented in
+    DWARF2 as address-size but which was always an offset
+    so should have always been offset size (wording
+    corrected in DWARF3).
     
 */
 int
