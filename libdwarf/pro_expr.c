@@ -340,6 +340,12 @@ dwarf_add_expr_gen (
 
 	case DW_OP_pick :
 	    operand = (Dwarf_Small *)&operand_buffer[0];
+	    /* Cast of val1 to pointer is ok as if val1 does
+	       not point into our (process) address space
+	       we are in big trouble anyway (internal
+	       error in libdwarf or in libdwarf caller).
+	       Compiler may warn about cast to pointer.
+	    */
 	    WRITE_UNALIGNED(dbg,operand,(const void *)val1,
 			sizeof(val1),1);
 	    operand_size = 1;
@@ -355,6 +361,12 @@ dwarf_add_expr_gen (
 	case DW_OP_deref_size :
 	case DW_OP_xderef_size :
 	    operand = (Dwarf_Small *)&operand_buffer[0];
+	    /* Cast of val1 to pointer is ok as if val1 does
+	       not point into our (process) address space
+	       we are in big trouble anyway (internal
+	       error in libdwarf or in libdwarf caller).
+	       Compiler may warn about cast to pointer.
+	    */
 	    WRITE_UNALIGNED(dbg,operand,(const void *)val1,
 			sizeof(val1),1);
 	    operand_size = 1;
@@ -538,5 +550,11 @@ dwarf_expr_into_block (
     }
 
     if (length != NULL) *length = expr->ex_next_byte_offset;
+    /* The following cast from pointer to integer
+       is ok as long as Dwarf_Addr is
+       at least as large as a pointer.
+       Which is a requirement of libdwarf so must be satisfied
+       (some compilers emit a warning about the following line).
+    */
     return((Dwarf_Addr)&(expr->ex_byte_stream[0]));
 }

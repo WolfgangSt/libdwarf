@@ -102,11 +102,20 @@ struct Dwarf_Reg_Rule_s {
 	/* 
 	    Is a flag indicating whether the rule includes 
 	    the offset field, ie whether the ru_offset field
-	    is valid or not.  Actually not sure that it is
-	    needed since the offset is always additive, and
-	    no offset is the same as a 0 offset.
+	    is valid or not. 
+	    It is important, since reg+offset (offset of 0) 
+	    is different from just 'register' since the former
+	    means 'read memory at address given by the
+	    sum of register contents plus offset to get
+	    the value'.
+	    whereas the latter means 'the value is in the register'.
 
-	    Guess needed mostly for dwarf_get_fde_info_for_reg().
+	    The 'register' numbers are either real registers
+            (ie, table columns defined as real registers) or
+	    defined entries that are not really hardware
+	    registers, such as DW_FRAME_SAME_VAL or 
+	    DW_FRAME_CFA_COL.
+	    
 	*/
     Dwarf_Sbyte		ru_is_off;
 

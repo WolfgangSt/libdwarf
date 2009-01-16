@@ -1,3 +1,38 @@
+/*
+  Copyright (C) 2000, 2001 Silicon Graphics, Inc.  All Rights Reserved.
+
+  This program is free software; you can redistribute it and/or modify it
+  under the terms of version 2.1 of the GNU Lesser General Public License
+  as published by the Free Software Foundation.
+
+  This program is distributed in the hope that it would be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+  Further, this software is distributed without any warranty that it is
+  free of the rightful claim of any third person regarding infringement
+  or the like.  Any license provided herein, whether implied or
+  otherwise, applies only to this software file.  Patent licenses, if
+  any, provided herein do not apply to combinations of this program with
+  other software, or any other product whatsoever.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this program; if not, write the Free Software
+  Foundation, Inc., 59 Temple Place - Suite 330, Boston MA 02111-1307,
+  USA.
+
+  Contact information:  Silicon Graphics, Inc., 1600 Amphitheatre Pky,
+  Mountain View, CA 94043, or:
+
+  http://www.sgi.com
+
+  For further information regarding this notice, see:
+
+  http://oss.sgi.com/projects/GenInfo/NoticeExplan
+
+*/
+
+
 #ifndef __DWARF_H
 #define __DWARF_H
 #ifdef __cplusplus
@@ -6,7 +41,7 @@ extern "C" {
 
 /*
 	dwarf.h   DWARF  debugging information values
-	$Revision: 1.21 $    $Date: 1999/02/15 21:43:41 $    
+	$Revision: 1.26 $    $Date: 2001/03/10 03:58:26 $    
 
 */
 
@@ -441,6 +476,11 @@ extern "C" {
 #define DW_CFA_def_cfa          0x0c
 #define DW_CFA_def_cfa_register 0x0d
 #define DW_CFA_def_cfa_offset   0x0e
+#define DW_CFA_def_cfa_expression 0x0f     /* dwarf 2.1 */
+#define DW_CFA_expression       0x10       /* dwarf 2.1 */
+#define DW_CFA_cfa_offset_extended_sf 0x11 /* dwarf 2.1 */
+#define DW_CFA_def_cfa_sf       0x12       /* dwarf 2.1 */
+#define DW_CFA_def_cfa_offset_sf 0x13      /* dwarf 2.1 */
 
 #define DW_CFA_low_user          0x1c
 #define DW_CFA_MIPS_advance_loc8 0x1d

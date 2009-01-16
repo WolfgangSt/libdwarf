@@ -69,9 +69,9 @@ static void print_line_detail(char *prefix,
 		  prefix,
                   (int)opcode,
                   (long long)address,
-                  (int)file,
-                  (int)line,
-                  (int)column,
+                  (unsigned long)file,
+                  (unsigned long)line,
+                  (unsigned long)column,
                   (int)is_stmt,
                   (int)basic_block,
                   (int)end_sequence);
@@ -325,7 +325,8 @@ _dwarf_internal_printlines (
 	Dwarf_Unsigned di;
 	Dwarf_Unsigned fl;
 
-	printf("  file[%d]  %s\n",file_entry_count,
+	printf("  file[%d]  %s\n",
+		(int)file_entry_count,
 		(char *)line_ptr);
 
         line_ptr = line_ptr + strlen((char *)line_ptr) + 1;
@@ -483,7 +484,7 @@ _dwarf_internal_printlines (
 
 		DECODE_LEB128_UWORD(line_ptr, utmp2)
 		file = (Dwarf_Word)utmp2;
-		printf("DW_LNS_set_file  %dl\n",file);
+		printf("DW_LNS_set_file  %ld\n",(long)file);
                 break;
             }
 

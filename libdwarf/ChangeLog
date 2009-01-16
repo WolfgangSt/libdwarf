@@ -1,4 +1,53 @@
-2000 April 14
+2001-05-22  davea@sgi.com
+	* dwarf_frame.c, pro_expr.c: Added comments on why
+	  casts are safe in spite of gcc warnings (4 places total).
+
+2001-05-18  Dan Gritter <dgritter@us.ibm.com>
+	* dwarf_loc.c DW_OP_bregx operands are unsigned
+	  reg num followed by signed offset.
+
+2001-04-11  David Anderson <davea@sgi.com>
+	* dwarf_die_deliv.c: check for 0 abbreviation code
+	  and return a 'no entry' return value when found.
+	  (normal dwarf2, 0 means no DIE, the end of some set of DIEs.)
+
+2001-01-16  David Anderson <davea@sgi.com>
+
+	* pro_die.c: set ar_reloc_len field
+	in all cases.
+
+2000-12-14  David Anderson <davea@sgi.com>
+
+	* dwarf_frame.h: clarified some comments.
+
+2000-12-14  Ulrich Drepper <drepper@cygnus.com>
+
+        * dwarf_line.c: Now sets DW_LNE_end_sequence to
+        default_is_stmt, the correct value, not is_stmt.
+
+
+2000 Aug 24  davea@sgi.com
+  dwarf_error.c: a dwarf_init() failure resulted in this
+	using a static Dwarf_Error struct. And dwarf_dealloc
+	did not deal properly with that. 
+  dwarf_alloc.c dwarf_alloc.h: these had DYNAMIC_CHUNK protected code
+  	which was never used.  Deleted the unused code. Added a small
+  	comment (hopefully useful) to dwarf_alloc.h.
+
+	And now deals correctly with a null dbg  on
+	DW_DLA_ERROR  due to failed
+	dwarf_init() call (or due to other error in calling
+	libdwarf that results in libdwarf not knowing the dbg,
+	a likely far more common case) and frees the memory.
+	This used to result in chaos (depending on your
+	luck...).
+
+2000 Aug 23  davea@sgi.com
+  libdwarf2.1.mm, ps.  Failed to mention that dwarf_finish()
+  has to be accompanied by elf_end() if dwarf_init() was used
+  to initialize libdwarf to truly release all stuff.
+  Added text to dwarf_finish() describing how to do that.
+2000 April 14  davea@sgi.com
 
   dwarf_abbrev.c - 1.22
         - When it is a null abbrev entry, return it correctly so it can be
@@ -39,7 +88,6 @@ davea@sgi.com
 
 
 2000 March 7
->>>>>>> 1.5
 dwarf_line.c - 1.48
 dwarf_line.h - 1.16
 dwarf_print_lines.c - 1.10

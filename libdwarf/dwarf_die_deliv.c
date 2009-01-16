@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000, 2001 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -393,6 +393,9 @@ _dwarf_next_die_info_ptr (
     info_ptr = die_info_ptr;
     DECODE_LEB128_UWORD(info_ptr, utmp)
     abbrev_code = (Dwarf_Word)utmp;
+    if(abbrev_code == 0) {
+	return NULL;
+    }
 
     abbrev_list = _dwarf_get_abbrev_for_code(cu_context, abbrev_code);
     if (abbrev_list == NULL)  {
@@ -576,6 +579,10 @@ dwarf_siblingof (
 
     DECODE_LEB128_UWORD(die_info_ptr, utmp)
     abbrev_code = (Dwarf_Half)utmp;
+    if(abbrev_code == 0) {
+	/* Zero means a null DIE */
+	return(DW_DLV_NO_ENTRY);
+    }
     ret_die->di_abbrev_list = 
 	_dwarf_get_abbrev_for_code(ret_die->di_cu_context, abbrev_code);
     if (ret_die->di_abbrev_list == NULL || (die == NULL && 
@@ -638,6 +645,13 @@ dwarf_child (
 
     DECODE_LEB128_UWORD(die_info_ptr, utmp)
     abbrev_code = (Dwarf_Half)utmp;
+    if(abbrev_code == 0) {
+	/* We have arrived at a null DIE, at the end
+           of a CU or the end of a list of siblings.
+	*/
+	*caller_ret_die = 0;
+	return DW_DLV_NO_ENTRY;
+    }
     ret_die->di_abbrev_list = 
 	_dwarf_get_abbrev_for_code(die->di_cu_context, abbrev_code);
     if (ret_die->di_abbrev_list == NULL) {
@@ -733,6 +747,12 @@ dwarf_offdie (
     die->di_debug_info_ptr = info_ptr;
     DECODE_LEB128_UWORD(info_ptr, utmp)
     abbrev_code = (Dwarf_Half)utmp;
+    if(abbrev_code == 0) {
+	/* we are at a null DIE (or there is a bug).
+	*/
+	*new_die = 0;
+	return DW_DLV_NO_ENTRY;
+    }
 
     die->di_abbrev_list = _dwarf_get_abbrev_for_code(cu_context, abbrev_code);
     if (die->di_abbrev_list == NULL) {

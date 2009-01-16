@@ -1,5 +1,5 @@
 '\"#ident	"%W%"
-'\" $Source: /hosts/bonnie.engr/disks/xlv2/cmplrs.src/v7.4/libdwarf/RCS/dwarf.v2.mm,v $
+'\" $Source: /hosts/bonnie.engr/disks/xlv2/cmplrs.src/osprey1.0/libdwarf/RCS/dwarf.v2.mm,v $
 '\"
 '\" $Revision: 1.1 $
 '\"

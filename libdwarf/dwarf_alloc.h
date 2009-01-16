@@ -82,8 +82,9 @@ struct Dwarf_Alloc_Hdr_s {
     Dwarf_Word			ah_structs_per_chunk;
 
 	/* 
-	    Number of bytes malloc'ed per chunk, that is
-	    ah_bytes_one_struct * ah_alloc_num.
+	    Number of bytes malloc'ed per chunk which is
+	    basically
+	    (ah_bytes_one_struct+_DWARF_RESERVE) * ah_alloc_num.
 	*/
     Dwarf_Word			ah_bytes_malloc_per_chunk;
 
@@ -97,7 +98,11 @@ struct Dwarf_Alloc_Hdr_s {
 	*/
     Dwarf_Alloc_Area		ah_alloc_area_head;
 
-	/* Last Alloc Area that was allocated from. */
+	/* Last Alloc Area that was allocated by malloc. 
+	   The free-space-search area looks here first
+	   and only if it is full goes thru the list pointed to
+	   by ah_alloc_area_head.
+	*/
     Dwarf_Alloc_Area		ah_last_alloc_area;
 };
 
@@ -120,14 +125,6 @@ struct Dwarf_Alloc_Area_s {
 	*/
     Dwarf_Sword		aa_free_structs_in_chunk;
 
-#ifdef notdef
-	/* Count of the number of structs in this chunk.
-	   Needed since we now allocate differing amounts
-	   in different chunks.
-	*/
-    Dwarf_Word          aa_structs_in_this_chunk;
-#endif
-
 	/* 
 	    Points to the first byte of the blob from which
 	    struct will be allocated.  A struct is put on the
@@ -139,7 +136,9 @@ struct Dwarf_Alloc_Area_s {
 	/* Points just past the last byte of the blob. */
     Dwarf_Small		*aa_blob_end;
 
-	/* Points to alloc_hdr this alloc_area is linked to. */
+	/* Points to alloc_hdr this alloc_area is linked to: 
+	   The owner, in other words. 
+        */
     Dwarf_Alloc_Hdr	aa_alloc_hdr;
 
 	/* 
@@ -150,3 +149,5 @@ struct Dwarf_Alloc_Area_s {
     Dwarf_Alloc_Area	aa_next;
     Dwarf_Alloc_Area	aa_prev;
 };
+
+struct Dwarf_Error_s *_dwarf_special_no_dbg_error_malloc(void);

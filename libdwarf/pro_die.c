@@ -192,8 +192,8 @@ _dwarf_pro_add_AT_stmt_list(
 	new_attr->ar_rel_type = dbg->de_offset_reloc;
 	    
 	new_attr->ar_nbytes = uwordb_size;
-        new_attr->ar_reloc_len = uwordb_size;
 	new_attr->ar_next = NULL;
+        new_attr->ar_reloc_len = uwordb_size;
 	new_attr->ar_data = (char *)
 	    _dwarf_p_get_alloc(NULL, uwordb_size);
 	if (new_attr->ar_data == NULL) {
@@ -235,6 +235,7 @@ dwarf_add_AT_name(
 	new_attr->ar_attribute_form = DW_FORM_string;
 	new_attr->ar_nbytes = strlen(name)+1;
 	new_attr->ar_next = NULL;
+	new_attr->ar_reloc_len = 0;
 	new_attr->ar_data = (char *)
 	    _dwarf_p_get_alloc(NULL, strlen(name)+1);
 	if (new_attr->ar_data == NULL) {
@@ -276,6 +277,7 @@ dwarf_add_AT_comp_dir (
 	new_attr->ar_attribute_form = DW_FORM_string;
 	new_attr->ar_nbytes = strlen(current_working_directory)+1;
 	new_attr->ar_next = NULL;
+	new_attr->ar_reloc_len = 0;
 	new_attr->ar_data = (char *)
 	    _dwarf_p_get_alloc(NULL, strlen(current_working_directory)+1);
 	if (new_attr->ar_data == NULL) {
@@ -315,6 +317,7 @@ _dwarf_pro_add_AT_fde(
 	new_attr->ar_rel_type = dbg->de_offset_reloc;
 	new_attr->ar_nbytes = uwordb_size;
 	new_attr->ar_next = NULL;
+	new_attr->ar_reloc_len =  uwordb_size;
 	new_attr->ar_data = (char *)
 	    _dwarf_p_get_alloc(NULL, uwordb_size);
 	if (new_attr->ar_data == NULL) {
@@ -354,8 +357,9 @@ _dwarf_pro_add_AT_macro_info(
         new_attr->ar_attribute_form = dbg->de_ar_data_attribute_form;
         new_attr->ar_rel_type = dbg->de_offset_reloc;
  
-        new_attr->ar_nbytes = uwordb_size;
+        new_attr->ar_nbytes = uwordb_size; 
         new_attr->ar_next = NULL;
+	new_attr->ar_reloc_len = uwordb_size;
         new_attr->ar_data = (char *)
             _dwarf_p_get_alloc(NULL, uwordb_size);
         if (new_attr->ar_data == NULL) {

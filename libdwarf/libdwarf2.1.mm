@@ -8,7 +8,7 @@
 .nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.43, 12 April 2000
+.ds vE rev 1.44, 23 Aug 2000
 \." ==============================================
 \." ==============================================
 .ds | |
@@ -978,6 +978,12 @@ pointer \f(CWelf\fP the \f(CWElf *\fP handle
 used to access the object represented by the \f(CWDwarf_Debug\fP
 descriptor \f(CWdbg\fP.  It returns \f(CWDW_DLV_ERROR\fP on error.
 
+Because \f(CWint dwarf_init()\fP opens an Elf descriptor
+on its fd and \f(CWdwarf_finish()\fP does not close that
+descriptor, an app should use \f(CWdwarf_get_elf\fP
+and should call \f(CWelf_end\fP with the pointer returned
+thru the \f(CWElf**\fP handle created by \f(CWint dwarf_init()\fP.
+
 This function is not meaningful for a system that does not used the
 Elf format for objects.
 
@@ -993,6 +999,12 @@ associated with the descriptor \f(CWdbg\fP, and invalidates \f(CWdbg\fP.
 It returns \f(CWDW_DLV_ERROR\fP if there is an error during the
 finishing operation.  It returns \f(CWDW_DLV_OK\fP 
 for a successful operation.
+
+Because \f(CWint dwarf_init()\fP opens an Elf descriptor
+on its fd and \f(CWdwarf_finish()\fP does not close that
+descriptor, an app should use \f(CWdwarf_get_elf\fP
+and should call \f(CWelf_end\fP with the pointer returned
+thru the \f(CWElf**\fP handle created by \f(CWint dwarf_init()\fP.
 
 .H 2 "Debugging Information Entry Delivery Operations"
 These functions are concerned with accessing debugging information 

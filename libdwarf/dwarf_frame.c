@@ -2094,13 +2094,21 @@ dwarf_expand_frame_instructions (
 	return(DW_DLV_ERROR);
     }
 
+    /* The cast to Dwarf_Ptr may get a compiler warning,
+       but it is safe as it is just an i_length offset from
+       'instruction' itself. A caller has made a big
+       mistake if the result is not a valid pointer.
+    */
     res = _dwarf_exec_frame_instr (/*make_instr=*/true, 
 	returned_op_list,
         /*search_pc*/false, 
 		/*search_pc_val*/0, 
 		/*location*/0,
-        instruction, (Dwarf_Ptr)((Dwarf_Unsigned)instruction + i_length),
-        NULL, NULL, dbg,&instr_count,&dw_err);
+        instruction, 
+	(Dwarf_Ptr)((Dwarf_Unsigned)instruction + i_length),
+        /* Dwarf_Frame */NULL, 
+	/* cie_ptr  */   NULL, 
+	dbg,&instr_count,&dw_err);
     if (res != DW_DLV_OK) {
 	if(res == DW_DLV_ERROR) {
 	  _dwarf_error(dbg,error,dw_err);

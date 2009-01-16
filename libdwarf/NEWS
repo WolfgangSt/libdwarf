@@ -1,3 +1,12 @@
+May 23, 2001
+  dwarf.h and libdwarf.h have been changed from GPL to LGPL,
+  making these easier for some folks to use.
+
+May 21, 2001
+  Some small fixes have been found by various folks,
+  so it seems time to prepare a new source release.
+  See ChangeLog for details.
+
 April 15, 2000
   The libdwarf copyright has changed to
      version 2.1 of the GNU Lesser General Public License.

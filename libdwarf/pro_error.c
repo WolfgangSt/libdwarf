@@ -76,7 +76,8 @@ _dwarf_p_error (
        we want to report the upper-level error, not this one.
     */
     if ((Dwarf_Sword)errval < 0)
-	printf("ERROR VALUE: %d - %s\n",errval, _dwarf_errmsgs[-errval-1]);
+	printf("ERROR VALUE: %ld - %s\n",
+	       (long)errval, _dwarf_errmsgs[-errval-1]);
     if (error != NULL) {
         errptr = (Dwarf_Error)
 	    _dwarf_p_get_alloc(dbg, sizeof(struct Dwarf_Error_s));

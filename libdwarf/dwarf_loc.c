@@ -316,12 +316,13 @@ _dwarf_get_locdesc (
 				break;
 
 	    case DW_OP_bregx :
-				operand1 = _dwarf_decode_s_leb128(loc_ptr,
+				/* uleb reg num followed by sleb offset */
+				operand1 = _dwarf_decode_u_leb128(loc_ptr,
 				    &leb128_length);
 				loc_ptr = loc_ptr + leb128_length;
 				offset = offset + leb128_length;
 
-				operand2 = _dwarf_decode_u_leb128(loc_ptr,
+				operand2 = _dwarf_decode_s_leb128(loc_ptr,
 				    &leb128_length);
 				loc_ptr = loc_ptr + leb128_length;
 				offset = offset + leb128_length;

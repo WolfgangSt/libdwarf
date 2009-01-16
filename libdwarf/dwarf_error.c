@@ -309,7 +309,6 @@ _dwarf_error (
 )
 {
     Dwarf_Error     			errptr;
-    static struct Dwarf_Error_s		alt_err_struct;
 
     /* 
 	Allow NULL dbg on entry, since sometimes that can happen and
@@ -324,12 +323,24 @@ _dwarf_error (
 	if (dbg != NULL) {
             errptr = (Dwarf_Error)_dwarf_get_alloc(dbg, DW_DLA_ERROR, 1);
             if (errptr == NULL) {
-                fprintf(stderr,"Could not allocate Dwarf_Error structure, abort() in libdwarf.\n");
+                fprintf(stderr,
+		  "Could not allocate Dwarf_Error structure, "
+		  "abort() in libdwarf.\n");
                 abort();
             }
 	}
-	else 
-	    errptr = &alt_err_struct;
+	else  {
+	    /* We have no dbg to work with. dwarf_init failed.
+	       We hack up a special area.
+	    */
+	    errptr = _dwarf_special_no_dbg_error_malloc();
+            if (errptr == NULL) {
+                fprintf(stderr,
+		  "Could not allocate Dwarf_Error structure, "
+		  "abort() in libdwarf..\n");
+                abort();
+            }
+	}
 
         errptr->er_errval = errval;
         *error = errptr;
@@ -339,7 +350,8 @@ _dwarf_error (
     if (dbg != NULL && dbg->de_errhand != NULL) {
         errptr = (Dwarf_Error)_dwarf_get_alloc(dbg, DW_DLA_ERROR, 1);
         if (errptr == NULL) {
-            fprintf(stderr,"Could not allocate Dwarf_Error structure, abort() in libdwarf.\n");
+            fprintf(stderr,"Could not allocate Dwarf_Error structure,"
+		" abort() in libdwarf.\n");
             abort();
         }
         errptr->er_errval = errval;

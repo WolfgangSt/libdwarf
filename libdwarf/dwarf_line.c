@@ -900,9 +900,12 @@ _dwarf_internal_srclines (
 				(Dwarf_Sword)line;
                           curr_line->li_addr_line.li_l_data.li_column = 
 				(Dwarf_Half)column;
-                          curr_line->li_addr_line.li_l_data.li_is_stmt = false;
-                          curr_line->li_addr_line.li_l_data.li_basic_block = basic_block;
-                          curr_line->li_addr_line.li_l_data.li_end_sequence = end_sequence;
+                          curr_line->li_addr_line.li_l_data.li_is_stmt = 
+						default_is_stmt;
+                          curr_line->li_addr_line.li_l_data.li_basic_block = 
+						basic_block;
+                          curr_line->li_addr_line.li_l_data.li_end_sequence = 
+						end_sequence;
 			  curr_line->li_context = line_context;
                           line_count++;
 
