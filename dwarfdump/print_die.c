@@ -1267,7 +1267,8 @@ get_attr_value(Dwarf_Debug dbg, Dwarf_Half tag, Dwarf_Attribute attrib,
         } else if (wres == DW_DLV_NO_ENTRY) {
             /* nothing? */
         } else {
-            print_error(dbg, "Cannot get formstr/p....", wres, err);
+            print_error(dbg, "Cannot get a formstr (or a formstrp)....", 
+                wres, err);
         }
 
         break;

@@ -1,3 +1,16 @@
+2008-08-13 David Anderson <davea42@earthlink.net>
+      * dwarfdump.1: When no options (just object files) present
+        all sections print, now we say that.  Renamed fields
+        in synopsis for readability.
+2008-06-23 David Anderson <davea42@earthlink.net>
+      * print_reloc.c (print_reloc_information_64): Was testing
+        sym_data_entry_count one place where sym_data_64_entry_count
+        should have been tested. Thanks to Carlos Alberto Enciso
+        for noticing.
+2008-06-17 David Anderson <davea42@earthlink.net>
+      * print_die.c: Add to dwarf_formstring failure message.
+      * README: Correct email: the old sgi.com address is no
+        longer correct.
 2008-06-13 David Anderson <davea42@earthlink.net>
       * dwconf.c: Fix an off-by-one condition where
         we could index off the end of the cf_regs array in printing

@@ -11,7 +11,7 @@
 .nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.22, 2 Feb 2008
+.ds vE rev 1.23, 8 Aug 2008
 \." ==============================================
 \." ==============================================
 .ds | |
@@ -172,10 +172,10 @@ writing of object data to the disk.  The producer program does that.
 Work on dwarf2 sgi producer draft begins
 .LI "March 1999"
 Adding a function to allow any number of trips
-thru the dwarf_get_section_bytes() call.
+through the dwarf_get_section_bytes() call.
 .LI "April 10 1999"
 Added support for assembler text output of dwarf
-(as when the output must pass thru an assembler).
+(as when the output must pass through an assembler).
 Revamped internals for better performance and
 simpler provision for differences in ABI.
 .LI "Sep 1, 1999"
@@ -224,7 +224,7 @@ With
 (see below)
 it is assumed that the calling app will simply
 write the streams and relocations directly into
-an Elf file, without going thru an assembler.
+an Elf file, without going through an assembler.
 
 With 
 \f(CWDW_DLC_SYMBOLIC_RELOCATIONS\fP 
@@ -459,7 +459,7 @@ are not supported by the producer and must not be passed.
 
 If 
 \f(CWDW_DLC_SIZE_64\fP
-is not OR'd into \f(CWflags\fP
+is not ORed into \f(CWflags\fP
 then
 \f(CWDW_DLC_SIZE_32\fP
 is assumed.
@@ -467,10 +467,10 @@ Oring in both is an error.
 
 If 
 \f(CWDW_DLC_OFFSET_SIZE_64\fP
-is not OR'd into \f(CWflags\fP
+is not ORed into \f(CWflags\fP
 then 64 bit offsets (as defined in the 1999 DWARF3)
 may be used (see next paragraph) to generate DWARF (if and only if
-DW_DLC_SIZE_64 is also OR'd into \f(CWflags\fP).
+DW_DLC_SIZE_64 is also ORed into \f(CWflags\fP).
 
 If \f(CWHAVE_STRICT_32BIT_OFFSET\fP is set at configure time
 only 32bit DWARF offsets are generated 
@@ -488,7 +488,7 @@ set) and \f(CWDW_DLC_OFFSET_SIZE_64\fP is honored.
 
 If
 \f(CWDW_DLC_ISA_IA64\fP
-is not OR'd into \f(CWflags\fP
+is not ORed into \f(CWflags\fP
 then 
 \f(CWDW_DLC_ISA_MIPS\fP
 is assumed.
@@ -496,13 +496,13 @@ Oring in both is an error.
 
 If
 \f(CWDW_DLC_TARGET_BIGENDIAN\fP
-is not OR'd into \f(CWflags\fP
+is not ORed into \f(CWflags\fP
 then 
 endianness the same as the host is assumed.
 
 If
 \f(CWDW_DLC_TARGET_LITTLEENDIAN\fP
-is not OR'd into \f(CWflags\fP
+is not ORed into \f(CWflags\fP
 then 
 endianness the same as the host is assumed.
 
@@ -539,9 +539,9 @@ assembler text output of debugging information.
 
 If
 \f(CWDW_DLC_SYMBOLIC_RELOCATIONS\fP
-is OR'd into \f(CWflags\fP
+is ORed into \f(CWflags\fP
 then relocations are returned not as streams
-but thru an array of structures.
+but through an array of structures.
 
 .in -4
 .P
@@ -568,7 +568,7 @@ For an Elf object file these values
 should be appropriate Elf section header values.
 For example, for relocation callbacks, the \f(CWlink\fP
 field is supposed to be set (by the app) to the index
-of the symtab section (the link field passed thru the
+of the symtab section (the link field passed through the
 callback must be ignored by the app).
 And, for relocation callbacks, the \f(CWinfo\fP field
 is passed as the elf section number of the section
@@ -608,7 +608,7 @@ Nothing in libdwarf actually depends on the section index
 returned being a real Elf section.
 The Elf section is simply useful for generating relocation
 records.
-Similarly, the Elf symbol table index returned thru 
+Similarly, the Elf symbol table index returned through 
 the \f(CWsect_name_index\fP must simply be an index
 that can be used in relocations against this section.
 The application will probably want to note the
@@ -630,7 +630,7 @@ is the same as \f(CWdwarf_producer_init() \fP
 except that the callback function uses
 Dwarf_Unsigned rather than int as the
 type of the symbol-index returned to libdwarf
-thru the pointer argument (see below).
+through the pointer argument (see below).
 .P
 The \f(CWflags\fP
 values are as follows:
@@ -644,7 +644,7 @@ are not supported by the producer and must not be passed.
 
 If 
 \f(CWDW_DLC_SIZE_64\fP
-is not OR'd into \f(CWflags\fP
+is not ORed into \f(CWflags\fP
 then
 \f(CWDW_DLC_SIZE_32\fP
 is assumed.
@@ -652,7 +652,7 @@ Oring in both is an error.
 
 If
 \f(CWDW_DLC_ISA_IA64\fP
-is not OR'd into \f(CWflags\fP
+is not ORed into \f(CWflags\fP
 then 
 \f(CWDW_DLC_ISA_MIPS\fP
 is assumed.
@@ -679,7 +679,7 @@ are relocations in a binary stream (as used
 in a MIPS Elf object).
 
 \f(CWDW_DLC_SYMBOLIC_RELOCATIONS\fP
-are OR'd into flags
+are ORed into flags
 to cause 
 the same relocations to be expressed in an
 array of structures defined by libdwarf,
@@ -713,7 +713,7 @@ the \f(CWinfo\fP field.  For an Elf object file these values
 should be appropriate Elf section header values.
 For example, for relocation callbacks, the \f(CWlink\fP
 field is supposed to be set (by the app) to the index
-of the symtab section (the link field passed thru the
+of the symtab section (the link field passed through the
 callback must be ignored by the app).
 And, for relocation callbacks, the \f(CWinfo\fP field
 is passed as the elf section number of the section
@@ -748,7 +748,7 @@ Nothing in libdwarf actually depends on the section index
 returned being a real Elf section.
 The Elf section is simply useful for generating relocation
 records.
-Similarly, the Elf symbol table index returned thru 
+Similarly, the Elf symbol table index returned through 
 the \f(CWsect_name_index\fP must simply be an index
 that can be used in relocations against this section.
 The application will probably want to note the
@@ -818,7 +818,7 @@ For each non-NULL return, the return value
 points to \f(CW*length\fP bytes of data that are normally
 added to the output 
 object in \f(CWElf\fP section \f(CW*elf_section\fP by the producer application.
-It is illegal to call these in any order other than 0 thru N-1 where
+It is illegal to call these in any order other than 0 through N-1 where
 N is the number of dwarf sections
 returned by \f(CWdwarf_transform_to_disk_form() \fP.
 The \f(CWdwarf_section\fP
@@ -856,7 +856,7 @@ with all the other space in use with that Dwarf_P_Debug.
         Dwarf_Error* error)\fP
 .DE
 The function \f(CWdwarf_get_relocation_info() \fP
-returns, thru  the pointer \f(CWcount_of_relocation_sections\fP, the
+returns, through  the pointer \f(CWcount_of_relocation_sections\fP, the
 number of times that \f(CWdwarf_get_relocation_info() \fP
 should be called.
 
@@ -907,7 +907,7 @@ for the number of relocation sections that
 indicated exist.
 
 It returns \f(CWDW_DLV_OK\fP to indicate that 
-valid values are returned thru the pointer arguments.
+valid values are returned through the pointer arguments.
 The \f(CWerror\fP argument is not set.
 
 It returns DW_DLV_NO_ENTRY if there are no entries
@@ -924,7 +924,7 @@ results in a return of \f(CWDW_DLV_ERROR\fP once past
 the valid count.
 The \f(CWerror\fP argument is set to indicate the error.
 
-Now consider the returned-thru-pointer values for
+Now consider the returned-through-pointer values for
 \f(CWDW_DLV_OK\fP .
 
 \f(CW*elf_section_index\fP
@@ -1038,7 +1038,7 @@ It also resets so that calls to
 \f(CWdwarf_get_relocation_info() \fP
 will begin again at the initial array of relocation information.
 
-Some dwarf producers need to be able to run thru
+Some dwarf producers need to be able to run through
 the \f(CWdwarf_get_section_bytes()\fP
 and/or
 the \f(CWdwarf_get_relocation_info()\fP
@@ -1324,7 +1324,7 @@ be large enough that it can contain a pointer to
 arbitrary data (so the caller can pass in a real elf
 symbol index, an arbitrary number, or a pointer
 to arbitrary data).  
-The ability to pass in a pointer thru \f(CWsym_index() \fP
+The ability to pass in a pointer through \f(CWsym_index() \fP
 is only usable with 
 \f(CWDW_DLC_SYMBOLIC_RELOCATIONS\fP.
 
@@ -1359,7 +1359,7 @@ be large enough that it can contain a pointer to
 arbitrary data (so the caller can pass in a real elf
 symbol index, an arbitrary number, or a pointer
 to arbitrary data).
-The ability to pass in a pointer thru \f(CWsym_index() \fP
+The ability to pass in a pointer through \f(CWsym_index() \fP
 is only usable with
 \f(CWDW_DLC_SYMBOLIC_RELOCATIONS\fP.
 
@@ -1397,7 +1397,7 @@ be large enough that it can contain a pointer to
 arbitrary data (so the caller can pass in a real elf
 symbol index, an arbitrary number, or a pointer
 to arbitrary data).
-The ability to pass in a pointer thru \f(CWsym_index() \fP
+The ability to pass in a pointer through \f(CWsym_index() \fP
 is only usable with
 \f(CWDW_DLC_SYMBOLIC_RELOCATIONS\fP.
 
@@ -1585,7 +1585,7 @@ be large enough that it can contain a pointer to
 arbitrary data (so the caller can pass in a real elf
 symbol index, an arbitrary number, or a pointer
 to arbitrary data).
-The ability to pass in a pointer thru \f(CWsym_index() \fP
+The ability to pass in a pointer through \f(CWsym_index() \fP
 is only usable with
 \f(CWDW_DLC_SYMBOLIC_RELOCATIONS\fP.
 

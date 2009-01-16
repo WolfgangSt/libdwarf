@@ -43,8 +43,8 @@
 
  /*ARGSUSED*/ int
 dwarf_nextglob(Dwarf_Debug dbg,
-	       Dwarf_Global glob,
-	       Dwarf_Global * returned_nextglob, Dwarf_Error * error)
+               Dwarf_Global glob,
+               Dwarf_Global * returned_nextglob, Dwarf_Error * error)
 {
     return (DW_DLV_NO_ENTRY);
 }

@@ -43,35 +43,26 @@
 
 int
 dwarf_get_funcs(Dwarf_Debug dbg,
-		Dwarf_Func ** funcs,
-		Dwarf_Signed * ret_func_count, Dwarf_Error * error)
+    Dwarf_Func ** funcs,
+    Dwarf_Signed * ret_func_count, Dwarf_Error * error)
 {
-    int res;
-
-    res =
-	_dwarf_load_section(dbg,
-			    dbg->de_debug_funcnames_index,
-			    &dbg->de_debug_funcnames, error);
+    int res = _dwarf_load_section(dbg,
+        dbg->de_debug_funcnames_index,
+        &dbg->de_debug_funcnames, error);
     if (res != DW_DLV_OK) {
-	return res;
+        return res;
     }
 
-    return _dwarf_internal_get_pubnames_like_data(dbg, dbg->de_debug_funcnames, dbg->de_debug_funcnames_size, (Dwarf_Global **) funcs,	/* type 
-																	   punning, 
-																	   Dwarf_Type 
-																	   is 
-																	   never 
-																	   a 
-																	   completed 
-																	   type 
-																	 */
-						  ret_func_count,
-						  error,
-						  DW_DLA_FUNC_CONTEXT,
-						  DW_DLA_FUNC,
-						  DW_DLE_DEBUG_FUNCNAMES_LENGTH_BAD,
-						  DW_DLE_DEBUG_FUNCNAMES_VERSION_ERROR);
-
+    return _dwarf_internal_get_pubnames_like_data(dbg, 
+        dbg->de_debug_funcnames, 
+        dbg->de_debug_funcnames_size, 
+        (Dwarf_Global **) funcs, /* Type punning for sections with identical format. */
+        ret_func_count,
+        error,
+        DW_DLA_FUNC_CONTEXT,
+        DW_DLA_FUNC,
+        DW_DLE_DEBUG_FUNCNAMES_LENGTH_BAD,
+        DW_DLE_DEBUG_FUNCNAMES_VERSION_ERROR);
 }
 
 /* Deallocating fully requires deallocating the list
@@ -81,12 +72,12 @@ dwarf_get_funcs(Dwarf_Debug dbg,
 
 void
 dwarf_funcs_dealloc(Dwarf_Debug dbg, Dwarf_Func * dwgl,
-		    Dwarf_Signed count)
+    Dwarf_Signed count)
 {
     _dwarf_internal_globals_dealloc(dbg, (Dwarf_Global *) dwgl,
-				    count,
-				    DW_DLA_FUNC_CONTEXT,
-				    DW_DLA_FUNC, DW_DLA_LIST);
+        count,
+        DW_DLA_FUNC_CONTEXT,
+        DW_DLA_FUNC, DW_DLA_LIST);
     return;
 }
 
@@ -98,8 +89,8 @@ dwarf_funcname(Dwarf_Func func_in, char **ret_name, Dwarf_Error * error)
     Dwarf_Global func = (Dwarf_Global) func_in;
 
     if (func == NULL) {
-	_dwarf_error(NULL, error, DW_DLE_FUNC_NULL);
-	return (DW_DLV_ERROR);
+        _dwarf_error(NULL, error, DW_DLE_FUNC_NULL);
+        return (DW_DLV_ERROR);
     }
 
     *ret_name = (char *) (func->gl_name);
@@ -108,7 +99,7 @@ dwarf_funcname(Dwarf_Func func_in, char **ret_name, Dwarf_Error * error)
 
 int
 dwarf_func_die_offset(Dwarf_Func func_in,
-		      Dwarf_Off * return_offset, Dwarf_Error * error)
+    Dwarf_Off * return_offset, Dwarf_Error * error)
 {
     Dwarf_Global func = (Dwarf_Global) func_in;
 
@@ -118,7 +109,7 @@ dwarf_func_die_offset(Dwarf_Func func_in,
 
 int
 dwarf_func_cu_offset(Dwarf_Func func_in,
-		     Dwarf_Off * return_offset, Dwarf_Error * error)
+    Dwarf_Off * return_offset, Dwarf_Error * error)
 {
     Dwarf_Global func = (Dwarf_Global) func_in;
 
@@ -128,13 +119,13 @@ dwarf_func_cu_offset(Dwarf_Func func_in,
 
 int
 dwarf_func_name_offsets(Dwarf_Func func_in,
-			char **ret_func_name,
-			Dwarf_Off * die_offset,
-			Dwarf_Off * cu_die_offset, Dwarf_Error * error)
+    char **ret_func_name,
+    Dwarf_Off * die_offset,
+    Dwarf_Off * cu_die_offset, Dwarf_Error * error)
 {
     Dwarf_Global func = (Dwarf_Global) func_in;
 
     return dwarf_global_name_offsets(func,
-				     ret_func_name,
-				     die_offset, cu_die_offset, error);
+        ret_func_name,
+        die_offset, cu_die_offset, error);
 }

@@ -409,7 +409,7 @@ print_reloc_information_64(int section_no, Dwarf_Small * buf,
            }
         } else if (sym_data_64) {
            size_t index = ELF64_R_SYM(p->r_info) - 1;
-           if(index < sym_data_entry_count) {
+           if(index < sym_data_64_entry_count) {
               name = sym_data_64[index].name;
            }
         }

@@ -3,12 +3,13 @@
 dwarfdump \- dumps DWARF debug information of an ELF object
 .SH SYNOPSIS
 .B dwarfdump
-[-abcdefilmoprsvy] [-ka]  [-t{afv}] [-u\f2objectfile\fP] \f2filename\fP
+[-abcdefilmoprsvy] [-ka]  [-t{afv}] [-u\f2cuname\fP] \f2objectfilename\fP
 .SH DESCRIPTION
 The 
 .B dwarfdump
 command prints DWARF sections as requested by specific options.
-With no options nothing prints!
+With no options (but with the required \f2objectfilename\fP ) 
+all sections print.
 .PP
 The format is intended to be human readable.
 If a script is to parse the output, the
@@ -102,9 +103,9 @@ Dumps the .debug_static_funcs section.
 .B \-tv
 Dumps the .debug_static_vars section.
 .TP
-.BI \-u ofile
-Restricts the dumping of sections to the named
-compilation unit.
+.BI \-u cuname
+Restricts the dumping of sections to dump only 
+sections of the named compilation unit.
 .TP
 .B \-v
 Verbose mode.  Shows more detailed information.  

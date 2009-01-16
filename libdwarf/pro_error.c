@@ -58,39 +58,39 @@ extern char *_dwarf_errmsgs[];
 */
 void
 _dwarf_p_error(Dwarf_P_Debug dbg,
-	       Dwarf_Error * error, Dwarf_Word errval)
+               Dwarf_Error * error, Dwarf_Word errval)
 {
     Dwarf_Error errptr;
 
     /* Allow NULL dbg on entry, since sometimes that can happen and we
        want to report the upper-level error, not this one. */
     if ((Dwarf_Sword) errval < 0)
-	printf("ERROR VALUE: %ld - %s\n",
-	       (long) errval, _dwarf_errmsgs[-errval - 1]);
+        printf("ERROR VALUE: %ld - %s\n",
+               (long) errval, _dwarf_errmsgs[-errval - 1]);
     if (error != NULL) {
-	errptr = (Dwarf_Error)
-	    _dwarf_p_get_alloc(dbg, sizeof(struct Dwarf_Error_s));
-	if (errptr == NULL) {
-	    fprintf(stderr,
-		    "Could not allocate Dwarf_Error structure\n");
-	    abort();
-	}
-	errptr->er_errval = (Dwarf_Sword) errval;
-	*error = errptr;
-	return;
+        errptr = (Dwarf_Error)
+            _dwarf_p_get_alloc(dbg, sizeof(struct Dwarf_Error_s));
+        if (errptr == NULL) {
+            fprintf(stderr,
+                    "Could not allocate Dwarf_Error structure\n");
+            abort();
+        }
+        errptr->er_errval = (Dwarf_Sword) errval;
+        *error = errptr;
+        return;
     }
 
     if (dbg != NULL && dbg->de_errhand != NULL) {
-	errptr = (Dwarf_Error)
-	    _dwarf_p_get_alloc(dbg, sizeof(struct Dwarf_Error_s));
-	if (errptr == NULL) {
-	    fprintf(stderr,
-		    "Could not allocate Dwarf_Error structure\n");
-	    abort();
-	}
-	errptr->er_errval = (Dwarf_Sword) errval;
-	dbg->de_errhand(errptr, dbg->de_errarg);
-	return;
+        errptr = (Dwarf_Error)
+            _dwarf_p_get_alloc(dbg, sizeof(struct Dwarf_Error_s));
+        if (errptr == NULL) {
+            fprintf(stderr,
+                    "Could not allocate Dwarf_Error structure\n");
+            abort();
+        }
+        errptr->er_errval = (Dwarf_Sword) errval;
+        dbg->de_errhand(errptr, dbg->de_errarg);
+        return;
     }
 
     abort();

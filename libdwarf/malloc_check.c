@@ -47,8 +47,8 @@
 */
 
 #include <stdio.h>
-#include <stdlib.h>		/* for exit() and various malloc
-				   prototypes */
+#include <stdlib.h>             /* for exit() and various malloc
+                                   prototypes */
 #include "config.h"
 #include "dwarf_incl.h"
 #include "malloc_check.h"
@@ -65,16 +65,16 @@
 
 struct mc_data_s {
     struct mc_data_s *mc_prev;
-    unsigned long mc_address;	/* Assumes this is large enough to hold 
-				   a pointer! */
+    unsigned long mc_address;   /* Assumes this is large enough to hold 
+                                   a pointer! */
 
-    long mc_alloc_number;	/* Assigned in order by when record
-				   created. */
-    unsigned char mc_alloc_code;	/* Allocation code, libdwarf. */
+    long mc_alloc_number;       /* Assigned in order by when record
+                                   created. */
+    unsigned char mc_alloc_code;        /* Allocation code, libdwarf. */
     unsigned char mc_type;
-    unsigned char mc_dealloc_noted;	/* Used on an ALLOC node. */
-    unsigned char mc_dealloc_noted_count;	/* Used on an ALLOC
-						   node. */
+    unsigned char mc_dealloc_noted;     /* Used on an ALLOC node. */
+    unsigned char mc_dealloc_noted_count;       /* Used on an ALLOC
+                                                   node. */
 };
 
 /* 
@@ -129,8 +129,8 @@ static char *alloc_type_name[MAX_DW_DLA + 1] = {
     "DW_DLA_VAR_CONTEXT",
     "DW_DLA_WEAK_CONTEXT",
     "DW_DLA_PUBTYPES_CONTEXT"
-	/* Don't forget to expand this list if the list of codes
-	   expands. */
+        /* Don't forget to expand this list if the list of codes
+           expands. */
 };
 
 static unsigned
@@ -144,15 +144,15 @@ hash_address(unsigned long addr)
 #if PRINT_MALLOC_DETAILS
 static void
 print_alloc_dealloc_detail(unsigned long addr,
-			   int code, char *whichisit)
+                           int code, char *whichisit)
 {
     fprintf(stderr,
-	    "%s  addr 0x%lx code %d (%s) entry %ld\n",
-	    whichisit, addr, code, alloc_type_name[code],
-	    mc_data_list_size);
+            "%s  addr 0x%lx code %d (%s) entry %ld\n",
+            whichisit, addr, code, alloc_type_name[code],
+            mc_data_list_size);
 }
 #else
-#define  print_alloc_dealloc_detail(a,b,c)	/* nothing */
+#define  print_alloc_dealloc_detail(a,b,c)      /* nothing */
 #endif
 
 /* Create a zeroed struct or die. */
@@ -162,8 +162,8 @@ newone(void)
     struct mc_data_s *newd = malloc(sizeof(struct mc_data_s));
 
     if (newd == 0) {
-	fprintf(stderr, "out of memory , # %ld\n", mc_data_list_size);
-	exit(1);
+        fprintf(stderr, "out of memory , # %ld\n", mc_data_list_size);
+        exit(1);
     }
     memset(newd, 0, sizeof(struct mc_data_s));
     return newd;
@@ -192,47 +192,47 @@ static void
 print_entry(char *msg, struct mc_data_s *data)
 {
     fprintf(stderr,
-	    "%s: 0x%08lx code %2d (%s) type %s dealloc noted %u ct %u\n",
-	    msg,
-	    (long) data->mc_address,
-	    data->mc_alloc_code,
-	    alloc_type_name[data->mc_alloc_code],
-	    (data->mc_type == MC_TYPE_ALLOC) ? "alloc  " :
-	    (data->mc_type == MC_TYPE_DEALLOC) ? "dealloc" : "unknown",
-	    (unsigned) data->mc_dealloc_noted,
-	    (unsigned) data->mc_dealloc_noted_count);
+            "%s: 0x%08lx code %2d (%s) type %s dealloc noted %u ct %u\n",
+            msg,
+            (long) data->mc_address,
+            data->mc_alloc_code,
+            alloc_type_name[data->mc_alloc_code],
+            (data->mc_type == MC_TYPE_ALLOC) ? "alloc  " :
+            (data->mc_type == MC_TYPE_DEALLOC) ? "dealloc" : "unknown",
+            (unsigned) data->mc_dealloc_noted,
+            (unsigned) data->mc_dealloc_noted_count);
 }
 
 /* newd is a 'dealloc'.
 */
 static long
 balanced_by_alloc_p(struct mc_data_s *newd,
-		    long *addr_match_num,
-		    struct mc_data_s **addr_match,
-		    struct mc_data_s *base)
+                    long *addr_match_num,
+                    struct mc_data_s **addr_match,
+                    struct mc_data_s *base)
 {
     struct mc_data_s *cur = base;
 
     for (; cur; cur = cur->mc_prev) {
-	if (cur->mc_address == newd->mc_address) {
-	    if (cur->mc_type == MC_TYPE_ALLOC) {
-		if (cur->mc_alloc_code == newd->mc_alloc_code) {
-		    *addr_match = cur;
-		    *addr_match_num = cur->mc_alloc_number;
-		    return cur->mc_alloc_number;
-		} else {
-		    /* code mismatch */
-		    *addr_match = cur;
-		    *addr_match_num = cur->mc_alloc_number;
-		    return -1;
-		}
-	    } else {
-		/* Unbalanced new/del */
-		*addr_match = cur;
-		*addr_match_num = cur->mc_alloc_number;
-		return -1;
-	    }
-	}
+        if (cur->mc_address == newd->mc_address) {
+            if (cur->mc_type == MC_TYPE_ALLOC) {
+                if (cur->mc_alloc_code == newd->mc_alloc_code) {
+                    *addr_match = cur;
+                    *addr_match_num = cur->mc_alloc_number;
+                    return cur->mc_alloc_number;
+                } else {
+                    /* code mismatch */
+                    *addr_match = cur;
+                    *addr_match_num = cur->mc_alloc_number;
+                    return -1;
+                }
+            } else {
+                /* Unbalanced new/del */
+                *addr_match = cur;
+                *addr_match_num = cur->mc_alloc_number;
+                return -1;
+            }
+        }
     }
     return -1;
 }
@@ -256,27 +256,27 @@ dwarf_malloc_check_dealloc_data(void *addr_in, unsigned char code)
     newd->mc_type = MC_TYPE_DEALLOC;
     newd->mc_prev = *base;
     prev =
-	balanced_by_alloc_p(newd, &addr_match_num, &addr_match, *base);
+        balanced_by_alloc_p(newd, &addr_match_num, &addr_match, *base);
     if (prev < 0) {
-	fprintf(stderr,
-		"Unbalanced dealloc at index %ld\n", mc_data_list_size);
-	print_entry("new", newd);
-	fprintf(stderr, "addr-match_num? %ld\n", addr_match_num);
-	if (addr_match) {
-	    print_entry("prev entry", addr_match);
-	    if (addr_match->mc_dealloc_noted > 1) {
-		fprintf(stderr, "Above is Duplicate dealloc!\n");
-	    }
-	}
-	abort();
-	exit(3);
+        fprintf(stderr,
+                "Unbalanced dealloc at index %ld\n", mc_data_list_size);
+        print_entry("new", newd);
+        fprintf(stderr, "addr-match_num? %ld\n", addr_match_num);
+        if (addr_match) {
+            print_entry("prev entry", addr_match);
+            if (addr_match->mc_dealloc_noted > 1) {
+                fprintf(stderr, "Above is Duplicate dealloc!\n");
+            }
+        }
+        abort();
+        exit(3);
     }
     addr_match->mc_dealloc_noted = 1;
     addr_match->mc_dealloc_noted_count += 1;
     if (addr_match->mc_dealloc_noted_count > 1) {
-	fprintf(stderr, "Double dealloc entry %ld\n", addr_match_num);
-	print_entry("new dealloc entry", newd);
-	print_entry("bad alloc entry", addr_match);
+        fprintf(stderr, "Double dealloc entry %ld\n", addr_match_num);
+        print_entry("new dealloc entry", newd);
+        print_entry("bad alloc entry", addr_match);
     }
     *base = newd;
     mc_data_list_size += 1;
@@ -294,41 +294,41 @@ dwarf_malloc_check_complete(char *msg)
 
     fprintf(stderr, "Run complete, %s. %ld entries\n", msg, total);
     for (; i < HASH_TABLE_SIZE; ++i) {
-	struct mc_data_s *cur = mc_data_hash[i];
-	long cur_chain_length = 0;
+        struct mc_data_s *cur = mc_data_hash[i];
+        long cur_chain_length = 0;
 
-	if (cur == 0)
-	    continue;
-	++hash_slots_used;
-	for (; cur; cur = cur->mc_prev) {
-	    ++cur_chain_length;
-	    if (cur->mc_type == MC_TYPE_ALLOC) {
-		if (cur->mc_dealloc_noted) {
-		    if (cur->mc_dealloc_noted > 1) {
-			fprintf(stderr,
-				" Duplicate dealloc! entry %ld\n",
-				cur->mc_alloc_number);
-			print_entry("duplicate dealloc", cur);
+        if (cur == 0)
+            continue;
+        ++hash_slots_used;
+        for (; cur; cur = cur->mc_prev) {
+            ++cur_chain_length;
+            if (cur->mc_type == MC_TYPE_ALLOC) {
+                if (cur->mc_dealloc_noted) {
+                    if (cur->mc_dealloc_noted > 1) {
+                        fprintf(stderr,
+                                " Duplicate dealloc! entry %ld\n",
+                                cur->mc_alloc_number);
+                        print_entry("duplicate dealloc", cur);
 
-		    }
-		    continue;
-		} else {
-		    fprintf(stderr, "malloc no dealloc, entry %ld\n",
-			    cur->mc_alloc_number);
-		    print_entry("dangle", cur);
-		}
-	    } else {
-		/* mc_type is MC_TYPE_DEALLOC, already checked */
+                    }
+                    continue;
+                } else {
+                    fprintf(stderr, "malloc no dealloc, entry %ld\n",
+                            cur->mc_alloc_number);
+                    print_entry("dangle", cur);
+                }
+            } else {
+                /* mc_type is MC_TYPE_DEALLOC, already checked */
 
-	    }
-	}
-	if (cur_chain_length > max_chain_length) {
-	    max_chain_length = cur_chain_length;
-	}
+            }
+        }
+        if (cur_chain_length > max_chain_length) {
+            max_chain_length = cur_chain_length;
+        }
     }
     fprintf(stderr, "mc hash table slots=%ld, "
-	    "used=%ld,  maxchain=%ld\n",
-	    (long) HASH_TABLE_SIZE, hash_slots_used, max_chain_length);
+            "used=%ld,  maxchain=%ld\n",
+            (long) HASH_TABLE_SIZE, hash_slots_used, max_chain_length);
     return;
 }
 

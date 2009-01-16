@@ -58,8 +58,8 @@
 */
 Dwarf_Unsigned
 _dwarf_get_size_of_val(Dwarf_Debug dbg,
-		       Dwarf_Unsigned form,
-		       Dwarf_Small * val_ptr, int v_length_size)
+                       Dwarf_Unsigned form,
+                       Dwarf_Small * val_ptr, int v_length_size)
 {
     Dwarf_Unsigned length = 0;
     Dwarf_Word leb128_length = 0;
@@ -68,95 +68,95 @@ _dwarf_get_size_of_val(Dwarf_Debug dbg,
 
     switch (form) {
 
-    default:			/* Handles form = 0. */
-	return (form);
+    default:                    /* Handles form = 0. */
+        return (form);
 
     case DW_FORM_addr:
-	return (dbg->de_pointer_size);
+        return (dbg->de_pointer_size);
 
     case DW_FORM_ref_addr:
-	return (v_length_size);
+        return (v_length_size);
 
     case DW_FORM_block1:
-	return (*(Dwarf_Small *) val_ptr + 1);
+        return (*(Dwarf_Small *) val_ptr + 1);
 
     case DW_FORM_block2:
-	READ_UNALIGNED(dbg, ret_value, Dwarf_Unsigned,
-		       val_ptr, sizeof(Dwarf_Half));
-	return (ret_value + sizeof(Dwarf_Half));
+        READ_UNALIGNED(dbg, ret_value, Dwarf_Unsigned,
+                       val_ptr, sizeof(Dwarf_Half));
+        return (ret_value + sizeof(Dwarf_Half));
 
     case DW_FORM_block4:
-	READ_UNALIGNED(dbg, ret_value, Dwarf_Unsigned,
-		       val_ptr, sizeof(Dwarf_ufixed));
-	return (ret_value + sizeof(Dwarf_ufixed));
+        READ_UNALIGNED(dbg, ret_value, Dwarf_Unsigned,
+                       val_ptr, sizeof(Dwarf_ufixed));
+        return (ret_value + sizeof(Dwarf_ufixed));
 
 
     case DW_FORM_data1:
-	return (1);
+        return (1);
 
     case DW_FORM_data2:
-	return (2);
+        return (2);
 
     case DW_FORM_data4:
-	return (4);
+        return (4);
 
     case DW_FORM_data8:
-	return (8);
+        return (8);
 
     case DW_FORM_string:
-	return (strlen((char *) val_ptr) + 1);
+        return (strlen((char *) val_ptr) + 1);
 
     case DW_FORM_block:
-	length = _dwarf_decode_u_leb128(val_ptr, &leb128_length);
-	return (length + leb128_length);
+        length = _dwarf_decode_u_leb128(val_ptr, &leb128_length);
+        return (length + leb128_length);
 
     case DW_FORM_flag:
-	return (1);
+        return (1);
 
     case DW_FORM_ref_udata:
-	_dwarf_decode_u_leb128(val_ptr, &leb128_length);
-	return (leb128_length);
+        _dwarf_decode_u_leb128(val_ptr, &leb128_length);
+        return (leb128_length);
 
     case DW_FORM_indirect:
-	{
-	    Dwarf_Word indir_len = 0;
+        {
+            Dwarf_Word indir_len = 0;
 
-	    form_indirect = _dwarf_decode_u_leb128(val_ptr, &indir_len);
-	    if (form_indirect == DW_FORM_indirect) {
-		return (0);	/* We are in big trouble: The true form 
-				   of DW_FORM_indirect is
-				   DW_FORM_indirect? Nonsense. Should
-				   never happen. */
-	    }
-	    return (indir_len + _dwarf_get_size_of_val(dbg,
-						       form_indirect,
-						       val_ptr +
-						       indir_len,
-						       v_length_size));
-	}
+            form_indirect = _dwarf_decode_u_leb128(val_ptr, &indir_len);
+            if (form_indirect == DW_FORM_indirect) {
+                return (0);     /* We are in big trouble: The true form 
+                                   of DW_FORM_indirect is
+                                   DW_FORM_indirect? Nonsense. Should
+                                   never happen. */
+            }
+            return (indir_len + _dwarf_get_size_of_val(dbg,
+                                                       form_indirect,
+                                                       val_ptr +
+                                                       indir_len,
+                                                       v_length_size));
+        }
 
     case DW_FORM_ref1:
-	return (1);
+        return (1);
 
     case DW_FORM_ref2:
-	return (2);
+        return (2);
 
     case DW_FORM_ref4:
-	return (4);
+        return (4);
 
     case DW_FORM_ref8:
-	return (8);
+        return (8);
 
     case DW_FORM_sdata:
-	_dwarf_decode_s_leb128(val_ptr, &leb128_length);
-	return (leb128_length);
+        _dwarf_decode_s_leb128(val_ptr, &leb128_length);
+        return (leb128_length);
 
     case DW_FORM_strp:
-	return (v_length_size);
+        return (v_length_size);
 
     case DW_FORM_udata:
-	_dwarf_decode_u_leb128(val_ptr, &leb128_length);
-	return (leb128_length);
+        _dwarf_decode_u_leb128(val_ptr, &leb128_length);
+        return (leb128_length);
     }
 }
 
@@ -294,35 +294,35 @@ _dwarf_get_abbrev_for_code(Dwarf_CU_Context cu_context, Dwarf_Unsigned code)
    
     /* Determine if the 'code' is the list of synonyms already. */
     for (hash_abbrev_entry = entry_cur->at_head;
-	 hash_abbrev_entry != NULL && hash_abbrev_entry->ab_code != code;
-	 hash_abbrev_entry = hash_abbrev_entry->ab_next);
+         hash_abbrev_entry != NULL && hash_abbrev_entry->ab_code != code;
+         hash_abbrev_entry = hash_abbrev_entry->ab_next);
     if (hash_abbrev_entry != NULL) {
         /* This returns a pointer to an abbrev list entry, not 
            the list itself. */
-	return (hash_abbrev_entry);
+        return (hash_abbrev_entry);
     }
 
     abbrev_ptr = cu_context->cc_last_abbrev_ptr != NULL ?
-	cu_context->cc_last_abbrev_ptr :
-	dbg->de_debug_abbrev + cu_context->cc_abbrev_offset;
+        cu_context->cc_last_abbrev_ptr :
+        dbg->de_debug_abbrev + cu_context->cc_abbrev_offset;
 
     /* End of abbrev's for this cu, since abbrev code is 0. */
     if (*abbrev_ptr == 0) {
-	return (NULL);
+        return (NULL);
     }
 
     do {
         unsigned new_hashable_val;
-	DECODE_LEB128_UWORD(abbrev_ptr, abbrev_code);
-	DECODE_LEB128_UWORD(abbrev_ptr, abbrev_tag);
+        DECODE_LEB128_UWORD(abbrev_ptr, abbrev_code);
+        DECODE_LEB128_UWORD(abbrev_ptr, abbrev_tag);
 
-	inner_list_entry = (Dwarf_Abbrev_List)
-	    _dwarf_get_alloc(cu_context->cc_dbg, DW_DLA_ABBREV_LIST, 1);
-	if (inner_list_entry == NULL)
-	    return (NULL);
+        inner_list_entry = (Dwarf_Abbrev_List)
+            _dwarf_get_alloc(cu_context->cc_dbg, DW_DLA_ABBREV_LIST, 1);
+        if (inner_list_entry == NULL)
+            return (NULL);
 
         new_hashable_val = abbrev_code;
-	hash_num = new_hashable_val % 
+        hash_num = new_hashable_val % 
             hash_table_base->tb_table_entry_count;
         inner_hash_entry = entry_base + hash_num;
         /* Move_entry_to_new_hash */
@@ -331,17 +331,17 @@ _dwarf_get_abbrev_for_code(Dwarf_CU_Context cu_context, Dwarf_Unsigned code)
 
         hash_table_base->tb_total_abbrev_count++;
 
-	inner_list_entry->ab_code = abbrev_code;
-	inner_list_entry->ab_tag = abbrev_tag;
-	inner_list_entry->ab_has_child = *(abbrev_ptr++);
-	inner_list_entry->ab_abbrev_ptr = abbrev_ptr;
+        inner_list_entry->ab_code = abbrev_code;
+        inner_list_entry->ab_tag = abbrev_tag;
+        inner_list_entry->ab_has_child = *(abbrev_ptr++);
+        inner_list_entry->ab_abbrev_ptr = abbrev_ptr;
 
-	/* Cycle thru the abbrev content, ignoring the content except
-	   to find the end of the content. */
-	do {
-	    DECODE_LEB128_UWORD(abbrev_ptr, attr_name);
-	    DECODE_LEB128_UWORD(abbrev_ptr, attr_form);
-	} while (attr_name != 0 && attr_form != 0);
+        /* Cycle thru the abbrev content, ignoring the content except
+           to find the end of the content. */
+        do {
+            DECODE_LEB128_UWORD(abbrev_ptr, attr_name);
+            DECODE_LEB128_UWORD(abbrev_ptr, attr_form);
+        } while (attr_name != 0 && attr_form != 0);
 
     } while (*abbrev_ptr != 0 && abbrev_code != code);
 
@@ -362,13 +362,13 @@ _dwarf_string_valid(void *startptr, void *endptr)
     char *end = endptr;
 
     while (start < end) {
-	if (*start == 0) {
-	    return 1;		/* OK! */
-	}
-	++start;
-	++end;
+        if (*start == 0) {
+            return 1;           /* OK! */
+        }
+        ++start;
+        ++end;
     }
-    return 0;			/* FAIL! bad string! */
+    return 0;                   /* FAIL! bad string! */
 }
 
 /*
@@ -384,28 +384,28 @@ _dwarf_memcpy_swap_bytes(void *s1, const void *s2, size_t len)
     unsigned char *src = (unsigned char *) s2;
 
     if (len == 4) {
-	targ[3] = src[0];
-	targ[2] = src[1];
-	targ[1] = src[2];
-	targ[0] = src[3];
+        targ[3] = src[0];
+        targ[2] = src[1];
+        targ[1] = src[2];
+        targ[0] = src[3];
     } else if (len == 8) {
-	targ[7] = src[0];
-	targ[6] = src[1];
-	targ[5] = src[2];
-	targ[4] = src[3];
-	targ[3] = src[4];
-	targ[2] = src[5];
-	targ[1] = src[6];
-	targ[0] = src[7];
+        targ[7] = src[0];
+        targ[6] = src[1];
+        targ[5] = src[2];
+        targ[4] = src[3];
+        targ[3] = src[4];
+        targ[2] = src[5];
+        targ[1] = src[6];
+        targ[0] = src[7];
     } else if (len == 2) {
-	targ[1] = src[0];
-	targ[0] = src[1];
+        targ[1] = src[0];
+        targ[0] = src[1];
     }
 /* should NOT get below here: is not the intended use */
     else if (len == 1) {
-	targ[0] = src[0];
+        targ[0] = src[0];
     } else {
-	memcpy(s1, s2, len);
+        memcpy(s1, s2, len);
     }
 
     return orig_s1;
@@ -430,28 +430,28 @@ _dwarf_length_of_cu_header(Dwarf_Debug dbg, Dwarf_Unsigned offset)
     Dwarf_Small *cuptr = dbg->de_debug_info + offset;
 
     READ_AREA_LENGTH(dbg, length, Dwarf_Unsigned,
-		     cuptr, local_length_size, local_extension_size);
+                     cuptr, local_length_size, local_extension_size);
 
-    return local_extension_size +	/* initial extesion, if present 
-					 */
-	local_length_size +	/* Size of cu length field. */
-	sizeof(Dwarf_Half) +	/* Size of version stamp field. */
-	local_length_size +	/* Size of abbrev offset field. */
-	sizeof(Dwarf_Small);	/* Size of address size field. */
+    return local_extension_size +       /* initial extesion, if present 
+                                         */
+        local_length_size +     /* Size of cu length field. */
+        sizeof(Dwarf_Half) +    /* Size of version stamp field. */
+        local_length_size +     /* Size of abbrev offset field. */
+        sizeof(Dwarf_Small);    /* Size of address size field. */
 
 }
 
 /*
-	Pretend we know nothing about the CU
-	and just roughly compute the result. 
+        Pretend we know nothing about the CU
+        and just roughly compute the result. 
 */
 Dwarf_Unsigned
 _dwarf_length_of_cu_header_simple(Dwarf_Debug dbg)
 {
-    return dbg->de_length_size +	/* Size of cu length field. */
-	sizeof(Dwarf_Half) +	/* Size of version stamp field. */
-	dbg->de_length_size +	/* Size of abbrev offset field. */
-	sizeof(Dwarf_Small);	/* Size of address size field. */
+    return dbg->de_length_size +        /* Size of cu length field. */
+        sizeof(Dwarf_Half) +    /* Size of version stamp field. */
+        dbg->de_length_size +   /* Size of abbrev offset field. */
+        sizeof(Dwarf_Small);    /* Size of address size field. */
 }
 
 /* Now that we delay loading .debug_info, we need to do the
@@ -469,16 +469,16 @@ _dwarf_load_debug_info(Dwarf_Debug dbg, Dwarf_Error * error)
        de_debug_abbrev. One test instead of 2. .debug_info is useless
        without .debug_abbrev. */
     if (dbg->de_debug_info) {
-	return DW_DLV_OK;
+        return DW_DLV_OK;
     }
 
     res = _dwarf_load_section(dbg, dbg->de_debug_abbrev_index,
-			      &dbg->de_debug_abbrev, error);
+                              &dbg->de_debug_abbrev, error);
     if (res != DW_DLV_OK) {
-	return res;
+        return res;
     }
     res = _dwarf_load_section(dbg, dbg->de_debug_info_index,
-			      &dbg->de_debug_info, error);
+                              &dbg->de_debug_info, error);
     return res;
 
 }

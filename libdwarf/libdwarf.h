@@ -758,7 +758,7 @@ struct Dwarf_Obj_Access_Interface_s {
 #define DW_DLE_DEBUG_LINE_LENGTH_BAD            54
 #define DW_DLE_LINE_PROLOG_LENGTH_BAD           55
 #define DW_DLE_LINE_NUM_OPERANDS_BAD            56
-#define DW_DLE_LINE_SET_ADDR_ERROR              57
+#define DW_DLE_LINE_SET_ADDR_ERROR              57 /* No longer used. */
 #define DW_DLE_LINE_EXT_OPCODE_BAD              58
 #define DW_DLE_DWARF_LINE_NULL                  59
 #define DW_DLE_INCL_DIR_NUM_BAD                 60
@@ -897,7 +897,7 @@ struct Dwarf_Obj_Access_Interface_s {
 #define DW_DLE_DF_FRAME_DECODING_ERROR         193
 #define DW_DLE_DEBUG_LOC_SECTION_SHORT         194
 #define DW_DLE_FRAME_AUGMENTATION_UNKNOWN      195
-#define DW_DLA_PUBTYPE_CONTEXT                 196
+#define DW_DLE_PUBTYPE_CONTEXT                 196 /* Unused. */
 #define DW_DLE_DEBUG_PUBTYPES_LENGTH_BAD       197
 #define DW_DLE_DEBUG_PUBTYPES_VERSION_ERROR    198
 #define DW_DLE_DEBUG_PUBTYPES_DUPLICATE        199
@@ -905,6 +905,7 @@ struct Dwarf_Obj_Access_Interface_s {
 #define DW_DLE_FRAME_REGISTER_UNREPRESENTABLE  201
 #define DW_DLE_FRAME_REGISTER_COUNT_MISMATCH   202
 #define DW_DLE_LINK_LOOP                       203
+#define DW_DLE_STRP_OFFSET_BAD                 204
 
 
 

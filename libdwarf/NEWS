@@ -1,3 +1,13 @@
+Sep 29, 2008
+  Thanks to Phil Mucci for providing a little-endian 64bit
+  test object file that exposed a problem when there are 'extra' bytes
+  (possibly unused) after a line table prologue header and before the
+  line table itself.  This releases fixes the bug.
+
+  Thanks to Matthew Legendre for pointing out that we were sharing
+  de_fde_count for eh and non-eh and that could cause erroneous
+  error returns in a couple of functions.
+  These counts are now separate.
 April 9, 2008
   libdwarf would behave badly if one compilation unit had more than 64K
   abbreviations: It was both very slow dealing with abbreviations and would

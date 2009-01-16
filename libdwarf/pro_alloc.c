@@ -84,8 +84,8 @@ _dwarf_p_get_alloc(Dwarf_P_Debug dbg, Dwarf_Unsigned size)
     /* alloc control struct and data block together for performance reasons */
     lp = (memory_list_t *) malloc(size + sizeof(memory_list_t));
     if (lp == NULL) {
-	/* should throw an error */
-	return NULL;
+        /* should throw an error */
+        return NULL;
     }
     
     /* point to 'size' bytes just beyond lp struct */
@@ -93,18 +93,18 @@ _dwarf_p_get_alloc(Dwarf_P_Debug dbg, Dwarf_Unsigned size)
     memset(sp, 0, size);
 
     if (dbg == NULL) {
-	lp->next = lp->prev = lp;
+        lp->next = lp->prev = lp;
     } else {
-	/* I always have to draw a picture to understand this part. */
+        /* I always have to draw a picture to understand this part. */
 
-	dbglp = BLOCK_TO_LIST(dbg);
-	nextblock = dbglp->next;
-	
-	/* Insert between dbglp and nextblock */
-	dbglp->next = lp;
-	lp->prev = dbglp;
-	lp->next = nextblock;
-	nextblock->prev = lp;
+        dbglp = BLOCK_TO_LIST(dbg);
+        nextblock = dbglp->next;
+        
+        /* Insert between dbglp and nextblock */
+        dbglp->next = lp;
+        lp->prev = dbglp;
+        lp->next = nextblock;
+        nextblock->prev = lp;
     }
 
     return sp;
@@ -167,8 +167,8 @@ _dwarf_p_dealloc_all(Dwarf_P_Debug dbg)
     memory_list_t *dbglp;
 
     if (dbg == NULL) {
-	/* should throw an error */
-	return;
+        /* should throw an error */
+        return;
     }
     
     dbglp = BLOCK_TO_LIST(dbg);
@@ -176,11 +176,11 @@ _dwarf_p_dealloc_all(Dwarf_P_Debug dbg)
         _dwarf_p_dealloc(dbg, LIST_TO_BLOCK(dbglp->next));
     }
     if (dbglp->next != dbglp ||
-	dbglp->prev != dbglp) {
+        dbglp->prev != dbglp) {
 
-	/* should throw error */
-	/* For some reason we couldn't free all the blocks? */
-	return;
+        /* should throw error */
+        /* For some reason we couldn't free all the blocks? */
+        return;
     }
     _dwarf_p_dealloc(NULL, (void*)dbg);
 }

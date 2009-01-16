@@ -43,31 +43,26 @@
 
 int
 dwarf_get_vars(Dwarf_Debug dbg,
-	       Dwarf_Var ** vars,
-	       Dwarf_Signed * ret_var_count, Dwarf_Error * error)
+    Dwarf_Var ** vars,
+    Dwarf_Signed * ret_var_count, Dwarf_Error * error)
 {
-    int res;
-
-    res =
-	_dwarf_load_section(dbg,
-			    dbg->de_debug_varnames_index,
-			    &dbg->de_debug_varnames, error);
+    int res = _dwarf_load_section(dbg,
+        dbg->de_debug_varnames_index,
+        &dbg->de_debug_varnames, error);
     if (res != DW_DLV_OK) {
-	return res;
+        return res;
     }
 
-    return _dwarf_internal_get_pubnames_like_data(dbg, dbg->de_debug_varnames, dbg->de_debug_varnames_size, (Dwarf_Global **) vars,	/* type
-																	   punning,
-																	   Dwarf_Type
-																	   is never a
-																	   completed
-																	   type */
-						  ret_var_count,
-						  error,
-						  DW_DLA_VAR_CONTEXT,
-						  DW_DLA_VAR,
-						  DW_DLE_DEBUG_VARNAMES_LENGTH_BAD,
-						  DW_DLE_DEBUG_VARNAMES_VERSION_ERROR);
+    return _dwarf_internal_get_pubnames_like_data(dbg, 
+        dbg->de_debug_varnames, 
+        dbg->de_debug_varnames_size, 
+        (Dwarf_Global **) vars, /* Type punning for sections with identical format. */
+        ret_var_count,
+        error,
+        DW_DLA_VAR_CONTEXT,
+        DW_DLA_VAR,
+        DW_DLE_DEBUG_VARNAMES_LENGTH_BAD,
+        DW_DLE_DEBUG_VARNAMES_VERSION_ERROR);
 }
 
 /* Deallocating fully requires deallocating the list
@@ -77,12 +72,12 @@ dwarf_get_vars(Dwarf_Debug dbg,
 
 void
 dwarf_vars_dealloc(Dwarf_Debug dbg, Dwarf_Var * dwgl,
-		   Dwarf_Signed count)
+                   Dwarf_Signed count)
 {
     _dwarf_internal_globals_dealloc(dbg, (Dwarf_Global *) dwgl,
-				    count,
-				    DW_DLA_VAR_CONTEXT,
-				    DW_DLA_VAR, DW_DLA_LIST);
+        count,
+        DW_DLA_VAR_CONTEXT,
+        DW_DLA_VAR, DW_DLA_LIST);
     return;
 }
 
@@ -93,8 +88,8 @@ dwarf_varname(Dwarf_Var var_in, char **ret_varname, Dwarf_Error * error)
     Dwarf_Global var = (Dwarf_Global) var_in;
 
     if (var == NULL) {
-	_dwarf_error(NULL, error, DW_DLE_VAR_NULL);
-	return (DW_DLV_ERROR);
+        _dwarf_error(NULL, error, DW_DLE_VAR_NULL);
+        return (DW_DLV_ERROR);
     }
 
     *ret_varname = (char *) (var->gl_name);
@@ -104,7 +99,7 @@ dwarf_varname(Dwarf_Var var_in, char **ret_varname, Dwarf_Error * error)
 
 int
 dwarf_var_die_offset(Dwarf_Var var_in,
-		     Dwarf_Off * returned_offset, Dwarf_Error * error)
+        Dwarf_Off * returned_offset, Dwarf_Error * error)
 {
     Dwarf_Global var = (Dwarf_Global) var_in;
 
@@ -115,7 +110,7 @@ dwarf_var_die_offset(Dwarf_Var var_in,
 
 int
 dwarf_var_cu_offset(Dwarf_Var var_in,
-		    Dwarf_Off * returned_offset, Dwarf_Error * error)
+                    Dwarf_Off * returned_offset, Dwarf_Error * error)
 {
     Dwarf_Global var = (Dwarf_Global) var_in;
 
@@ -125,14 +120,14 @@ dwarf_var_cu_offset(Dwarf_Var var_in,
 
 int
 dwarf_var_name_offsets(Dwarf_Var var_in,
-		       char **returned_name,
-		       Dwarf_Off * die_offset,
-		       Dwarf_Off * cu_offset, Dwarf_Error * error)
+        char **returned_name,
+        Dwarf_Off * die_offset,
+        Dwarf_Off * cu_offset, Dwarf_Error * error)
 {
     Dwarf_Global var = (Dwarf_Global) var_in;
 
     return
-	dwarf_global_name_offsets(var,
-				  returned_name, die_offset, cu_offset,
-				  error);
+        dwarf_global_name_offsets(var,
+            returned_name, die_offset, cu_offset,
+            error);
 }

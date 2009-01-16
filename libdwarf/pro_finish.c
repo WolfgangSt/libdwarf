@@ -41,14 +41,14 @@
 #include "pro_incl.h"
 
 /*---------------------------------------------------------------
-	This routine deallocates all memory, and does some 
-	finishing up
+        This routine deallocates all memory, and does some 
+        finishing up
 -----------------------------------------------------------------*/
  /*ARGSUSED*/ Dwarf_Unsigned
 dwarf_producer_finish(Dwarf_P_Debug dbg, Dwarf_Error * error)
 {
     if (dbg->de_version_magic_number != PRO_VERSION_MAGIC) {
-	DWARF_P_DBG_ERROR(dbg, DW_DLE_IA, DW_DLV_NOCOUNT);
+        DWARF_P_DBG_ERROR(dbg, DW_DLE_IA, DW_DLV_NOCOUNT);
     }
 
     /* this frees all blocks, then frees dbg. */

@@ -46,18 +46,18 @@
 #include "pro_reloc_symbolic.h"
 
 /*
-	Return DW_DLV_ERROR on malloc error.
-	Return DW_DLV_OK otherwise
+        Return DW_DLV_ERROR on malloc error.
+        Return DW_DLV_OK otherwise
 */
 
 int
-_dwarf_pro_reloc_name_symbolic(Dwarf_P_Debug dbg, int base_sec_index, Dwarf_Unsigned offset,	/* r_offset 
-												   of 
-												   reloc 
-												 */
-			       Dwarf_Unsigned symidx,
-			       enum Dwarf_Rel_Type type,
-			       int reltarget_length)
+_dwarf_pro_reloc_name_symbolic(Dwarf_P_Debug dbg, int base_sec_index, Dwarf_Unsigned offset,    /* r_offset 
+                                                                                                   of 
+                                                                                                   reloc 
+                                                                                                 */
+                               Dwarf_Unsigned symidx,
+                               enum Dwarf_Rel_Type type,
+                               int reltarget_length)
 {
     /* get a slot, fill in the slot entry */
     void *relrec_to_fill;
@@ -65,9 +65,9 @@ _dwarf_pro_reloc_name_symbolic(Dwarf_P_Debug dbg, int base_sec_index, Dwarf_Unsi
     struct Dwarf_Relocation_Data_s *slotp;
 
     res = _dwarf_pro_reloc_get_a_slot(dbg, base_sec_index,
-				      &relrec_to_fill);
+                                      &relrec_to_fill);
     if (res != DW_DLV_OK)
-	return res;
+        return res;
 
     slotp = (struct Dwarf_Relocation_Data_s *) relrec_to_fill;
     slotp->drd_type = type;
@@ -81,18 +81,18 @@ _dwarf_pro_reloc_name_symbolic(Dwarf_P_Debug dbg, int base_sec_index, Dwarf_Unsi
 
 
 /*
-	Return DW_DLV_ERROR on malloc error.
-	Return DW_DLV_OK otherwise
+        Return DW_DLV_ERROR on malloc error.
+        Return DW_DLV_OK otherwise
 */
 int
-_dwarf_pro_reloc_length_symbolic(Dwarf_P_Debug dbg, int base_sec_index, Dwarf_Unsigned offset,	/* r_offset 
-												   of 
-												   reloc 
-												 */
-				 Dwarf_Unsigned start_symidx,
-				 Dwarf_Unsigned end_symidx,
-				 enum Dwarf_Rel_Type type,
-				 int reltarget_length)
+_dwarf_pro_reloc_length_symbolic(Dwarf_P_Debug dbg, int base_sec_index, Dwarf_Unsigned offset,  /* r_offset 
+                                                                                                   of 
+                                                                                                   reloc 
+                                                                                                 */
+                                 Dwarf_Unsigned start_symidx,
+                                 Dwarf_Unsigned end_symidx,
+                                 enum Dwarf_Rel_Type type,
+                                 int reltarget_length)
 {
     /* get a slot, fill in the slot entry */
     void *relrec_to_fill;
@@ -103,14 +103,14 @@ _dwarf_pro_reloc_length_symbolic(Dwarf_P_Debug dbg, int base_sec_index, Dwarf_Un
 
 
     res = _dwarf_pro_reloc_get_a_slot(dbg, base_sec_index,
-				      &relrec_to_fill);
+                                      &relrec_to_fill);
     if (res != DW_DLV_OK)
-	return res;
+        return res;
     slotp1 = (struct Dwarf_Relocation_Data_s *) relrec_to_fill;
     res = _dwarf_pro_reloc_get_a_slot(dbg, base_sec_index,
-				      &relrec_to_fill);
+                                      &relrec_to_fill);
     if (res != DW_DLV_OK)
-	return res;
+        return res;
     slotp2 = (struct Dwarf_Relocation_Data_s *) relrec_to_fill;
 
     /* ASSERT: type == dwarf_drt_first_of_length_type_pair */
@@ -135,7 +135,7 @@ _dwarf_pro_reloc_length_symbolic(Dwarf_P_Debug dbg, int base_sec_index, Dwarf_Un
 */
 static void
 _dwarf_reset_reloc_sect_info(struct Dwarf_P_Per_Reloc_Sect_s *pblk,
-			     unsigned long ct)
+                             unsigned long ct)
 {
 
 
@@ -152,24 +152,24 @@ _dwarf_reset_reloc_sect_info(struct Dwarf_P_Per_Reloc_Sect_s *pblk,
         Ensure each stream is a single buffer and
         add that single buffer to the set of stream buffers.
 
-	By creating a new buffer and copying if necessary.
-	(If > 1 block, reduce to 1 block)
+        By creating a new buffer and copying if necessary.
+        (If > 1 block, reduce to 1 block)
 
         Free the input set of buffers if we consolidate.
 
-	We pass back *new_sec_count as zero because we
+        We pass back *new_sec_count as zero because we
         are not creating normal sections for a .o, but
-	symbolic relocations, separately counted.
+        symbolic relocations, separately counted.
 
         Return -1 on error (malloc failure)
 
 
         Return DW_DLV_OK on success. Any other return indicates 
-	malloc failed.
+        malloc failed.
 */
 int
 _dwarf_symbolic_relocs_to_disk(Dwarf_P_Debug dbg,
-			       Dwarf_Signed * new_sec_count)
+                               Dwarf_Signed * new_sec_count)
 {
     /* unsigned long total_size =0; */
     Dwarf_Small *data;
@@ -184,114 +184,114 @@ _dwarf_symbolic_relocs_to_disk(Dwarf_P_Debug dbg,
 
     for (i = 0; i < NUM_DEBUG_SECTIONS; ++i, ++p_reloc) {
 
-	unsigned long ct = p_reloc->pr_reloc_total_count;
-	struct Dwarf_P_Relocation_Block_s *p_blk;
-	struct Dwarf_P_Relocation_Block_s *p_blk_last;
+        unsigned long ct = p_reloc->pr_reloc_total_count;
+        struct Dwarf_P_Relocation_Block_s *p_blk;
+        struct Dwarf_P_Relocation_Block_s *p_blk_last;
 
-	/* int len */
-	int err;
-
-
-	if (ct == 0) {
-	    continue;
-	}
-
-	/* len = dbg->de_relocation_record_size; */
-	++sec_count;
-
-	/* total_size = ct *len; */
-	sec_index = p_reloc->pr_sect_num_of_reloc_sect;
-	if (sec_index == 0) {
-	    /* call de_func or de_func_b, getting section number of
-	       reloc sec */
-	    int rel_section_index;
-	    int int_name;
-	    Dwarf_Unsigned name_idx;
-
-	    /* 
-	       This is a bit of a fake, as we do not really have true
-	       elf sections at all. Just the data such might contain.
-	       But this lets the caller eventually link things
-	       together: without this call we would not know what rel
-	       data goes with what section when we are asked for the
-	       real arrays. */
-
-	    if (dbg->de_func_b) {
-		rel_section_index =
-		    dbg->de_func_b(_dwarf_rel_section_names[i],
-				   dbg->de_relocation_record_size,
-				   /* type */ SHT_REL,
-				   /* flags */ 0,
-				   /* link to symtab, which we cannot
-				      know */ SHN_UNDEF,
-				   /* sec rels apply to */
-				   dbg->de_elf_sects[i],
-				   &name_idx, &err);
-	    } else {
-		rel_section_index =
-		    dbg->de_func(_dwarf_rel_section_names[i],
-				 dbg->de_relocation_record_size,
-				 /* type */ SHT_REL,
-				 /* flags */ 0,
-				 /* link to symtab, which we cannot
-				    know */ SHN_UNDEF,
-				 /* sec rels apply to, in elf, sh_info */
-				 dbg->de_elf_sects[i], &int_name, &err);
-		name_idx = int_name;
-	    }
-	    if (rel_section_index == -1) {
-		{
-		    _dwarf_p_error(dbg, &error, DW_DLE_ELF_SECT_ERR);
-		    return (DW_DLV_ERROR);
-		}
-	    }
-	    p_reloc->pr_sect_num_of_reloc_sect = rel_section_index;
-	    sec_index = rel_section_index;
-	}
-
-	p_blk = p_reloc->pr_first_block;
-
-	if (p_reloc->pr_block_count > 1) {
-	    struct Dwarf_P_Relocation_Block_s *new_blk;
-
-	    /* HACK , not normal interfaces, trashing p_reloc current
-	       contents! */
-	    _dwarf_reset_reloc_sect_info(p_reloc, ct);
-
-	    /* Creating new single block for all 'ct' entries */
-	    res = _dwarf_pro_pre_alloc_n_reloc_slots(dbg, (int) i, ct);
+        /* int len */
+        int err;
 
 
-	    if (res != DW_DLV_OK) {
-		return res;
-	    }
-	    new_blk = p_reloc->pr_first_block;
+        if (ct == 0) {
+            continue;
+        }
 
-	    data = (Dwarf_Small *) new_blk->rb_data;
+        /* len = dbg->de_relocation_record_size; */
+        ++sec_count;
 
-	    /* The following loop does the consolidation to a single
-	       block and frees the input block(s). */
-	    do {
+        /* total_size = ct *len; */
+        sec_index = p_reloc->pr_sect_num_of_reloc_sect;
+        if (sec_index == 0) {
+            /* call de_func or de_func_b, getting section number of
+               reloc sec */
+            int rel_section_index;
+            int int_name;
+            Dwarf_Unsigned name_idx;
 
-		unsigned long len =
-		    p_blk->rb_where_to_add_next - p_blk->rb_data;
+            /* 
+               This is a bit of a fake, as we do not really have true
+               elf sections at all. Just the data such might contain.
+               But this lets the caller eventually link things
+               together: without this call we would not know what rel
+               data goes with what section when we are asked for the
+               real arrays. */
 
-		memcpy(data, p_blk->rb_data, len);
-		data += len;
+            if (dbg->de_func_b) {
+                rel_section_index =
+                    dbg->de_func_b(_dwarf_rel_section_names[i],
+                                   dbg->de_relocation_record_size,
+                                   /* type */ SHT_REL,
+                                   /* flags */ 0,
+                                   /* link to symtab, which we cannot
+                                      know */ SHN_UNDEF,
+                                   /* sec rels apply to */
+                                   dbg->de_elf_sects[i],
+                                   &name_idx, &err);
+            } else {
+                rel_section_index =
+                    dbg->de_func(_dwarf_rel_section_names[i],
+                                 dbg->de_relocation_record_size,
+                                 /* type */ SHT_REL,
+                                 /* flags */ 0,
+                                 /* link to symtab, which we cannot
+                                    know */ SHN_UNDEF,
+                                 /* sec rels apply to, in elf, sh_info */
+                                 dbg->de_elf_sects[i], &int_name, &err);
+                name_idx = int_name;
+            }
+            if (rel_section_index == -1) {
+                {
+                    _dwarf_p_error(dbg, &error, DW_DLE_ELF_SECT_ERR);
+                    return (DW_DLV_ERROR);
+                }
+            }
+            p_reloc->pr_sect_num_of_reloc_sect = rel_section_index;
+            sec_index = rel_section_index;
+        }
 
-		p_blk_last = p_blk;
-		p_blk = p_blk->rb_next;
+        p_blk = p_reloc->pr_first_block;
 
-		_dwarf_p_dealloc(dbg, (Dwarf_Small *) p_blk_last);
-	    } while (p_blk);
-	    /* ASSERT: sum of len copied == total_size */
-	    new_blk->rb_next_slot_to_use = ct;
-	    new_blk->rb_where_to_add_next = (char *) data;
-	    p_reloc->pr_reloc_total_count = ct;
+        if (p_reloc->pr_block_count > 1) {
+            struct Dwarf_P_Relocation_Block_s *new_blk;
 
-	    /* have now created a single block, but no change in slots
-	       used (pr_reloc_total_count) */
-	}
+            /* HACK , not normal interfaces, trashing p_reloc current
+               contents! */
+            _dwarf_reset_reloc_sect_info(p_reloc, ct);
+
+            /* Creating new single block for all 'ct' entries */
+            res = _dwarf_pro_pre_alloc_n_reloc_slots(dbg, (int) i, ct);
+
+
+            if (res != DW_DLV_OK) {
+                return res;
+            }
+            new_blk = p_reloc->pr_first_block;
+
+            data = (Dwarf_Small *) new_blk->rb_data;
+
+            /* The following loop does the consolidation to a single
+               block and frees the input block(s). */
+            do {
+
+                unsigned long len =
+                    p_blk->rb_where_to_add_next - p_blk->rb_data;
+
+                memcpy(data, p_blk->rb_data, len);
+                data += len;
+
+                p_blk_last = p_blk;
+                p_blk = p_blk->rb_next;
+
+                _dwarf_p_dealloc(dbg, (Dwarf_Small *) p_blk_last);
+            } while (p_blk);
+            /* ASSERT: sum of len copied == total_size */
+            new_blk->rb_next_slot_to_use = ct;
+            new_blk->rb_where_to_add_next = (char *) data;
+            p_reloc->pr_reloc_total_count = ct;
+
+            /* have now created a single block, but no change in slots
+               used (pr_reloc_total_count) */
+        }
     }
 
     *new_sec_count = 0;

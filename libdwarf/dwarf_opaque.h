@@ -181,11 +181,17 @@ struct Dwarf_Debug_s {
     Dwarf_Cie *de_cie_data;
     /* Count of number of Dwarf_Cie_s structs. */
     Dwarf_Signed de_cie_count;
+    /* Keep eh (GNU) separate!. */
+    Dwarf_Cie *de_cie_data_eh;
+    Dwarf_Signed de_cie_count_eh;
     /* 
        Points to contiguous block of pointers to Dwarf_Fde_s structs. */
     Dwarf_Fde *de_fde_data;
     /* Count of number of Dwarf_Fde_s structs. */
     Dwarf_Signed de_fde_count;
+    /* Keep eh (GNU) separate!. */
+    Dwarf_Fde *de_fde_data_eh;
+    Dwarf_Signed de_fde_count_eh;
 
     Dwarf_Small *de_debug_info;
     Dwarf_Small *de_debug_abbrev;

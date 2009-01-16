@@ -52,11 +52,11 @@
 */
 Dwarf_Unsigned
 dwarf_add_funcname(Dwarf_P_Debug dbg,
-		   Dwarf_P_Die die,
-		   char *function_name, Dwarf_Error * error)
+                   Dwarf_P_Die die,
+                   char *function_name, Dwarf_Error * error)
 {
     return
-	_dwarf_add_simple_name_entry(dbg, die, function_name,
-				     dwarf_snk_funcname, error);
+        _dwarf_add_simple_name_entry(dbg, die, function_name,
+                                     dwarf_snk_funcname, error);
 
 }

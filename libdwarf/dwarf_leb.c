@@ -57,33 +57,33 @@ _dwarf_decode_u_leb128(Dwarf_Small * leb128, Dwarf_Word * leb128_length)
        word_number is assumed big enough that the shift has a defined
        result. */
     if ((*leb128 & 0x80) == 0) {
-	if (leb128_length != NULL)
-	    *leb128_length = 1;
-	return (*leb128);
+        if (leb128_length != NULL)
+            *leb128_length = 1;
+        return (*leb128);
     } else if ((*(leb128 + 1) & 0x80) == 0) {
-	if (leb128_length != NULL)
-	    *leb128_length = 2;
+        if (leb128_length != NULL)
+            *leb128_length = 2;
 
-	word_number = *leb128 & 0x7f;
-	word_number |= (*(leb128 + 1) & 0x7f) << 7;
-	return (word_number);
+        word_number = *leb128 & 0x7f;
+        word_number |= (*(leb128 + 1) & 0x7f) << 7;
+        return (word_number);
     } else if ((*(leb128 + 2) & 0x80) == 0) {
-	if (leb128_length != NULL)
-	    *leb128_length = 3;
+        if (leb128_length != NULL)
+            *leb128_length = 3;
 
-	word_number = *leb128 & 0x7f;
-	word_number |= (*(leb128 + 1) & 0x7f) << 7;
-	word_number |= (*(leb128 + 2) & 0x7f) << 14;
-	return (word_number);
+        word_number = *leb128 & 0x7f;
+        word_number |= (*(leb128 + 1) & 0x7f) << 7;
+        word_number |= (*(leb128 + 2) & 0x7f) << 14;
+        return (word_number);
     } else if ((*(leb128 + 3) & 0x80) == 0) {
-	if (leb128_length != NULL)
-	    *leb128_length = 4;
+        if (leb128_length != NULL)
+            *leb128_length = 4;
 
-	word_number = *leb128 & 0x7f;
-	word_number |= (*(leb128 + 1) & 0x7f) << 7;
-	word_number |= (*(leb128 + 2) & 0x7f) << 14;
-	word_number |= (*(leb128 + 3) & 0x7f) << 21;
-	return (word_number);
+        word_number = *leb128 & 0x7f;
+        word_number |= (*(leb128 + 1) & 0x7f) << 7;
+        word_number |= (*(leb128 + 2) & 0x7f) << 14;
+        word_number |= (*(leb128 + 3) & 0x7f) << 21;
+        return (word_number);
     }
 
     /* The rest handles long numbers Because the 'number' may be larger 
@@ -94,18 +94,18 @@ _dwarf_decode_u_leb128(Dwarf_Small * leb128, Dwarf_Word * leb128_length)
     byte_length = 1;
     byte = *(leb128);
     for (;;) {
-	number |= ((Dwarf_Unsigned) (byte & 0x7f)) << shift;
+        number |= ((Dwarf_Unsigned) (byte & 0x7f)) << shift;
 
-	if ((byte & 0x80) == 0) {
-	    if (leb128_length != NULL)
-		*leb128_length = byte_length;
-	    return (number);
-	}
-	shift += 7;
+        if ((byte & 0x80) == 0) {
+            if (leb128_length != NULL)
+                *leb128_length = byte_length;
+            return (number);
+        }
+        shift += 7;
 
-	byte_length++;
-	++leb128;
-	byte = *leb128;
+        byte_length++;
+        ++leb128;
+        byte = *leb128;
     }
 }
 
@@ -127,23 +127,23 @@ _dwarf_decode_s_leb128(Dwarf_Small * leb128, Dwarf_Word * leb128_length)
        turning the leb into a Dwarf_Signed. */
 
     for (;;) {
-	sign = byte & 0x40;
-	number |= ((Dwarf_Signed) ((byte & 0x7f))) << shift;
-	shift += 7;
+        sign = byte & 0x40;
+        number |= ((Dwarf_Signed) ((byte & 0x7f))) << shift;
+        shift += 7;
 
-	if ((byte & 0x80) == 0) {
-	    break;
-	}
-	++leb128;
-	byte = *leb128;
-	byte_length++;
+        if ((byte & 0x80) == 0) {
+            break;
+        }
+        ++leb128;
+        byte = *leb128;
+        byte_length++;
     }
 
     if ((shift < sizeof(Dwarf_Signed) * BITSINBYTE) && sign) {
-	number |= -((Dwarf_Signed) 1 << shift);
+        number |= -((Dwarf_Signed) 1 << shift);
     }
 
     if (leb128_length != NULL)
-	*leb128_length = byte_length;
+        *leb128_length = byte_length;
     return (number);
 }

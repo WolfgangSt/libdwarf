@@ -288,6 +288,9 @@ struct Dwarf_Fde_s {
     Dwarf_Fde fd_next;
     Dwarf_Small fd_length_size;
     Dwarf_Small fd_extension_size;
+    /* So we know from an fde which 'count' of fde-s in
+       Dwarf_Debug applies:  eh or standard. */
+    Dwarf_Small fd_is_eh;
     /* The following 2 for GNU .eh_frame exception handling
        Augmentation Data. Set if CIE ci_augmentation_type
        is aug_gcc_eh_z. Zero if unused. */

@@ -53,39 +53,39 @@ static void
 print_line_header(void)
 {
     printf
-	("                                                         s b e\n"
-	 "                                                         t l s\n"
-	 "                                                         m c e\n"
-	 " section    op                                       col t k q\n"
-	 " offset     code               address     file line umn ? ? ?\n");
+        ("                                                         s b e\n"
+         "                                                         t l s\n"
+         "                                                         m c e\n"
+         " section    op                                       col t k q\n"
+         " offset     code               address     file line umn ? ? ?\n");
 }
 
 /* FIXME: print new line values:   prologue_end epilogue_begin isa */
 static void
 print_line_detail(char *prefix,
-		  int opcode,
-		  unsigned long long address,
-		  unsigned long file,
-		  unsigned long line,
-		  unsigned long column,
-		  int is_stmt, int basic_block, int end_sequence,
-		  int prologue_end, int epilogue_begin, int isa)
+                  int opcode,
+                  unsigned long long address,
+                  unsigned long file,
+                  unsigned long line,
+                  unsigned long column,
+                  int is_stmt, int basic_block, int end_sequence,
+                  int prologue_end, int epilogue_begin, int isa)
 {
     printf("%-15s %2d 0x%08llx "
-	   "%2lu   %4lu %2lu   %1d %1d %1d\n",
-	   prefix,
-	   (int) opcode,
-	   (long long) address,
-	   (unsigned long) file,
-	   (unsigned long) line,
-	   (unsigned long) column,
-	   (int) is_stmt, (int) basic_block, (int) end_sequence);
+           "%2lu   %4lu %2lu   %1d %1d %1d\n",
+           prefix,
+           (int) opcode,
+           (long long) address,
+           (unsigned long) file,
+           (unsigned long) line,
+           (unsigned long) column,
+           (int) is_stmt, (int) basic_block, (int) end_sequence);
 
 }
 
 
 /*
-	return DW_DLV_OK if ok. else DW_DLV_NO_ENTRY or DW_DLV_ERROR
+        return DW_DLV_OK if ok. else DW_DLV_NO_ENTRY or DW_DLV_ERROR
 */
 int
 _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
@@ -153,6 +153,11 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
        opcode. */
     Dwarf_Half fixed_advance_pc=0;
 
+    /* In case there are 'wasted' bytes after the line table
+     * prologue this lets us print them. */
+    Dwarf_Small* wasted_bytes_ptr = 0;
+    Dwarf_Unsigned wasted_bytes_count = 0;
+
 
     /* The Dwarf_Debug this die belongs to. */
     Dwarf_Debug dbg=0;
@@ -164,34 +169,34 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
     /* ***** BEGIN CODE ***** */
 
     if (error != NULL)
-	*error = NULL;
+        *error = NULL;
 
     CHECK_DIE(die, DW_DLV_ERROR);
     dbg = die->di_cu_context->cc_dbg;
 
     res =
-	_dwarf_load_section(dbg,
-			    dbg->de_debug_line_index,
-			    &dbg->de_debug_line, error);
+        _dwarf_load_section(dbg,
+                            dbg->de_debug_line_index,
+                            &dbg->de_debug_line, error);
     if (res != DW_DLV_OK) {
-	return res;
+        return res;
     }
 
     resattr = dwarf_attr(die, DW_AT_stmt_list, &stmt_list_attr, error);
     if (resattr != DW_DLV_OK) {
-	return resattr;
+        return resattr;
     }
 
 
 
     lres = dwarf_formudata(stmt_list_attr, &line_offset, error);
     if (lres != DW_DLV_OK) {
-	return lres;
+        return lres;
     }
 
     if (line_offset >= dbg->de_debug_line_size) {
-	_dwarf_error(dbg, error, DW_DLE_LINE_OFFSET_BAD);
-	return (DW_DLV_ERROR);
+        _dwarf_error(dbg, error, DW_DLE_LINE_OFFSET_BAD);
+        return (DW_DLV_ERROR);
     }
     orig_line_ptr = dbg->de_debug_line;
     line_ptr = dbg->de_debug_line + line_offset;
@@ -202,107 +207,114 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
        the compilation directory. */
     resattr = dwarf_attr(die, DW_AT_comp_dir, &comp_dir_attr, error);
     if (resattr == DW_DLV_ERROR) {
-	return resattr;
+        return resattr;
     }
     if (resattr == DW_DLV_OK) {
-	int cres;
-	char *cdir;
+        int cres;
+        char *cdir;
 
-	cres = dwarf_formstring(comp_dir_attr, &cdir, error);
-	if (cres == DW_DLV_ERROR) {
-	    return cres;
-	} else if (cres == DW_DLV_OK) {
-	    comp_dir = (Dwarf_Small *) cdir;
-	}
+        cres = dwarf_formstring(comp_dir_attr, &cdir, error);
+        if (cres == DW_DLV_ERROR) {
+            return cres;
+        } else if (cres == DW_DLV_OK) {
+            comp_dir = (Dwarf_Small *) cdir;
+        }
     }
     if (resattr == DW_DLV_OK) {
-	dwarf_dealloc(dbg, comp_dir_attr, DW_DLA_ATTR);
+        dwarf_dealloc(dbg, comp_dir_attr, DW_DLA_ATTR);
     }
 
     dwarf_init_line_table_prefix(&prefix);
     {
-	Dwarf_Small *line_ptr_out = 0;
-	int dres = dwarf_read_line_table_prefix(dbg,
-						line_ptr,
-						dbg->
-						de_debug_line_size -
-						line_offset,
-						&line_ptr_out,
-						&prefix, error);
-
-	if (dres == DW_DLV_ERROR) {
-	    dwarf_free_line_table_prefix(&prefix);
-	    return dres;
-	}
-	if (dres == DW_DLV_NO_ENTRY) {
-	    dwarf_free_line_table_prefix(&prefix);
-	    return dres;
-	}
-	line_ptr_end = prefix.pf_line_ptr_end;
-	line_ptr = line_ptr_out;
+        Dwarf_Small *line_ptr_out = 0;
+        int dres = dwarf_read_line_table_prefix(dbg,
+            line_ptr,dbg->de_debug_line_size - line_offset,
+            &line_ptr_out,
+            &prefix, 
+            &wasted_bytes_ptr,
+            &wasted_bytes_count,
+            error);
+        if (dres == DW_DLV_ERROR) {
+            dwarf_free_line_table_prefix(&prefix);
+            return dres;
+        }
+        if (dres == DW_DLV_NO_ENTRY) {
+            dwarf_free_line_table_prefix(&prefix);
+            return dres;
+        }
+        line_ptr_end = prefix.pf_line_ptr_end;
+        line_ptr = line_ptr_out;
     }
 
 
 
     printf("total line info length %ld bytes, "
-	   "line offset 0x%llx %lld\n",
-	   (long) prefix.pf_total_length,
-	   (long long) line_offset, (long long) line_offset);
+           "line offset 0x%llx %lld\n",
+           (long) prefix.pf_total_length,
+           (long long) line_offset, (long long) line_offset);
     printf("compilation_directory %s\n",
-	   comp_dir ? ((char *) comp_dir) : "");
+           comp_dir ? ((char *) comp_dir) : "");
 
     printf("  min instruction length %d\n",
-	   (int) prefix.pf_minimum_instruction_length);
+           (int) prefix.pf_minimum_instruction_length);
     printf("  default is stmt        %d\n", (int)
-	   prefix.pf_default_is_stmt);
+           prefix.pf_default_is_stmt);
     printf("  line base              %d\n", (int)
-	   prefix.pf_line_base);
+           prefix.pf_line_base);
     printf("  line_range             %d\n", (int)
-	   prefix.pf_line_range);
+           prefix.pf_line_range);
 
 
     for (i = 1; i < prefix.pf_opcode_base; i++) {
-	printf("  opcode[%d] length %d\n", (int) i,
-	       (int) prefix.pf_opcode_length_table[i - 1]);
+        printf("  opcode[%d] length %d\n", (int) i,
+               (int) prefix.pf_opcode_length_table[i - 1]);
     }
 
     for (i = 0; i < prefix.pf_include_directories_count; ++i) {
-	printf("  include dir[%d] %s\n",
-	       (int) i, prefix.pf_include_directories[i]);
+        printf("  include dir[%d] %s\n",
+               (int) i, prefix.pf_include_directories[i]);
     }
 
 
     for (i = 0; i < prefix.pf_files_count; ++i) {
-	struct Line_Table_File_Entry_s *lfile =
-	    prefix.pf_line_table_file_entries + i;
+        struct Line_Table_File_Entry_s *lfile =
+            prefix.pf_line_table_file_entries + i;
 
-	Dwarf_Unsigned tlm2 = lfile->lte_last_modification_time;
-	Dwarf_Unsigned di = lfile->lte_directory_index;
-	Dwarf_Unsigned fl = lfile->lte_length_of_file;
+        Dwarf_Unsigned tlm2 = lfile->lte_last_modification_time;
+        Dwarf_Unsigned di = lfile->lte_directory_index;
+        Dwarf_Unsigned fl = lfile->lte_length_of_file;
 
-	printf("  file[%d]  %s\n",
-	       (int) i, (char *) lfile->lte_filename);
+        printf("  file[%d]  %s\n",
+               (int) i, (char *) lfile->lte_filename);
 
-	printf("    dir index %d\n", (int) di);
-	{
-	    time_t tt = (time_t) tlm2;
+        printf("    dir index %d\n", (int) di);
+        {
+            time_t tt = (time_t) tlm2;
 
-	    printf("    last time 0x%x %s",	/* ctime supplies
-						   newline */
-		   (unsigned) tlm2, ctime(&tt));
-	}
-	printf("    file length %ld 0x%lx\n",
-	       (long) fl, (unsigned long) fl);
+            printf("    last time 0x%x %s",     /* ctime supplies
+                                                   newline */
+                   (unsigned) tlm2, ctime(&tt));
+        }
+        printf("    file length %ld 0x%lx\n",
+               (long) fl, (unsigned long) fl);
 
 
     }
 
 
     {
-	unsigned long long offset = line_ptr - orig_line_ptr;
+        if(wasted_bytes_count > 0) {
+            unsigned long long wcount = wasted_bytes_count;
+            unsigned long long boffset = wasted_bytes_ptr - orig_line_ptr;
+            printf("  Warning: %llu bytes following the  statement prologue"
+                " have unknown use and are ignored. "
+                "Section offset: %llu (0x%llx)\n",
+                wcount, boffset,boffset);
+        }
+        unsigned long long offset = line_ptr - orig_line_ptr;
 
-	printf("  statement prog offset in section: %llu 0x%llx\n",
-	       offset, offset);
+        printf("  statement prog offset in section: %llu 0x%llx\n",
+               offset, offset);
     }
 
     /* Initialize the part of the state machine dependent on the
@@ -313,302 +325,297 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
     print_line_header();
     /* Start of statement program.  */
     while (line_ptr < line_ptr_end) {
-	int type = 0;
+        int type = 0;
 
-	printf(" [0x%06llx] ", (long long) (line_ptr - orig_line_ptr));
-	opcode = *(Dwarf_Small *) line_ptr;
-	line_ptr++;
-	/* 'type' is the output */
-	WHAT_IS_OPCODE(type, opcode, prefix.pf_opcode_base,
-		       prefix.pf_opcode_length_table, line_ptr,
-		       prefix.pf_std_op_count);
+        printf(" [0x%06llx] ", (long long) (line_ptr - orig_line_ptr));
+        opcode = *(Dwarf_Small *) line_ptr;
+        line_ptr++;
+        /* 'type' is the output */
+        WHAT_IS_OPCODE(type, opcode, prefix.pf_opcode_base,
+                       prefix.pf_opcode_length_table, line_ptr,
+                       prefix.pf_std_op_count);
 
-	if (type == LOP_DISCARD) {
-	    int oc;
-	    int opcnt = prefix.pf_opcode_length_table[opcode];
+        if (type == LOP_DISCARD) {
+            int oc;
+            int opcnt = prefix.pf_opcode_length_table[opcode];
 
-	    printf(" DISCARD standard opcode %d with %d operands: "
-		   "not understood:", opcode, opcnt);
-	    for (oc = 0; oc < opcnt; oc++) {
-		/* 
-		 * Read and discard operands we don't
-		 * understand.
-		 * Arbitrary choice of unsigned read.
-		 * Signed read would work as well.
-		 */
-		Dwarf_Unsigned utmp2;
+            printf(" DISCARD standard opcode %d with %d operands: "
+                   "not understood:", opcode, opcnt);
+            for (oc = 0; oc < opcnt; oc++) {
+                /* 
+                 * Read and discard operands we don't
+                 * understand.
+                 * Arbitrary choice of unsigned read.
+                 * Signed read would work as well.
+                 */
+                Dwarf_Unsigned utmp2;
 
-		DECODE_LEB128_UWORD(line_ptr, utmp2);
-		printf(" %llu (0x%llx)",
-		       (unsigned long long) utmp2,
-		       (unsigned long long) utmp2);
-	    }
+                DECODE_LEB128_UWORD(line_ptr, utmp2);
+                printf(" %llu (0x%llx)",
+                       (unsigned long long) utmp2,
+                       (unsigned long long) utmp2);
+            }
 
-	    printf("\n");
-	    /* do nothing, necessary ops done */
-	} else if (type == LOP_SPECIAL) {
-	    /* This op code is a special op in the object, no matter
-	       that it might fall into the standard op range in this
-	       compile Thatis, these are special opcodes between
-	       special_opcode_base and MAX_LINE_OP_CODE.  (including
-	       special_opcode_base and MAX_LINE_OP_CODE) */
-	    char special[50];
-	    unsigned origop = opcode;
+            printf("\n");
+            /* do nothing, necessary ops done */
+        } else if (type == LOP_SPECIAL) {
+            /* This op code is a special op in the object, no matter
+               that it might fall into the standard op range in this
+               compile Thatis, these are special opcodes between
+               special_opcode_base and MAX_LINE_OP_CODE.  (including
+               special_opcode_base and MAX_LINE_OP_CODE) */
+            char special[50];
+            unsigned origop = opcode;
 
-	    opcode = opcode - prefix.pf_opcode_base;
-	    address = address + prefix.pf_minimum_instruction_length *
-		(opcode / prefix.pf_line_range);
-	    line =
-		line + prefix.pf_line_base +
-		opcode % prefix.pf_line_range;
+            opcode = opcode - prefix.pf_opcode_base;
+            address = address + prefix.pf_minimum_instruction_length *
+                (opcode / prefix.pf_line_range);
+            line =
+                line + prefix.pf_line_base +
+                opcode % prefix.pf_line_range;
 
-	    sprintf(special, "Specialop %3u", origop);
-	    print_line_detail(special,
-			      opcode, address, (int) file, line, column,
-			      is_stmt, basic_block, end_sequence,
-			      prologue_end, epilogue_begin, isa);
+            sprintf(special, "Specialop %3u", origop);
+            print_line_detail(special,
+                              opcode, address, (int) file, line, column,
+                              is_stmt, basic_block, end_sequence,
+                              prologue_end, epilogue_begin, isa);
 
-	    basic_block = false;
+            basic_block = false;
 
-	} else if (type == LOP_STANDARD) {
-	    switch (opcode) {
+        } else if (type == LOP_STANDARD) {
+            switch (opcode) {
 
-	    case DW_LNS_copy:{
+            case DW_LNS_copy:{
 
-		    print_line_detail("DW_LNS_copy",
-				      opcode, address, file, line,
-				      column, is_stmt, basic_block,
-				      end_sequence, prologue_end,
-				      epilogue_begin, isa);
+                    print_line_detail("DW_LNS_copy",
+                                      opcode, address, file, line,
+                                      column, is_stmt, basic_block,
+                                      end_sequence, prologue_end,
+                                      epilogue_begin, isa);
 
-		    basic_block = false;
-		    break;
-		}
+                    basic_block = false;
+                    break;
+                }
 
-	    case DW_LNS_advance_pc:{
-		    Dwarf_Unsigned utmp2;
-
-
-		    DECODE_LEB128_UWORD(line_ptr, utmp2);
-		    printf("DW_LNS_advance_pc val %lld 0x%llx\n",
-			   (long long) (Dwarf_Word) utmp2,
-			   (long long) (Dwarf_Word) utmp2);
-		    leb128_num = (Dwarf_Word) utmp2;
-		    address =
-			address +
-			prefix.pf_minimum_instruction_length *
-			leb128_num;
-		    break;
-		}
-
-	    case DW_LNS_advance_line:{
-		    Dwarf_Signed stmp;
+            case DW_LNS_advance_pc:{
+                    Dwarf_Unsigned utmp2;
 
 
-		    DECODE_LEB128_SWORD(line_ptr, stmp);
-		    advance_line = (Dwarf_Sword) stmp;
-		    printf("DW_LNS_advance_line val %lld 0x%llx\n",
-			   (long long) advance_line,
-			   (long long) advance_line);
-		    line = line + advance_line;
-		    break;
-		}
+                    DECODE_LEB128_UWORD(line_ptr, utmp2);
+                    printf("DW_LNS_advance_pc val %lld 0x%llx\n",
+                           (long long) (Dwarf_Word) utmp2,
+                           (long long) (Dwarf_Word) utmp2);
+                    leb128_num = (Dwarf_Word) utmp2;
+                    address =
+                        address +
+                        prefix.pf_minimum_instruction_length *
+                        leb128_num;
+                    break;
+                }
 
-	    case DW_LNS_set_file:{
-		    Dwarf_Unsigned utmp2;
-
-
-		    DECODE_LEB128_UWORD(line_ptr, utmp2);
-		    file = (Dwarf_Word) utmp2;
-		    printf("DW_LNS_set_file  %ld\n", (long) file);
-		    break;
-		}
-
-	    case DW_LNS_set_column:{
-		    Dwarf_Unsigned utmp2;
+            case DW_LNS_advance_line:{
+                    Dwarf_Signed stmp;
 
 
-		    DECODE_LEB128_UWORD(line_ptr, utmp2);
-		    column = (Dwarf_Word) utmp2;
-		    printf("DW_LNS_set_column val %lld 0x%llx\n",
-			   (long long) column, (long long) column);
-		    break;
-		}
+                    DECODE_LEB128_SWORD(line_ptr, stmp);
+                    advance_line = (Dwarf_Sword) stmp;
+                    printf("DW_LNS_advance_line val %lld 0x%llx\n",
+                           (long long) advance_line,
+                           (long long) advance_line);
+                    line = line + advance_line;
+                    break;
+                }
 
-	    case DW_LNS_negate_stmt:{
-		    is_stmt = !is_stmt;
-		    printf("DW_LNS_negate_stmt\n");
-		    break;
-		}
-
-	    case DW_LNS_set_basic_block:{
-
-		    printf("DW_LNS_set_basic_block\n");
-		    basic_block = true;
-		    break;
-		}
-
-	    case DW_LNS_const_add_pc:{
-		    opcode = MAX_LINE_OP_CODE - prefix.pf_opcode_base;
-		    address =
-			address +
-			prefix.pf_minimum_instruction_length * (opcode /
-								prefix.
-								pf_line_range);
-
-		    printf("DW_LNS_const_add_pc new address 0x%llx\n",
-			   (long long) address);
-		    break;
-		}
-
-	    case DW_LNS_fixed_advance_pc:{
-
-		    READ_UNALIGNED(dbg, fixed_advance_pc, Dwarf_Half,
-				   line_ptr, sizeof(Dwarf_Half));
-		    line_ptr += sizeof(Dwarf_Half);
-		    address = address + fixed_advance_pc;
-		    printf("DW_LNS_fixed_advance_pc val %lld 0x%llx"
-			   " new address 0x%llx\n",
-			   (long long) fixed_advance_pc,
-			   (long long) fixed_advance_pc,
-			   (long long) address);
-		    break;
-		}
-	    case DW_LNS_set_prologue_end:{
-
-		    prologue_end = true;
-		    printf("DW_LNS_set_prologue_end set true.\n");
-		    break;
+            case DW_LNS_set_file:{
+                    Dwarf_Unsigned utmp2;
 
 
-		}
-		/* New in DWARF3 */
-	    case DW_LNS_set_epilogue_begin:{
-		    epilogue_begin = true;
-		    printf("DW_LNS_set_epilogue_begin set true.\n");
-		    break;
-		}
+                    DECODE_LEB128_UWORD(line_ptr, utmp2);
+                    file = (Dwarf_Word) utmp2;
+                    printf("DW_LNS_set_file  %ld\n", (long) file);
+                    break;
+                }
 
-		/* New in DWARF3 */
-	    case DW_LNS_set_isa:{
-		    Dwarf_Unsigned utmp2;
-
-		    DECODE_LEB128_UWORD(line_ptr, utmp2);
-		    isa = utmp2;
-		    printf("DW_LNS_set_isa new value 0x%llx.\n",
-			   (unsigned long long) utmp2);
-		    if (isa != utmp2) {
-			/* The value of the isa did not fit in our
-			   local so we record it wrong. declare an
-			   error. */
-			dwarf_free_line_table_prefix(&prefix);
-
-			_dwarf_error(dbg, error,
-				     DW_DLE_LINE_NUM_OPERANDS_BAD);
-			return (DW_DLV_ERROR);
-		    }
-		    break;
-		}
-	    }
+            case DW_LNS_set_column:{
+                    Dwarf_Unsigned utmp2;
 
 
-	} else if (type == LOP_EXTENDED) {
-	    Dwarf_Unsigned utmp3 = 0;
-	    Dwarf_Word instr_length = 0;
-	    Dwarf_Small ext_opcode = 0;
+                    DECODE_LEB128_UWORD(line_ptr, utmp2);
+                    column = (Dwarf_Word) utmp2;
+                    printf("DW_LNS_set_column val %lld 0x%llx\n",
+                           (long long) column, (long long) column);
+                    break;
+                }
 
-	    DECODE_LEB128_UWORD(line_ptr, utmp3);
-	    instr_length = (Dwarf_Word) utmp3;
-	    ext_opcode = *(Dwarf_Small *) line_ptr;
-	    line_ptr++;
-	    switch (ext_opcode) {
+            case DW_LNS_negate_stmt:{
+                    is_stmt = !is_stmt;
+                    printf("DW_LNS_negate_stmt\n");
+                    break;
+                }
 
-	    case DW_LNE_end_sequence:{
-		    end_sequence = true;
+            case DW_LNS_set_basic_block:{
 
-		    print_line_detail("DW_LNE_end_sequence extended",
-				      opcode, address, file, line,
-				      column, is_stmt, basic_block,
-				      end_sequence, prologue_end,
-				      epilogue_begin, isa);
+                    printf("DW_LNS_set_basic_block\n");
+                    basic_block = true;
+                    break;
+                }
 
-		    address = 0;
-		    file = 1;
-		    line = 1;
-		    column = 0;
-		    is_stmt = prefix.pf_default_is_stmt;
-		    basic_block = false;
-		    end_sequence = false;
-		    prologue_end = false;
-		    epilogue_begin = false;
+            case DW_LNS_const_add_pc:{
+                    opcode = MAX_LINE_OP_CODE - prefix.pf_opcode_base;
+                    address =
+                        address +
+                        prefix.pf_minimum_instruction_length * (opcode /
+                                                                prefix.
+                                                                pf_line_range);
 
+                    printf("DW_LNS_const_add_pc new address 0x%llx\n",
+                           (long long) address);
+                    break;
+                }
 
-		    break;
-		}
+            case DW_LNS_fixed_advance_pc:{
 
-	    case DW_LNE_set_address:{
-		    if (instr_length - 1 == dbg->de_pointer_size) {
-			READ_UNALIGNED(dbg, address, Dwarf_Addr,
-				       line_ptr, dbg->de_pointer_size);
+                    READ_UNALIGNED(dbg, fixed_advance_pc, Dwarf_Half,
+                                   line_ptr, sizeof(Dwarf_Half));
+                    line_ptr += sizeof(Dwarf_Half);
+                    address = address + fixed_advance_pc;
+                    printf("DW_LNS_fixed_advance_pc val %lld 0x%llx"
+                           " new address 0x%llx\n",
+                           (long long) fixed_advance_pc,
+                           (long long) fixed_advance_pc,
+                           (long long) address);
+                    break;
+                }
+            case DW_LNS_set_prologue_end:{
 
-			line_ptr += dbg->de_pointer_size;
-			printf("DW_LNE_set_address address 0x%llx\n",
-			       (long long) address);
-		    } else {
-			dwarf_free_line_table_prefix(&prefix);
-			_dwarf_error(dbg, error,
-				     DW_DLE_LINE_SET_ADDR_ERROR);
-			return (DW_DLV_ERROR);
-		    }
-
-		    break;
-		}
-
-	    case DW_LNE_define_file:{
-		    Dwarf_Unsigned di = 0;
-		    Dwarf_Unsigned tlm = 0;
-		    Dwarf_Unsigned fl = 0;
-
-		    Dwarf_Small *fn = (Dwarf_Small *) line_ptr;
-		    line_ptr = line_ptr + strlen((char *) line_ptr) + 1;
-
-		    di = _dwarf_decode_u_leb128(line_ptr,
-						&leb128_length);
-		    line_ptr = line_ptr + leb128_length;
-
-		    tlm = _dwarf_decode_u_leb128(line_ptr,
-						 &leb128_length);
-		    line_ptr = line_ptr + leb128_length;
-
-		    fl = _dwarf_decode_u_leb128(line_ptr,
-						&leb128_length);
-		    line_ptr = line_ptr + leb128_length;
+                    prologue_end = true;
+                    printf("DW_LNS_set_prologue_end set true.\n");
+                    break;
 
 
-		    printf("DW_LNE_define_file %s \n", fn);
-		    printf("    dir index %d\n", (int) di);
-		    {
-			time_t tt3 = (time_t) tlm;
+                }
+                /* New in DWARF3 */
+            case DW_LNS_set_epilogue_begin:{
+                    epilogue_begin = true;
+                    printf("DW_LNS_set_epilogue_begin set true.\n");
+                    break;
+                }
 
-			/* ctime supplies newline */
-			printf("    last time 0x%x %s",
-			       (unsigned) tlm, ctime(&tt3));
-		    }
-		    printf("    file length %ld 0x%lx\n",
-			   (long) fl, (unsigned long) fl);
+                /* New in DWARF3 */
+            case DW_LNS_set_isa:{
+                    Dwarf_Unsigned utmp2;
 
-		    break;
-		}
+                    DECODE_LEB128_UWORD(line_ptr, utmp2);
+                    isa = utmp2;
+                    printf("DW_LNS_set_isa new value 0x%llx.\n",
+                           (unsigned long long) utmp2);
+                    if (isa != utmp2) {
+                        /* The value of the isa did not fit in our
+                           local so we record it wrong. declare an
+                           error. */
+                        dwarf_free_line_table_prefix(&prefix);
 
-	    default:{
-		    dwarf_free_line_table_prefix(&prefix);
-		    _dwarf_error(dbg, error,
-				 DW_DLE_LINE_EXT_OPCODE_BAD);
-		    return (DW_DLV_ERROR);
-		}
-	    }
+                        _dwarf_error(dbg, error,
+                                     DW_DLE_LINE_NUM_OPERANDS_BAD);
+                        return (DW_DLV_ERROR);
+                    }
+                    break;
+                }
+            }
 
-	}
+
+        } else if (type == LOP_EXTENDED) {
+            Dwarf_Unsigned utmp3 = 0;
+            Dwarf_Word instr_length = 0;
+            Dwarf_Small ext_opcode = 0;
+
+            DECODE_LEB128_UWORD(line_ptr, utmp3);
+            instr_length = (Dwarf_Word) utmp3;
+            ext_opcode = *(Dwarf_Small *) line_ptr;
+            line_ptr++;
+            switch (ext_opcode) {
+
+            case DW_LNE_end_sequence:{
+                    end_sequence = true;
+
+                    print_line_detail("DW_LNE_end_sequence extended",
+                                      opcode, address, file, line,
+                                      column, is_stmt, basic_block,
+                                      end_sequence, prologue_end,
+                                      epilogue_begin, isa);
+
+                    address = 0;
+                    file = 1;
+                    line = 1;
+                    column = 0;
+                    is_stmt = prefix.pf_default_is_stmt;
+                    basic_block = false;
+                    end_sequence = false;
+                    prologue_end = false;
+                    epilogue_begin = false;
+
+
+                    break;
+                }
+
+            case DW_LNE_set_address:{
+                    {
+                        READ_UNALIGNED(dbg, address, Dwarf_Addr,
+                                       line_ptr, dbg->de_pointer_size);
+
+                        line_ptr += dbg->de_pointer_size;
+                        printf("DW_LNE_set_address address 0x%llx\n",
+                               (long long) address);
+                    }
+
+                    break;
+                }
+
+            case DW_LNE_define_file:{
+                    Dwarf_Unsigned di = 0;
+                    Dwarf_Unsigned tlm = 0;
+                    Dwarf_Unsigned fl = 0;
+
+                    Dwarf_Small *fn = (Dwarf_Small *) line_ptr;
+                    line_ptr = line_ptr + strlen((char *) line_ptr) + 1;
+
+                    di = _dwarf_decode_u_leb128(line_ptr,
+                                                &leb128_length);
+                    line_ptr = line_ptr + leb128_length;
+
+                    tlm = _dwarf_decode_u_leb128(line_ptr,
+                                                 &leb128_length);
+                    line_ptr = line_ptr + leb128_length;
+
+                    fl = _dwarf_decode_u_leb128(line_ptr,
+                                                &leb128_length);
+                    line_ptr = line_ptr + leb128_length;
+
+
+                    printf("DW_LNE_define_file %s \n", fn);
+                    printf("    dir index %d\n", (int) di);
+                    {
+                        time_t tt3 = (time_t) tlm;
+
+                        /* ctime supplies newline */
+                        printf("    last time 0x%x %s",
+                               (unsigned) tlm, ctime(&tt3));
+                    }
+                    printf("    file length %ld 0x%lx\n",
+                           (long) fl, (unsigned long) fl);
+
+                    break;
+                }
+
+            default:{
+                    dwarf_free_line_table_prefix(&prefix);
+                    _dwarf_error(dbg, error,
+                                 DW_DLE_LINE_EXT_OPCODE_BAD);
+                    return (DW_DLV_ERROR);
+                }
+            }
+
+        }
     }
 
     dwarf_free_line_table_prefix(&prefix);
@@ -620,7 +627,7 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
         for clients wanting line detail info on stdout
         to get that detail without including internal libdwarf
         header information.
-	Caller passes in compilation unit DIE.
+        Caller passes in compilation unit DIE.
         The _dwarf_ version is obsolete (though supported for
         compatibility).
         The dwarf_ version is preferred.
@@ -634,7 +641,7 @@ dwarf_print_lines(Dwarf_Die die, Dwarf_Error * error)
 {
     int res = _dwarf_internal_printlines(die, error);
     if (res != DW_DLV_OK) {
-	return res;
+        return res;
     }
     return res;
 }
@@ -643,7 +650,7 @@ _dwarf_print_lines(Dwarf_Die die, Dwarf_Error * error)
 {
     int res = _dwarf_internal_printlines(die, error);
     if (res != DW_DLV_OK) {
-	return res;
+        return res;
     }
     return res;
 }

@@ -36,7 +36,7 @@ set rpath.   Much simpler all around to ensure that $PRIVATE_LIBDIR
 only has archive libelf, not shared-library libelf.
 
 
-David Anderson.  davea@sgi.com
+David Anderson.  davea42  at  earthlink dot net.
 
 $Source: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/README,v $
 $Revision: 1.3 $

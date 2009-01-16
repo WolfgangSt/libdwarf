@@ -40,38 +40,38 @@
 
 int
 dwarf_get_str(Dwarf_Debug dbg,
-	      Dwarf_Off offset,
-	      char **string,
-	      Dwarf_Signed * returned_str_len, Dwarf_Error * error)
+              Dwarf_Off offset,
+              char **string,
+              Dwarf_Signed * returned_str_len, Dwarf_Error * error)
 {
     int res;
 
     if (dbg == NULL) {
-	_dwarf_error(NULL, error, DW_DLE_DBG_NULL);
-	return (DW_DLV_ERROR);
+        _dwarf_error(NULL, error, DW_DLE_DBG_NULL);
+        return (DW_DLV_ERROR);
     }
 
     if (offset == dbg->de_debug_str_size) {
-	/* Normal (if we've iterated thru the set of strings using
-	   dwarf_get_str and are at the end). */
-	return DW_DLV_NO_ENTRY;
+        /* Normal (if we've iterated thru the set of strings using
+           dwarf_get_str and are at the end). */
+        return DW_DLV_NO_ENTRY;
     }
     if (offset > dbg->de_debug_str_size) {
-	_dwarf_error(dbg, error, DW_DLE_DEBUG_STR_OFFSET_BAD);
-	return (DW_DLV_ERROR);
+        _dwarf_error(dbg, error, DW_DLE_DEBUG_STR_OFFSET_BAD);
+        return (DW_DLV_ERROR);
     }
 
     if (string == NULL) {
-	_dwarf_error(dbg, error, DW_DLE_STRING_PTR_NULL);
-	return (DW_DLV_ERROR);
+        _dwarf_error(dbg, error, DW_DLE_STRING_PTR_NULL);
+        return (DW_DLV_ERROR);
     }
 
     res =
-	_dwarf_load_section(dbg,
-			    dbg->de_debug_str_index,
-			    &dbg->de_debug_str, error);
+        _dwarf_load_section(dbg,
+                            dbg->de_debug_str_index,
+                            &dbg->de_debug_str, error);
     if (res != DW_DLV_OK) {
-	return res;
+        return res;
     }
 
     *string = (char *) dbg->de_debug_str + offset;

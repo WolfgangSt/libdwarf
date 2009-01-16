@@ -311,10 +311,13 @@ struct Line_Table_Prefix_s {
 void dwarf_init_line_table_prefix(struct Line_Table_Prefix_s *pf);
 void dwarf_free_line_table_prefix(struct Line_Table_Prefix_s *pf);
 
-int
-  dwarf_read_line_table_prefix(Dwarf_Debug dbg,
-			       Dwarf_Small * data_start,
-			       Dwarf_Unsigned data_length,
-			       Dwarf_Small ** updated_data_start_out,
-			       struct Line_Table_Prefix_s *prefix_out,
-			       Dwarf_Error * err);
+int dwarf_read_line_table_prefix(Dwarf_Debug dbg,
+    Dwarf_Small * data_start,
+    Dwarf_Unsigned data_length,
+    Dwarf_Small ** updated_data_start_out, 
+    struct Line_Table_Prefix_s *prefix_out,
+    /* The following 2 arguments are solely for warning users
+     * when there is a surprising 'gap' in the .debug_line info. */
+    Dwarf_Small ** wasted_bytes_ptr,
+    Dwarf_Unsigned * wasted_bytes_count,
+    Dwarf_Error * err);

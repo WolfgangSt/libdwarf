@@ -54,15 +54,15 @@ dwarf_new_expr(Dwarf_P_Debug dbg, Dwarf_Error * error)
     Dwarf_P_Expr ret_expr;
 
     if (dbg == NULL) {
-	_dwarf_p_error(NULL, error, DW_DLE_DBG_NULL);
-	return (NULL);
+        _dwarf_p_error(NULL, error, DW_DLE_DBG_NULL);
+        return (NULL);
     }
 
     ret_expr = (Dwarf_P_Expr)
-	_dwarf_p_get_alloc(dbg, sizeof(struct Dwarf_P_Expr_s));
+        _dwarf_p_get_alloc(dbg, sizeof(struct Dwarf_P_Expr_s));
     if (ret_expr == NULL) {
-	_dwarf_p_error(dbg, error, DW_DLE_ALLOC_FAIL);
-	return (NULL);
+        _dwarf_p_error(dbg, error, DW_DLE_ALLOC_FAIL);
+        return (NULL);
     }
 
     ret_expr->ex_dbg = dbg;
@@ -73,15 +73,15 @@ dwarf_new_expr(Dwarf_P_Debug dbg, Dwarf_Error * error)
 
 Dwarf_Unsigned
 dwarf_add_expr_gen(Dwarf_P_Expr expr,
-		   Dwarf_Small opcode,
-		   Dwarf_Unsigned val1,
-		   Dwarf_Unsigned val2, Dwarf_Error * error)
+                   Dwarf_Small opcode,
+                   Dwarf_Unsigned val1,
+                   Dwarf_Unsigned val2, Dwarf_Error * error)
 {
-    char encode_buffer[2 * ENCODE_SPACE_NEEDED];	/* 2* since
-							   used to
-							   concatenate
-							   2 leb's
-							   below */
+    char encode_buffer[2 * ENCODE_SPACE_NEEDED];        /* 2* since
+                                                           used to
+                                                           concatenate
+                                                           2 leb's
+                                                           below */
     char encode_buffer2[ENCODE_SPACE_NEEDED];
     int res;
     Dwarf_P_Debug dbg = expr->ex_dbg;
@@ -112,13 +112,13 @@ dwarf_add_expr_gen(Dwarf_P_Expr expr,
     /* ***** BEGIN CODE ***** */
 
     if (expr == NULL) {
-	_dwarf_p_error(NULL, error, DW_DLE_EXPR_NULL);
-	return (DW_DLV_NOCOUNT);
+        _dwarf_p_error(NULL, error, DW_DLE_EXPR_NULL);
+        return (DW_DLV_NOCOUNT);
     }
 
     if (expr->ex_dbg == NULL) {
-	_dwarf_p_error(NULL, error, DW_DLE_DBG_NULL);
-	return (DW_DLV_NOCOUNT);
+        _dwarf_p_error(NULL, error, DW_DLE_DBG_NULL);
+        return (DW_DLV_NOCOUNT);
     }
 
     operand = NULL;
@@ -157,7 +157,7 @@ dwarf_add_expr_gen(Dwarf_P_Expr expr,
     case DW_OP_reg29:
     case DW_OP_reg30:
     case DW_OP_reg31:
-	break;
+        break;
 
     case DW_OP_breg0:
     case DW_OP_breg1:
@@ -191,27 +191,27 @@ dwarf_add_expr_gen(Dwarf_P_Expr expr,
     case DW_OP_breg29:
     case DW_OP_breg30:
     case DW_OP_breg31:
-	res = _dwarf_pro_encode_signed_leb128_nm(val1,
-						 &operand_size,
-						 encode_buffer,
-						 sizeof(encode_buffer));
-	if (res != DW_DLV_OK) {
-	    _dwarf_p_error(expr->ex_dbg, error, DW_DLE_EXPR_LENGTH_BAD);
-	    return (DW_DLV_NOCOUNT);
-	}
-	operand = (Dwarf_Small *) encode_buffer;
-	break;
+        res = _dwarf_pro_encode_signed_leb128_nm(val1,
+                                                 &operand_size,
+                                                 encode_buffer,
+                                                 sizeof(encode_buffer));
+        if (res != DW_DLV_OK) {
+            _dwarf_p_error(expr->ex_dbg, error, DW_DLE_EXPR_LENGTH_BAD);
+            return (DW_DLV_NOCOUNT);
+        }
+        operand = (Dwarf_Small *) encode_buffer;
+        break;
 
     case DW_OP_regx:
-	res = _dwarf_pro_encode_leb128_nm(val1, &operand_size,
-					  encode_buffer,
-					  sizeof(encode_buffer));
-	if (res != DW_DLV_OK) {
-	    _dwarf_p_error(expr->ex_dbg, error, DW_DLE_EXPR_LENGTH_BAD);
-	    return (DW_DLV_NOCOUNT);
-	}
-	operand = (Dwarf_Small *) encode_buffer;
-	break;
+        res = _dwarf_pro_encode_leb128_nm(val1, &operand_size,
+                                          encode_buffer,
+                                          sizeof(encode_buffer));
+        if (res != DW_DLV_OK) {
+            _dwarf_p_error(expr->ex_dbg, error, DW_DLE_EXPR_LENGTH_BAD);
+            return (DW_DLV_NOCOUNT);
+        }
+        operand = (Dwarf_Small *) encode_buffer;
+        break;
 
     case DW_OP_lit0:
     case DW_OP_lit1:
@@ -245,122 +245,122 @@ dwarf_add_expr_gen(Dwarf_P_Expr expr,
     case DW_OP_lit29:
     case DW_OP_lit30:
     case DW_OP_lit31:
-	break;
+        break;
 
     case DW_OP_addr:
-	_dwarf_p_error(expr->ex_dbg, error, DW_DLE_BAD_EXPR_OPCODE);
-	return (DW_DLV_NOCOUNT);
+        _dwarf_p_error(expr->ex_dbg, error, DW_DLE_BAD_EXPR_OPCODE);
+        return (DW_DLV_NOCOUNT);
 
     case DW_OP_const1u:
     case DW_OP_const1s:
-	operand = (Dwarf_Small *) & operand_buffer[0];
-	WRITE_UNALIGNED(dbg, operand, &val1, sizeof(val1), 1);
-	operand_size = 1;
-	break;
+        operand = (Dwarf_Small *) & operand_buffer[0];
+        WRITE_UNALIGNED(dbg, operand, &val1, sizeof(val1), 1);
+        operand_size = 1;
+        break;
 
     case DW_OP_const2u:
     case DW_OP_const2s:
-	operand = (Dwarf_Small *) & operand_buffer[0];
-	WRITE_UNALIGNED(dbg, operand, &val1, sizeof(val1), 2);
-	operand_size = 2;
-	break;
+        operand = (Dwarf_Small *) & operand_buffer[0];
+        WRITE_UNALIGNED(dbg, operand, &val1, sizeof(val1), 2);
+        operand_size = 2;
+        break;
 
     case DW_OP_const4u:
     case DW_OP_const4s:
-	operand = (Dwarf_Small *) & operand_buffer[0];
-	WRITE_UNALIGNED(dbg, operand, &val1, sizeof(val1), 4);
-	operand_size = 4;
-	break;
+        operand = (Dwarf_Small *) & operand_buffer[0];
+        WRITE_UNALIGNED(dbg, operand, &val1, sizeof(val1), 4);
+        operand_size = 4;
+        break;
 
     case DW_OP_const8u:
     case DW_OP_const8s:
-	operand = (Dwarf_Small *) & operand_buffer[0];
-	WRITE_UNALIGNED(dbg, operand, &val1, sizeof(val1), 8);
-	operand_size = 8;
-	break;
+        operand = (Dwarf_Small *) & operand_buffer[0];
+        WRITE_UNALIGNED(dbg, operand, &val1, sizeof(val1), 8);
+        operand_size = 8;
+        break;
 
     case DW_OP_constu:
-	res = _dwarf_pro_encode_leb128_nm(val1,
-					  &operand_size,
-					  encode_buffer,
-					  sizeof(encode_buffer));
-	if (res != DW_DLV_OK) {
-	    _dwarf_p_error(expr->ex_dbg, error, DW_DLE_EXPR_LENGTH_BAD);
-	    return (DW_DLV_NOCOUNT);
-	}
-	operand = (Dwarf_Small *) encode_buffer;
-	break;
+        res = _dwarf_pro_encode_leb128_nm(val1,
+                                          &operand_size,
+                                          encode_buffer,
+                                          sizeof(encode_buffer));
+        if (res != DW_DLV_OK) {
+            _dwarf_p_error(expr->ex_dbg, error, DW_DLE_EXPR_LENGTH_BAD);
+            return (DW_DLV_NOCOUNT);
+        }
+        operand = (Dwarf_Small *) encode_buffer;
+        break;
 
     case DW_OP_consts:
-	res = _dwarf_pro_encode_signed_leb128_nm(val1,
-						 &operand_size,
-						 encode_buffer,
-						 sizeof(encode_buffer));
-	if (res != DW_DLV_OK) {
-	    _dwarf_p_error(expr->ex_dbg, error, DW_DLE_EXPR_LENGTH_BAD);
-	    return (DW_DLV_NOCOUNT);
-	}
-	operand = (Dwarf_Small *) encode_buffer;
-	break;
+        res = _dwarf_pro_encode_signed_leb128_nm(val1,
+                                                 &operand_size,
+                                                 encode_buffer,
+                                                 sizeof(encode_buffer));
+        if (res != DW_DLV_OK) {
+            _dwarf_p_error(expr->ex_dbg, error, DW_DLE_EXPR_LENGTH_BAD);
+            return (DW_DLV_NOCOUNT);
+        }
+        operand = (Dwarf_Small *) encode_buffer;
+        break;
 
     case DW_OP_fbreg:
-	res = _dwarf_pro_encode_signed_leb128_nm(val1,
-						 &operand_size,
-						 encode_buffer,
-						 sizeof(encode_buffer));
-	if (res != DW_DLV_OK) {
-	    _dwarf_p_error(expr->ex_dbg, error, DW_DLE_EXPR_LENGTH_BAD);
-	    return (DW_DLV_NOCOUNT);
-	}
-	operand = (Dwarf_Small *) encode_buffer;
-	break;
+        res = _dwarf_pro_encode_signed_leb128_nm(val1,
+                                                 &operand_size,
+                                                 encode_buffer,
+                                                 sizeof(encode_buffer));
+        if (res != DW_DLV_OK) {
+            _dwarf_p_error(expr->ex_dbg, error, DW_DLE_EXPR_LENGTH_BAD);
+            return (DW_DLV_NOCOUNT);
+        }
+        operand = (Dwarf_Small *) encode_buffer;
+        break;
 
     case DW_OP_bregx:
-	res = _dwarf_pro_encode_leb128_nm(val1, &operand_size,
-					  encode_buffer,
-					  sizeof(encode_buffer));
-	if (res != DW_DLV_OK) {
-	    _dwarf_p_error(expr->ex_dbg, error, DW_DLE_EXPR_LENGTH_BAD);
-	    return (DW_DLV_NOCOUNT);
-	}
-	operand = (Dwarf_Small *) encode_buffer;
-	/* put this one directly into 'operand' at tail of prev value */
-	res = _dwarf_pro_encode_signed_leb128_nm(val2, &operand2_size,
-						 ((char *) operand) +
-						 operand_size,
-						 sizeof
-						 (encode_buffer2));
-	if (res != DW_DLV_OK) {
-	    _dwarf_p_error(expr->ex_dbg, error, DW_DLE_EXPR_LENGTH_BAD);
-	    return (DW_DLV_NOCOUNT);
-	}
-	operand_size += operand2_size;
+        res = _dwarf_pro_encode_leb128_nm(val1, &operand_size,
+                                          encode_buffer,
+                                          sizeof(encode_buffer));
+        if (res != DW_DLV_OK) {
+            _dwarf_p_error(expr->ex_dbg, error, DW_DLE_EXPR_LENGTH_BAD);
+            return (DW_DLV_NOCOUNT);
+        }
+        operand = (Dwarf_Small *) encode_buffer;
+        /* put this one directly into 'operand' at tail of prev value */
+        res = _dwarf_pro_encode_signed_leb128_nm(val2, &operand2_size,
+                                                 ((char *) operand) +
+                                                 operand_size,
+                                                 sizeof
+                                                 (encode_buffer2));
+        if (res != DW_DLV_OK) {
+            _dwarf_p_error(expr->ex_dbg, error, DW_DLE_EXPR_LENGTH_BAD);
+            return (DW_DLV_NOCOUNT);
+        }
+        operand_size += operand2_size;
 
     case DW_OP_dup:
     case DW_OP_drop:
-	break;
+        break;
 
     case DW_OP_pick:
-	operand = (Dwarf_Small *) & operand_buffer[0];
-	WRITE_UNALIGNED(dbg, operand, (const void *) &val1,
-			sizeof(val1), 1);
-	operand_size = 1;
-	break;
+        operand = (Dwarf_Small *) & operand_buffer[0];
+        WRITE_UNALIGNED(dbg, operand, (const void *) &val1,
+                        sizeof(val1), 1);
+        operand_size = 1;
+        break;
 
     case DW_OP_over:
     case DW_OP_swap:
     case DW_OP_rot:
     case DW_OP_deref:
     case DW_OP_xderef:
-	break;
+        break;
 
     case DW_OP_deref_size:
     case DW_OP_xderef_size:
-	operand = (Dwarf_Small *) & operand_buffer[0];
-	WRITE_UNALIGNED(dbg, operand, (const void *) &val1,
-			sizeof(val1), 1);
-	operand_size = 1;
-	break;
+        operand = (Dwarf_Small *) & operand_buffer[0];
+        WRITE_UNALIGNED(dbg, operand, (const void *) &val1,
+                        sizeof(val1), 1);
+        operand_size = 1;
+        break;
 
     case DW_OP_abs:
     case DW_OP_and:
@@ -372,24 +372,24 @@ dwarf_add_expr_gen(Dwarf_P_Expr expr,
     case DW_OP_not:
     case DW_OP_or:
     case DW_OP_plus:
-	break;
+        break;
 
     case DW_OP_plus_uconst:
-	res = _dwarf_pro_encode_leb128_nm(val1, &operand_size,
-					  encode_buffer,
-					  sizeof(encode_buffer));
-	if (res != DW_DLV_OK) {
-	    _dwarf_p_error(expr->ex_dbg, error, DW_DLE_EXPR_LENGTH_BAD);
-	    return (DW_DLV_NOCOUNT);
-	}
-	operand = (Dwarf_Small *) encode_buffer;
-	break;
+        res = _dwarf_pro_encode_leb128_nm(val1, &operand_size,
+                                          encode_buffer,
+                                          sizeof(encode_buffer));
+        if (res != DW_DLV_OK) {
+            _dwarf_p_error(expr->ex_dbg, error, DW_DLE_EXPR_LENGTH_BAD);
+            return (DW_DLV_NOCOUNT);
+        }
+        operand = (Dwarf_Small *) encode_buffer;
+        break;
 
     case DW_OP_shl:
     case DW_OP_shr:
     case DW_OP_shra:
     case DW_OP_xor:
-	break;
+        break;
 
     case DW_OP_le:
     case DW_OP_ge:
@@ -397,86 +397,86 @@ dwarf_add_expr_gen(Dwarf_P_Expr expr,
     case DW_OP_lt:
     case DW_OP_gt:
     case DW_OP_ne:
-	break;
+        break;
 
     case DW_OP_skip:
     case DW_OP_bra:
-	/* FIX: unhandled! OP_bra, OP_skip! */
-	_dwarf_p_error(expr->ex_dbg, error, DW_DLE_BAD_EXPR_OPCODE);
-	return (DW_DLV_NOCOUNT);
+        /* FIX: unhandled! OP_bra, OP_skip! */
+        _dwarf_p_error(expr->ex_dbg, error, DW_DLE_BAD_EXPR_OPCODE);
+        return (DW_DLV_NOCOUNT);
 
     case DW_OP_piece:
-	res = _dwarf_pro_encode_leb128_nm(val1, &operand_size,
-					  encode_buffer,
-					  sizeof(encode_buffer));
-	if (res != DW_DLV_OK) {
-	    _dwarf_p_error(expr->ex_dbg, error, DW_DLE_EXPR_LENGTH_BAD);
-	    return (DW_DLV_NOCOUNT);
-	}
-	operand = (Dwarf_Small *) encode_buffer;
-	break;
+        res = _dwarf_pro_encode_leb128_nm(val1, &operand_size,
+                                          encode_buffer,
+                                          sizeof(encode_buffer));
+        if (res != DW_DLV_OK) {
+            _dwarf_p_error(expr->ex_dbg, error, DW_DLE_EXPR_LENGTH_BAD);
+            return (DW_DLV_NOCOUNT);
+        }
+        operand = (Dwarf_Small *) encode_buffer;
+        break;
 
     case DW_OP_nop:
-	break;
-    case DW_OP_push_object_address:	/* DWARF3 */
-	break;
-    case DW_OP_call2:		/* DWARF3 */
-	operand = (Dwarf_Small *) & operand_buffer[0];
-	WRITE_UNALIGNED(dbg, operand, &val1, sizeof(val1), 2);
-	operand_size = 2;
-	break;
+        break;
+    case DW_OP_push_object_address:     /* DWARF3 */
+        break;
+    case DW_OP_call2:           /* DWARF3 */
+        operand = (Dwarf_Small *) & operand_buffer[0];
+        WRITE_UNALIGNED(dbg, operand, &val1, sizeof(val1), 2);
+        operand_size = 2;
+        break;
 
-    case DW_OP_call4:		/* DWARF3 */
-	operand = (Dwarf_Small *) & operand_buffer[0];
-	WRITE_UNALIGNED(dbg, operand, &val1, sizeof(val1), 4);
-	operand_size = 4;
-	break;
+    case DW_OP_call4:           /* DWARF3 */
+        operand = (Dwarf_Small *) & operand_buffer[0];
+        WRITE_UNALIGNED(dbg, operand, &val1, sizeof(val1), 4);
+        operand_size = 4;
+        break;
 
-    case DW_OP_call_ref:	/* DWARF3 */
-	operand = (Dwarf_Small *) & operand_buffer[0];
-	WRITE_UNALIGNED(dbg, operand, &val1, sizeof(val1),
-			dbg->de_offset_size);
-	operand_size = dbg->de_offset_size;
-	break;
-    case DW_OP_form_tls_address:	/* DWARF3f */
-	break;
-    case DW_OP_call_frame_cfa:	/* DWARF3f */
-	break;
-    case DW_OP_bit_piece:	/* DWARF3f */
-	res = _dwarf_pro_encode_leb128_nm(val1, &operand_size,
-					  encode_buffer,
-					  sizeof(encode_buffer));
-	if (res != DW_DLV_OK) {
-	    _dwarf_p_error(expr->ex_dbg, error, DW_DLE_EXPR_LENGTH_BAD);
-	    return (DW_DLV_NOCOUNT);
-	}
-	operand = (Dwarf_Small *) encode_buffer;
-	/* put this one directly into 'operand' at tail of prev value */
-	res = _dwarf_pro_encode_leb128_nm(val2, &operand2_size,
-					  ((char *) operand) +
-					  operand_size,
-					  sizeof(encode_buffer2));
-	if (res != DW_DLV_OK) {
-	    _dwarf_p_error(expr->ex_dbg, error, DW_DLE_EXPR_LENGTH_BAD);
-	    return (DW_DLV_NOCOUNT);
-	}
-	operand_size += operand2_size;
+    case DW_OP_call_ref:        /* DWARF3 */
+        operand = (Dwarf_Small *) & operand_buffer[0];
+        WRITE_UNALIGNED(dbg, operand, &val1, sizeof(val1),
+                        dbg->de_offset_size);
+        operand_size = dbg->de_offset_size;
+        break;
+    case DW_OP_form_tls_address:        /* DWARF3f */
+        break;
+    case DW_OP_call_frame_cfa:  /* DWARF3f */
+        break;
+    case DW_OP_bit_piece:       /* DWARF3f */
+        res = _dwarf_pro_encode_leb128_nm(val1, &operand_size,
+                                          encode_buffer,
+                                          sizeof(encode_buffer));
+        if (res != DW_DLV_OK) {
+            _dwarf_p_error(expr->ex_dbg, error, DW_DLE_EXPR_LENGTH_BAD);
+            return (DW_DLV_NOCOUNT);
+        }
+        operand = (Dwarf_Small *) encode_buffer;
+        /* put this one directly into 'operand' at tail of prev value */
+        res = _dwarf_pro_encode_leb128_nm(val2, &operand2_size,
+                                          ((char *) operand) +
+                                          operand_size,
+                                          sizeof(encode_buffer2));
+        if (res != DW_DLV_OK) {
+            _dwarf_p_error(expr->ex_dbg, error, DW_DLE_EXPR_LENGTH_BAD);
+            return (DW_DLV_NOCOUNT);
+        }
+        operand_size += operand2_size;
 
 
     default:
-	_dwarf_p_error(expr->ex_dbg, error, DW_DLE_BAD_EXPR_OPCODE);
-	return (DW_DLV_NOCOUNT);
+        _dwarf_p_error(expr->ex_dbg, error, DW_DLE_BAD_EXPR_OPCODE);
+        return (DW_DLV_NOCOUNT);
     }
 
     next_byte_offset = expr->ex_next_byte_offset + operand_size + 1;
 
     if (next_byte_offset > MAXIMUM_LOC_EXPR_LENGTH) {
-	_dwarf_p_error(expr->ex_dbg, error, DW_DLE_EXPR_LENGTH_BAD);
-	return (DW_DLV_NOCOUNT);
+        _dwarf_p_error(expr->ex_dbg, error, DW_DLE_EXPR_LENGTH_BAD);
+        return (DW_DLV_NOCOUNT);
     }
 
     next_byte_ptr =
-	&(expr->ex_byte_stream[0]) + expr->ex_next_byte_offset;
+        &(expr->ex_byte_stream[0]) + expr->ex_next_byte_offset;
 
     *next_byte_ptr = opcode;
     next_byte_ptr++;
@@ -488,8 +488,8 @@ dwarf_add_expr_gen(Dwarf_P_Expr expr,
 
 Dwarf_Unsigned
 dwarf_add_expr_addr_b(Dwarf_P_Expr expr,
-		      Dwarf_Unsigned addr,
-		      Dwarf_Unsigned sym_index, Dwarf_Error * error)
+                      Dwarf_Unsigned addr,
+                      Dwarf_Unsigned sym_index, Dwarf_Error * error)
 {
     Dwarf_P_Debug dbg;
     Dwarf_Small *next_byte_ptr;
@@ -497,34 +497,34 @@ dwarf_add_expr_addr_b(Dwarf_P_Expr expr,
     int upointer_size;
 
     if (expr == NULL) {
-	_dwarf_p_error(NULL, error, DW_DLE_EXPR_NULL);
-	return (DW_DLV_NOCOUNT);
+        _dwarf_p_error(NULL, error, DW_DLE_EXPR_NULL);
+        return (DW_DLV_NOCOUNT);
     }
 
     dbg = expr->ex_dbg;
     if (dbg == NULL) {
-	_dwarf_p_error(NULL, error, DW_DLE_DBG_NULL);
-	return (DW_DLV_NOCOUNT);
+        _dwarf_p_error(NULL, error, DW_DLE_DBG_NULL);
+        return (DW_DLV_NOCOUNT);
     }
 
     upointer_size = dbg->de_pointer_size;
     next_byte_offset = expr->ex_next_byte_offset + upointer_size + 1;
     if (next_byte_offset > MAXIMUM_LOC_EXPR_LENGTH) {
-	_dwarf_p_error(dbg, error, DW_DLE_EXPR_LENGTH_BAD);
-	return (DW_DLV_NOCOUNT);
+        _dwarf_p_error(dbg, error, DW_DLE_EXPR_LENGTH_BAD);
+        return (DW_DLV_NOCOUNT);
     }
 
     next_byte_ptr =
-	&(expr->ex_byte_stream[0]) + expr->ex_next_byte_offset;
+        &(expr->ex_byte_stream[0]) + expr->ex_next_byte_offset;
 
     *next_byte_ptr = DW_OP_addr;
     next_byte_ptr++;
     WRITE_UNALIGNED(dbg, next_byte_ptr, (const void *) &addr,
-		    sizeof(addr), upointer_size);
+                    sizeof(addr), upointer_size);
 
     if (expr->ex_reloc_offset != 0) {
-	_dwarf_p_error(dbg, error, DW_DLE_MULTIPLE_RELOC_IN_EXPR);
-	return (DW_DLV_NOCOUNT);
+        _dwarf_p_error(dbg, error, DW_DLE_MULTIPLE_RELOC_IN_EXPR);
+        return (DW_DLV_NOCOUNT);
     }
 
     expr->ex_reloc_sym_index = sym_index;
@@ -536,12 +536,12 @@ dwarf_add_expr_addr_b(Dwarf_P_Expr expr,
 
 Dwarf_Unsigned
 dwarf_add_expr_addr(Dwarf_P_Expr expr,
-		    Dwarf_Unsigned addr,
-		    Dwarf_Signed sym_index, Dwarf_Error * error)
+                    Dwarf_Unsigned addr,
+                    Dwarf_Signed sym_index, Dwarf_Error * error)
 {
     return
-	dwarf_add_expr_addr_b(expr, addr, (Dwarf_Unsigned) sym_index,
-			      error);
+        dwarf_add_expr_addr_b(expr, addr, (Dwarf_Unsigned) sym_index,
+                              error);
 }
 
 
@@ -549,13 +549,13 @@ Dwarf_Unsigned
 dwarf_expr_current_offset(Dwarf_P_Expr expr, Dwarf_Error * error)
 {
     if (expr == NULL) {
-	_dwarf_p_error(NULL, error, DW_DLE_EXPR_NULL);
-	return (DW_DLV_NOCOUNT);
+        _dwarf_p_error(NULL, error, DW_DLE_EXPR_NULL);
+        return (DW_DLV_NOCOUNT);
     }
 
     if (expr->ex_dbg == NULL) {
-	_dwarf_p_error(NULL, error, DW_DLE_DBG_NULL);
-	return (DW_DLV_NOCOUNT);
+        _dwarf_p_error(NULL, error, DW_DLE_DBG_NULL);
+        return (DW_DLV_NOCOUNT);
     }
 
     return (expr->ex_next_byte_offset);
@@ -574,20 +574,20 @@ dwarf_expr_reset(Dwarf_P_Expr expr, Dwarf_Error * error)
 
 Dwarf_Addr
 dwarf_expr_into_block(Dwarf_P_Expr expr,
-		      Dwarf_Unsigned * length, Dwarf_Error * error)
+                      Dwarf_Unsigned * length, Dwarf_Error * error)
 {
     if (expr == NULL) {
-	_dwarf_p_error(NULL, error, DW_DLE_EXPR_NULL);
-	return (DW_DLV_BADADDR);
+        _dwarf_p_error(NULL, error, DW_DLE_EXPR_NULL);
+        return (DW_DLV_BADADDR);
     }
 
     if (expr->ex_dbg == NULL) {
-	_dwarf_p_error(NULL, error, DW_DLE_DBG_NULL);
-	return (DW_DLV_BADADDR);
+        _dwarf_p_error(NULL, error, DW_DLE_DBG_NULL);
+        return (DW_DLV_BADADDR);
     }
 
     if (length != NULL)
-	*length = expr->ex_next_byte_offset;
+        *length = expr->ex_next_byte_offset;
     /* The following cast from pointer to integer is ok as long as
        Dwarf_Addr is at least as large as a pointer. Which is a
        requirement of libdwarf so must be satisfied (some compilers

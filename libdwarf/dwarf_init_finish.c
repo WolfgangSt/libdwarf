@@ -143,7 +143,6 @@ _dwarf_setup(Dwarf_Debug dbg, Dwarf_Error * error)
          ++section_index) {
         
         struct Dwarf_Obj_Access_Section_s doas;
-        Dwarf_Error section_error;
         int res;
         int err;
 
