@@ -571,10 +571,16 @@ dwarf_siblingof(Dwarf_Debug dbg,
 		return (DW_DLV_ERROR);
 	    }
 
-	    if ((*die_info_ptr) == 0 && has_child) {
-		die_info_ptr++;
-		has_child = false;
+            /* die_info_end is one past end. Do not read it!  
+               A test for ``!= die_info_end''  would work as well,
+               but perhaps < reads more like the meaning. */
+            if(die_info_ptr < die_info_end) { 
+	        if ((*die_info_ptr) == 0 && has_child) {
+                    die_info_ptr++;
+                    has_child = false;
+	        }
 	    }
+
 	    /* die_info_ptr can be one-past-end. */
 	    if ((die_info_ptr == die_info_end) ||
 		((*die_info_ptr) == 0)) {

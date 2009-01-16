@@ -1,3 +1,15 @@
+2007-10-16 David Anderson <davea42@earthlink.net>
+      * dwarf_alloc.c: Reformat a comment.
+      * dwarf_die_deliv.c (dwarf_siblingof): When there is no trailing
+        null-DIE in the section, ensure we don't test the contents
+        of a byte past section end.
+      * dwarf_frame.c:  Changed spelling of a local variable
+        so it is easier to grep for and to read.
+      * dwarf_macro.c (free_macro_stack): Was free()ing memory that 
+        _dwarf_get_alloc() had supplied, which could lead to core dump.  
+        Fixed potential memory leaks (said leaks only possible with an
+        error in the macro data, not  with valid macro section
+        data).
 2007-10-15 David Anderson <davea42@earthlink.net>
       * dwarf_alloc.c: The code supporting the special build
         flag DWARF_SIMPLE_MALLOC

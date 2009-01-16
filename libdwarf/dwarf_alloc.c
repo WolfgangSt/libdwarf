@@ -1089,8 +1089,7 @@ _dwarf_free_all_of_one_debug(Dwarf_Debug dbg)
 
 #endif
 
-    memset(dbg, 0, sizeof(*dbg));	/* prevent accidental use later 
-					 */
+    memset(dbg, 0, sizeof(*dbg)); /* Prevent accidental use later. */
     free(dbg);
     return (DW_DLV_OK);
 }
