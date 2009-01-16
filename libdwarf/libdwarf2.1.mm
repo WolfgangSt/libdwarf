@@ -8,7 +8,7 @@
 .nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.57, 11 November 2005
+.ds vE rev 1.58, 23 February 2006
 \." ==============================================
 \." ==============================================
 .ds | |
@@ -2187,6 +2187,34 @@ The function \f(CWdwarf_lineno()\fP returns
 the source statement line 
 number corresponding to the descriptor \f(CWline\fP.  
 It returns \f(CWDW_DLV_ERROR\fP on error.
+It never returns \f(CWDW_DLV_NO_ENTRY\fP.
+
+.P
+.H 4 "dwarf_line_srcfileno()"
+.DS
+\f(CWint dwarf_line_srcfileno(
+        Dwarf_Line       line, 
+	Dwarf_Unsigned * returned_fileno,
+        Dwarf_Error    * error)\fP
+.DE
+The function \f(CWdwarf_line_srcfileno()\fP returns 
+\f(CWDW_DLV_OK\fP and sets \f(CW*returned_fileno\fP to
+the source statement line 
+number corresponding to the descriptor \f(CWfile number\fP.  
+When the number returned thru \f(CW*returned_fileno\fP is zero it means
+the file name is unknown (see the DWARF2/3 line table specification).
+When the number returned thru \f(CW*returned_fileno\fP is non-zero
+it is a file number:
+subtract 1 from this file number
+to get an
+index into the array of strings returned by \f(CWdwarf_srcfiles()\fP
+(verify the resulting index is in range for the array of strings
+before indexing into the array of strings).
+The file number may exceed the size of 
+the array of strings returned by \f(CWdwarf_srcfiles()\fP
+because \f(CWdwarf_srcfiles()\fP does not return files names defined with
+the  \f(CWDW_DLE_define_file\fP  operator.
+The function \f(CWdwarf_line_srcfileno()\fP returns \f(CWDW_DLV_ERROR\fP on error.
 It never returns \f(CWDW_DLV_NO_ENTRY\fP.
 
 .P

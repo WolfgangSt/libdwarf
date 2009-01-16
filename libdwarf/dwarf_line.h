@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000, 2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000, 2004, 2006 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -82,7 +82,11 @@ typedef struct Dwarf_Line_Context_s *Dwarf_Line_Context;
 struct Dwarf_Line_Context_s {
     /* 
        Points to a chain of entries providing info about source files
-       for the current set of Dwarf_Line structures. */
+       for the current set of Dwarf_Line structures. File number 'li_file 1'
+       is last on the list, the first list entry is the file numbered
+       lc_file_entry_count. The  numbering of the file names matches
+       the dwarf2/3 line table specification file table and DW_LNE_define_file
+       numbering rules.  */
     Dwarf_File_Entry lc_file_entries;
     /* 
        Count of number of source files for this set of Dwarf_Line
@@ -127,6 +131,12 @@ struct Dwarf_Line_s {
     union addr_or_line_s {
 	struct li_inner_s {
 	    Dwarf_Sword li_file;	/* int identifying src file */
+		/* li_file is a number 1-N, indexing into a
+		   conceptual source file table as described
+		   in dwarf2/3 spec line table doc.
+		   (see     Dwarf_File_Entry lc_file_entries;
+                   and Dwarf_Sword lc_file_entry_count;) */
+
 	    Dwarf_Sword li_line;	/* source file line number. */
 	    Dwarf_Half li_column;	/* source file column number */
 	    Dwarf_Small li_is_stmt;	/* indicate start of stmt */

@@ -50,7 +50,7 @@ BEGIN {
 printf "\t\t{ \n"
 printf "\t\t    char buf[100]; \n"
 printf "\t\t    char *n; \n"
-printf "\t\t    sprintf(buf,\"<Unknown %s value 0x%%x>\",(int)val);\n",prefix_id
+printf "\t\t    snprintf(buf,sizeof(buf),\"<Unknown %s value 0x%%x>\",(int)val);\n",prefix_id
 printf "\t\t fprintf(stderr,\"%s of %%d (0x%%x) is unknown to dwarfdump. \" \n ", prefix_id
 printf "\t\t \"Continuing. \\n\",(int)val,(int)val );  \n"
 printf "\t\t    n = makename(buf);\n"

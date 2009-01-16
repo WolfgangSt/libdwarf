@@ -785,6 +785,10 @@ int dwarf_lineno(Dwarf_Line /*line*/,
     Dwarf_Unsigned *    /*returned_lineno*/,
     Dwarf_Error* 	/*error*/);
 
+int dwarf_line_srcfileno(Dwarf_Line /*line*/,
+    Dwarf_Unsigned * /*ret_fileno*/, 
+    Dwarf_Error *    /*error*/);
+
 int dwarf_lineaddr(Dwarf_Line /*line*/, 
     Dwarf_Addr *        /*returned_addr*/,
     Dwarf_Error* 	/*error*/);

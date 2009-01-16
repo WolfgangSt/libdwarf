@@ -269,7 +269,6 @@ extern "C" {
 #define DW_AT_elemental                         0x66 /* DWARF3f */
 #define DW_AT_pure                              0x67 /* DWARF3f */
 #define DW_AT_recursive                         0x68 /* DWARF3f */
-#define DW_AT_pointer                           0x69 /* DWARF3f */
 /* HP extensions. */
 #define DW_AT_HP_block_index                    0x2000  /* HP */
 

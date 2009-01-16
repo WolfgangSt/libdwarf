@@ -1,4 +1,6 @@
 2005-12-01 David Anderson <davea@sgi.com>
+     * dwarf_names.awk: use snprintf instead of sprintf for safety.
+2005-12-01 David Anderson <davea@sgi.com>
      * Makefile.in: Build attr/tag trees with
        individual commands to catch build errors.
      * tag_attr.c,tag_tree.c: Verify that

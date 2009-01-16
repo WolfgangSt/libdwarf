@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000,2002,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2002,2004,2005,2006 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -1171,6 +1171,33 @@ dwarf_lineno(Dwarf_Line line,
     *ret_lineno = (line->li_addr_line.li_l_data.li_line);
     return DW_DLV_OK;
 }
+/* Each 'line' entry has a file-number, and index into the file table.
+   If the entry is a DW_LNE_end_sequence the index is
+   meaningless (see dwarf_lineendsequence(), just above).
+   The file number returned is an index into the file table
+   produced by dwarf_srcfiles(), but care is required: the
+   li_file begins with 1 for real files, so that the li_file returned here
+   is 1 greater than its index into the dwarf_srcfiles() output array.
+   And entries from DW_LNE_define_file don't appear in
+   the dwarf_srcfiles() output so file indexes from here may exceed
+   the size of the dwarf_srcfiles() output array size.
+*/
+int
+dwarf_line_srcfileno(Dwarf_Line line,
+             Dwarf_Unsigned * ret_fileno, Dwarf_Error * error)
+{
+    if (line == NULL || ret_fileno == 0) {
+        _dwarf_error(NULL, error, DW_DLE_DWARF_LINE_NULL);
+        return (DW_DLV_ERROR);
+    }
+    /* li_file must be <= line->li_context->lc_file_entry_count else
+       it is trash. li_file  0 means not attributable to any source file
+       per dwarf2/3 spec. */
+
+    *ret_fileno = (line->li_addr_line.li_l_data.li_file);
+    return DW_DLV_OK;
+}
+
 
 /* Each 'line' entry has a line-address.
    If the entry is a DW_LNE_end_sequence the adddress
@@ -1244,7 +1271,25 @@ dwarf_linesrc(Dwarf_Line line, char **ret_linesrc, Dwarf_Error * error)
 	return (DW_DLV_ERROR);
     }
 
+    if (line->li_addr_line.li_l_data.li_file == 0) {
+	/* No file name known: see dwarf2/3 spec. */
+	_dwarf_error(dbg, error, DW_DLE_NO_FILE_NAME);
+	return (DW_DLV_ERROR);
+    }
     file_entry = line->li_context->lc_file_entries;
+    /* ASSERT: li_file > 0, dwarf correctness issue,
+	see line table definition of dwarf2/3 spec.*/
+    /* Example:
+        if li_file is 2 and lc_file_entry_count is 3,
+	file_entry is file 3 (1 based), aka 2( 0 based)
+	file_entry->next is file 2 (1 based), aka 1( 0 based)
+	file_entry->next->next is file 1 (1 based), aka 0( 0 based)
+	file_entry->next->next->next is NULL.
+ 
+	and this loop finds the file_entry we need (2 (1 based) in this case).
+	Because lc_file_entries are in reverse order and effectively
+        zero based as a count whereas li_file is 1 based. 
+        */
     for (i = line->li_addr_line.li_l_data.li_file - 1; i > 0; i--)
 	file_entry = file_entry->fi_next;
 

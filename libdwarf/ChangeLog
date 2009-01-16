@@ -1,3 +1,8 @@
+2006-02-23 David Anderson <davea@sgi.com>
+      * dwarf_line.h dwarf_line.c: added dwarf_line_srcfileno()
+        to complement dwarf_lineno.
+      * libdwarf2.1.mm: document dwarf_line_srcfileno().
+
 2005-11-25 David Anderson <davea@sgi.com>
       * dwarf.h: Now matches 2005 DWARF3 public review document.
 
