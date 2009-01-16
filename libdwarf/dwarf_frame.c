@@ -485,9 +485,9 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,
 	    {
 		Dwarf_Unsigned lreg;
 
-		DECODE_LEB128_UWORD(instr_ptr, lreg)
-		    reg_no = (reg_num_type) lreg;
-		ERROR_IF_REG_NUM_TOO_HIGH(reg_no, reg_count);
+		DECODE_LEB128_UWORD(instr_ptr, lreg);
+		reg_no = (reg_num_type) lreg;
+		ERROR_IF_REG_NUM_TOO_HIGH(reg_no, reg_count);;
 		factored_N_value =
 		    _dwarf_decode_u_leb128(instr_ptr, &leb128_length);
 		instr_ptr += leb128_length;
@@ -510,8 +510,8 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,
 	    {
 		Dwarf_Unsigned lreg;
 
-		DECODE_LEB128_UWORD(instr_ptr, lreg)
-		    reg_no = (reg_num_type) lreg;
+		DECODE_LEB128_UWORD(instr_ptr, lreg);
+		reg_no = (reg_num_type) lreg;
 
 		ERROR_IF_REG_NUM_TOO_HIGH(reg_no, reg_count);
 
@@ -532,8 +532,8 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,
 	    {
 		Dwarf_Unsigned lreg;
 
-		DECODE_LEB128_UWORD(instr_ptr, lreg)
-		    reg_no = (reg_num_type) lreg;
+		DECODE_LEB128_UWORD(instr_ptr, lreg);
+		reg_no = (reg_num_type) lreg;
 		ERROR_IF_REG_NUM_TOO_HIGH(reg_no, reg_count);
 
 		reg[reg_no].ru_is_off = 0;
@@ -549,8 +549,8 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,
 	    {
 		Dwarf_Unsigned lreg;
 
-		DECODE_LEB128_UWORD(instr_ptr, lreg)
-		    reg_no = (reg_num_type) lreg;
+		DECODE_LEB128_UWORD(instr_ptr, lreg);
+		reg_no = (reg_num_type) lreg;
 		ERROR_IF_REG_NUM_TOO_HIGH(reg_no, reg_count);
 
 		reg[reg_no].ru_is_off = 0;
@@ -567,13 +567,13 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,
 		reg_num_type reg_noA = 0;
 		reg_num_type reg_noB = 0;
 
-		DECODE_LEB128_UWORD(instr_ptr, lreg)
-		    reg_noA = (reg_num_type) lreg;
+		DECODE_LEB128_UWORD(instr_ptr, lreg);
+		reg_noA = (reg_num_type) lreg;
 
 		ERROR_IF_REG_NUM_TOO_HIGH(reg_noA, reg_count);
 
-		DECODE_LEB128_UWORD(instr_ptr, lreg)
-		    reg_noB = (reg_num_type) lreg;
+		DECODE_LEB128_UWORD(instr_ptr, lreg);
+		reg_noB = (reg_num_type) lreg;
 
 		if (reg_noB > reg_count) {
 		    SIMPLE_ERROR_RETURN(DW_DLE_DF_REG_NUM_TOO_HIGH);
@@ -627,8 +627,8 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,
 	    {
 		Dwarf_Unsigned lreg;
 
-		DECODE_LEB128_UWORD(instr_ptr, lreg)
-		    reg_no = (reg_num_type) lreg;
+		DECODE_LEB128_UWORD(instr_ptr, lreg);
+		reg_no = (reg_num_type) lreg;
 
 		ERROR_IF_REG_NUM_TOO_HIGH(reg_no, reg_count);
 
@@ -653,8 +653,8 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,
 	    {
 		Dwarf_Unsigned lreg;
 
-		DECODE_LEB128_UWORD(instr_ptr, lreg)
-		    reg_no = (reg_num_type) lreg;
+		DECODE_LEB128_UWORD(instr_ptr, lreg);
+		reg_no = (reg_num_type) lreg;
 		ERROR_IF_REG_NUM_TOO_HIGH(reg_no, reg_count);
 
 		cfa_reg.ru_register = reg_no;
@@ -694,8 +694,8 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,
 		   compute the CFA. */
 		Dwarf_Unsigned block_len = 0;
 
-		DECODE_LEB128_UWORD(instr_ptr, block_len) cfa_reg.ru_is_off = 0;	/* arbitrary 
-											 */
+		DECODE_LEB128_UWORD(instr_ptr, block_len);
+		cfa_reg.ru_is_off = 0;	/* arbitrary */
 		cfa_reg.ru_value_type = DW_EXPR_EXPRESSION;
 		cfa_reg.ru_offset_or_block_len = block_len;
 		cfa_reg.ru_block = instr_ptr;
@@ -714,11 +714,11 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,
 		Dwarf_Unsigned lreg = 0;
 		Dwarf_Unsigned block_len = 0;
 
-		DECODE_LEB128_UWORD(instr_ptr, lreg)
-		    reg_no = (reg_num_type) lreg;
+		DECODE_LEB128_UWORD(instr_ptr, lreg);
+		reg_no = (reg_num_type) lreg;
 		ERROR_IF_REG_NUM_TOO_HIGH(reg_no, reg_count);
-		DECODE_LEB128_UWORD(instr_ptr, block_len) reg[lreg].ru_is_off = 0;	/* arbitrary 
-											 */
+		DECODE_LEB128_UWORD(instr_ptr, block_len);
+		reg[lreg].ru_is_off = 0;	/* arbitrary */
 		reg[lreg].ru_value_type = DW_EXPR_EXPRESSION;
 		reg[lreg].ru_offset_or_block_len = block_len;
 		reg[lreg].ru_block = instr_ptr;
@@ -735,8 +735,8 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,
 		   secondoperand is signed */
 		Dwarf_Unsigned lreg;
 
-		DECODE_LEB128_UWORD(instr_ptr, lreg)
-		    reg_no = (reg_num_type) lreg;
+		DECODE_LEB128_UWORD(instr_ptr, lreg);
+		reg_no = (reg_num_type) lreg;
 		ERROR_IF_REG_NUM_TOO_HIGH(reg_no, reg_count);
 		signed_factored_N_value =
 		    _dwarf_decode_s_leb128(instr_ptr, &leb128_length);
@@ -763,8 +763,8 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,
 		   second operand is signed and factored. */
 		Dwarf_Unsigned lreg;
 
-		DECODE_LEB128_UWORD(instr_ptr, lreg)
-		    reg_no = (reg_num_type) lreg;
+		DECODE_LEB128_UWORD(instr_ptr, lreg);
+		reg_no = (reg_num_type) lreg;
 		ERROR_IF_REG_NUM_TOO_HIGH(reg_no, reg_count);
 
 		signed_factored_N_value =
@@ -817,8 +817,8 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,
 
 		Dwarf_Unsigned lreg;
 
-		DECODE_LEB128_UWORD(instr_ptr, lreg)
-		    reg_no = (reg_num_type) lreg;
+		DECODE_LEB128_UWORD(instr_ptr, lreg);
+		reg_no = (reg_num_type) lreg;
 
 		ERROR_IF_REG_NUM_TOO_HIGH(reg_no, reg_count);
 
@@ -848,8 +848,8 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,
 		   factored_offset*data_alignment_factor. */
 		Dwarf_Unsigned lreg;
 
-		DECODE_LEB128_UWORD(instr_ptr, lreg)
-		    reg_no = (reg_num_type) lreg;
+		DECODE_LEB128_UWORD(instr_ptr, lreg);
+		reg_no = (reg_num_type) lreg;
 
 		ERROR_IF_REG_NUM_TOO_HIGH(reg_no, reg_count);
 		signed_factored_N_value =
@@ -879,11 +879,11 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,
 		Dwarf_Unsigned lreg = 0;
 		Dwarf_Unsigned block_len = 0;
 
-		DECODE_LEB128_UWORD(instr_ptr, lreg)
-		    reg_no = (reg_num_type) lreg;
+		DECODE_LEB128_UWORD(instr_ptr, lreg);
+		reg_no = (reg_num_type) lreg;
 		ERROR_IF_REG_NUM_TOO_HIGH(reg_no, reg_count);
-		DECODE_LEB128_UWORD(instr_ptr, block_len) reg[lreg].ru_is_off = 0;	/* arbitrary 
-											 */
+		DECODE_LEB128_UWORD(instr_ptr, block_len);
+		reg[lreg].ru_is_off = 0;	/* arbitrary */
 		reg[lreg].ru_value_type = DW_EXPR_VAL_EXPRESSION;
 		reg[lreg].ru_offset_or_block_len = block_len;
 		reg[lreg].ru_block = instr_ptr;
@@ -912,8 +912,8 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,
 	    {
 		Dwarf_Unsigned lreg;
 
-		DECODE_LEB128_UWORD(instr_ptr, lreg)
-		    reg_no = (reg_num_type) lreg;
+		DECODE_LEB128_UWORD(instr_ptr, lreg);
+		reg_no = (reg_num_type) lreg;
 
 		break;
 	    }

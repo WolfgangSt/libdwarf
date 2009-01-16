@@ -59,10 +59,10 @@ int
 dwarf_dieoffset(Dwarf_Die die,
 		Dwarf_Off * ret_offset, Dwarf_Error * error)
 {
-    CHECK_DIE(die, DW_DLV_ERROR)
+    CHECK_DIE(die, DW_DLV_ERROR);
 
-	* ret_offset = (die->di_debug_info_ptr -
-			die->di_cu_context->cc_dbg->de_debug_info);
+    *ret_offset = (die->di_debug_info_ptr -
+		   die->di_cu_context->cc_dbg->de_debug_info);
     return DW_DLV_OK;
 }
 
@@ -79,8 +79,8 @@ dwarf_die_CU_offset(Dwarf_Die die,
 {
     Dwarf_CU_Context cu_context;
 
-    CHECK_DIE(die, DW_DLV_ERROR)
-	cu_context = die->di_cu_context;
+    CHECK_DIE(die, DW_DLV_ERROR);
+    cu_context = die->di_cu_context;
 
     *cu_off =
 	(die->di_debug_info_ptr - cu_context->cc_dbg->de_debug_info -
@@ -92,10 +92,10 @@ dwarf_die_CU_offset(Dwarf_Die die,
 int
 dwarf_tag(Dwarf_Die die, Dwarf_Half * tag, Dwarf_Error * error)
 {
-    CHECK_DIE(die, DW_DLV_ERROR)
+    CHECK_DIE(die, DW_DLV_ERROR);
 
 
-	* tag = (die->di_abbrev_list->ab_tag);
+    *tag = (die->di_abbrev_list->ab_tag);
     return DW_DLV_OK;
 }
 
@@ -106,19 +106,20 @@ dwarf_attrlist(Dwarf_Die die,
 	       Dwarf_Signed * attrcnt, Dwarf_Error * error)
 {
     Dwarf_Word attr_count = 0;
-    Dwarf_Word i;
-    Dwarf_Half attr;
-    Dwarf_Half attr_form;
-    Dwarf_Byte_Ptr abbrev_ptr;
-    Dwarf_Abbrev_List abbrev_list;
-    Dwarf_Attribute new_attr;
-    Dwarf_Attribute head_attr = NULL, curr_attr;
-    Dwarf_Attribute *attr_ptr;
-    Dwarf_Debug dbg;
-    Dwarf_Byte_Ptr info_ptr;
+    Dwarf_Word i = 0;
+    Dwarf_Half attr = 0;
+    Dwarf_Half attr_form = 0;
+    Dwarf_Byte_Ptr abbrev_ptr = 0;
+    Dwarf_Abbrev_List abbrev_list = 0;
+    Dwarf_Attribute new_attr = 0;
+    Dwarf_Attribute head_attr = NULL;
+    Dwarf_Attribute curr_attr = NULL;
+    Dwarf_Attribute *attr_ptr = 0;
+    Dwarf_Debug dbg = 0;
+    Dwarf_Byte_Ptr info_ptr = 0;
 
-    CHECK_DIE(die, DW_DLV_ERROR)
-	dbg = die->di_cu_context->cc_dbg;
+    CHECK_DIE(die, DW_DLV_ERROR);
+    dbg = die->di_cu_context->cc_dbg;
 
     abbrev_list = _dwarf_get_abbrev_for_code(die->di_cu_context,
 					     die->di_abbrev_list->
@@ -130,15 +131,15 @@ dwarf_attrlist(Dwarf_Die die,
     abbrev_ptr = abbrev_list->ab_abbrev_ptr;
 
     info_ptr = die->di_debug_info_ptr;
-    SKIP_LEB128_WORD(info_ptr)
+    SKIP_LEB128_WORD(info_ptr);
 
-	do {
+    do {
 	Dwarf_Unsigned utmp2;
 
-	DECODE_LEB128_UWORD(abbrev_ptr, utmp2)
-	    attr = (Dwarf_Half) utmp2;
-	DECODE_LEB128_UWORD(abbrev_ptr, utmp2)
-	    attr_form = (Dwarf_Half) utmp2;
+	DECODE_LEB128_UWORD(abbrev_ptr, utmp2);
+	attr = (Dwarf_Half) utmp2;
+	DECODE_LEB128_UWORD(abbrev_ptr, utmp2);
+	attr_form = (Dwarf_Half) utmp2;
 
 	if (attr != 0) {
 	    new_attr =
@@ -155,8 +156,8 @@ dwarf_attrlist(Dwarf_Die die,
 		Dwarf_Unsigned utmp6;
 
 		/* DECODE_LEB128_UWORD does info_ptr update */
-		DECODE_LEB128_UWORD(info_ptr, utmp6)
-		    attr_form = (Dwarf_Half) utmp6;
+		DECODE_LEB128_UWORD(info_ptr, utmp6);
+		attr_form = (Dwarf_Half) utmp6;
 		new_attr->ar_attribute_form = attr_form;
 	    }
 	    new_attr->ar_cu_context = die->di_cu_context;
@@ -231,21 +232,21 @@ _dwarf_get_value_ptr(Dwarf_Die die,
     abbrev_ptr = abbrev_list->ab_abbrev_ptr;
 
     info_ptr = die->di_debug_info_ptr;
-    SKIP_LEB128_WORD(info_ptr)
+    SKIP_LEB128_WORD(info_ptr);
 
-	do {
+    do {
 	Dwarf_Unsigned utmp3;
 
-	DECODE_LEB128_UWORD(abbrev_ptr, utmp3)
-	    curr_attr = (Dwarf_Half) utmp3;
-	DECODE_LEB128_UWORD(abbrev_ptr, utmp3)
-	    curr_attr_form = (Dwarf_Half) utmp3;
+	DECODE_LEB128_UWORD(abbrev_ptr, utmp3);
+	curr_attr = (Dwarf_Half) utmp3;
+	DECODE_LEB128_UWORD(abbrev_ptr, utmp3);
+	curr_attr_form = (Dwarf_Half) utmp3;
 	if (curr_attr_form == DW_FORM_indirect) {
 	    Dwarf_Unsigned utmp6;
 
 	    /* DECODE_LEB128_UWORD updates info_ptr */
-	    DECODE_LEB128_UWORD(info_ptr, utmp6)
-		curr_attr_form = (Dwarf_Half) utmp6;
+	    DECODE_LEB128_UWORD(info_ptr, utmp6);
+	    curr_attr_form = (Dwarf_Half) utmp6;
 	}
 
 	if (curr_attr == attr) {
@@ -273,9 +274,9 @@ dwarf_diename(Dwarf_Die die, char **ret_name, Dwarf_Error * error)
     Dwarf_Unsigned string_offset;
     int res;
 
-    CHECK_DIE(die, DW_DLV_ERROR)
+    CHECK_DIE(die, DW_DLV_ERROR);
 
-	info_ptr = _dwarf_get_value_ptr(die, DW_AT_name, &attr_form);
+    info_ptr = _dwarf_get_value_ptr(die, DW_AT_name, &attr_form);
     if (info_ptr == NULL) {
 	if (attr_form == 0) {
 	    _dwarf_error(die->di_cu_context->cc_dbg, error,
@@ -324,9 +325,9 @@ dwarf_hasattr(Dwarf_Die die,
 {
     Dwarf_Half attr_form;
 
-    CHECK_DIE(die, DW_DLV_ERROR)
+    CHECK_DIE(die, DW_DLV_ERROR);
 
-	if (_dwarf_get_value_ptr(die, attr, &attr_form) == NULL) {
+    if (_dwarf_get_value_ptr(die, attr, &attr_form) == NULL) {
 	if (attr_form == 0) {
 	    _dwarf_error(die->di_cu_context->cc_dbg, error,
 			 DW_DLE_DIE_BAD);
@@ -351,8 +352,8 @@ dwarf_attr(Dwarf_Die die,
     Dwarf_Byte_Ptr info_ptr;
     Dwarf_Debug dbg;
 
-    CHECK_DIE(die, DW_DLV_ERROR)
-	dbg = die->di_cu_context->cc_dbg;
+    CHECK_DIE(die, DW_DLV_ERROR);
+    dbg = die->di_cu_context->cc_dbg;
 
     info_ptr = _dwarf_get_value_ptr(die, attr, &attr_form);
     if (info_ptr == NULL) {
@@ -383,14 +384,14 @@ int
 dwarf_lowpc(Dwarf_Die die,
 	    Dwarf_Addr * return_addr, Dwarf_Error * error)
 {
-    Dwarf_Addr ret_addr;
-    Dwarf_Byte_Ptr info_ptr;
-    Dwarf_Half attr_form;
-    Dwarf_Debug dbg;
+    Dwarf_Addr ret_addr = 0;
+    Dwarf_Byte_Ptr info_ptr = 0;
+    Dwarf_Half attr_form = 0;
+    Dwarf_Debug dbg = 0;
 
-    CHECK_DIE(die, DW_DLV_ERROR)
+    CHECK_DIE(die, DW_DLV_ERROR);
 
-	dbg = die->di_cu_context->cc_dbg;
+    dbg = die->di_cu_context->cc_dbg;
     info_ptr = _dwarf_get_value_ptr(die, DW_AT_low_pc, &attr_form);
     if ((info_ptr == NULL && attr_form == 0) ||
 	(info_ptr != NULL && attr_form != DW_FORM_addr)) {
@@ -419,9 +420,9 @@ dwarf_highpc(Dwarf_Die die,
     Dwarf_Half attr_form;
     Dwarf_Debug dbg;
 
-    CHECK_DIE(die, DW_DLV_ERROR)
+    CHECK_DIE(die, DW_DLV_ERROR);
 
-	dbg = die->di_cu_context->cc_dbg;
+    dbg = die->di_cu_context->cc_dbg;
     info_ptr = _dwarf_get_value_ptr(die, DW_AT_high_pc, &attr_form);
     if ((info_ptr == NULL && attr_form == 0) ||
 	(info_ptr != NULL && attr_form != DW_FORM_addr)) {
@@ -462,9 +463,9 @@ _dwarf_die_attr_unsigned_constant(Dwarf_Die die,
     Dwarf_Unsigned ret_value;
     Dwarf_Debug dbg;
 
-    CHECK_DIE(die, DW_DLV_ERROR)
+    CHECK_DIE(die, DW_DLV_ERROR);
 
-	dbg = die->di_cu_context->cc_dbg;
+    dbg = die->di_cu_context->cc_dbg;
     info_ptr = _dwarf_get_value_ptr(die, attr, &attr_form);
     if (info_ptr != NULL) {
 	switch (attr_form) {
@@ -601,10 +602,10 @@ dwarf_attr_offset(Dwarf_Die die, Dwarf_Attribute attr, Dwarf_Off * offset,	/* re
 {
     Dwarf_Off attroff;
 
-    CHECK_DIE(die, DW_DLV_ERROR)
+    CHECK_DIE(die, DW_DLV_ERROR);
 
-	attroff = (attr->ar_debug_info_ptr -
-		   die->di_cu_context->cc_dbg->de_debug_info);
+    attroff = (attr->ar_debug_info_ptr -
+	       die->di_cu_context->cc_dbg->de_debug_info);
     *offset = attroff;
     return DW_DLV_OK;
 }

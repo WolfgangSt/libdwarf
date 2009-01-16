@@ -1,3 +1,19 @@
+2007-02-23 David Anderson <davea42@earthlink.net
+      * dwarf_util.h: now the macros use do{} while(0)
+      * pro_forms.c dwarf_print_lines.c pro_section.c dwarf_query.c 
+        dwarf_arange.c dwarf_sort_line.c dwarf_global.c dwarf_line.c
+        dwarf_abbrev.c dwarf_frame2.c dwarf_util.c dwarf_loc.c
+        dwarf_die_deliv.c dwarf_frame.c: Now have ;
+        after all dwarf_util.h macros. Also added local variable
+        initializations (compiler noticed).
+      * dwarf_macro.c: was missing include of <stdlib.h> for free() 
+        declaration. 
+      * dwarf_print_lines.c pro_section.c dwarf_query.c dwarf_alloc.c
+        dwarf_arange.c dwarf_sort_line.c dwarf_global.c dwarf_line.c
+        dwarf_abbrev.c dwarf_srclines_dealloc.c dwarf_frame2.c
+        dwarf_util.c dwarf_loc.c dwarf_die_deliv.c dwarf_frame.c
+        dwarf_macro.c: indent run with standard libdwarf options.
+
 2007-02-20 David Anderson <davea42@earthlink.net
       * dwarf_macro.c  (dwarf_get_macro_details): Now call
         dwarf_free_macro_stack() at every return so no data

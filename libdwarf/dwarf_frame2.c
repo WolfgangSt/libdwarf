@@ -770,6 +770,11 @@ dwarf_create_fde_from_after_start(Dwarf_Debug dbg,
 	       Augmentation Data bytes themselves. */
 	}
 	break;
+    case aug_past_last:
+	break;
+    case aug_unknown:
+	_dwarf_error(dbg, error, DW_DLE_FRAME_AUGMENTATION_UNKNOWN);
+	return DW_DLV_ERROR;
     }				/* End switch on augmentation type */
     new_fde = (Dwarf_Fde) _dwarf_get_alloc(dbg, DW_DLA_FDE, 1);
     if (new_fde == NULL) {
@@ -1225,9 +1230,9 @@ read_encoded_ptr(Dwarf_Debug dbg,
     /* The ELF ABI for gnu does not document the meaning of
        DW_EH_PE_pcrel, which is awkward.  It apparently means the value 
        we got above is pc-relative (meaning section-relative), so we
-       adjust the value. Section_pointer may be
-       null if it is known DW_EH_PE_pcrel cannot apply, such as for
-       .debug_frame or for an address-range value. */
+       adjust the value. Section_pointer may be null if it is known
+       DW_EH_PE_pcrel cannot apply, such as for .debug_frame or for an
+       address-range value. */
     if (section_pointer && ((gnu_encoding & 0x70) == DW_EH_PE_pcrel)) {
 	/* Address (*addr) above is pc relative with respect to a
 	   section. Add to the offset the base address (from elf) of

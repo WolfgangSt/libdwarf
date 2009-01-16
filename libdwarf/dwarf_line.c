@@ -95,7 +95,9 @@ dwarf_srcfiles(Dwarf_Die die,
     Dwarf_Debug dbg = 0;
 
     /* Used to chain the file names. */
-    Dwarf_Chain curr_chain, prev_chain, head_chain = NULL;
+    Dwarf_Chain curr_chain = NULL;
+    Dwarf_Chain prev_chain = NULL;
+    Dwarf_Chain head_chain = NULL;
     int resattr = 0;
     int lres = 0;
     struct Line_Table_Prefix_s line_prefix;
@@ -109,8 +111,8 @@ dwarf_srcfiles(Dwarf_Die die,
     if (error != NULL)
 	*error = NULL;
 
-    CHECK_DIE(die, DW_DLV_ERROR)
-	dbg = die->di_cu_context->cc_dbg;
+    CHECK_DIE(die, DW_DLV_ERROR);
+    dbg = die->di_cu_context->cc_dbg;
 
     resattr = dwarf_attr(die, DW_AT_stmt_list, &stmt_list_attr, error);
     if (resattr != DW_DLV_OK) {
@@ -295,21 +297,21 @@ _dwarf_internal_srclines(Dwarf_Die die,
     /* 
        This pointer is used to scan the portion of the .debug_line
        section for the current cu. */
-    Dwarf_Small *line_ptr;
+    Dwarf_Small *line_ptr = 0;
 
     /* 
        This points to the last byte of the .debug_line portion for the
        current cu. */
-    Dwarf_Small *line_ptr_end;
+    Dwarf_Small *line_ptr_end = 0;
 
 
     /* 
        Pointer to a DW_AT_stmt_list attribute in case it exists in the
        die. */
-    Dwarf_Attribute stmt_list_attr;
+    Dwarf_Attribute stmt_list_attr = 0;
 
     /* Pointer to DW_AT_comp_dir attribute in die. */
-    Dwarf_Attribute comp_dir_attr;
+    Dwarf_Attribute comp_dir_attr = 0;
 
     /* Pointer to name of compilation directory. */
     Dwarf_Small *comp_dir = NULL;
@@ -317,9 +319,9 @@ _dwarf_internal_srclines(Dwarf_Die die,
     /* 
        Offset into .debug_line specified by a DW_AT_stmt_list
        attribute. */
-    Dwarf_Unsigned line_offset;
+    Dwarf_Unsigned line_offset = 0;
 
-    Dwarf_File_Entry file_entries;
+    Dwarf_File_Entry file_entries = 0;
 
     /* These are the state machine state variables. */
     Dwarf_Addr address = 0;
@@ -347,65 +349,67 @@ _dwarf_internal_srclines(Dwarf_Die die,
 
     /* 
        This is the current opcode read from the statement program. */
-    Dwarf_Small opcode;
+    Dwarf_Small opcode = 0;
 
     /* 
        Pointer to a Dwarf_Line_Context_s structure that contains the
        context such as file names and include directories for the set
        of lines being generated. */
-    Dwarf_Line_Context line_context;
+    Dwarf_Line_Context line_context = 0;
 
     /* 
        This is a pointer to the current line being added to the line
        matrix. */
-    Dwarf_Line curr_line;
+    Dwarf_Line curr_line = 0;
 
     /* 
        These variables are used to decode leb128 numbers. Leb128_num
        holds the decoded number, and leb128_length is its length in
        bytes. */
-    Dwarf_Word leb128_num;
-    Dwarf_Word leb128_length;
-    Dwarf_Sword advance_line;
+    Dwarf_Word leb128_num = 0;
+    Dwarf_Word leb128_length = 0;
+    Dwarf_Sword advance_line = 0;
 
     /* 
        This is the operand of the latest fixed_advance_pc extended
        opcode. */
-    Dwarf_Half fixed_advance_pc;
+    Dwarf_Half fixed_advance_pc = 0;
 
     /* 
        Counts the number of lines in the line matrix. */
     Dwarf_Sword line_count = 0;
 
     /* This is the length of an extended opcode instr.  */
-    Dwarf_Word instr_length;
-    Dwarf_Small ext_opcode;
+    Dwarf_Word instr_length = 0;
+    Dwarf_Small ext_opcode = 0;
     struct Line_Table_Prefix_s prefix;
 
     /* 
        Used to chain together pointers to line table entries that are
        later used to create a block of Dwarf_Line entries. */
-    Dwarf_Chain chain_line, head_chain = NULL, curr_chain;
+    Dwarf_Chain chain_line = NULL;
+    Dwarf_Chain head_chain = NULL;
+    Dwarf_Chain curr_chain = NULL;
 
     /* 
        This points to a block of Dwarf_Lines, a pointer to which is
        returned in linebuf. */
-    Dwarf_Line *block_line;
+    Dwarf_Line *block_line = 0;
 
     /* The Dwarf_Debug this die belongs to. */
-    Dwarf_Debug dbg;
-    int resattr;
-    int lres;
+    Dwarf_Debug dbg = 0;
+    int resattr = 0;
+    int lres = 0;
 
-    int res;
+    int res = 0;
 
     /* ***** BEGIN CODE ***** */
 
     if (error != NULL)
 	*error = NULL;
 
-    CHECK_DIE(die, DW_DLV_ERROR)
-	dbg = die->di_cu_context->cc_dbg;
+    CHECK_DIE(die, DW_DLV_ERROR);
+    dbg = die->di_cu_context->cc_dbg;
 
     res =
 	_dwarf_load_section(dbg,
@@ -551,7 +555,7 @@ _dwarf_internal_srclines(Dwarf_Die die,
 		 */
 		Dwarf_Unsigned utmp2;
 
-		DECODE_LEB128_UWORD(line_ptr, utmp2)
+		DECODE_LEB128_UWORD(line_ptr, utmp2);
 	    }
 	} else if (type == LOP_SPECIAL) {
 	    /* This op code is a special op in the object, no matter
@@ -675,8 +679,8 @@ _dwarf_internal_srclines(Dwarf_Die die,
 	    case DW_LNS_advance_pc:{
 		    Dwarf_Unsigned utmp2;
 
-		    DECODE_LEB128_UWORD(line_ptr, utmp2)
-			leb128_num = (Dwarf_Word) utmp2;
+		    DECODE_LEB128_UWORD(line_ptr, utmp2);
+		    leb128_num = (Dwarf_Word) utmp2;
 		    address =
 			address +
 			prefix.pf_minimum_instruction_length *
@@ -687,8 +691,8 @@ _dwarf_internal_srclines(Dwarf_Die die,
 	    case DW_LNS_advance_line:{
 		    Dwarf_Signed stmp;
 
-		    DECODE_LEB128_SWORD(line_ptr, stmp)
-			advance_line = (Dwarf_Sword) stmp;
+		    DECODE_LEB128_SWORD(line_ptr, stmp);
+		    advance_line = (Dwarf_Sword) stmp;
 		    line = line + advance_line;
 		    break;
 		}
@@ -696,16 +700,16 @@ _dwarf_internal_srclines(Dwarf_Die die,
 	    case DW_LNS_set_file:{
 		    Dwarf_Unsigned utmp2;
 
-		    DECODE_LEB128_UWORD(line_ptr, utmp2)
-			file = (Dwarf_Word) utmp2;
+		    DECODE_LEB128_UWORD(line_ptr, utmp2);
+		    file = (Dwarf_Word) utmp2;
 		    break;
 		}
 
 	    case DW_LNS_set_column:{
 		    Dwarf_Unsigned utmp2;
 
-		    DECODE_LEB128_UWORD(line_ptr, utmp2)
-			column = (Dwarf_Word) utmp2;
+		    DECODE_LEB128_UWORD(line_ptr, utmp2);
+		    column = (Dwarf_Word) utmp2;
 		    break;
 		}
 
@@ -759,8 +763,8 @@ _dwarf_internal_srclines(Dwarf_Die die,
 	    case DW_LNS_set_isa:{
 		    Dwarf_Unsigned utmp2;
 
-		    DECODE_LEB128_UWORD(line_ptr, utmp2)
-			isa = utmp2;
+		    DECODE_LEB128_UWORD(line_ptr, utmp2);
+		    isa = utmp2;
 		    if (isa != utmp2) {
 			/* The value of the isa did not fit in our
 			   local so we record it wrong. declare an
@@ -778,8 +782,8 @@ _dwarf_internal_srclines(Dwarf_Die die,
 	} else if (type == LOP_EXTENDED) {
 	    Dwarf_Unsigned utmp3;
 
-	    DECODE_LEB128_UWORD(line_ptr, utmp3)
-		instr_length = (Dwarf_Word) utmp3;
+	    DECODE_LEB128_UWORD(line_ptr, utmp3);
+	    instr_length = (Dwarf_Word) utmp3;
 	    /* Dwarf_Small is a ubyte and the extended opcode is a
 	       ubyte, though not stated as clearly in the 2.0.0 spec as 
 	       one might hope. */
@@ -1759,8 +1763,8 @@ dwarf_read_line_table_prefix(Dwarf_Debug dbg,
 	curline->lte_filename = line_ptr;
 	line_ptr = line_ptr + strlen((char *) line_ptr) + 1;
 
-	DECODE_LEB128_UWORD(line_ptr, utmp)
-	    dir_index = (Dwarf_Sword) utmp;
+	DECODE_LEB128_UWORD(line_ptr, utmp);
+	dir_index = (Dwarf_Sword) utmp;
 	if (dir_index > directories_count) {
 	    _dwarf_error(dbg, err, DW_DLE_DIR_INDEX_BAD);
 	    return (DW_DLV_ERROR);

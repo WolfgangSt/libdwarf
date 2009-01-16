@@ -141,6 +141,7 @@ print_one_fde(Dwarf_Debug dbg, Dwarf_Fde fde,
 	    }
 	    printf(">");
 	}			/* else DW_DLV_ERROR, do nothing */
+        printf("\n");
     }
     /* call dwarf_get_fde_info_for_reg() to get whole matrix */
 

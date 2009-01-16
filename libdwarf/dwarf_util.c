@@ -208,10 +208,10 @@ _dwarf_get_abbrev_for_code(Dwarf_CU_Context cu_context, Dwarf_Word code)
     do {
 	Dwarf_Unsigned utmp;
 
-	DECODE_LEB128_UWORD(abbrev_ptr, utmp)
-	    abbrev_code = (Dwarf_Half) utmp;
-	DECODE_LEB128_UWORD(abbrev_ptr, utmp)
-	    abbrev_tag = (Dwarf_Half) utmp;
+	DECODE_LEB128_UWORD(abbrev_ptr, utmp);
+	abbrev_code = (Dwarf_Half) utmp;
+	DECODE_LEB128_UWORD(abbrev_ptr, utmp);
+	abbrev_tag = (Dwarf_Half) utmp;
 
 	abbrev_list = (Dwarf_Abbrev_List)
 	    _dwarf_get_alloc(cu_context->cc_dbg, DW_DLA_ABBREV_LIST, 1);
@@ -238,10 +238,10 @@ _dwarf_get_abbrev_for_code(Dwarf_CU_Context cu_context, Dwarf_Word code)
 	do {
 	    Dwarf_Unsigned utmp3;
 
-	    DECODE_LEB128_UWORD(abbrev_ptr, utmp3)
-		attr_name = (Dwarf_Half) utmp3;
-	    DECODE_LEB128_UWORD(abbrev_ptr, utmp3)
-		attr_form = (Dwarf_Half) utmp3;
+	    DECODE_LEB128_UWORD(abbrev_ptr, utmp3);
+	    attr_name = (Dwarf_Half) utmp3;
+	    DECODE_LEB128_UWORD(abbrev_ptr, utmp3);
+	    attr_form = (Dwarf_Half) utmp3;
 	} while (attr_name != 0 && attr_form != 0);
 
     } while (*abbrev_ptr != 0 && abbrev_code != code);

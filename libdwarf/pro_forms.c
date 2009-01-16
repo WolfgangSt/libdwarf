@@ -342,7 +342,7 @@ dwarf_add_AT_location_expr(Dwarf_P_Debug dbg,
     int res;
     Dwarf_P_Attribute new_attr;
     Dwarf_Half attr_form;
-    char *len_str;
+    char *len_str = 0;
     int len_size;
     int block_size;
     char *block_dest_ptr;
@@ -446,7 +446,7 @@ dwarf_add_AT_location_expr(Dwarf_P_Debug dbg,
 	WRITE_UNALIGNED(dbg, block_dest_ptr, (const void *) &block_size,
 			sizeof(block_size), len_size);
     } else {
-	/* is uleb number form */
+	/* Is uleb number form, DW_FORM_block. See above. */
 	memcpy(block_dest_ptr, len_str, len_size);
     }
     block_dest_ptr += len_size;

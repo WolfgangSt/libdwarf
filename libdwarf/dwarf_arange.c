@@ -59,45 +59,47 @@ dwarf_get_aranges(Dwarf_Debug dbg,
 		  Dwarf_Signed * returned_count, Dwarf_Error * error)
 {
     /* Sweeps the .debug_aranges section. */
-    Dwarf_Small *arange_ptr;
+    Dwarf_Small *arange_ptr = 0;
 
     /* 
        Start of arange header.  Used for rounding offset of arange_ptr
        to twice the tuple size.  Libdwarf requirement. */
-    Dwarf_Small *header_ptr;
+    Dwarf_Small *header_ptr = 0;
 
 
     /* Version of .debug_aranges header. */
-    Dwarf_Half version;
+    Dwarf_Half version = 0;
 
     /* Offset of current set of aranges into .debug_info. */
-    Dwarf_Off info_offset;
+    Dwarf_Off info_offset = 0;
 
     /* Size in bytes of addresses in target. */
-    Dwarf_Small address_size;
+    Dwarf_Small address_size = 0;
 
     /* Size in bytes of segment offsets in target. */
-    Dwarf_Small segment_size;
+    Dwarf_Small segment_size = 0;
 
-    Dwarf_Small remainder;
+    Dwarf_Small remainder = 0;
 
     /* Count of total number of aranges. */
     Dwarf_Unsigned arange_count = 0;
 
     /* Start address of arange. */
-    Dwarf_Addr range_address;
+    Dwarf_Addr range_address = 0;
 
     /* Length of arange. */
-    Dwarf_Unsigned range_length;
+    Dwarf_Unsigned range_length = 0;
 
-    Dwarf_Arange arange, *arange_block;
+    Dwarf_Arange arange, *arange_block = 0;
 
-    Dwarf_Unsigned i;
+    Dwarf_Unsigned i = 0;
 
     /* Used to chain Dwarf_Aranges structs. */
-    Dwarf_Chain curr_chain, prev_chain, head_chain = NULL;
+    Dwarf_Chain curr_chain = NULL;
+    Dwarf_Chain prev_chain = NULL;
+    Dwarf_Chain head_chain = NULL;
 
-    int res;
+    int res = 0;
 
     /* ***** BEGIN CODE ***** */
 
@@ -284,51 +286,53 @@ _dwarf_get_aranges_addr_offsets(Dwarf_Debug dbg,
 				Dwarf_Error * error)
 {
     /* Sweeps the .debug_aranges section. */
-    Dwarf_Small *arange_ptr;
-    Dwarf_Small *arange_start_ptr;
+    Dwarf_Small *arange_ptr = 0;
+    Dwarf_Small *arange_start_ptr = 0;
 
     /* 
        Start of arange header.  Used for rounding offset of arange_ptr
        to twice the tuple size.  Libdwarf requirement. */
-    Dwarf_Small *header_ptr;
+    Dwarf_Small *header_ptr = 0;
 
     /* Length of current set of aranges. */
-    Dwarf_Unsigned length;
+    Dwarf_Unsigned length = 0;
 
     /* Version of .debug_aranges header. */
-    Dwarf_Half version;
+    Dwarf_Half version = 0;
 
     /* Offset of current set of aranges into .debug_info. */
-    Dwarf_Off info_offset;
+    Dwarf_Off info_offset = 0;
 
     /* Size in bytes of addresses in target. */
-    Dwarf_Small address_size;
+    Dwarf_Small address_size = 0;
 
     /* Size in bytes of segment offsets in target. */
-    Dwarf_Small segment_size;
+    Dwarf_Small segment_size = 0;
 
-    Dwarf_Small remainder;
+    Dwarf_Small remainder = 0;
 
     /* Count of total number of aranges. */
     Dwarf_Unsigned arange_count = 0;
 
     /* Start address of arange. */
-    Dwarf_Addr range_address;
+    Dwarf_Addr range_address = 0;
 
     /* Length of arange. */
-    Dwarf_Unsigned range_length;
+    Dwarf_Unsigned range_length = 0;
 
-    Dwarf_Arange arange;
+    Dwarf_Arange arange = 0;
 
-    Dwarf_Unsigned i;
+    Dwarf_Unsigned i = 0;
 
     /* Used to chain Dwarf_Aranges structs. */
-    Dwarf_Chain curr_chain, prev_chain, head_chain = NULL;
+    Dwarf_Chain curr_chain = NULL;
+    Dwarf_Chain prev_chain = NULL;
+    Dwarf_Chain head_chain = NULL;
 
-    Dwarf_Addr *arange_addrs;
-    Dwarf_Off *arange_offsets;
+    Dwarf_Addr *arange_addrs = 0;
+    Dwarf_Off *arange_offsets = 0;
 
-    int res;
+    int res = 0;
 
     /* ***** BEGIN CODE ***** */
 

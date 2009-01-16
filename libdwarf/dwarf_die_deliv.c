@@ -380,8 +380,8 @@ _dwarf_next_die_info_ptr(Dwarf_Byte_Ptr die_info_ptr,
     Dwarf_Debug dbg;
 
     info_ptr = die_info_ptr;
-    DECODE_LEB128_UWORD(info_ptr, utmp)
-	abbrev_code = (Dwarf_Word) utmp;
+    DECODE_LEB128_UWORD(info_ptr, utmp);
+    abbrev_code = (Dwarf_Word) utmp;
     if (abbrev_code == 0) {
 	return NULL;
     }
@@ -398,16 +398,16 @@ _dwarf_next_die_info_ptr(Dwarf_Byte_Ptr die_info_ptr,
     do {
 	Dwarf_Unsigned utmp2;
 
-	DECODE_LEB128_UWORD(abbrev_ptr, utmp2)
-	    attr = (Dwarf_Half) utmp2;
-	DECODE_LEB128_UWORD(abbrev_ptr, utmp2)
-	    attr_form = (Dwarf_Half) utmp2;
+	DECODE_LEB128_UWORD(abbrev_ptr, utmp2);
+	attr = (Dwarf_Half) utmp2;
+	DECODE_LEB128_UWORD(abbrev_ptr, utmp2);
+	attr_form = (Dwarf_Half) utmp2;
 	if (attr_form == DW_FORM_indirect) {
 	    Dwarf_Unsigned utmp6;
 
 	    /* READ_UNALIGNED does update info_ptr */
-	    DECODE_LEB128_UWORD(info_ptr, utmp6)
-		attr_form = (Dwarf_Half) utmp6;
+	    DECODE_LEB128_UWORD(info_ptr, utmp6);
+	    attr_form = (Dwarf_Half) utmp6;
 
 	}
 
@@ -536,9 +536,9 @@ dwarf_siblingof(Dwarf_Debug dbg,
 
 	/* We cannot have a legal die unless debug_info was loaded, so
 	   no need to load debug_info here. */
-	CHECK_DIE(die, DW_DLV_ERROR)
+	CHECK_DIE(die, DW_DLV_ERROR);
 
-	    die_info_ptr = die->di_debug_info_ptr;
+	die_info_ptr = die->di_debug_info_ptr;
 	if (*die_info_ptr == 0) {
 	    return (DW_DLV_NO_ENTRY);
 	}
@@ -601,8 +601,8 @@ dwarf_siblingof(Dwarf_Debug dbg,
     ret_die->di_cu_context =
 	die == NULL ? dbg->de_cu_context : die->di_cu_context;
 
-    DECODE_LEB128_UWORD(die_info_ptr, utmp)
-	abbrev_code = (Dwarf_Half) utmp;
+    DECODE_LEB128_UWORD(die_info_ptr, utmp);
+    abbrev_code = (Dwarf_Half) utmp;
     if (abbrev_code == 0) {
 	/* Zero means a null DIE */
 	dwarf_dealloc(dbg, ret_die, DW_DLA_DIE);
@@ -639,8 +639,8 @@ dwarf_child(Dwarf_Die die,
     Dwarf_Unsigned utmp = 0;
 
 
-    CHECK_DIE(die, DW_DLV_ERROR)
-	dbg = die->di_cu_context->cc_dbg;
+    CHECK_DIE(die, DW_DLV_ERROR);
+    dbg = die->di_cu_context->cc_dbg;
     die_info_ptr = die->di_debug_info_ptr;
 
     /* NULL die has no child. */
@@ -673,8 +673,8 @@ dwarf_child(Dwarf_Die die,
     ret_die->di_debug_info_ptr = die_info_ptr;
     ret_die->di_cu_context = die->di_cu_context;
 
-    DECODE_LEB128_UWORD(die_info_ptr, utmp)
-	abbrev_code = (Dwarf_Half) utmp;
+    DECODE_LEB128_UWORD(die_info_ptr, utmp);
+    abbrev_code = (Dwarf_Half) utmp;
     if (abbrev_code == 0) {
 	/* We have arrived at a null DIE, at the end of a CU or the end 
 	   of a list of siblings. */
@@ -727,15 +727,15 @@ dwarf_offdie(Dwarf_Debug dbg,
 	    return res;
 	}
 
-        if (dbg->de_offdie_cu_context_end != NULL) {
-            Dwarf_CU_Context lcu_context =
-                        dbg->de_offdie_cu_context_end;
-            new_cu_offset =
-                lcu_context->cc_debug_info_offset +
-                lcu_context->cc_length +
-                lcu_context->cc_length_size +
-                lcu_context->cc_extension_size;
-        }
+	if (dbg->de_offdie_cu_context_end != NULL) {
+	    Dwarf_CU_Context lcu_context =
+		dbg->de_offdie_cu_context_end;
+	    new_cu_offset =
+		lcu_context->cc_debug_info_offset +
+		lcu_context->cc_length +
+		lcu_context->cc_length_size +
+		lcu_context->cc_extension_size;
+	}
 
 
 	do {
@@ -780,8 +780,8 @@ dwarf_offdie(Dwarf_Debug dbg,
 
     info_ptr = dbg->de_debug_info + offset;
     die->di_debug_info_ptr = info_ptr;
-    DECODE_LEB128_UWORD(info_ptr, utmp)
-	abbrev_code = (Dwarf_Half) utmp;
+    DECODE_LEB128_UWORD(info_ptr, utmp);
+    abbrev_code = (Dwarf_Half) utmp;
     if (abbrev_code == 0) {
 	/* we are at a null DIE (or there is a bug). */
 	*new_die = 0;

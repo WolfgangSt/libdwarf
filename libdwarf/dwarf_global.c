@@ -168,7 +168,7 @@ _dwarf_internal_get_pubnames_like_data(Dwarf_Debug dbg,
 {
 
 
-    Dwarf_Small *pubnames_like_ptr;
+    Dwarf_Small *pubnames_like_ptr = 0;
 
 
 
@@ -176,30 +176,32 @@ _dwarf_internal_get_pubnames_like_data(Dwarf_Debug dbg,
        Points to the context for the current set of global names, and
        contains information to identify the compilation-unit that the
        set refers to. */
-    Dwarf_Global_Context pubnames_context;
+    Dwarf_Global_Context pubnames_context = 0;
 
-    Dwarf_Half version;
+    Dwarf_Half version = 0;
 
     /* 
        Offset from the start of compilation-unit for the current
        global. */
-    Dwarf_Off die_offset_in_cu;
+    Dwarf_Off die_offset_in_cu = 0;
 
     Dwarf_Unsigned global_count = 0;
 
     /* Points to the current global read. */
-    Dwarf_Global global;
+    Dwarf_Global global = 0;
 
     /* 
        Used to chain the Dwarf_Global_s structs for creating contiguous 
        list of pointers to the structs. */
-    Dwarf_Chain curr_chain, prev_chain, head_chain = NULL;
+    Dwarf_Chain curr_chain = 0;
+    Dwarf_Chain prev_chain = 0;
+    Dwarf_Chain head_chain = 0;
 
     /* Points to contiguous block of Dwarf_Global's to be returned. */
-    Dwarf_Global *ret_globals;
+    Dwarf_Global *ret_globals = 0;
 
     /* Temporary counter. */
-    Dwarf_Unsigned i;
+    Dwarf_Unsigned i = 0;
 
 
 
@@ -223,9 +225,9 @@ _dwarf_internal_get_pubnames_like_data(Dwarf_Debug dbg,
 
     pubnames_like_ptr = section_data_ptr;
     do {
-	Dwarf_Unsigned length;
-	int local_extension_size;
-	int local_length_size;
+	Dwarf_Unsigned length = 0;
+	int local_extension_size = 0;
+	int local_length_size = 0;
 
 	/* Some compilers emit padding at the end of each cu's area.
 	   pubnames_ptr_past_end_cu records the true area end for this
@@ -455,7 +457,7 @@ dwarf_global_cu_offset(Dwarf_Global global,
 		       Dwarf_Off * cu_header_offset,
 		       Dwarf_Error * error)
 {
-    Dwarf_Global_Context con;
+    Dwarf_Global_Context con = 0;
 
     if (global == NULL) {
 	_dwarf_error(NULL, error, DW_DLE_GLOBAL_NULL);
@@ -494,9 +496,9 @@ dwarf_global_name_offsets(Dwarf_Global global,
 			  Dwarf_Off * cu_die_offset,
 			  Dwarf_Error * error)
 {
-    Dwarf_Global_Context con;
-    Dwarf_Debug dbg;
-    Dwarf_Off off;
+    Dwarf_Global_Context con = 0;
+    Dwarf_Debug dbg = 0;
+    Dwarf_Off off = 0;
 
     if (global == NULL) {
 	_dwarf_error(NULL, error, DW_DLE_GLOBAL_NULL);

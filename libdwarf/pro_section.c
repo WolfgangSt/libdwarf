@@ -1301,23 +1301,25 @@ _dwarf_pro_generate_debugframe(Dwarf_P_Debug dbg, Dwarf_Error * error)
 static int
 _dwarf_pro_generate_debuginfo(Dwarf_P_Debug dbg, Dwarf_Error * error)
 {
-    int elfsectno_of_debug_info;
-    int abbrevsectno;
-    unsigned char *data;
-    int cu_header_size;
-    Dwarf_P_Abbrev curabbrev, abbrev_head, abbrev_tail;
-    Dwarf_P_Die curdie;
-    Dwarf_P_Die first_child;
-    Dwarf_Word dw;
-    Dwarf_Unsigned du;
-    Dwarf_Half dh;
-    Dwarf_Ubyte db;
-    Dwarf_Half version;		/* need 2 byte quantity */
-    Dwarf_Unsigned die_off;	/* offset of die in debug_info */
-    int n_abbrevs;
-    int res;
+    int elfsectno_of_debug_info = 0;
+    int abbrevsectno = 0;
+    unsigned char *data = 0;
+    int cu_header_size = 0;
+    Dwarf_P_Abbrev curabbrev = 0;
+    Dwarf_P_Abbrev abbrev_head = 0;
+    Dwarf_P_Abbrev abbrev_tail = 0;
+    Dwarf_P_Die curdie = 0;
+    Dwarf_P_Die first_child = 0;
+    Dwarf_Word dw = 0;
+    Dwarf_Unsigned du = 0;
+    Dwarf_Half dh = 0;
+    Dwarf_Ubyte db = 0;
+    Dwarf_Half version = 0;	/* Need 2 byte quantity. */
+    Dwarf_Unsigned die_off = 0;	/* Offset of die in debug_info. */
+    int n_abbrevs = 0;
+    int res = 0;
 
-    Dwarf_Small *start_info_sec;
+    Dwarf_Small *start_info_sec = 0;
 
     int uwordb_size = dbg->de_offset_size;
     int extension_size = dbg->de_64bit_extension ? 4 : 0;

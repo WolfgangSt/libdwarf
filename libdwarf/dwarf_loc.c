@@ -59,34 +59,36 @@ _dwarf_get_locdesc(Dwarf_Debug dbg,
 		   Dwarf_Addr highpc, Dwarf_Error * error)
 {
     /* Size of the block containing the location expression. */
-    Dwarf_Unsigned loc_len;
+    Dwarf_Unsigned loc_len = 0;
 
     /* Sweeps the block containing the location expression. */
-    Dwarf_Small *loc_ptr;
+    Dwarf_Small *loc_ptr = 0;
 
     /* Current location operator. */
-    Dwarf_Small atom;
+    Dwarf_Small atom = 0;
 
     /* Offset of current operator from start of block. */
-    Dwarf_Unsigned offset;
+    Dwarf_Unsigned offset = 0;
 
     /* Operands of current location operator. */
     Dwarf_Unsigned operand1, operand2;
 
     /* Used to chain the Dwarf_Loc_Chain_s structs. */
-    Dwarf_Loc_Chain curr_loc, prev_loc, head_loc = NULL;
+    Dwarf_Loc_Chain curr_loc = NULL;
+    Dwarf_Loc_Chain prev_loc = NULL;
+    Dwarf_Loc_Chain head_loc = NULL;
 
     /* Count of the number of location operators. */
-    Dwarf_Unsigned op_count;
+    Dwarf_Unsigned op_count = 0;
 
     /* Contiguous block of Dwarf_Loc's for Dwarf_Locdesc. */
-    Dwarf_Loc *block_loc;
+    Dwarf_Loc *block_loc = 0;
 
     /* Dwarf_Locdesc pointer to be returned. */
-    Dwarf_Locdesc *locdesc;
+    Dwarf_Locdesc *locdesc = 0;
 
-    Dwarf_Word leb128_length;
-    Dwarf_Unsigned i;
+    Dwarf_Word leb128_length = 0;
+    Dwarf_Unsigned i = 0;
 
     /* ***** BEGIN CODE ***** */
 

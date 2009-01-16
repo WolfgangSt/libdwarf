@@ -199,16 +199,19 @@ struct ial_s index_into_allocated[ALLOC_AREA_INDEX_TABLE_MAX] = {
     {0, 1, 1, 0, 0},		/* 23 DW_DLA_FRAME_BLOCK */
     {14, sizeof(struct Dwarf_Global_s), BASE_ALLOC, 0, 0},	/* 24
 								   DW_DLA_FUNC 
-								   UNUSED */
+								   UNUSED 
+								 */
     {15, sizeof(struct Dwarf_Global_s), BASE_ALLOC, 0, 0},	/* 25
 								   DW_DLA_TYPENAME
 								   UNUSED */
     {16, sizeof(struct Dwarf_Global_s), BASE_ALLOC, 0, 0},	/* 26
 								   DW_DLA_VAR 
-								   UNUSED */
+								   UNUSED 
+								 */
     {17, sizeof(struct Dwarf_Global_s), BASE_ALLOC, 0, 0},	/* 27
 								   DW_DLA_WEAK 
-								   UNUSED */
+								   UNUSED 
+								 */
     {0, 1, 1, 0, 0},		/* 28 DW_DLA_ADDR */
     {18, sizeof(struct Dwarf_Abbrev_List_s), BIG_ALLOC, 0, 0},
     /* 29 DW_DLA_ABBREV_LIST */
@@ -1016,7 +1019,7 @@ _dwarf_free_all_of_one_debug(Dwarf_Debug dbg)
 	 context; context = nextcontext) {
 	Dwarf_Hash_Table hash_table = context->cc_abbrev_hash_table;
 
-	/* A Hash Table is an array with ABBREV_HASH_TABLE_SIZE struct 
+	/* A Hash Table is an array with ABBREV_HASH_TABLE_SIZE struct
 	   Dwarf_Hash_Table_s entries in the array. */
 	int hashnum = 0;
 

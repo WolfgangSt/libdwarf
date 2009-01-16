@@ -43,11 +43,11 @@
     not work correctly if Dwarf_Word was 64 bits.
 */
 #define DECODE_LEB128_UWORD(ptr, value) \
-    { \
+    do { \
        Dwarf_Word uleblen; \
 	value = _dwarf_decode_u_leb128(ptr,&uleblen); \
         ptr += uleblen; \
-    }
+    } while (0)
 
 /*
     Decodes signed leb128 encoded numbers.
@@ -58,11 +58,11 @@
 
 */
 #define DECODE_LEB128_SWORD(ptr, value) \
-    { \
+    do { \
        Dwarf_Word sleblen; \
 	value = _dwarf_decode_s_leb128(ptr,&sleblen); \
         ptr += sleblen; \
-    }
+    } while(0)
 
 
 /*
@@ -71,18 +71,18 @@
     signed and unsigned numbers.
 */
 #define SKIP_LEB128_WORD(ptr) \
-    if ((*(ptr++) & 0x80) != 0) { \
+    do{ if ((*(ptr++) & 0x80) != 0) { \
         if ((*(ptr++) & 0x80) != 0) { \
             if ((*(ptr++) & 0x80) != 0) { \
 	        if ((*(ptr++) & 0x80) != 0) { \
 	        } \
 	    } \
         } \
-    }
+    } } while (0)
 
 
 #define CHECK_DIE(die, error_ret_value) \
-    if (die == NULL) { \
+do {if (die == NULL) { \
 	_dwarf_error(NULL, error, DW_DLE_DIE_NULL); \
 	return(error_ret_value); \
     } \
@@ -93,7 +93,8 @@
     if (die->di_cu_context->cc_dbg == NULL) { \
 	_dwarf_error(NULL, error, DW_DLE_DBG_NULL); \
 	return(error_ret_value); \
-    }
+    }  \
+} while (0)
 
 
 /* 
@@ -111,12 +112,12 @@ typedef Dwarf_Unsigned BIGGEST_UINT;
 
 #ifdef WORDS_BIGENDIAN
 #define READ_UNALIGNED(dbg,dest,desttype, source, length) \
-    { \
+    do { \
       BIGGEST_UINT _ltmp = 0;  \
       dbg->de_copy_word( (((char *)(&_ltmp)) + sizeof(_ltmp) - length), \
 			source, length) ; \
       dest = (desttype)_ltmp;  \
-    }
+    } while (0)
 
 
 /*
@@ -128,18 +129,20 @@ typedef Dwarf_Unsigned BIGGEST_UINT;
     The memcpy args are the issue.
 */
 #define SIGN_EXTEND(dest, length) \
-    if (*(Dwarf_Sbyte *)((char *)&dest + sizeof(dest) - length) < 0) \
+    do {if (*(Dwarf_Sbyte *)((char *)&dest + sizeof(dest) - length) < 0) {\
 	memcpy((char *)&dest, "\xff\xff\xff\xff\xff\xff\xff\xff", \
-	    sizeof(dest) - length)
+	    sizeof(dest) - length);  \
+        } \
+     } while (0)
 #else /* LITTLE ENDIAN */
 
 #define READ_UNALIGNED(dbg,dest,desttype, source, length) \
-    { \
+    do  { \
       BIGGEST_UINT _ltmp = 0;  \
       dbg->de_copy_word( (char *)(&_ltmp) , \
                         source, length) ; \
       dest = (desttype)_ltmp;  \
-    }
+     } while (0)
 
 
 /*
@@ -151,10 +154,12 @@ typedef Dwarf_Unsigned BIGGEST_UINT;
     The memcpy args are the issue.
 */
 #define SIGN_EXTEND(dest, length) \
-    if (*(Dwarf_Sbyte *)((char *)&dest + (length-1)) < 0) \
+    do {if (*(Dwarf_Sbyte *)((char *)&dest + (length-1)) < 0) {\
         memcpy((char *)&dest+length,    \
                 "\xff\xff\xff\xff\xff\xff\xff\xff", \
-            sizeof(dest) - length)
+            sizeof(dest) - length); \
+        }  \
+    } while (0)
 
 #endif /* ! LITTLE_ENDIAN */
 
@@ -202,7 +207,7 @@ typedef Dwarf_Unsigned BIGGEST_UINT;
 */
 #   define    READ_AREA_LENGTH(r_dbg,w_target,r_targtype,         \
 	rw_src_data_p,w_length_size,w_exten_size)                 \
-    READ_UNALIGNED(r_dbg,w_target,r_targtype,                     \
+do {    READ_UNALIGNED(r_dbg,w_target,r_targtype,                     \
                 rw_src_data_p, ORIGINAL_DWARF_OFFSET_SIZE);       \
     if(w_target == DISTINGUISHED_VALUE) {                         \
 	     /* dwarf3 64bit extension */                         \
@@ -226,7 +231,7 @@ typedef Dwarf_Unsigned BIGGEST_UINT;
              w_length_size  = ORIGINAL_DWARF_OFFSET_SIZE;         \
              rw_src_data_p += w_length_size;                      \
 	}                                                         \
-    }
+    } } while(0)
 
 
 

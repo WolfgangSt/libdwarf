@@ -115,10 +115,10 @@ dwarf_get_abbrev(Dwarf_Debug dbg,
     do {
 	Dwarf_Unsigned utmp2;
 
-	DECODE_LEB128_UWORD(abbrev_ptr, utmp2)
-	    attr = (Dwarf_Half) utmp2;
-	DECODE_LEB128_UWORD(abbrev_ptr, utmp2)
-	    attr_form = (Dwarf_Half) utmp2;
+	DECODE_LEB128_UWORD(abbrev_ptr, utmp2);
+	attr = (Dwarf_Half) utmp2;
+	DECODE_LEB128_UWORD(abbrev_ptr, utmp2);
+	attr_form = (Dwarf_Half) utmp2;
 
 	if (attr != 0)
 	    (labbr_count)++;
@@ -190,11 +190,11 @@ dwarf_get_abbrev_entry(Dwarf_Abbrev abbrev,
 		       Dwarf_Signed * form,
 		       Dwarf_Off * offset, Dwarf_Error * error)
 {
-    Dwarf_Byte_Ptr abbrev_ptr;
-    Dwarf_Byte_Ptr abbrev_end;
-    Dwarf_Byte_Ptr mark_abbrev_ptr;
-    Dwarf_Half attr;
-    Dwarf_Half attr_form;
+    Dwarf_Byte_Ptr abbrev_ptr = 0;
+    Dwarf_Byte_Ptr abbrev_end = 0;
+    Dwarf_Byte_Ptr mark_abbrev_ptr = 0;
+    Dwarf_Half attr = 0;
+    Dwarf_Half attr_form = 0;
 
     if (index < 0)
 	return (DW_DLV_NO_ENTRY);
@@ -225,10 +225,10 @@ dwarf_get_abbrev_entry(Dwarf_Abbrev abbrev,
 	Dwarf_Unsigned utmp4;
 
 	mark_abbrev_ptr = abbrev_ptr;
-	DECODE_LEB128_UWORD(abbrev_ptr, utmp4)
-	    attr = (Dwarf_Half) utmp4;
-	DECODE_LEB128_UWORD(abbrev_ptr, utmp4)
-	    attr_form = (Dwarf_Half) utmp4;
+	DECODE_LEB128_UWORD(abbrev_ptr, utmp4);
+	attr = (Dwarf_Half) utmp4;
+	DECODE_LEB128_UWORD(abbrev_ptr, utmp4);
+	attr_form = (Dwarf_Half) utmp4;
     }
 
     if (abbrev_ptr >= abbrev_end) {

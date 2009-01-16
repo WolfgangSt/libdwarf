@@ -150,10 +150,6 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
     Dwarf_Half fixed_advance_pc;
 
 
-     /*REFERENCED*/		/* Not used in this instance of the
-				   macro */
-    int local_extension_size;
-
     /* The Dwarf_Debug this die belongs to. */
     Dwarf_Debug dbg;
     int resattr;
@@ -166,8 +162,8 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
     if (error != NULL)
 	*error = NULL;
 
-    CHECK_DIE(die, DW_DLV_ERROR)
-	dbg = die->di_cu_context->cc_dbg;
+    CHECK_DIE(die, DW_DLV_ERROR);
+    dbg = die->di_cu_context->cc_dbg;
 
     res =
 	_dwarf_load_section(dbg,
@@ -338,10 +334,10 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
 		 */
 		Dwarf_Unsigned utmp2;
 
-		DECODE_LEB128_UWORD(line_ptr, utmp2)
-		    printf(" %llu (0x%llx)",
-			   (unsigned long long) utmp2,
-			   (unsigned long long) utmp2);
+		DECODE_LEB128_UWORD(line_ptr, utmp2);
+		printf(" %llu (0x%llx)",
+		       (unsigned long long) utmp2,
+		       (unsigned long long) utmp2);
 	    }
 
 	    printf("\n");
@@ -389,10 +385,10 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
 		    Dwarf_Unsigned utmp2;
 
 
-		    DECODE_LEB128_UWORD(line_ptr, utmp2)
-			printf("DW_LNS_advance_pc val %lld 0x%llx\n",
-			       (long long) (Dwarf_Word) utmp2,
-			       (long long) (Dwarf_Word) utmp2);
+		    DECODE_LEB128_UWORD(line_ptr, utmp2);
+		    printf("DW_LNS_advance_pc val %lld 0x%llx\n",
+			   (long long) (Dwarf_Word) utmp2,
+			   (long long) (Dwarf_Word) utmp2);
 		    leb128_num = (Dwarf_Word) utmp2;
 		    address =
 			address +
@@ -405,8 +401,8 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
 		    Dwarf_Signed stmp;
 
 
-		    DECODE_LEB128_SWORD(line_ptr, stmp)
-			advance_line = (Dwarf_Sword) stmp;
+		    DECODE_LEB128_SWORD(line_ptr, stmp);
+		    advance_line = (Dwarf_Sword) stmp;
 		    printf("DW_LNS_advance_line val %lld 0x%llx\n",
 			   (long long) advance_line,
 			   (long long) advance_line);
@@ -418,8 +414,8 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
 		    Dwarf_Unsigned utmp2;
 
 
-		    DECODE_LEB128_UWORD(line_ptr, utmp2)
-			file = (Dwarf_Word) utmp2;
+		    DECODE_LEB128_UWORD(line_ptr, utmp2);
+		    file = (Dwarf_Word) utmp2;
 		    printf("DW_LNS_set_file  %ld\n", (long) file);
 		    break;
 		}
@@ -428,8 +424,8 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
 		    Dwarf_Unsigned utmp2;
 
 
-		    DECODE_LEB128_UWORD(line_ptr, utmp2)
-			column = (Dwarf_Word) utmp2;
+		    DECODE_LEB128_UWORD(line_ptr, utmp2);
+		    column = (Dwarf_Word) utmp2;
 		    printf("DW_LNS_set_column val %lld 0x%llx\n",
 			   (long long) column, (long long) column);
 		    break;
@@ -493,8 +489,8 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
 	    case DW_LNS_set_isa:{
 		    Dwarf_Unsigned utmp2;
 
-		    DECODE_LEB128_UWORD(line_ptr, utmp2)
-			isa = utmp2;
+		    DECODE_LEB128_UWORD(line_ptr, utmp2);
+		    isa = utmp2;
 		    printf("DW_LNS_set_isa new value 0x%llx.\n",
 			   (unsigned long long) utmp2);
 		    if (isa != utmp2) {
@@ -517,8 +513,8 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
 	    Dwarf_Word instr_length = 0;
 	    Dwarf_Small ext_opcode = 0;
 
-	    DECODE_LEB128_UWORD(line_ptr, utmp3)
-		instr_length = (Dwarf_Word) utmp3;
+	    DECODE_LEB128_UWORD(line_ptr, utmp3);
+	    instr_length = (Dwarf_Word) utmp3;
 	    ext_opcode = *(Dwarf_Small *) line_ptr;
 	    line_ptr++;
 	    switch (ext_opcode) {
