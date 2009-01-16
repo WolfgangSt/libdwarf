@@ -228,7 +228,8 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,	/* Make list of frame
 			Dwarf_Addr search_pc_val,	/* Search for
 							   this pc
 							   value */
-			Dwarf_Addr loc,	/* initial location value */
+			Dwarf_Addr initial_loc,	/* Initial code location 
+						value. */
 			Dwarf_Small * start_instr_ptr,	/* Ptr to start 
 							   of frame
 							   instrs.  */
@@ -251,7 +252,10 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,	/* Make list of frame
     Dwarf_Small instr, opcode;
     Dwarf_Small reg_no, reg_noA, reg_noB;
     Dwarf_Unsigned factored_N_value;
-    Dwarf_Addr new_loc;		/* must be min de_pointer_size bytes */
+    Dwarf_Addr current_loc = initial_loc; /* code location/ pc-value
+	corresponding to the frame instructions.
+	Starts at zero when the caller has no value to pass in. */
+
     Dwarf_Unsigned adv_loc;	/* must be min de_pointer_size bytes
 				   and must be at least sizeof
 				   Dwarf_ufixed */
@@ -260,7 +264,7 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,	/* Make list of frame
 
 
     /* This is used to end executing frame instructions.  */
-    /* Becomes true when search_pc is true and loc */
+    /* Becomes true when search_pc is true and current_loc */
     /* is greater than search_pc_val.  */
     Dwarf_Bool search_over = false;
 
@@ -388,10 +392,10 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,	/* Make list of frame
 		adv_pc = adv_pc * code_alignment_factor;
 
 		search_over = search_pc &&
-		    (loc + adv_pc > search_pc_val);
+		    (current_loc + adv_pc > search_pc_val);
 		/* If gone past pc needed, retain old pc.  */
 		if (!search_over)
-		    loc = loc + adv_pc;
+		    current_loc = current_loc + adv_pc;
 		break;
 	    }
 
@@ -441,19 +445,31 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,	/* Make list of frame
 		break;
 	    }
 	case DW_CFA_set_loc:{
+                Dwarf_Addr new_loc = 0;
 		READ_UNALIGNED(dbg, new_loc, Dwarf_Addr,
 			       instr_ptr, dbg->de_pointer_size);
 		instr_ptr += dbg->de_pointer_size;
-		if (new_loc <= loc) {
+		if (new_loc != 0 && current_loc != 0  ) {
+		  /* Pre-relocation or before
+		     current_loc is set the test 
+		     comparing new_loc and current_loc makes no sense. 
+		     Testing for non-zero (above) is a way (fallible) 
+		     to check that current_loc,
+                     new_loc are already relocated.  */
+		  if(new_loc <= current_loc) {
+		    /* Within a frame, address must increase.
+		       Seemingly it has not. Seems to be an error.  */
+
 		    *returned_error = (DW_DLE_DF_NEW_LOC_LESS_OLD_LOC);
 		    return DW_DLV_ERROR;
+		  }
 		}
 
 		search_over = search_pc && (new_loc > search_pc_val);
 
 		/* If gone past pc needed, retain old pc.  */
 		if (!search_over)
-		    loc = new_loc;
+		    current_loc = new_loc;
 		fp_offset = new_loc;
 		break;
 	    }
@@ -469,11 +485,11 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,	/* Make list of frame
 		adv_loc *= code_alignment_factor;
 
 		search_over = search_pc &&
-		    (loc + adv_loc > search_pc_val);
+		    (current_loc + adv_loc > search_pc_val);
 
 		/* If gone past pc needed, retain old pc.  */
 		if (!search_over)
-		    loc = loc + adv_loc;
+		    current_loc = current_loc + adv_loc;
 		break;
 	    }
 
@@ -490,11 +506,11 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,	/* Make list of frame
 		adv_loc *= code_alignment_factor;
 
 		search_over = search_pc &&
-		    (loc + adv_loc > search_pc_val);
+		    (current_loc + adv_loc > search_pc_val);
 
 		/* If gone past pc needed, retain old pc.  */
 		if (!search_over)
-		    loc = loc + adv_loc;
+		    current_loc = current_loc + adv_loc;
 		break;
 	    }
 
@@ -511,11 +527,11 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,	/* Make list of frame
 		adv_loc *= code_alignment_factor;
 
 		search_over = search_pc &&
-		    (loc + adv_loc > search_pc_val);
+		    (current_loc + adv_loc > search_pc_val);
 
 		/* If gone past pc needed, retain old pc.  */
 		if (!search_over)
-		    loc = loc + adv_loc;
+		    current_loc = current_loc + adv_loc;
 		break;
 	    }
 
@@ -804,7 +820,7 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,	/* Make list of frame
     if (table != NULL) {
 	t1reg = reg;
 	t1end = t1reg + DW_FRAME_LAST_REG_NUM;
-	table->fr_loc = loc;
+	table->fr_loc = current_loc;
 	t2reg = table->fr_reg;
 	for (; t1reg < t1end; t1reg++, t2reg++) {
 	    *t2reg = *t1reg;

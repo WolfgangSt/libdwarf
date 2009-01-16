@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000,2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2002,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -142,12 +142,6 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
     /* 
        This is the current opcode read from the statement program. */
     Dwarf_Small opcode;
-
-    /* 
-       Pointer to a Dwarf_Line_Context_s structure that contains the
-       context such as file names and include directories for the set
-       of lines being generated. */
-    Dwarf_Line_Context line_context;
 
 
     /* 
@@ -352,13 +346,6 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
 	return (DW_DLV_ERROR);
     }
 
-    /* Set up context structure for this set of lines. */
-    line_context = (Dwarf_Line_Context)
-	_dwarf_get_alloc(dbg, DW_DLA_LINE_CONTEXT, 1);
-    if (line_context == NULL) {
-	_dwarf_error(dbg, error, DW_DLE_ALLOC_FAIL);
-	return (DW_DLV_ERROR);
-    }
 
     printf("  statement prog offset in section: %lld 0x%llx\n",
 	   (long long) (line_ptr - orig_line_ptr),

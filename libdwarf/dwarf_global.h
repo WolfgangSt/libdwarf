@@ -102,3 +102,13 @@ int _dwarf_internal_get_pubnames_like_data(Dwarf_Debug dbg,
 					   int allocation_code,
 					   int length_err_num,
 					   int version_err_num);
+
+#ifdef __sgi  /* __sgi should only be defined for IRIX/MIPS. */
+void _dwarf_fix_up_offset_irix(Dwarf_Debug dbg,
+        Dwarf_Unsigned *varp,
+        char *caller_site_name);
+#define FIX_UP_OFFSET_IRIX_BUG(ldbg,var,name) _dwarf_fix_up_offset_irix(ldbg,&var,name)
+#else
+#define FIX_UP_OFFSET_IRIX_BUG(ldbg,var,name)
+#endif
+

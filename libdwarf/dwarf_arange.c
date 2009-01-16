@@ -40,6 +40,7 @@
 #include "dwarf_incl.h"
 #include <stdio.h>
 #include "dwarf_arange.h"
+#include "dwarf_global.h" /* for _dwarf_fixup_* */
 
 
 /*
@@ -147,8 +148,11 @@ dwarf_get_aranges(Dwarf_Debug dbg,
 	arange_ptr += local_length_size;
 	length = length - local_length_size;
 	if (info_offset >= dbg->de_debug_info_size) {
+	   FIX_UP_OFFSET_IRIX_BUG(dbg,info_offset,"arange info offset.a");
+	   if (info_offset >= dbg->de_debug_info_size) {
 	    _dwarf_error(dbg, error, DW_DLE_ARANGE_OFFSET_BAD);
 	    return (DW_DLV_ERROR);
+	   }
 	}
 
 	address_size = *(Dwarf_Small *) arange_ptr;
@@ -372,8 +376,12 @@ _dwarf_get_aranges_addr_offsets(Dwarf_Debug dbg,
 	arange_ptr += local_length_size;
 	length = length - local_length_size;
 	if (info_offset >= dbg->de_debug_info_size) {
+           FIX_UP_OFFSET_IRIX_BUG(dbg,info_offset,"arange info offset.b");
+           if (info_offset >= dbg->de_debug_info_size) {
+
 	    _dwarf_error(dbg, error, DW_DLE_ARANGE_OFFSET_BAD);
 	    return (DW_DLV_ERROR);
+	  }
 	}
 
 	address_size = *(Dwarf_Small *) arange_ptr;

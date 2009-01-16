@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000,2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2002,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -1567,12 +1567,18 @@ _dwarf_line_address_offsets(Dwarf_Debug dbg,
     laddrs = (Dwarf_Addr *)
 	_dwarf_get_alloc(dbg, DW_DLA_ADDR, lcount);
     if (laddrs == NULL) {
+        dwarf_srclines_dealloc(dbg,linebuf,lcount); 
 	_dwarf_error(dbg, err, DW_DLE_ALLOC_FAIL);
 	return (DW_DLV_ERROR);
     }
     loffsets = (Dwarf_Off *)
 	_dwarf_get_alloc(dbg, DW_DLA_ADDR, lcount);
     if (loffsets == NULL) {
+        dwarf_srclines_dealloc(dbg,linebuf,lcount); 
+	/* We already  allocated what laddrs
+	   points at, so we'e better deallocate that space since
+	   we are not going to return the pointer to the caller. */
+	dwarf_dealloc(dbg,laddrs,DW_DLA_ADDR);
 	_dwarf_error(dbg, err, DW_DLE_ALLOC_FAIL);
 	return (DW_DLV_ERROR);
     }
@@ -1580,11 +1586,48 @@ _dwarf_line_address_offsets(Dwarf_Debug dbg,
     for (i = 0; i < lcount; i++) {
 	laddrs[i] = linebuf[i]->li_address;
 	loffsets[i] = linebuf[i]->li_addr_line.li_offset;
-	dwarf_dealloc(dbg, linebuf[i], DW_DLA_LINE);
     }
-    dwarf_dealloc(dbg, linebuf, DW_DLA_LIST);
+    dwarf_srclines_dealloc(dbg,linebuf,lcount); 
     *returncount = lcount;
     *offs = loffsets;
     *addrs = laddrs;
     return DW_DLV_OK;
+}
+
+/*
+   It's impossible for callers of dwarf_srclines() to get to and
+   free all the resources (in particular, the li_context and its
+   lc_file_entries). 
+   So this function, new July 2005, does it.  
+*/
+
+void 
+dwarf_srclines_dealloc(Dwarf_Debug dbg, Dwarf_Line *linebuf, 
+   Dwarf_Signed count)
+{
+
+        Dwarf_Signed i = 0;
+	struct Dwarf_Line_Context_s *context = 0;
+
+	if(count > 0) {
+	   /* All these entries share a single context */
+	   context = linebuf[0]->li_context;
+        }
+        for (i = 0; i < count; ++i) {
+                dwarf_dealloc(dbg, linebuf[i], DW_DLA_LINE);
+        }
+        dwarf_dealloc(dbg, linebuf, DW_DLA_LIST);
+
+	if (context) {
+	   Dwarf_File_Entry fe = context->lc_file_entries;
+	
+           while(fe) {
+		Dwarf_File_Entry fenext = fe->fi_next;
+	 	dwarf_dealloc(dbg,fe,DW_DLA_FILE_ENTRY);
+		fe = fenext;
+	   }
+	   dwarf_dealloc(dbg,context,DW_DLA_LINE_CONTEXT);
+	}
+
+	return;
 }

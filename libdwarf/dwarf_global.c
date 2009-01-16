@@ -40,6 +40,45 @@
 #include <stdio.h>
 #include "dwarf_global.h"
 
+
+#ifdef __sgi  /* __sgi should only be defined for IRIX/MIPS. */
+/* The 'fixup' here intended for IRIX targets only.
+   With a  2+GB Elf64 IRIX executable (under 4GB in size),  
+   some DIE offsets wrongly
+   got the 32bit upper bit sign extended.  For the cu-header
+   offset in the .debug_pubnames section  and in the
+   .debug_aranges section.
+   the 'varp' here is a pointer to an offset into .debug_info.
+   We fix up the offset here if it seems advisable..
+   
+   As of June 2005 we have identified a series of mistakes
+   in ldx64 that can cause this (64 bit values getting passed
+   thru 32-bit signed knothole).  
+*/
+void 
+_dwarf_fix_up_offset_irix(Dwarf_Debug dbg,
+	Dwarf_Unsigned *varp,
+	char *caller_site_name)
+{
+
+     Dwarf_Unsigned var = *varp;
+
+     #define UPPER33 0xffffffff80000000LL
+     #define LOWER32         0xffffffffLL
+     /* Restrict the hack to the known case. Upper 32 bits
+	erroneously sign extended from lower 32 upper bit. */
+     if ( (var&UPPER33) == UPPER33) {
+		var  &= LOWER32;
+		/* Apply the fix. Dreadful hack. */
+		*varp = var;
+     }
+     #undef UPPER33
+     #undef LOWER32
+     return;
+}
+#endif
+
+
 int
 dwarf_get_globals(Dwarf_Debug dbg,
 		  Dwarf_Global ** globals,
@@ -187,6 +226,10 @@ _dwarf_internal_get_pubnames_like_data(Dwarf_Debug dbg,
 		       pubnames_context->pu_length_size);
 	pubnames_like_ptr += pubnames_context->pu_length_size;
 
+        FIX_UP_OFFSET_IRIX_BUG(dbg,
+			pubnames_context->pu_offset_of_cu_header,
+			"pubnames cu header offset");
+
 
 	READ_UNALIGNED(dbg, pubnames_context->pu_info_length,
 		       Dwarf_Unsigned, pubnames_like_ptr,
@@ -204,6 +247,9 @@ _dwarf_internal_get_pubnames_like_data(Dwarf_Debug dbg,
 		       pubnames_like_ptr,
 		       pubnames_context->pu_length_size);
 	pubnames_like_ptr += pubnames_context->pu_length_size;
+        FIX_UP_OFFSET_IRIX_BUG(dbg,
+			die_offset_in_cu,
+			"offset of die in cu");
 
 	/* loop thru pairs. DIE off with CU followed by string */
 	while (die_offset_in_cu != 0) {
@@ -252,6 +298,10 @@ _dwarf_internal_get_pubnames_like_data(Dwarf_Debug dbg,
 			   pubnames_context->pu_length_size);
 
 	    pubnames_like_ptr += pubnames_context->pu_length_size;
+            FIX_UP_OFFSET_IRIX_BUG(dbg,
+			die_offset_in_cu,
+			"offset of next die in cu");
+
 	    if (pubnames_like_ptr > (section_data_ptr + section_length)) {
 		_dwarf_error(dbg, error, length_err_num);
 		return (DW_DLV_ERROR);
@@ -296,7 +346,7 @@ _dwarf_internal_get_pubnames_like_data(Dwarf_Debug dbg,
     }
 
     *globals = ret_globals;
-    *return_count = (global_count);
+    *return_count = (Dwarf_Signed)global_count;
     return DW_DLV_OK;
 }
 
@@ -388,6 +438,9 @@ dwarf_global_cu_offset(Dwarf_Global global,
 /*
   Give back the pubnames entry (or any other like section)
   name, symbol DIE offset, and the cu-DIE offset.
+
+  Various errors are possible.
+
 */
 int
 dwarf_global_name_offsets(Dwarf_Global global,
@@ -445,10 +498,15 @@ dwarf_global_name_offsets(Dwarf_Global global,
 	if(res != DW_DLV_OK) {
 	   return res;
 	}
-        if((off+10) >= dbg->de_debug_info_size) {
-            _dwarf_error(NULL, error, DW_DLE_OFFSET_BAD);
-            return (DW_DLV_ERROR);
-        }
+	/* The offset had better not be too close to the end.
+	   If it is, _dwarf_length_of_cu_header() will step
+	   off the end and therefore must not be used.  
+	   10 is a meaningless heuristic,
+	   but no CU header is that small so it is safe. */
+	if((off+10) >= dbg->de_debug_info_size) {
+	    _dwarf_error(NULL, error, DW_DLE_OFFSET_BAD);
+	    return (DW_DLV_ERROR);
+	}
 	*cu_die_offset = off + _dwarf_length_of_cu_header(dbg, off);
     }
 

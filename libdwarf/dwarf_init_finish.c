@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000,2002,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2002,2003,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -556,20 +556,21 @@ dwarf_init(int fd,
 
     sres = elf_sgi_begin_fd(elf, fd, 0);
     if (sres != ELF_SGI_ERROR_OK) {
+        elf_sgi_free(elf);
 	DWARF_DBG_ERROR(dbg, _dwarf_error_code_from_elf_sgi_error_code(sres),
 			DW_DLV_ERROR);
     }
-#else
+#else /* ! __SGI_FAST_LIBELF */
     elf_version(EV_CURRENT);
     /* changed to mmap request per bug 281217. 6/95 */
 #ifdef HAVE_ELF_C_READ_MMAP
     /* ELF_C_READ_MMAP is an SGI IRIX specific enum value from IRIX
        libelf.h meaning read but use mmap */
     what_kind_of_elf_read = ELF_C_READ_MMAP;
-#else
+#else /* !HAVE_ELF_C_READ_MMAP */
     /* ELF_C_READ is a portable value */
     what_kind_of_elf_read  = ELF_C_READ;
-#endif
+#endif /* HAVE_ELF_C_READ_MMAP */
 
     if ((elf = elf_begin(fd, what_kind_of_elf_read, 0)) == NULL) {
 	DWARF_DBG_ERROR(dbg, DW_DLE_ELF_BEGIN_ERROR, DW_DLV_ERROR);
@@ -578,6 +579,11 @@ dwarf_init(int fd,
 
     dbg->de_elf_must_close = 1;
     if ((res = _dwarf_setup(dbg, elf, error)) != DW_DLV_OK) {
+#ifdef __SGI_FAST_LIBELF
+        elf_sgi_free(elf);
+#else
+        elf_end(elf);
+#endif
 	free(dbg);
 	return (res);
     }

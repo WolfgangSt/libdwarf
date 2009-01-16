@@ -8,7 +8,7 @@
 .nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.53, 28 Mar 2005
+.ds vE rev 1.54, 14 July 2005
 \." ==============================================
 \." ==============================================
 .ds | |
@@ -33,7 +33,7 @@
 .TL
 A Consumer Library Interface to DWARF 
 .AF ""
-.AU "UNIX International Programming Languages Special Interest Group" 
+.AU "UNIX International Programming Languages Special Interest Group"
 .PF "'\*(vE'- \\\\nP -''"
 \.".PM ""
 .AS 1
@@ -43,20 +43,24 @@ UNIX is a registered trademark of UNIX System Laboratories, Inc.
 in the United States and other countries.
 .FE
 to access DWARF debugging information entries and DWARF line number
-information. It does not make recommendations as to how the functions
+information (and other DWARF2/3 information). 
+It does not make recommendations as to how the functions
 described in this document should be implemented nor does it
 suggest possible optimizations. 
 .P
-The document is oriented to reading DWARF version 2.
+The document is oriented to reading DWARF version 2 
+and version 3.
 There are certain sections which are SGI-specific (those
 are clearly identified in the document).
-We would propose this 
-to the PLSIG committee
-as the basis for a
-standard libdwarf interface, but as of this
-writing, the committee is dormant.
+The DWARF Committee has not finalized DWARF3 at this writing.
 .P
-This document are subject to change.
+In the mid 1990's this document and the library it describes
+was made available on the Internet.
+Unix International was disbanded in the 1990's and no longer exists.
+In 2005  the DWARF committee began an affiliation with FreeStandards.org.
+See "http://www.freestandards.org" and "http://dwarf.freestandards.org".
+.P
+This document is subject to change.
 .P
 \*(vE
 
@@ -82,6 +86,21 @@ issues are addressed separately.
 Additionally, the focus of this document is the functional interface,
 and as such, implementation as well as optimization issues are
 intentionally ignored.
+
+
+.H 2 "Document History"
+.P
+A document was written about 1991 which had similar
+layout and interfaces. It was for reading DWARF1.
+The authors distributed paper copies to the committee
+with the clearly expressed intent to propose the document as
+a supported interface definition.
+.P
+SGI wrote the document you are now reading in 1993
+with a similar layout and content and organization, but 
+is a complete rewrite, and with the intent to read DWARF2.
+The intent is to also cover DWARF3, but DWARF3 is not fully
+covered by this document at this time.
 
 .H 2 "Definitions"
 DWARF debugging information entries (DIE) are the segments of information 
@@ -146,6 +165,12 @@ functions.
 The following is a brief mention of the changes in this libdwarf from 
 the libdwarf draft for DWARF Version 1.
 .H 2 "Items Changed"
+.P 
+Added dwarf_srclines_dealloc() as the previous deallocation
+method documented for data returned by
+dwarf_srclines() was incapable of freeing
+all the allocated storage (14 July 2005).
+.P
 dwarf_nextglob(), dwarf_globname(), and dwarf_globdie() were all changed 
 to operate on the items in the .debug_pubnames section.
 .P
@@ -471,7 +496,10 @@ for queries against dwarf information stored in various debugging
 sections.  Each time an instance of an opaque type is returned as a 
 result of a \fIlibdwarf\fP operation (\f(CWDwarf_Debug\fP excepted), 
 it should be free'd, using \f(CWdwarf_dealloc()\fP when it is no longer 
-of use.  
+of use (read the following documentation for details, as in at least
+one case there is a special routine provided for deallocation
+and \f(CWdwarf_dealloc()\fP is not directly called: 
+see \f(CWdwarf_srclines()\fP).
 Some functions return a number of instances of an opaque type 
 in a block, by means of a pointer to the block and a count of the number
 of opaque descriptors in the block:
@@ -826,7 +854,8 @@ routine that returns a list:
 Dwarf_Attribute *atlist;
 int errv;
 
-if ((errv = dwarf_attrlist(somedie, &atlist,&atcnt, &error)) == DW_DLV_OK) {
+errv = dwarf_attrlist(somedie, &atlist,&atcnt, &error);
+if (errv == DW_DLV_OK) {
 
         for (i = 0; i < atcnt; ++i) {
                 /* use atlist[i] */
@@ -1324,7 +1353,8 @@ Freeing the attrlist:
 Dwarf_Attribute *atlist;
 int errv;
 
-if ((errv = dwarf_attrlist(somedie, &atlist,&atcnt, &error)) == DW_DLV_OK) {
+errv = dwarf_attrlist(somedie, &atlist,&atcnt, &error);
+if (errv == DW_DLV_OK) {
 
         for (i = 0; i < atcnt; ++i) {
                 /* use atlist[i] */
@@ -1837,7 +1867,8 @@ using the allocation type \f(CWDW_DLA_LIST\fP.
 Dwarf_Locdesc **llbuf;
 int lres;
 
-if ((lres = dwarf_loclist_n(someattr, &llbuf,&lcnt &error)) == DW_DLV_OK) {
+lres = dwarf_loclist_n(someattr, &llbuf,&lcnt &error);
+if (lres == DW_DLV_OK) {
         for (i = 0; i < lcnt; ++i) {
             /* use llbuf[i] */
 
@@ -1893,7 +1924,8 @@ using the allocation type \f(CWDW_DLA_LOCDESC\fP.
 Dwarf_Locdesc *llbuf;
 int lres;
 
-if ((lres = dwarf_loclist(someattr, &llbuf,&lcnt &error)) == DW_DLV_OK) {
+lres = dwarf_loclist(someattr, &llbuf,&lcnt &error);
+if (lres == DW_DLV_OK) {
 	/* lcnt is always 1, (and has always been 1) */ */
 	/* use llbuf */
 
@@ -1953,11 +1985,9 @@ The compilation-unit is indicated by the given \f(CWdie\fP which must be
 a compilation-unit die.  
 It returns \f(CWDW_DLV_ERROR\fP on error.  
 On
-successful return, each line number information structure pointed to by 
-an entry in the block should be free'd using \f(CWdwarf_dealloc()\fP with 
-the allocation type \f(CWDW_DLA_LINE\fP when no longer of interest.  Also 
-the block of descriptors itself should be free'd using \f(CWdwarf_dealloc()\fP
-with the allocation type \f(CWDW_DLA_LIST\fP when no longer of interest.
+successful return, line number information 
+should be free'd using \f(CWdwarf_srclines_dealloc()\fP
+when no longer of interest. 
 .P
 .in +2
 .DS
@@ -1965,8 +1995,30 @@ with the allocation type \f(CWDW_DLA_LIST\fP when no longer of interest.
 Dwarf_Line *linebuf;
 int sres;
 
-if ((sres = dwarf_srclines(somedie, &linebuf,&cnt, &error)) == DW_DLV_OK) {
+sres = dwarf_srclines(somedie, &linebuf,&cnt, &error);
+if (sres == DW_DLV_OK) {
+        for (i = 0; i < cnt; ++i) {
+                /* use linebuf[i] */
+        }
+        dwarf_srclines_dealloc(dbg, linebuf, cnt);
+}\fP
+.DE
 
+.in -2
+.P
+The following dealloc code (the only documented method before July 2005)
+still works, but does not completely free all data allocated.
+The \f(CWdwarf_srclines_dealloc()\fP routine was created
+to fix the problem of incomplete deallocation.
+.P
+.in +2
+.DS
+\f(CWDwarf_Signed cnt;
+Dwarf_Line *linebuf;
+int sres;
+
+sres = dwarf_srclines(somedie, &linebuf,&cnt, &error);
+if (sres == DW_DLV_OK) {
         for (i = 0; i < cnt; ++i) {
                 /* use linebuf[i] */
                 dwarf_dealloc(dbg, linebuf[i], DW_DLA_LINE);
@@ -2020,7 +2072,8 @@ corresponding statement program (i.e., if there is no line information).
 char **srcfiles;
 int res;
 
-if ((res = dwarf_srcfiles(somedie, &srcfiles,&cnt &error)) == DW_DLV_OK) {
+res = dwarf_srcfiles(somedie, &srcfiles,&cnt &error);
+if (res == DW_DLV_OK) {
 
         for (i = 0; i < cnt; ++i) {
                 /* use srcfiles[i] */
@@ -2248,7 +2301,8 @@ no longer of interest.
 Dwarf_Global *globs;
 int res;
 
-if ((res = dwarf_get_globals(dbg, &globs,&cnt, &error)) == DW_DLV_OK) {
+res = dwarf_get_globals(dbg, &globs,&cnt, &error);
+if (res == DW_DLV_OK) {
 
         for (i = 0; i < cnt; ++i) {
                 /* use globs[i] */
@@ -2411,7 +2465,8 @@ followed by the deallocation of the list itself with the allocation type
 Dwarf_Weak *weaks;
 int res;
 
-if ((res = dwarf_get_weaks(dbg, &weaks,&cnt, &error)) == DW_DLV_OK) {
+res = dwarf_get_weaks(dbg, &weaks,&cnt, &error);
+if (res == DW_DLV_OK) {
 
         for (i = 0; i < cnt; ++i) {
                 /* use weaks[i] */
@@ -2541,7 +2596,8 @@ the descriptors are no longer of interest.
 Dwarf_Func *funcs;
 int fres;
 
-if ((fres = dwarf_get_funcs(dbg, &funcs, &error)) == DW_DLV_OK) {
+fres = dwarf_get_funcs(dbg, &funcs, &error);
+if (fres == DW_DLV_OK) {
 
         for (i = 0; i < cnt; ++i) {
                 /* use funcs[i] */
@@ -2631,7 +2687,10 @@ the storage pointed to by  \f(CWfunc_name\fP should be free'd using
 when no longer of interest.
 
 .H 2 "User Defined Type Names Operations"
-This section is SGI specific and is not part of standard DWARF version 2.
+Section "debug_typenames"  is SGI specific 
+and is not part of standard DWARF version 2.
+(However, an identical section is part of draft DWARF version 3
+named ".debug_pubtypes", which the library does not yet deal with.)
 .P
 These functions operate on the .debug_typenames section of the debugging
 information.  The .debug_typenames section contains the names of file-scope
@@ -2673,7 +2732,8 @@ longer of interest.
 Dwarf_Type *types;
 int res;
 
-if ((res = dwarf_get_types(dbg, &types,&cnt, &error)) == DW_DLV_OK) {
+res = dwarf_get_types(dbg, &types,&cnt, &error);
+if (res == DW_DLV_OK) {
 
         for (i = 0; i < cnt; ++i) {
                 /* use types[i] */
@@ -2808,7 +2868,8 @@ longer of interest.
 Dwarf_Var *vars;
 int res;
 
-if ((res = dwarf_get_vars(dbg, &vars,&cnt &error)) == DW_DLV_OK) {
+res = dwarf_get_vars(dbg, &vars,&cnt &error);
+if (res == DW_DLV_OK) {
 
         for (i = 0; i < cnt; ++i) {
                 /* use vars[i] */
@@ -3134,8 +3195,9 @@ Dwarf_Fde *fde_data;
 Dwarf_Signed fde_count;
 int fres;
 
-if ((fres = dwarf_get_fde_list(dbg,&cie_data,&cie_count, 
-		&fde_data,&fde_count,&error)) == DW_DLV_OK) {
+fres = dwarf_get_fde_list(dbg,&cie_data,&cie_count, 
+		&fde_data,&fde_count,&error);
+if (fres == DW_DLV_OK) {
 
         for (i = 0; i < cie_count; ++i) {
                 /* use cie[i] */
@@ -3494,8 +3556,8 @@ Dwarf_Ptr instruction;
 Dwarf_Unsigned len;
 int res;
 
-if (expand_frame_instructions(dbg,instruction,len, &frameops,&cnt, &error)
-         == DW_DLV_OK) {
+res = expand_frame_instructions(dbg,instruction,len, &frameops,&cnt, &error);
+if (res == DW_DLV_OK) {
 
         for (i = 0; i < cnt; ++i) {
                 /* use frameops[i] */
@@ -3714,8 +3776,10 @@ section.
 .DS
 \f(CWDwarf_Signed cnt;
 Dwarf_Arange *arang;
+int res;
 
-if ((dwarf_get_aranges(dbg, &arang,&cnt, &error)) == DW_DLV_OK) {
+res = dwarf_get_aranges(dbg, &arang,&cnt, &error);
+if (res == DW_DLV_OK) {
 
         for (i = 0; i < cnt; ++i) {
                 /* use arang[i] */

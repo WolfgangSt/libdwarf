@@ -1,13 +1,13 @@
 %!PS-Adobe-1.0
-%%Creator: quasar:davea (David B Anderson)
+%%Creator: quasar:davea (David Anderson)
 %%Title: stdin (ditroff)
-%%CreationDate: Wed Aug 29 09:57:44 2001
+%%CreationDate: Fri Apr  1 09:55:26 2005
 %%EndComments
 % Start of psdit.pro -- prolog for ditroff translator
 % Copyright (c) 1985,1987 Adobe Systems Incorporated. All Rights Reserved. 
 % GOVERNMENT END USERS: See Notice file in TranScript library directory
 % -- probably /usr/lib/ps/Notice
-% $Revision: 1.7 $
+% $Revision: 1.8 $
 /$DITroff 140 dict def $DITroff begin
 /fontnum 1 def /fontsize 10 def /fontheight 10 def /fontslant 0 def
 /xi {0 72 11 mul translate 72 resolution div dup neg scale 0 0 moveto
@@ -301,6 +301,142 @@ xi
 3 f
 11 s
 576 1680(2.)N
+686(64)X
+796(BIT)X
+970(DWARF)X
+1 f
+10 s
+576 1824(The)N
+724(DWARF2)X
+1077(spec)X
+1244(has)X
+1375(no)X
+1479(provision)X
+1805(for)X
+1923(64)X
+2027(bit)X
+2135(offsets.)X
+2413(SGI-IRIX/MIPS)X
+2966(Elf64)X
+3168(objects)X
+3419(contain)X
+3679(DWARF)X
+3992(2)X
+576 1920(with)N
+760(all)X
+882(offsets)X
+1138(\(and)X
+1322(addresses\))X
+1698(as)X
+1806(64bit)X
+2011(values.)X
+2297(This)X
+2480(non-standard)X
+2940(extension)X
+3288(was)X
+3454(adopted)X
+3749(in)X
+3852(1992.)X
+576 2016(Nothing)N
+858(in)X
+940(the)X
+1058(dwarf)X
+1266(itself)X
+1446(identifies)X
+1764(the)X
+1883(dwarf)X
+2092(as)X
+2180(64bit.)X
+2405(This)X
+2568(extension)X
+2896(64bit-offset)X
+3291(dwarf)X
+3500(cannot)X
+3735(be)X
+3832(mixed)X
+576 2112(with)N
+747(32bit-offset)X
+1150(dwarf)X
+1366(in)X
+1456(a)X
+1520(single)X
+1739(object)X
+1963(or)X
+2058(executable,)X
+2450(and)X
+2594(SGI-IRIX/MIPS)X
+3151(compilers)X
+3495(and)X
+3639(tools)X
+3822(do)X
+3930(not)X
+576 2208(mix)N
+720(the)X
+838(sizes.)X
+576 2352(In)N
+671(2001)X
+859(DWARF3)X
+1216(adopted)X
+1498(a)X
+1562(very)X
+1733(different)X
+2038(64bit-offset)X
+2440(format)X
+2683(which)X
+2908(can)X
+3049(be)X
+3154(mixed)X
+3383(usefully)X
+3670(with)X
+3841(32bit-)X
+576 2448(offset)N
+791(DWARF2)X
+1152(or)X
+1251(DWARF3.)X
+1652(It)X
+1733(is)X
+1818(not)X
+1952(very)X
+2127(likely)X
+2341(SGI-IRIX/MIPS)X
+2902(compilers)X
+3250(will)X
+3405(switch)X
+3645(to)X
+3738(the)X
+3867(now-)X
+576 2544(standard)N
+876(DWARF3)X
+1233(64bit-offset)X
+1635(scheme,)X
+1924(but)X
+2054(such)X
+2229(a)X
+2293(switch)X
+2530(is)X
+2611(theoretically)X
+3040(possible)X
+3330(and)X
+3474(would)X
+3702(be)X
+3807(a)X
+3872(good)X
+576 2640(idea.)N
+576 2784(SGI-IRIX/MIPS)N
+1125(Elf32)X
+1323(objects)X
+1570(contain)X
+1826(DWARF2)X
+2175(with)X
+2337(all)X
+2437(offsets)X
+2671(\(and)X
+2834(addresses\))X
+3189(32)X
+3289(bits.)X
+3 f
+11 s
+576 2976(3.)N
 686(How)X
 884(much)X
 1116(symbol)X
@@ -309,7 +445,7 @@ xi
 1960(emitted)X
 1 f
 10 s
-576 1824(The)N
+576 3120(The)N
 721(following)X
 1052(standard)X
 1344(DWARF)X
@@ -318,7 +454,7 @@ xi
 2049(may)X
 2207(be)X
 2303(emitted:)X
-636 1968(1.)N
+636 3264(1.)N
 796(.debug_abbrev)X
 1291(contains)X
 1578(abbreviations)X
@@ -326,32 +462,32 @@ xi
 2392(the)X
 2510(.debug_info)X
 2915(section.)X
-636 2112(2.)N
+636 3408(2.)N
 796(.debug_info)X
 1201(contains)X
 1488(Debug)X
 1722(Information)X
 2125(Entries)X
 2372(\(DIEs\).)X
-636 2256(3.)N
+636 3552(3.)N
 796(.debug_frame)X
 1260(contains)X
 1547(stack)X
 1732(frame)X
 1940(descriptions.)X
-636 2400(4.)N
+636 3696(4.)N
 796(.debug_line)X
 1192(contains)X
 1479(line)X
 1619(number)X
 1884(information.)X
-636 2544(5.)N
+636 3840(5.)N
 796(.debug_aranges)X
 1318(contains)X
 1605(address)X
 1866(range)X
 2065(descriptions.)X
-636 2688(6.)N
+636 3984(6.)N
 796(.debug_pubnames)X
 1397(contains)X
 1684(names)X
@@ -360,7 +496,7 @@ xi
 2216(functions)X
 2534(and)X
 2670(data.)X
-776 2832(The)N
+776 4128(The)N
 921(following)X
 1252(are)X
 1371(MIPS)X
@@ -375,14 +511,14 @@ xi
 3363(know)X
 3562(names)X
 3788(without)X
-776 2928(having)N
+776 4224(having)N
 1014(to)X
 1096(look)X
 1258(at)X
 1336(the)X
 1454(.debug_info)X
 1859(section.)X
-636 3072(7.)N
+636 4368(7.)N
 801(.debug_weaknames)X
 1458(is)X
 1537(a)X
@@ -393,8 +529,8 @@ xi
 3262(entries)X
 3502(describing)X
 3862(weak)X
-776 3168(symbols.)N
-636 3312(8.)N
+776 4464(symbols.)N
+636 4608(8.)N
 808(.debug_funcnames)X
 1444(is)X
 1529(a)X
@@ -405,12 +541,86 @@ xi
 3284(entries)X
 3531(describing)X
 3898(file-)X
-776 3408(static)N
-965(functions)X
-1283(\(C)X
-1383(static)X
-1572(functions\).)X
-636 3552(9.)N
+776 4704(static)N
+978(functions)X
+1309(\(C)X
+1422(static)X
+1623(functions\).)X
+2020(The)X
+2177(gcc)X
+2321(extension)X
+2660(of)X
+2759(nested)X
+2996(subprograms)X
+3442(\(like)X
+3621(Pascal\))X
+3885(adds)X
+776 4800(non-global)N
+1154(non-static)X
+1501(functions.)X
+1870(These)X
+2093(should)X
+2337(be)X
+2445(treated)X
+2696(like)X
+2848(static)X
+3049(functions)X
+3379(and)X
+3527(gcc)X
+3671(should)X
+3916(add)X
+776 4896(such)N
+947(to)X
+1033(this)X
+1171(section)X
+1421(so)X
+1515(that)X
+1658(IRIX)X
+1846(libexc\(3C\))X
+2212(will)X
+2359(work)X
+2547(correctly.)X
+2896(Similarly,)X
+3236(Ada)X
+3393(functions)X
+3714(which)X
+3933(are)X
+776 4992(non-global)N
+1150(should)X
+1390(be)X
+1493(here)X
+1659(too)X
+1788(so)X
+1886(that)X
+2033(libexc\(3C\))X
+2404(can)X
+2544(work.)X
+2777(Putting)X
+3035(it)X
+3107(another)X
+3376(way,)X
+3558(every)X
+3765(function)X
+776 5088(\(other)N
+1016(than)X
+1201(inline)X
+1430(code\))X
+1656(belongs)X
+1952(either)X
+2182(in)X
+2291(.debug_pubnames)X
+2919(or)X
+3033(in)X
+3142(.debug_funcnames)X
+3793(or)X
+3907(else)X
+776 5184(libexc\(3C\))N
+1139(cannot)X
+1373(find)X
+1522(the)X
+1640(function)X
+1927(name.)X
+636 5328(9.)N
 812(.debug_varnames)X
 1412(is)X
 1501(a)X
@@ -421,13 +631,13 @@ xi
 3276(entries)X
 3527(describing)X
 3898(file-)X
-776 3648(static)N
+776 5424(static)N
 965(data)X
 1119(symbols)X
 1405(\(C)X
 1505(static)X
 1694(variables\).)X
-596 3792(10.)N
+596 5568(10.)N
 808(.debug_typenames)X
 1439(is)X
 1524(a)X
@@ -438,15 +648,30 @@ xi
 3284(entries)X
 3531(describing)X
 3898(file-)X
-776 3888(level)N
+776 5664(level)N
 952(types.)X
-776 4032(The)N
+576 6164(rev)N
+699(1.18,)X
+879(31)X
+979(March)X
+1209(2005)X
+2237(-)X
+2284(1)X
+2344(-)X
+
+2 p
+%%Page: 2 2
+10 s 0 xH 0 xS 1 f
+2237 384(-)N
+2284(2)X
+2344(-)X
+776 768(The)N
 921(following)X
 1252(are)X
 1371(not)X
 1493(currently)X
 1803(emitted.)X
-596 4176(11.)N
+596 912(11.)N
 796(.debug_macinfo)X
 1335(Macro)X
 1565(information)X
@@ -454,7 +679,7 @@ xi
 2036(not)X
 2158(currently)X
 2468(emitted.)X
-596 4320(12.)N
+596 1056(12.)N
 796(.debug_loc)X
 1170(Location)X
 1475(lists)X
@@ -462,7 +687,7 @@ xi
 1742(not)X
 1864(currently)X
 2174(emitted.)X
-596 4464(13.)N
+596 1200(13.)N
 796(.debug_str)X
 1152(The)X
 1297(string)X
@@ -473,14 +698,14 @@ xi
 2251(emitted.)X
 3 f
 11 s
-576 4608(2.1)N
+576 1344(3.1)N
 730(Overview)X
 1114(of)X
 1209(information)X
 1681(emitted)X
 1 f
 10 s
-576 4752(We)N
+576 1488(We)N
 709(emit)X
 872(debug)X
 1089(information)X
@@ -498,10 +723,10 @@ xi
 3491(identical)X
 3789(for)X
 3905(f77,)X
-576 4848(f90,)N
+576 1584(f90,)N
 723(and)X
 859(C++.)X
-636 4992(1.)N
+636 1728(1.)N
 776("default)X
 1057(C")X
 1168(We)X
@@ -519,7 +744,7 @@ xi
 3518(symbols)X
 3810(and)X
 3952(no)X
-776 5088(type)N
+776 1824(type)N
 941(information.)X
 1386(Frame)X
 1618(information)X
@@ -531,7 +756,7 @@ xi
 3369(has)X
 3503(the)X
 3628(optimization)X
-776 5184(level:)N
+776 1920(level:)N
 980(for)X
 1100(example)X
 1398("-O2".)X
@@ -548,26 +773,37 @@ xi
 3551(is)X
 3631(a)X
 3694(significant)X
-776 5280(user)N
+776 2016(user)N
 932(of)X
 1021(space)X
-1222(in)X
-1306(.debug_info)X
-1713(--)X
-1789(this)X
-1926(is)X
-2001(perhaps)X
-2273(a)X
-2331(poor)X
-2500(use)X
-2629(of)X
-2718(space.)X
-2959(Debuggers)X
-3329(only)X
-3493(currently)X
-3805(use)X
+1221(in)X
+1304(.debug_info)X
+1710(--)X
+1785(this)X
+1921(is)X
+1995(perhaps)X
+2266(a)X
+2323(poor)X
+2491(use)X
+2619(of)X
+2707(space.)X
+2947(When)X
+3160(optimizing)X
+3527(the)X
+3646(IRIX)X
+3832(CC/cc)X
+776 2112(option)N
+1012(-DEBUG:optimize_space)X
+1868(eliminates)X
+2229(such)X
+2408(wasted)X
+2663(space.)X
+2915(Debuggers)X
+3296(only)X
+3471(currently)X
+3794(use)X
 3934(the)X
-776 5376(lack)N
+776 2208(lack)N
 933(of)X
 1023(-g)X
 1113(of)X
@@ -586,25 +822,73 @@ xi
 3404(interpreted,)X
 3795(and)X
 3934(the)X
-776 5472(rest)N
-912(of)X
-999(the)X
-1117(string)X
-1319(is)X
-1392(not)X
-1514(used)X
-1681(for)X
-1795(anything)X
-2095(\(unless)X
-2342(a)X
-2398(human)X
-2636(looks)X
-2829(at)X
-2907(it)X
-2971(for)X
-3085(some)X
-3274(reason\).)X
-636 5616(2.)N
+776 2304(rest)N
+917(of)X
+1009(the)X
+1132(string)X
+1339(is)X
+1417(not)X
+1545(used)X
+1718(for)X
+1838(anything)X
+2144(\(unless)X
+2397(a)X
+2459(human)X
+2703(looks)X
+2902(at)X
+2986(it)X
+3056(for)X
+3176(some)X
+3371(reason\),)X
+3654(so)X
+3751(if)X
+3826(space-)X
+776 2400(on-disk)N
+1052(is)X
+1141(an)X
+1253(issue,)X
+1469(it)X
+1549(is)X
+1638(quite)X
+1834(appropriate)X
+2236(to)X
+2334(use)X
+2477(-DEBUG:optimize_space)X
+3336(and)X
+3487(save)X
+3665(disk)X
+3833(space.)X
+776 2496(Every)N
+997(function)X
+1293(definition)X
+1633(\(not)X
+1791(inline)X
+2002(instances)X
+2325(though\))X
+2603(is)X
+2685(mentioned)X
+3052(in)X
+3143(either)X
+3355(.debug_pubnames)X
+3965(or)X
+776 2592(.debug_funcnames.)N
+1448(This)X
+1618(is)X
+1699(crucial)X
+1946(to)X
+2036(allow)X
+2242(libexc\(3C\))X
+2613 0.2589(stack-traceback)AX
+3142(to)X
+3232(work)X
+3425(and)X
+3569(show)X
+3765(function)X
+776 2688(names)N
+1001(\(for)X
+1142(all)X
+1242(languages\).)X
+636 2832(2.)N
 776("C)X
 894(with)X
 1069(full)X
@@ -620,7 +904,7 @@ xi
 3531(all)X
 3644(options)X
 3912(that)X
-776 5712(might)N
+776 2928(might)N
 984(be)X
 1082(of)X
 1171(interest,)X
@@ -638,7 +922,7 @@ xi
 3562(like)X
 3703(they)X
 3862(came)X
-776 5808(from)N
+776 3024(from)N
 961(the)X
 1088(command)X
 1433(line.)X
@@ -655,22 +939,7 @@ xi
 3545(is)X
 3628(a)X
 3694(significant)X
-576 6164(rev)N
-699(1.17,)X
-879(29)X
-979(Aug)X
-1137(2001)X
-2237(-)X
-2284(1)X
-2344(-)X
-
-2 p
-%%Page: 2 2
-10 s 0 xH 0 xS 1 f
-2237 384(-)N
-2284(2)X
-2344(-)X
-776 768(user)N
+776 3120(user)N
 935(of)X
 1027(space)X
 1230(in)X
@@ -688,7 +957,7 @@ xi
 3489(currently)X
 3803(use)X
 3934(the)X
-776 864(-g)N
+776 3216(-g)N
 867(of)X
 958(DW_AT_producer)X
 1589(as)X
@@ -707,23 +976,53 @@ xi
 3703(the)X
 3825(rest)X
 3965(of)X
-776 960(the)N
-894(string)X
-1096(is)X
-1169(not)X
-1291(used)X
-1458(for)X
-1572(anything)X
-1872(\(unless)X
-2119(a)X
-2175(human)X
-2413(looks)X
-2606(at)X
-2684(it)X
-2748(for)X
-2862(some)X
-3051(reason\).)X
-636 1104(3.)N
+776 3312(the)N
+907(string)X
+1121(is)X
+1206(not)X
+1340(used)X
+1519(for)X
+1645(anything)X
+1957(\(unless)X
+2216(a)X
+2284(human)X
+2534(looks)X
+2739(at)X
+2829(it)X
+2905(for)X
+3031(some)X
+3232(reason\).)X
+3541(Every)X
+3765(function)X
+776 3408(definition)N
+1167(\(not)X
+1376(inline)X
+1638(instances)X
+2013(though\))X
+2343(is)X
+2477(mentioned)X
+2896(in)X
+3039(either)X
+3303(.debug_pubnames)X
+3965(or)X
+776 3504(.debug_funcnames.)N
+1448(This)X
+1618(is)X
+1699(crucial)X
+1946(to)X
+2036(allow)X
+2242(libexc\(3C\))X
+2613 0.2589(stack-traceback)AX
+3142(to)X
+3232(work)X
+3425(and)X
+3569(show)X
+3765(function)X
+776 3600(names)N
+1001(\(for)X
+1142(all)X
+1242(languages\).)X
+636 3744(3.)N
 776("Assembler)X
 1175(\(-g,)X
 1312(non)X
@@ -740,7 +1039,7 @@ xi
 3293(information)X
 3695(is)X
 3772(emitted,)X
-776 1200(but)N
+776 3840(but)N
 898(DIEs)X
 1083(are)X
 1202(prepared)X
@@ -748,14 +1047,14 @@ xi
 1618(globals.)X
 3 f
 11 s
-576 1344(2.2)N
+576 3984(3.2)N
 730(Detecting)X
 1108('full)X
 1287(symbols')X
 1641(\(-g\))X
 1 f
 10 s
-576 1488(The)N
+576 4128(The)N
 721(debugger)X
 1040(depends)X
 1323(on)X
@@ -771,7 +1070,7 @@ xi
 3386(the)X
 3505(compilation)X
 3908(unit)X
-576 1584(has)N
+576 4224(has)N
 709(full)X
 846(symbols)X
 1138(or)X
@@ -794,7 +1093,7 @@ xi
 3812(-g)X
 3904(or)X
 3996(a)X
-576 1680(present)N
+576 4320(present)N
 828(-g0)X
 955(is)X
 1028(taken)X
@@ -815,8 +1114,8 @@ xi
 3656(and)X
 3793(no)X
 3894(type)X
-576 1776(information.)N
-576 1920(In)N
+576 4416(information.)N
+576 4560(In)N
 669(various)X
 931(contexts)X
 1224(the)X
@@ -834,7 +1133,7 @@ xi
 3542(with)X
 3711(-g')X
 3832(unless)X
-576 2016(the)N
+576 4656(the)N
 694(-g)X
 781(is)X
 854(in)X
@@ -843,13 +1142,13 @@ xi
 1681(string.)X
 3 f
 11 s
-576 2160(2.3)N
+576 4800(3.3)N
 730(DWARF)X
 1083(and)X
 1247(strip\(1\))X
 1 f
 10 s
-576 2304(The)N
+576 4944(The)N
 725(DWARF)X
 1038(section)X
 1290(".debug_frame")X
@@ -863,7 +1162,7 @@ xi
 3568(by)X
 3673(the)X
 3796(strip\(1\))X
-576 2400(program.)N
+576 5040(program.)N
 919(This)X
 1092(is)X
 1176(because)X
@@ -881,9 +1180,9 @@ xi
 3579(C++)X
 3752(and)X
 3898(Ada)X
-576 2496(exception)N
+576 5136(exception)N
 908(handling\).)X
-576 2640(All)N
+576 5280(All)N
 702(.debug_*)X
 1022(sections)X
 1304(are)X
@@ -897,7 +1196,7 @@ xi
 3616(to)X
 3703(access)X
 3934(the)X
-576 2736(various)N
+576 5376(various)N
 832(DWARF)X
 1141(sections)X
 1419(must)X
@@ -911,13 +1210,13 @@ xi
 3066(them.)X
 3 f
 11 s
-576 2976(2.4)N
+576 5616(3.4)N
 730(Evaluating)X
 1164(location)X
 1485(expressions)X
 1 f
 10 s
-576 3120(When)N
+576 5760(When)N
 793(the)X
 916(debugger)X
 1240(evaluates)X
@@ -936,7 +1235,7 @@ xi
 3496(simply)X
 3739(looks)X
 3938(for)X
-576 3216(the)N
+576 5856(the)N
 694(trivial)X
 905(location)X
 1183(expressions)X
@@ -946,7 +1245,22 @@ xi
 2096(as)X
 2183(special)X
 2426(cases.)X
-576 3360(If)N
+576 6164(rev)N
+699(1.18,)X
+879(31)X
+979(March)X
+1209(2005)X
+2237(-)X
+2284(2)X
+2344(-)X
+
+3 p
+%%Page: 3 3
+10 s 0 xH 0 xS 1 f
+2237 384(-)N
+2284(3)X
+2344(-)X
+576 768(If)N
 662(the)X
 792(location)X
 1082(expression)X
@@ -967,8 +1281,8 @@ xi
 3538(to)X
 3633(evaluate)X
 3934(the)X
-576 3456(expression.)N
-576 3600(If)N
+576 864(expression.)N
+576 1008(If)N
 651(the)X
 770(application)X
 1147(is)X
@@ -986,7 +1300,7 @@ xi
 3426(size)X
 3573(values\).)X
 3867(Even)X
-576 3696(though)N
+576 1104(though)N
 831(registers)X
 1136(can)X
 1281(be)X
@@ -1005,7 +1319,7 @@ xi
 3490(quantities,)X
 3853(so)X
 3956(an)X
-576 3792(attempt)N
+576 1200(attempt)N
 836(to)X
 918(calculate)X
 1224(a)X
@@ -1024,7 +1338,7 @@ xi
 3558(not)X
 3681(work.)X
 3907(The)X
-576 3888(notion)N
+576 1296(notion)N
 800(is)X
 873(that)X
 1013(the)X
@@ -1040,7 +1354,7 @@ xi
 2847(address)X
 3108(size)X
 3253(units.)X
-576 4032(These)N
+576 1440(These)N
 795(values)X
 1027(are)X
 1153(then)X
@@ -1056,8 +1370,8 @@ xi
 3487(does)X
 3662(not)X
 3792(involve)X
-576 4128(sign-extension.)N
-576 4272(If)N
+576 1536(sign-extension.)N
+576 1680(If)N
 652(the)X
 772(application)X
 1150(is)X
@@ -1078,16 +1392,16 @@ xi
 3651(are)X
 3773(done)X
 3952(on)X
-576 4368(64)N
+576 1776(64)N
 676(bits.)X
 3 f
-576 4512(2.4.1)N
+576 1920(3.4.1)N
 776(The)X
 929(fbreg)X
 1132(location)X
 1423(op)X
 1 f
-576 4656(Compilers)N
+576 2064(Compilers)N
 939(shipped)X
 1218(with)X
 1390(IRIX)X
@@ -1105,7 +1419,7 @@ xi
 3551(never)X
 3761(emit)X
 3934(the)X
-576 4752 0.2333(DW_AT_frame_base)AN
+576 2160 0.2333(DW_AT_frame_base)AN
 1298(attribute)X
 1595(that)X
 1745(it)X
@@ -1120,20 +1434,20 @@ xi
 3594(and)X
 3739(these)X
 3933(are)X
-576 4848(now)N
+576 2256(now)N
 734(emitted)X
 994(routinely.)X
 3 f
 11 s
-576 5136(3.)N
+576 2544(4.)N
 686(Frame)X
 957(Information)X
-576 5280(3.1)N
+576 2688(4.1)N
 730(Initial)X
 983(Instructions)X
 1 f
 10 s
-576 5424(The)N
+576 2832(The)N
 724(DWARF)X
 1036(V2)X
 1157(spec)X
@@ -1150,7 +1464,7 @@ xi
 3398(6.4.1\).)X
 3649(However,)X
 3988(it)X
-576 5520(does)N
+576 2928(does)N
 743(not)X
 865(say)X
 992(whether)X
@@ -1162,7 +1476,7 @@ xi
 2153(each)X
 2321(column)X
 2581(\(register\).)X
-576 5664(Rather)N
+576 3072(Rather)N
 813(than)X
 974(force)X
 1163(every)X
@@ -1183,7 +1497,7 @@ xi
 3569(we)X
 3687(define)X
 3912(that)X
-576 5760(the)N
+576 3168(the)N
 697(default)X
 943(values)X
 1171(of)X
@@ -1202,38 +1516,23 @@ xi
 3551(value'.)X
 3815(This)X
 3979(is)X
-576 5856(a)N
+576 3264(a)N
 632(good)X
 812(choice)X
 1042(for)X
 1156(many)X
 1354(non-register-windows)X
 2078(implementations.)X
-576 6164(rev)N
-699(1.17,)X
-879(29)X
-979(Aug)X
-1137(2001)X
-2237(-)X
-2284(2)X
-2344(-)X
-
-3 p
-%%Page: 3 3
-10 s 0 xH 0 xS 1 f
-2237 384(-)N
-2284(3)X
-2344(-)X
 3 f
 11 s
-576 768(3.2)N
+576 3408(4.2)N
 730(Augmentation)X
 1289(string)X
 1531(in)X
 1627(debug_frame)X
 1 f
 10 s
-576 912(The)N
+576 3552(The)N
 729(augmentation)X
 1193(string)X
 1403(we)X
@@ -1250,7 +1549,7 @@ xi
 3371(string.)X
 3622(IRIX6.2)X
 3916(and)X
-576 1008(later)N
+576 3648(later)N
 740(has)X
 868(an)X
 965(augmentation)X
@@ -1271,9 +1570,9 @@ xi
 3475(a)X
 3531(version)X
 3787(number)X
-576 1104(\(version)N
+576 3744(\(version)N
 859(1\).)X
-576 1248(We)N
+576 3888(We)N
 708(do)X
 808(not)X
 930(believe)X
@@ -1291,7 +1590,7 @@ xi
 3120(shipped)X
 3389(compiler.)X
 3 f
-576 1392(3.2.1)N
+576 4032(4.2.1)N
 776(CIE)X
 938(processing)X
 1318(based)X
@@ -1299,7 +1598,7 @@ xi
 1637(augmentation)X
 2128(string:)X
 1 f
-576 1536(If)N
+576 4176(If)N
 653(the)X
 774(augmentation)X
 1233(string)X
@@ -1315,7 +1614,7 @@ xi
 3116(a)X
 3176(unsigned_leb_128)X
 3787(number)X
-576 1632(giving)N
+576 4272(giving)N
 802(the)X
 922(code)X
 1095(alignment)X
@@ -1331,7 +1630,7 @@ xi
 3286(alignment)X
 3627(factor.)X
 3876(Next)X
-576 1728(is)N
+576 4368(is)N
 653(a)X
 713(unsigned)X
 1026(byte)X
@@ -1348,7 +1647,7 @@ xi
 3074(an)X
 3175(unsigned_leb_128)X
 3787(number)X
-576 1824(giving)N
+576 4464(giving)N
 822(the)X
 962(length)X
 1204(of)X
@@ -1363,7 +1662,7 @@ xi
 3448(not)X
 3591(including)X
 3934(the)X
-576 1920(unsigned_leb_128)N
+576 4560(unsigned_leb_128)N
 1189(length)X
 1415(itself\).)X
 1668(As)X
@@ -1380,7 +1679,7 @@ xi
 3671(is)X
 3751(0.)X
 3858(What)X
-576 2016(this)N
+576 4656(this)N
 712(means)X
 937(is)X
 1010(that)X
@@ -1401,7 +1700,7 @@ xi
 3266(consumer)X
 3598(to)X
 3680(understand)X
-576 2112(the)N
+576 4752(the)N
 715(entire)X
 939(CIE)X
 1109(as)X
@@ -1419,7 +1718,7 @@ xi
 3583(length)X
 3825(of)X
 3934(the)X
-576 2208(augmentation)N
+576 4848(augmentation)N
 1047(fields)X
 1260(is)X
 1348(present.)X
@@ -1433,7 +1732,7 @@ xi
 3328(are)X
 3461(simply)X
 3712(additional)X
-576 2304(information,)N
+576 4944(information,)N
 995(not)X
 1118(some)X
 1308('changing)X
@@ -1452,13 +1751,13 @@ xi
 3694(data)X
 3850(in)X
 3934(the)X
-576 2400(augmentation)N
+576 5040(augmentation)N
 1032(for)X
 1146(things)X
 1361(beginning)X
 1701(with)X
 1863('z'.)X
-576 2544(If)N
+576 5184(If)N
 652(the)X
 772(augmentation)X
 1230(string)X
@@ -1476,7 +1775,7 @@ xi
 3118(a)X
 3177(unsigned_leb_128)X
 3787(number)X
-576 2640(giving)N
+576 5280(giving)N
 802(the)X
 922(code)X
 1095(alignment)X
@@ -1492,7 +1791,7 @@ xi
 3286(alignment)X
 3627(factor.)X
 3876(Next)X
-576 2736(is)N
+576 5376(is)N
 649(a)X
 705(unsigned)X
 1014(byte)X
@@ -1504,7 +1803,7 @@ xi
 1984(return)X
 2196(address)X
 2457(register.)X
-576 2880(If)N
+576 5520(If)N
 651(the)X
 770(augmentation)X
 1227(string)X
@@ -1524,7 +1823,7 @@ xi
 3640(and)X
 3778(the)X
 3898(data)X
-576 2976(alignment)N
+576 5616(alignment)N
 922(factor)X
 1135(is)X
 1213(assumed)X
@@ -1543,7 +1842,7 @@ xi
 3374(31.)X
 3499(Arbitrarily.)X
 3907(The)X
-576 3072(library)N
+576 5712(library)N
 810(\(libdwarf\))X
 1156(assumes)X
 1443(it)X
@@ -1555,15 +1854,30 @@ xi
 2422(of)X
 2509(the)X
 2627(CIE.)X
+576 6164(rev)N
+699(1.18,)X
+879(31)X
+979(March)X
+1209(2005)X
+2237(-)X
+2284(3)X
+2344(-)X
+
+4 p
+%%Page: 4 4
+10 s 0 xH 0 xS 1 f
+2237 384(-)N
+2284(4)X
+2344(-)X
 3 f
-576 3216(3.2.2)N
+576 768(4.2.2)N
 776(FDE)X
 956(processing)X
 1336(based)X
 1551(on)X
 1655(augmentation)X
 1 f
-576 3360(If)N
+576 912(If)N
 655(the)X
 778(CIE)X
 932(augmentation)X
@@ -1582,7 +1896,7 @@ xi
 3274(after)X
 3448(the)X
 3572(address_range)X
-576 3456(field)N
+576 1008(field)N
 745(is)X
 820(an)X
 918(unsigned_leb_128)X
@@ -1598,16 +1912,16 @@ xi
 3434(those)X
 3624(fields)X
 3823(follow)X
-576 3552(immediately.)N
+576 1104(immediately.)N
 3 f
 9 s
-576 3792(3.2.2.1)N
+576 1344(4.2.2.1)N
 810(FDE)X
 972(augmentation)X
 1414(fields)X
 1 f
 10 s
-576 3936(If)N
+576 1488(If)N
 667(the)X
 802(CIE)X
 968(augmentation)X
@@ -1627,10 +1941,10 @@ xi
 3590(in)X
 3690(the)X
 3826(Dwarf)X
-576 4032(Document)N
+576 1584(Document)N
 930(section)X
 1177(6.4.1.)X
-576 4176(Else,)N
+576 1728(Else,)N
 757(if)X
 829(the)X
 950(CIE)X
@@ -1648,7 +1962,7 @@ xi
 3197(FDE)X
 3372(augmentation)X
 3832(length)X
-576 4272(field)N
+576 1824(field)N
 753(is)X
 836(a)X
 902(Dwarf_Sword)X
@@ -1665,7 +1979,7 @@ xi
 3547(does)X
 3723(not)X
 3854(begin)X
-576 4368(with)N
+576 1920(with)N
 742("z")X
 868(\(and)X
 1035(is)X
@@ -1683,7 +1997,7 @@ xi
 3274(\(not)X
 3428(understood\).)X
 3876(Note)X
-576 4464(that)N
+576 2016(that)N
 717(libdwarf)X
 1010(actually)X
 1284(\(as)X
@@ -1700,7 +2014,7 @@ xi
 3391(of)X
 3478(the)X
 3596(augmentation)X
-576 4560(string)N
+576 2112(string)N
 778(is)X
 851('z',)X
 981(and)X
@@ -1723,7 +2037,7 @@ xi
 3202(_prefix_)X
 3494(of)X
 3581('z'.)X
-576 4704(If)N
+576 2256(If)N
 656(the)X
 780(CIE)X
 935(augmentation)X
@@ -1742,7 +2056,7 @@ xi
 3166(then)X
 3331(libdwarf)X
 3630(\(incorrectly\))X
-576 4800(assumes)N
+576 2352(assumes)N
 863(that)X
 1003(the)X
 1121(table)X
@@ -1758,7 +2072,7 @@ xi
 3368(incorrect.)X
 3 f
 11 s
-576 4944(3.3)N
+576 2496(4.3)N
 730(Stack)X
 962(Pointer)X
 1263(recovery)X
@@ -1766,7 +2080,7 @@ xi
 1819(debug_frame)X
 1 f
 10 s
-576 5088(There)N
+576 2640(There)N
 793(is)X
 875(no)X
 984(identifiable)X
@@ -1784,7 +2098,7 @@ xi
 3468(by)X
 3578(any)X
 3724(particular)X
-576 5184(operation.)N
+576 2736(operation.)N
 962(A)X
 1063('register)X
 1374(rule')X
@@ -1800,7 +2114,7 @@ xi
 3328(another)X
 3611(register.)X
 3934(An)X
-576 5280('offset\(N\)')N
+576 2832('offset\(N\)')N
 948(rule)X
 1096(works)X
 1315(if)X
@@ -1819,7 +2133,7 @@ xi
 3539(stack)X
 3728(pointer)X
 3979(is)X
-576 5376(some)N
+576 2928(some)N
 770(register)X
 1036(value)X
 1235(plus/minus)X
@@ -1838,7 +2152,7 @@ xi
 3382(For)X
 3517(MIPS/IRIX,)X
 3934(the)X
-576 5472(recovered)N
+576 3024(recovered)N
 923(stack)X
 1117(pointer)X
 1373(of)X
@@ -1857,7 +2171,7 @@ xi
 3633(value)X
 3837(of)X
 3934(the)X
-576 5568(current)N
+576 3120(current)N
 827(frame,)X
 1058(and)X
 1197(the)X
@@ -1877,7 +2191,7 @@ xi
 3471(plus)X
 3626(offset)X
 3831(\(value)X
-576 5664(of)N
+576 3216(of)N
 663(a)X
 719(register)X
 980(plus)X
@@ -1887,24 +2201,9 @@ xi
 1638(a)X
 1694(software)X
 1991(convention.)X
-576 6164(rev)N
-699(1.17,)X
-879(29)X
-979(Aug)X
-1137(2001)X
-2237(-)X
-2284(3)X
-2344(-)X
-
-4 p
-%%Page: 4 4
-10 s 0 xH 0 xS 1 f
-2237 384(-)N
-2284(4)X
-2344(-)X
 3 f
 11 s
-576 768(4.)N
+576 3408(5.)N
 686(egcs)X
 864(dwarf)X
 1110(extensions)X
@@ -1912,7 +2211,7 @@ xi
 1930(extensions\))X
 1 f
 10 s
-576 912(This)N
+576 3552(This)N
 744(and)X
 886(following)X
 1223(egcs)X
@@ -1928,7 +2227,7 @@ xi
 3560(Note)X
 3742(that)X
 3889(egcs)X
-576 1008(has)N
+576 3648(has)N
 710(chosen)X
 960(to)X
 1049(adopt)X
@@ -1948,7 +2247,7 @@ xi
 3636(if)X
 3711(they)X
 3875(were)X
-576 1104(extensions.)N
+576 3744(extensions.)N
 974(However,)X
 1309(they)X
 1467(are)X
@@ -1958,12 +2257,12 @@ xi
 2306(extensions.)X
 3 f
 11 s
-576 1344(4.1)N
+576 3984(5.1)N
 730(DW_TAG_format_label)X
 1930(0x4101)X
 1 f
 10 s
-576 1488(For)N
+576 4128(For)N
 707(FORTRAN)X
 1100(77,)X
 1220(Fortran)X
@@ -1982,12 +2281,12 @@ xi
 3372(used.)X
 3 f
 11 s
-576 1632(4.2)N
+576 4272(5.2)N
 730(DW_TAG_function_template)X
 2020(0x4102)X
 1 f
 10 s
-576 1776(For)N
+576 4416(For)N
 707(C++.)X
 910(Details)X
 1157(of)X
@@ -2003,12 +2302,12 @@ xi
 2666(used.)X
 3 f
 11 s
-576 1920(4.3)N
+576 4560(5.3)N
 730(DW_TAG_class_template)X
 1949(0x4103)X
 1 f
 10 s
-576 2064(For)N
+576 4704(For)N
 707(C++.)X
 910(Details)X
 1157(of)X
@@ -2024,12 +2323,12 @@ xi
 2666(used.)X
 3 f
 11 s
-576 2208(4.4)N
+576 4848(5.4)N
 730(DW_AT_sf_names)X
 2009(0x2101)X
 1 f
 10 s
-576 2352(Apparently)N
+576 4992(Apparently)N
 957(only)X
 1119(output)X
 1343(in)X
@@ -2038,12 +2337,12 @@ xi
 1916(DWARF2.)X
 3 f
 11 s
-576 2496(4.5)N
+576 5136(5.5)N
 730(DW_AT_src_info)X
 1966(0x2102)X
 1 f
 10 s
-576 2640(Apparently)N
+576 5280(Apparently)N
 957(only)X
 1119(output)X
 1343(in)X
@@ -2052,26 +2351,41 @@ xi
 1916(DWARF2.)X
 3 f
 11 s
-576 2784(4.6)N
+576 5424(5.6)N
 730(DW_AT_mac_info)X
 2010(0x2103)X
 1 f
 10 s
-576 2928(Apparently)N
+576 5568(Apparently)N
 957(only)X
 1119(output)X
 1343(in)X
 1425(DWARF1,)X
 1794(not)X
 1916(DWARF2.)X
+576 6164(rev)N
+699(1.18,)X
+879(31)X
+979(March)X
+1209(2005)X
+2237(-)X
+2284(4)X
+2344(-)X
+
+5 p
+%%Page: 5 5
+10 s 0 xH 0 xS 1 f
+2237 384(-)N
+2284(5)X
+2344(-)X
 3 f
 11 s
-576 3072(4.7)N
+576 768(5.7)N
 730(DW_AT_src_coords)X
 2024(0x2104)X
 1 f
 10 s
-576 3216(Apparently)N
+576 912(Apparently)N
 957(only)X
 1119(output)X
 1343(in)X
@@ -2080,12 +2394,12 @@ xi
 1916(DWARF2.)X
 3 f
 11 s
-576 3360(4.8)N
+576 1056(5.8)N
 730(DW_AT_body_begin)X
 2055(0x2105)X
 1 f
 10 s
-576 3504(Apparently)N
+576 1200(Apparently)N
 957(only)X
 1119(output)X
 1343(in)X
@@ -2094,12 +2408,12 @@ xi
 1916(DWARF2.)X
 3 f
 11 s
-576 3648(4.9)N
+576 1344(5.9)N
 730(DW_AT_body_end)X
 2030(0x2106)X
 1 f
 10 s
-576 3792(Apparently)N
+576 1488(Apparently)N
 957(only)X
 1119(output)X
 1343(in)X
@@ -2108,7 +2422,7 @@ xi
 1916(DWARF2.)X
 3 f
 11 s
-576 4080(5.)N
+576 1776(6.)N
 686(egcs)X
 864(.eh_frame)X
 1264(\(non-sgi\))X
@@ -2116,7 +2430,7 @@ xi
 2030(extensions\))X
 1 f
 10 s
-576 4224(egcs-1.1.2)N
+576 1920(egcs-1.1.2)N
 940(\(and)X
 1118(earlier)X
 1359(egcs\))X
@@ -2132,7 +2446,7 @@ xi
 3388(\(and)X
 3566(possibly)X
 3867(other)X
-576 4320(platforms\))N
+576 2016(platforms\))N
 948(which)X
 1182(is)X
 1273(nearly)X
@@ -2148,11 +2462,11 @@ xi
 3664(is)X
 3754(used)X
 3938(for)X
-576 4416(helping)N
+576 2112(helping)N
 836(handle)X
 1070(C++)X
 1233(exceptions.)X
-576 4560(Because)N
+576 2256(Because)N
 868(after)X
 1040(linking)X
 1290(there)X
@@ -2170,7 +2484,7 @@ xi
 3435(section,)X
 3707(the)X
 3830(reader)X
-576 4656(code)N
+576 2352(code)N
 748(in)X
 830 0.2917(dwarf_frame.c)AX
 1322(considers)X
@@ -2191,12 +2505,12 @@ xi
 3578(section.)X
 3 f
 11 s
-576 4800(5.1)N
+576 2496(6.1)N
 730(CIE_id)X
 1026(0)X
 1 f
 10 s
-576 4944(The)N
+576 2640(The)N
 731(section)X
 989(is)X
 1073(an)X
@@ -2213,7 +2527,7 @@ xi
 3538(memory)X
 3836(at)X
 3925(run)X
-576 5040(time.)N
+576 2736(time.)N
 779(The)X
 925(CIE_pointer)X
 1342(\(aka)X
@@ -2229,7 +2543,7 @@ xi
 3308(field)X
 3475(that)X
 3615(distinguishes)X
-576 5136(a)N
+576 2832(a)N
 636(CIE)X
 789(from)X
 969(an)X
@@ -2250,10 +2564,10 @@ xi
 3777(0)X
 3842(as)X
 3934(the)X
-576 5232(CIE_pointer)N
+576 2928(CIE_pointer)N
 992(definition)X
 1323(is)X
-736 5328(the)N
+736 3024(the)N
 854(number)X
 1119(of)X
 1206(bytes)X
@@ -2268,7 +2582,7 @@ xi
 2717(the)X
 2835(applicable)X
 3185(CIE.)X
-576 5424(In)N
+576 3120(In)N
 665(a)X
 723(dwarf)X
 933(.debug_frame)X
@@ -2287,7 +2601,7 @@ xi
 3632(this)X
 3770(fde,)X
 3916(and)X
-576 5520(since)N
+576 3216(since)N
 770(an)X
 875(offset)X
 1087(can)X
@@ -2311,7 +2625,7 @@ xi
 3602(Note)X
 3786(that)X
 3934(the)X
-576 5616(dwarf2.0)N
+576 3312(dwarf2.0)N
 893(spec)X
 1065(does)X
 1241(specify)X
@@ -2328,7 +2642,7 @@ xi
 3297(v2.0.0\),)X
 3574(though)X
 3826(earlier)X
-576 5712(versions)N
+576 3408(versions)N
 863(of)X
 950(this)X
 1085(extensions)X
@@ -2343,29 +2657,14 @@ xi
 3019(the)X
 3137(dwarf)X
 3345(document.)X
-576 6164(rev)N
-699(1.17,)X
-879(29)X
-979(Aug)X
-1137(2001)X
-2237(-)X
-2284(4)X
-2344(-)X
-
-5 p
-%%Page: 5 5
-10 s 0 xH 0 xS 1 f
-2237 384(-)N
-2284(5)X
-2344(-)X
 3 f
 11 s
-576 768(5.2)N
+576 3552(6.2)N
 730(augmentation)X
 1270(eh)X
 1 f
 10 s
-576 912(The)N
+576 3696(The)N
 723(augmentation)X
 1181(string)X
 1385(in)X
@@ -2382,7 +2681,7 @@ xi
 3386(aligns)X
 3600(the)X
 3721(following)X
-576 1008(word)N
+576 3792(word)N
 775(to)X
 871(a)X
 941(32bit)X
@@ -2400,7 +2699,7 @@ xi
 3558(address)X
 3833(of)X
 3934(the)X
-576 1104(__EXCEPTION_TABLE__,)N
+576 3888(__EXCEPTION_TABLE__,)N
 1519(part)X
 1664(of)X
 1751(the)X
@@ -2411,12 +2710,12 @@ xi
 2769(egcs.)X
 3 f
 11 s
-576 1248(5.3)N
+576 4032(6.3)N
 730(DW_CFA_GNU_window_save)X
 1952(0x2d)X
 1 f
 10 s
-576 1392(This)N
+576 4176(This)N
 743(is)X
 821(effectively)X
 1190(a)X
@@ -2434,7 +2733,7 @@ xi
 3661(that)X
 3807(it)X
 3877(must)X
-576 1488(look)N
+576 4272(look)N
 740(to)X
 824(a)X
 882(previous)X
@@ -2452,7 +2751,7 @@ xi
 3164(egcs)X
 3348(gcc/frame.c)X
 3747(indicates)X
-576 1584(this)N
+576 4368(this)N
 711(is)X
 784(for)X
 898(SPARC)X
@@ -2460,12 +2759,12 @@ xi
 1431(windows.)X
 3 f
 11 s
-576 1728(5.4)N
+576 4512(6.4)N
 730(DW_CFA_GNU_args_size)X
 1840(0x2e)X
 1 f
 10 s
-576 1872(DW_CFA_GNU_args_size)N
+576 4656(DW_CFA_GNU_args_size)N
 1489(has)X
 1627(a)X
 1695(single)X
@@ -2480,7 +2779,7 @@ xi
 3478(of)X
 3577(the)X
 3707(function's)X
-576 1968(stack)N
+576 4752(stack)N
 761(at)X
 839(that)X
 979(point)X
@@ -2489,11 +2788,11 @@ xi
 1363(function.)X
 3 f
 11 s
-576 2112(5.5)N
+576 4896(6.5)N
 730(__EXCEPTION_TABLE__)X
 1 f
 10 s
-576 2256(A)N
+576 5040(A)N
 666(series)X
 881(of)X
 980(3)X
@@ -2514,7 +2813,7 @@ xi
 3498(address)X
 3772(2)X
 3845(word:)X
-576 2352(pointer)N
+576 5136(pointer)N
 823(to)X
 905(exception)X
 1237(handler)X
@@ -2536,20 +2835,20 @@ xi
 3471(words!\).)X
 3 f
 11 s
-576 2544(6.)N
+576 5328(7.)N
 686(Interpretations)X
 1279(of)X
 1374(the)X
 1513(DWARF)X
 1866(V2)X
 1995(spec)X
-576 2688(6.1)N
+576 5472(7.1)N
 730(template)X
 1079(TAG)X
 1292(spellings)X
 1 f
 10 s
-576 2832(The)N
+576 5616(The)N
 721(DWARF)X
 1030(V2)X
 1148(spec)X
@@ -2563,7 +2862,7 @@ xi
 3519(\(listed)X
 3740(in)X
 3823(Figure)X
-576 2928(1,)N
+576 5712(1,)N
 659(page)X
 834(7\))X
 924(is)X
@@ -2578,14 +2877,29 @@ xi
 3402(\(section)X
 3678(3.3.7,)X
 3880(page)X
-576 3024(28\).)N
+576 5808(28\).)N
 743(We)X
 875(have)X
 1047(adopted)X
 1321(the)X
 1439(spelling)X
 1712 0.1250(DW_TAG_template_type_param.)AX
-576 3168 0.1442(DW_TAG_template_value_param)AN
+576 6164(rev)N
+699(1.18,)X
+879(31)X
+979(March)X
+1209(2005)X
+2237(-)X
+2284(5)X
+2344(-)X
+
+6 p
+%%Page: 6 6
+10 s 0 xH 0 xS 1 f
+2237 384(-)N
+2284(6)X
+2344(-)X
+576 768 0.1442(DW_TAG_template_value_param)AN
 1850(\(listed)X
 2214(in)X
 2440(Figure)X
@@ -2594,7 +2908,7 @@ xi
 3355(7\))X
 3587(is)X
 3805(spelled)X
-576 3264 0.1625(DW_TAG_template_value_parameter)AN
+576 864 0.1625(DW_TAG_template_value_parameter)AN
 1843(in)X
 1941(the)X
 2075(body)X
@@ -2607,11 +2921,11 @@ xi
 3551(28\).)X
 3733(We)X
 3880(have)X
-576 3360(adopted)N
+576 960(adopted)N
 850(the)X
 968(spelling)X
 1241 0.1573(DW_TAG_template_value_parameter.)AX
-576 3504(We)N
+576 1104(We)N
 723(recognize)X
 1071(that)X
 1226(the)X
@@ -2627,17 +2941,17 @@ xi
 3381(shorter)X
 3640(name.)X
 3890(This)X
-576 3600(inconsistency)N
+576 1200(inconsistency)N
 1032(was)X
 1177(an)X
 1273(accident.)X
 3 f
 11 s
-576 3744(6.2)N
+576 1344(7.2)N
 730(DW_FORM_ref_addrconfusing)X
 1 f
 10 s
-576 3888(Section)N
+576 1488(Section)N
 840(7.5.4,)X
 1044(Attribute)X
 1357(Encodings,)X
@@ -2649,7 +2963,7 @@ xi
 3530(the)X
 3653 0.4531(reference)AX
 3979(is)X
-576 3984(the)N
+576 1584(the)N
 707(size)X
 865(of)X
 965(an)X
@@ -2667,7 +2981,7 @@ xi
 3407(on)X
 3519(a)X
 3587(16bit-pointer-)X
-576 4080(architecture)N
+576 1680(architecture)N
 978(it)X
 1044(would)X
 1266(mean)X
@@ -2685,7 +2999,7 @@ xi
 3485(a)X
 3543(limited)X
 3792(amount)X
-576 4176(of)N
+576 1776(of)N
 688(sense)X
 887(as)X
 979(the)X
@@ -2707,7 +3021,7 @@ xi
 3593(*on)X
 3737(the)X
 3859(disk*)X
-576 4272(and)N
+576 1872(and)N
 713(not)X
 836(limited)X
 1083(to)X
@@ -2728,7 +3042,7 @@ xi
 3508(restriction)X
 3855(is)X
 3930(not)X
-576 4368(a)N
+576 1968(a)N
 636(problem)X
 926(for)X
 1043(MIPS/SGI.)X
@@ -2748,7 +3062,7 @@ xi
 3705(a)X
 3764(result)X
 3965(of)X
-576 4464(implementation)N
+576 2064(implementation)N
 1104(details\).)X
 1406(And)X
 1570(the)X
@@ -2766,7 +3080,7 @@ xi
 3676(of)X
 3769(how)X
 3934(the)X
-576 4560(compilers)N
+576 2160(compilers)N
 912(and)X
 1048(tools)X
 1223(are)X
@@ -2783,16 +3097,35 @@ xi
 2648(practice,)X
 2943(so)X
 3034(far\).)X
+576 2304(This)N
+741(has)X
+871(been)X
+1046(clarified)X
+1337(in)X
+1422(the)X
+1543(DWARF3)X
+1895(spec)X
+2061(and)X
+2200(the)X
+2322(IRIX)X
+2511(use)X
+2642(of)X
+2733(DW_FORM_ref_addr)X
+3470(being)X
+3672(an)X
+3772(offset)X
+3979(is)X
+576 2400(correct.)N
 3 f
 11 s
-576 4704(6.3)N
+576 2544(7.3)N
 730(.debug_macinfo)X
 1351(in)X
 1447(a)X
 1513(debugger)X
 1 f
 10 s
-576 4848(It)N
+576 2688(It)N
 656(seems)X
 883(quite)X
 1074(difficult,)X
@@ -2810,7 +3143,7 @@ xi
 3486(stream)X
 3732(of)X
 3831(macro)X
-576 4944(information)N
+576 2784(information)N
 990(for)X
 1120(a)X
 1192(particular)X
@@ -2827,13 +3160,13 @@ xi
 3403(design)X
 3648(a)X
 3720(consumer)X
-576 5040(interface)N
+576 2880(interface)N
 878(to)X
 960(libdwarf)X
 1252(for)X
 1366(macro)X
 1587(information.)X
-576 5184(The)N
+576 3024(The)N
 732(best)X
 892(\(simple)X
 1163(to)X
@@ -2851,7 +3184,7 @@ xi
 3674(be)X
 3782(that)X
 3934(the)X
-576 5280(debugger)N
+576 3120(debugger)N
 899(asks)X
 1061(for)X
 1178(macros)X
@@ -2870,19 +3203,19 @@ xi
 3586(with)X
 3751(*all*)X
 3934(the)X
-576 5376(macros)N
+576 3216(macros)N
 828(of)X
 915(that)X
 1055(name.)X
 3 f
-576 5520(6.3.1)N
+576 3360(7.3.1)N
 776(only)X
 942(a)X
 1002(single)X
 1217(choice)X
 1451(exists)X
 1 f
-576 5664(If)N
+576 3504(If)N
 650(there)X
 831(is)X
 904(exactly)X
@@ -2900,30 +3233,15 @@ xi
 2979(to)X
 3061(evaluate)X
 3349(such.)X
-576 6164(rev)N
-699(1.17,)X
-879(29)X
-979(Aug)X
-1137(2001)X
-2237(-)X
-2284(5)X
-2344(-)X
-
-6 p
-%%Page: 6 6
-10 s 0 xH 0 xS 1 f
-2237 384(-)N
-2284(6)X
-2344(-)X
 3 f
-576 768(6.3.2)N
+576 3648(7.3.2)N
 776(multiple)X
 1080(macros)X
 1350(with)X
 1521(same)X
 1715(name.)X
 1 f
-576 912(If)N
+576 3792(If)N
 650(there)X
 831(are)X
 950(multiple)X
@@ -2942,7 +3260,7 @@ xi
 3459(the)X
 3578(debugger)X
 3898(user)X
-576 1008(and)N
+576 3888(and)N
 715(the)X
 836(application)X
 1215(programmer\))X
@@ -2959,7 +3277,7 @@ xi
 3578(are)X
 3699(simple)X
 3934(the)X
-576 1104(debugger)N
+576 3984(debugger)N
 933(user)X
 1105(can)X
 1255(simply)X
@@ -2975,7 +3293,7 @@ xi
 3307(are)X
 3445(complicated)X
 3876(hand)X
-576 1200(substitution)N
+576 4080(substitution)N
 978(will)X
 1132(be)X
 1238(impractical,)X
@@ -2992,13 +3310,13 @@ xi
 3497(let)X
 3606(the)X
 3733(debugger)X
-576 1296(user)N
+576 4176(user)N
 730(choose)X
 973(an)X
 1069(interpretation.)X
 3 f
 11 s
-576 1440(6.4)N
+576 4320(7.4)N
 730(Section)X
 1026(6.1.2)X
 1224(Lookup)X
@@ -3007,7 +3325,7 @@ xi
 1965(problem)X
 1 f
 10 s
-576 1584(Each)N
+576 4464(Each)N
 761(entry)X
 950(is)X
 1027(a)X
@@ -3025,14 +3343,14 @@ xi
 3560(used)X
 3731(to)X
 3818(denote)X
-576 1680(the)N
+576 4560(the)N
 694(end)X
 830(of)X
 917(a)X
 973(range)X
 1172(of)X
 1259(entries.)X
-576 1824(This)N
+576 4704(This)N
 740(means)X
 967(that)X
 1109(one)X
@@ -3054,7 +3372,7 @@ xi
 3327(the)X
 3448(beginning)X
 3791(address)X
-576 1920(of)N
+576 4800(of)N
 669(a)X
 731(normal)X
 984(entry)X
@@ -3077,7 +3395,7 @@ xi
 3598(taken)X
 3797(as)X
 3889(end-)X
-576 2016(of-range,)N
+576 4896(of-range,)N
 889(not)X
 1011(as)X
 1098(a)X
@@ -3096,7 +3414,7 @@ xi
 3314(an)X
 3410(object)X
 3626(file.)X
-576 2160(In)N
+576 5040(In)N
 669(an)X
 771(a.out)X
 955(or)X
@@ -3117,13 +3435,13 @@ xi
 3654(in)X
 3743(such)X
 3917(this)X
-576 2256(problem)N
+576 5136(problem)N
 863(does)X
 1030(not)X
 1152(arise.)X
 3 f
 11 s
-576 2400(6.5)N
+576 5280(7.5)N
 730(Section)X
 1026(5.10)X
 1202(Subrange)X
@@ -3132,7 +3450,7 @@ xi
 2095(problem)X
 1 f
 10 s
-576 2544(It)N
+576 5424(It)N
 652(is)X
 732(specified)X
 1049(that)X
@@ -3149,7 +3467,7 @@ xi
 3647(is)X
 3728(no)X
 3836(object)X
-576 2640(type)N
+576 5520(type)N
 739(info)X
 893(to)X
 980(specify)X
@@ -3168,7 +3486,7 @@ xi
 3360(some)X
 3553(dwarf)X
 3765(constant)X
-576 2736(types\))N
+576 5616(types\))N
 794(what)X
 972(the)X
 1092(signedness)X
@@ -3185,7 +3503,7 @@ xi
 3290(necessary)X
 3626(to)X
 3711(determine)X
-576 2832(the)N
+576 5712(the)N
 704(object)X
 930(and)X
 1076(type)X
@@ -3208,7 +3526,7 @@ xi
 3747(It's)X
 3883(a)X
 3948(bit)X
-576 2928(complicated)N
+576 5808(complicated)N
 988(and)X
 1124(earlier)X
 1350(versions)X
@@ -3220,9 +3538,24 @@ xi
 3181(was)X
 3326(not)X
 3448(defined.)X
+576 6164(rev)N
+699(1.18,)X
+879(31)X
+979(March)X
+1209(2005)X
+2237(-)X
+2284(6)X
+2344(-)X
+
+7 p
+%%Page: 7 7
+10 s 0 xH 0 xS 1 f
+2237 384(-)N
+2284(7)X
+2344(-)X
 3 f
 11 s
-576 3072(6.6)N
+576 768(7.6)N
 730(Section)X
 1026(5.5.6)X
 1224(Class)X
@@ -3231,7 +3564,7 @@ xi
 2365(problem)X
 1 f
 10 s
-576 3216(Lots)N
+576 912(Lots)N
 741(of)X
 831(room)X
 1023(for)X
@@ -3247,7 +3580,7 @@ xi
 3574(agree.)X
 3813(This)X
 3979(is)X
-576 3312(not)N
+576 1008(not)N
 698(serious)X
 945(since)X
 1130(a)X
@@ -3266,7 +3599,7 @@ xi
 3515(cope!)X
 3 f
 11 s
-576 3456(6.7)N
+576 1152(7.7)N
 730(Section)X
 1026(2.4.3.4)X
 1312(#)X
@@ -3275,7 +3608,7 @@ xi
 1859(spelling)X
 1 f
 10 s
-576 3600(DW_OP_add)N
+576 1296(DW_OP_add)N
 1028(should)X
 1261(be)X
 1357(DW_OP_plus)X
@@ -3291,7 +3624,7 @@ xi
 3262(page\).)X
 3 f
 11 s
-576 3744(6.8)N
+576 1440(7.8)N
 730(No)X
 859(clear)X
 1067(specification)X
@@ -3301,7 +3634,7 @@ xi
 2061(funcs)X
 1 f
 10 s
-576 3888(There)N
+576 1584(There)N
 785(is)X
 859(no)X
 960(clear)X
@@ -3322,7 +3655,7 @@ xi
 3122(non-static)X
 3460(member)X
 3745(function.)X
-576 3984 0.3125(\(dwarf2read.c)AN
+576 1680 0.3125(\(dwarf2read.c)AN
 1046(in)X
 1128(gdb)X
 1268(4.18,)X
@@ -3333,13 +3666,13 @@ xi
 2136(observation\))X
 3 f
 11 s
-576 4128(6.9)N
+576 1824(7.9)N
 730(Misspelling)X
 1184(of)X
 1279(DW_AT_const_value)X
 1 f
 10 s
-576 4272(Twice)N
+576 1968(Twice)N
 797(in)X
 879(appendix)X
 1193(1,)X
@@ -3350,14 +3683,14 @@ xi
 2519(DW_AT_constant_value.)X
 3 f
 11 s
-576 4416(6.10)N
+576 2112(7.10)N
 774(Mistake)X
 1099(in)X
 1195(Atribute)X
 1539(Encodings)X
 1 f
 10 s
-576 4560(Section)N
+576 2256(Section)N
 842(7.5.4,)X
 1048("Attribute)X
 1396(Encodings")X
@@ -3374,7 +3707,7 @@ xi
 3684(6)X
 3751(forms)X
 3965(of)X
-576 4656(constants.)N
+576 2352(constants.)N
 936(It)X
 1007(is)X
 1082(incorrect)X
@@ -3394,7 +3727,7 @@ xi
 3437(clearly)X
 3677(allowed)X
 3952(by)X
-576 4752(section)N
+576 2448(section)N
 823(4.1)X
 943("Data)X
 1148(Object)X
@@ -3411,11 +3744,11 @@ xi
 3100(constants\).)X
 3 f
 11 s
-576 4896(6.11)N
+576 2592(7.11)N
 774(DW_OP_bregx)X
 1 f
 10 s
-576 5040(The)N
+576 2736(The)N
 726(description)X
 1107(of)X
 1199(DW_OP_bregx)X
@@ -3430,7 +3763,7 @@ xi
 3754(in)X
 3842(that)X
 3988(it)X
-576 5136(lists)N
+576 2832(lists)N
 740(the)X
 874(offset)X
 1093(first.)X
@@ -3446,19 +3779,19 @@ xi
 3329(encoding)X
 3658(the)X
 3791(register)X
-576 5232(number)N
+576 2928(number)N
 841(comes)X
 1066(first.)X
 3 f
 11 s
-576 5424(7.)N
+576 3120(8.)N
 686(MIPS)X
 928(attributes)X
-576 5568(7.1)N
+576 3264(8.1)N
 730(DW_AT_MIPS_fde)X
 1 f
 10 s
-576 5712(This)N
+576 3408(This)N
 758(extension)X
 1105(to)X
 1207(Dwarf)X
@@ -3476,7 +3809,7 @@ xi
 3587(offset,)X
 3831(in)X
 3934(the)X
-576 5808(.debug_frame)N
+576 3504(.debug_frame)N
 1041(section,)X
 1309(of)X
 1397(the)X
@@ -3495,32 +3828,17 @@ xi
 3712(of)X
 3799(sorts)X
 3970(to)X
-576 6164(rev)N
-699(1.17,)X
-879(29)X
-979(Aug)X
-1137(2001)X
-2237(-)X
-2284(6)X
-2344(-)X
-
-7 p
-%%Page: 7 7
-10 s 0 xH 0 xS 1 f
-2237 384(-)N
-2284(7)X
-2344(-)X
-576 768(have)N
+576 3600(have)N
 748(this)X
 883(present.)X
 3 f
 11 s
-576 1008(7.2)N
+576 3840(8.2)N
 730(DW_CFA_MIPS_advance_loc8)X
 1939(0x1d)X
 1 f
 10 s
-576 1152(This)N
+576 3984(This)N
 739(obvious)X
 1013(extension)X
 1341(to)X
@@ -3537,7 +3855,7 @@ xi
 3523(\(for)X
 3666(cases)X
 3858(when)X
-576 1248(such)N
+576 4080(such)N
 743(must)X
 918(be)X
 1014(relocatable,)X
@@ -3554,12 +3872,12 @@ xi
 3212(objects.)X
 3 f
 11 s
-576 1488(7.3)N
+576 4320(8.3)N
 730(DW_TAG_MIPS_loop)X
 1762(0x4081)X
 1 f
 10 s
-576 1632(For)N
+576 4464(For)N
 707(future)X
 919(use.)X
 1066(Not)X
@@ -3579,12 +3897,12 @@ xi
 3694(finalized.)X
 3 f
 11 s
-576 1872(7.4)N
+576 4704(8.4)N
 730(DW_AT_MIPS_loop_begin)X
 1833(0x2002)X
 1 f
 10 s
-576 2016(For)N
+576 4848(For)N
 707(future)X
 919(use.)X
 1066(Not)X
@@ -3598,12 +3916,12 @@ xi
 2815(finalized.)X
 3 f
 11 s
-576 2256(7.5)N
+576 5088(8.5)N
 730(DW_AT_MIPS_tail_loop_begin)X
 1978(0x2003)X
 1 f
 10 s
-576 2400(For)N
+576 5232(For)N
 707(future)X
 919(use.)X
 1066(Not)X
@@ -3617,12 +3935,12 @@ xi
 2815(finalized.)X
 3 f
 11 s
-576 2640(7.6)N
+576 5472(8.6)N
 730(DW_AT_MIPS_epilog_begin)X
 1941(0x2004)X
 1 f
 10 s
-576 2784(For)N
+576 5616(For)N
 707(future)X
 919(use.)X
 1066(Not)X
@@ -3634,14 +3952,29 @@ xi
 2437(content)X
 2693(not)X
 2815(finalized.)X
+576 6164(rev)N
+699(1.18,)X
+879(31)X
+979(March)X
+1209(2005)X
+2237(-)X
+2284(7)X
+2344(-)X
+
+8 p
+%%Page: 8 8
+10 s 0 xH 0 xS 1 f
+2237 384(-)N
+2284(8)X
+2344(-)X
 3 f
 11 s
-576 3024(7.7)N
+576 768(8.7)N
 730(DW_AT_MIPS_loop_unroll_factor)X
 2104(0x2005)X
 1 f
 10 s
-576 3168(For)N
+576 912(For)N
 707(future)X
 919(use.)X
 1066(Not)X
@@ -3655,12 +3988,12 @@ xi
 2815(finalized.)X
 3 f
 11 s
-576 3408(7.8)N
+576 1152(8.8)N
 730(DW_AT_MIPS_software_pipeline_depth)X
 2345(0x2006)X
 1 f
 10 s
-576 3552(For)N
+576 1296(For)N
 707(future)X
 919(use.)X
 1066(Not)X
@@ -3674,12 +4007,12 @@ xi
 2815(finalized.)X
 3 f
 11 s
-576 3696(7.9)N
+576 1440(8.9)N
 730(DW_AT_MIPS_linkage_name)X
 2253(0x2007)X
 1 f
 10 s
-576 3840(The)N
+576 1584(The)N
 722(rules)X
 900(for)X
 1016(mangling)X
@@ -3698,7 +4031,7 @@ xi
 3350(for)X
 3466(different)X
 3765(versions)X
-576 3936(of)N
+576 1680(of)N
 670(C++.)X
 880(With)X
 1067(this)X
@@ -3714,7 +4047,7 @@ xi
 3357(with)X
 3525(mangled)X
 3827(names)X
-576 4032(\(recall)N
+576 1776(\(recall)N
 802(that)X
 942(DW_AT_name)X
 1457(is)X
@@ -3727,12 +4060,12 @@ xi
 2617(emits)X
 2810(DW_AT_MIPS_linkage_name)X
 3827(whose)X
-576 4128(value)N
+576 1872(value)N
 770(is)X
 843(the)X
 961(mangled)X
 1257(name.)X
-576 4272(This)N
+576 2016(This)N
 739(makes)X
 965(looking)X
 1230(for)X
@@ -3749,7 +4082,7 @@ xi
 3614(is)X
 3689(passed)X
 3925(\(by)X
-576 4368(the)N
+576 2112(the)N
 694(debugger\))X
 1040(to)X
 1122(the)X
@@ -3766,12 +4099,12 @@ xi
 3311(user.)X
 3 f
 11 s
-576 4512(7.10)N
+576 2256(8.10)N
 774(DW_AT_MIPS_stride)X
 1878(0x2008)X
 1 f
 10 s
-576 4656(F90)N
+576 2400(F90)N
 740(allows)X
 989(assumed)X
 1305(shape)X
@@ -3784,7 +4117,7 @@ xi
 3304(memory.)X
 3631(A)X
 3729(\(runtime\))X
-576 4752(descriptor)N
+576 2496(descriptor)N
 937(contains)X
 1244(address,)X
 1545(bounds)X
@@ -3799,7 +4132,7 @@ xi
 3473(is)X
 3566(known)X
 3823(during)X
-576 4848(compilation.)N
+576 2592(compilation.)N
 1003(The)X
 1153(extent)X
 1374(in)X
@@ -3815,7 +4148,7 @@ xi
 2913(DW_TAG_subrange_type,)X
 3806(but)X
 3934(the)X
-576 4944(stride)N
+576 2688(stride)N
 781(cannot)X
 1022(be)X
 1125(represented)X
@@ -3830,7 +4163,7 @@ xi
 3608(attribute)X
 3902(of)X
 3996(a)X
-576 5040(DW_TAG_subrange_type)N
+576 2784(DW_TAG_subrange_type)N
 1459(to)X
 1557(describe)X
 1861(the)X
@@ -3845,8 +4178,8 @@ xi
 3550(7.2)X
 3687(\(7.2.1)X
 3911(etc\))X
-576 5136(compilers.)N
-576 5280(If)N
+576 2880(compilers.)N
+576 3024(If)N
 658(the)X
 784(stride)X
 990(is)X
@@ -3864,8 +4197,8 @@ xi
 2928(manner\))X
 3225(DW_AT_MIPS_stride)X
 3979(is)X
-576 5376(absent.)N
-576 5520(If)N
+576 3120(absent.)N
+576 3264(If)N
 651(DW_AT_MIPS_stride)X
 1397(is)X
 1471(present,)X
@@ -3881,7 +4214,7 @@ xi
 3333(describes)X
 3654(the)X
 3774(location)X
-576 5616(holding)N
+576 3360(holding)N
 848(the)X
 974(stride,)X
 1200(and)X
@@ -3895,7 +4228,7 @@ xi
 3532(if)X
 3608(present.)X
 3907(The)X
-576 5712(value)N
+576 3456(value)N
 770(of)X
 857(the)X
 975(stride)X
@@ -3911,44 +4244,29 @@ xi
 2743(along)X
 2941(that)X
 3081(axis.)X
-576 6164(rev)N
-699(1.17,)X
-879(29)X
-979(Aug)X
-1137(2001)X
-2237(-)X
-2284(7)X
-2344(-)X
-
-8 p
-%%Page: 8 8
-10 s 0 xH 0 xS 1 f
-2237 384(-)N
-2284(8)X
-2344(-)X
-576 768(This)N
+576 3600(This)N
 738(applies)X
 985(to)X
-576 864(a\))N
+576 3696(a\))N
 659(Intrinsic)X
 946(types)X
 1135(whose)X
 1360(size)X
 1505(is)X
 1578(greater)X
-636 960(or)N
+636 3792(or)N
 723(equal)X
 917(to)X
 999(4bytes)X
 1228(ie:)X
 1328(real*4,integer*8)X
-636 1056(complex)N
+636 3888(complex)N
 932(etc,)X
 1066(but)X
 1188(not)X
 1310(character)X
 1626(types.)X
-576 1248(b\))N
+576 4080(b\))N
 663(Derived)X
 942(types)X
 1131(\(ie:)X
@@ -3956,7 +4274,7 @@ xi
 1514(of)X
 1601(any)X
 1737(size,)X
-636 1344(unless)N
+636 4176(unless)N
 856(all)X
 956(components)X
 1363(are)X
@@ -3965,12 +4283,12 @@ xi
 1727(character.)X
 3 f
 11 s
-576 1584(7.11)N
+576 4416(8.11)N
 774(DW_AT_MIPS_abstract_name)X
 2263(0x2009)X
 1 f
 10 s
-576 1728(This)N
+576 4560(This)N
 743(attribute)X
 1035(only)X
 1202(appears)X
@@ -3986,7 +4304,7 @@ xi
 3689(is)X
 3768(a)X
 3830(string.)X
-576 1824(When)N
+576 4656(When)N
 794(IPA)X
 949(inlines)X
 1188(a)X
@@ -4005,7 +4323,7 @@ xi
 3537(a)X
 3598(problem)X
 3890(with)X
-576 1920(putting)N
+576 4752(putting)N
 830(in)X
 920(a)X
 984 0.4028(reference,)AX
@@ -4022,7 +4340,7 @@ xi
 3306(is)X
 3388(unpredicatable)X
 3890(with)X
-576 2016 0.4531(reference)AN
+576 4848 0.4531(reference)AN
 897(to)X
 979(the)X
 1097(DIE)X
@@ -4033,7 +4351,7 @@ xi
 2051 0.4531(reference)AX
 2372(refers)X
 2576(to.)X
-576 2160(Since)N
+576 4992(Since)N
 775(there)X
 957(may)X
 1116(be)X
@@ -4052,7 +4370,7 @@ xi
 3512(be)X
 3610(done)X
 3788(without)X
-576 2256(some)N
+576 5088(some)N
 769(kind)X
 935(of)X
 1026(patching,)X
@@ -4071,7 +4389,7 @@ xi
 3563(a)X
 3623(problem,)X
 3934(the)X
-576 2352(compiler)N
+576 5184(compiler)N
 881(simply)X
 1118(passes)X
 1343(the)X
@@ -4080,7 +4398,7 @@ xi
 1848(to)X
 1930(the)X
 2048(debugger.)X
-576 2496(The)N
+576 5328(The)N
 722(debugger)X
 1042(must)X
 1218(match)X
@@ -4094,14 +4412,14 @@ xi
 3614(DIE)X
 3770(with)X
 3934(the)X
-576 2592(DW_AT_MIPS_abstract_name)N
+576 5424(DW_AT_MIPS_abstract_name)N
 1607(in)X
 1689(the)X
 1807(abstract)X
 2077(inlined)X
 2319(subroutine)X
 2677(DIE.)X
-576 2736(A)N
+576 5568(A)N
 654 0.2202(dwarf-consumer-centric)AX
 1447(view)X
 1623(of)X
@@ -4115,22 +4433,37 @@ xi
 2893(expressed)X
 3230(as)X
 3317(follows:)X
-576 2832(If)N
+576 5664(If)N
 650(DW_TAG_subprogram)X
-616 2928(If)N
+616 5760(If)N
 690(has)X
 817(DW_AT_inline)X
 1340(is)X
 1413(abstract)X
 1683(instance)X
 1966(root)X
-616 3024(If)N
+616 5856(If)N
 690(has)X
 817(DW_AT_abstract_origin,)X
 1659(is)X
 1732(out-of-line)X
 2095(instance)X
-656 3120(of)N
+576 6164(rev)N
+699(1.18,)X
+879(31)X
+979(March)X
+1209(2005)X
+2237(-)X
+2284(8)X
+2344(-)X
+
+9 p
+%%Page: 9 9
+10 s 0 xH 0 xS 1 f
+2237 384(-)N
+2284(9)X
+2344(-)X
+656 768(of)N
 743(function)X
 1030(\(need)X
 1229(abstract)X
@@ -4138,14 +4471,14 @@ xi
 1710(for)X
 1824(some)X
 2013(data\))X
-656 3216(\(abstract)N
+656 864(\(abstract)N
 953(root)X
 1102(in)X
 1184(same)X
 1369(CU)X
 1500(\(conceptually)X
 1957(anywhere)X
-656 3312(a)N
+656 960(a)N
 712(ref)X
 822(can)X
 954(reach,)X
@@ -4155,19 +4488,19 @@ xi
 1839(of)X
 1926(CU)X
 2057(is)X
-656 3408(a)N
+656 1056(a)N
 712(problem)X
 999(for)X
 1113(ipa:)X
 1253(see)X
 1376 0.1250(DW_AT_MIPS_abstract_name\)\))AX
-616 3504(If)N
+616 1152(If)N
 690(has)X
 817(DW_AT_MIPS_abstract_name)X
 1848(is)X
 1921(abstract)X
 2191(instance)X
-656 3600(root\()N
+656 1248(root\()N
 832(must)X
 1007(have)X
 1179(DW_AT_inline\))X
@@ -4177,19 +4510,19 @@ xi
 2194(is)X
 2267(used)X
 2434(to)X
-656 3696(match)N
+656 1344(match)N
 872(with)X
 1034(the)X
 1152(abstract)X
 1422(root)X
-576 3888(If)N
+576 1536(If)N
 650(DW_TAG_inline_subroutine)X
-616 3984(Is)N
+616 1632(Is)N
 694(concrete)X
 987(inlined)X
 1229(subprogram)X
 1632(instance.)X
-616 4080(If)N
+616 1728(If)N
 690(has)X
 817(DW_AT_abstract_origin,)X
 1659(it)X
@@ -4197,14 +4530,14 @@ xi
 1796(a)X
 1852(CU-local)X
 2166(inline.)X
-616 4176(If)N
+616 1824(If)N
 690(it)X
 754(has)X
 881(DW_AT_MIPS_abstract_name)X
 1912(it)X
 1976(is)X
 2049(an)X
-656 4272(inline)N
+656 1920(inline)N
 858(whose)X
 1083(abstract)X
 1353(root)X
@@ -4215,12 +4548,12 @@ xi
 2045(\(CU\).)X
 3 f
 11 s
-576 4512(7.12)N
+576 2160(8.12)N
 774(DW_AT_MIPS_clone_origin)X
 2195(0x200a)X
 1 f
 10 s
-576 4656(This)N
+576 2304(This)N
 748(attribute)X
 1045(appears)X
 1321(only)X
@@ -4236,7 +4569,7 @@ xi
 3325(the)X
 3454(same)X
 3650(compilation)X
-576 4752(unit.)N
+576 2400(unit.)N
 760(The)X
 905(value)X
 1099(of)X
@@ -4253,7 +4586,7 @@ xi
 2856(this)X
 2991(compilation)X
 3393(unit.)X
-576 4896(The)N
+576 2544(The)N
 726('original')X
 1054(routine)X
 1306(means)X
@@ -4270,7 +4603,7 @@ xi
 3375(routines)X
 3659(will)X
 3809(always)X
-576 4992(have)N
+576 2640(have)N
 779(been)X
 982('specialized')X
 1444(by)X
@@ -4283,7 +4616,7 @@ xi
 3553(also)X
 3732(have)X
 3934(the)X
-576 5088(DW_CC_nocall)N
+576 2736(DW_CC_nocall)N
 1112(value)X
 1306(of)X
 1393(the)X
@@ -4291,12 +4624,12 @@ xi
 2466(attribute.)X
 3 f
 11 s
-576 5328(7.13)N
+576 2976(8.13)N
 774(DW_AT_MIPS_has_inlines)X
 2146(0x200b)X
 1 f
 10 s
-576 5472(This)N
+576 3120(This)N
 741(attribute)X
 1052(may)X
 1214(appear)X
@@ -4314,7 +4647,7 @@ xi
 3576(True,)X
 3772(then)X
 3934(the)X
-576 5568(subprogram)N
+576 3216(subprogram)N
 979(has)X
 1106(inlined)X
 1348(functions)X
@@ -4322,7 +4655,7 @@ xi
 2052(in)X
 2134(the)X
 2252(body.)X
-576 5712(By)N
+576 3360(By)N
 689(default,)X
 952(at)X
 1030(startup,)X
@@ -4340,22 +4673,7 @@ xi
 3368(the)X
 3486(outer)X
 3671(function.)X
-576 6164(rev)N
-699(1.17,)X
-879(29)X
-979(Aug)X
-1137(2001)X
-2237(-)X
-2284(8)X
-2344(-)X
-
-9 p
-%%Page: 9 9
-10 s 0 xH 0 xS 1 f
-2237 384(-)N
-2284(9)X
-2344(-)X
-576 768(This)N
+576 3504(This)N
 739(is)X
 813(a)X
 871(hint)X
@@ -4376,7 +4694,7 @@ xi
 3369(breakpoints)X
 3765(on)X
 3867(these)X
-576 864(in)N
+576 3600(in)N
 658(case)X
 817(the)X
 935(user)X
@@ -4390,12 +4708,12 @@ xi
 2124(inlined.)X
 3 f
 11 s
-576 1008(7.14)N
+576 3744(8.14)N
 774(DW_AT_MIPS_stride_byte)X
 2215(0x200c)X
 1 f
 10 s
-576 1152(Created)N
+576 3888(Created)N
 858(for)X
 984(f90)X
 1124(pointer)X
@@ -4412,7 +4730,7 @@ xi
 3431(etc\))X
 3585(compilers.)X
 3974(A)X
-576 1248(variant)N
+576 3984(variant)N
 838(of)X
 944(DW_AT_MIPS_stride.)X
 1748(This)X
@@ -4427,7 +4745,7 @@ xi
 3443(for)X
 3575(integer*1)X
 3916(and)X
-576 1344(character)N
+576 4080(character)N
 892(arrays)X
 1109(and)X
 1245(arrays)X
@@ -4441,12 +4759,12 @@ xi
 2819(character.)X
 3 f
 11 s
-576 1488(7.15)N
+576 4224(8.15)N
 774(DW_AT_MIPS_stride_elem)X
 2230(0x200d)X
 1 f
 10 s
-576 1632(Created)N
+576 4368(Created)N
 858(for)X
 984(f90)X
 1124(pointer)X
@@ -4463,7 +4781,7 @@ xi
 3431(etc\))X
 3585(compilers.)X
 3974(A)X
-576 1728(variant)N
+576 4464(variant)N
 841(of)X
 950(DW_AT_MIPS_stride.)X
 1757(This)X
@@ -4478,37 +4796,37 @@ xi
 3473(count.)X
 3732(Used)X
 3938(for)X
-576 1824(integer*2)N
+576 4560(integer*2)N
 899(arrays.)X
 3 f
 11 s
-576 1968(7.16)N
+576 4704(8.16)N
 774(DW_AT_MIPS_ptr_dopetype)X
 2276(0x200e)X
 1 f
 10 s
-576 2112(See)N
+576 4848(See)N
 712(following.)X
 3 f
 11 s
-576 2256(7.17)N
+576 4992(8.17)N
 774(DW_AT_MIPS_allocatable_dopetype)X
 2390(0x200f)X
 1 f
 10 s
-576 2400(See)N
+576 5136(See)N
 712(following.)X
 3 f
 11 s
-576 2544(7.18)N
+576 5280(8.18)N
 774(DW_AT_MIPS_assumed_shape_dopetype)X
 2520(0x2010)X
 1 f
 10 s
-576 2688(DW_AT_MIPS_assumed_shape_dopetype,)N
+576 5424(DW_AT_MIPS_assumed_shape_dopetype,)N
 2321(DW_AT_MIPS_allocatable_dopetype,)X
 3916(and)X
-576 2784(DW_AT_MIPS_ptr_dopetype)N
+576 5520(DW_AT_MIPS_ptr_dopetype)N
 1575(have)X
 1756(an)X
 1861(attribute)X
@@ -4523,7 +4841,7 @@ xi
 3483(90)X
 3591(Dope)X
 3793(Vector.)X
-576 2880(These)N
+576 5616(These)N
 794(attributes)X
 1118(are)X
 1243(introduced)X
@@ -4540,7 +4858,7 @@ xi
 3589(are)X
 3715(needed)X
 3970(to)X
-576 2976(describe)N
+576 5712(describe)N
 870(arrays)X
 1093(never)X
 1298(properly)X
@@ -4556,14 +4874,29 @@ xi
 3523(most)X
 3703(f90)X
 3835(arrays)X
-576 3072(continue)N
+576 5808(continue)N
 872(to)X
 954(be)X
 1050(described)X
 1378(in)X
 1460(standard)X
 1752(dwarf.)X
-576 3216(The)N
+576 6164(rev)N
+699(1.18,)X
+879(31)X
+979(March)X
+1209(2005)X
+2237(-)X
+2284(9)X
+2344(-)X
+
+10 p
+%%Page: 10 10
+10 s 0 xH 0 xS 1 f
+2217 384(-)N
+2264(10)X
+2364(-)X
+576 768(The)N
 744(distinction)X
 1124(between)X
 1435(these)X
@@ -4577,7 +4910,7 @@ xi
 3235(keywords)X
 3591('pointer')X
 3916(and)X
-576 3312('allocatable')N
+576 864('allocatable')N
 998(with)X
 1160(the)X
 1278(absence)X
@@ -4593,7 +4926,7 @@ xi
 3236(the)X
 3354(third)X
 3525(case.)X
-576 3456(A)N
+576 1008(A)N
 654("Dope)X
 881(Vector")X
 1153(is)X
@@ -4610,7 +4943,7 @@ xi
 3510(objects)X
 3758(with)X
 3921(full)X
-576 3552(debugging)N
+576 1104(debugging)N
 936(the)X
 1056(C)X
 1130(struct)X
@@ -4629,7 +4962,7 @@ xi
 3513(C\).)X
 3654(A)X
 3733(debugger)X
-576 3648(will)N
+576 1200(will)N
 733(use)X
 873(the)X
 1004(link)X
@@ -4648,7 +4981,7 @@ xi
 3484(decode)X
 3745(the)X
 3876(dope)X
-576 3744(vector.)N
+576 1296(vector.)N
 841(At)X
 945(the)X
 1067(outer)X
@@ -4661,7 +4994,7 @@ xi
 3531(dope)X
 3710(vector)X
 3934(\(so)X
-576 3840(debugger)N
+576 1392(debugger)N
 895(calculations)X
 1298(use)X
 1425(that)X
@@ -4670,7 +5003,7 @@ xi
 1708(base\).)X
 3 f
 11 s
-576 3984(7.19)N
+576 1536(8.19)N
 774(Overview)X
 1158(of)X
 1253(debugger)X
@@ -4680,7 +5013,7 @@ xi
 2069(vectors)X
 1 f
 10 s
-576 4128(Fundamentally,)N
+576 1680(Fundamentally,)N
 1099(we)X
 1216(build)X
 1403(two)X
@@ -4695,7 +5028,7 @@ xi
 3388(in)X
 3474(dwarf,)X
 3706(represents)X
-576 4224(the)N
+576 1776(the)N
 697 0.1359(statically-representable)AX
 1465(information)X
 1865(\(the)X
@@ -4706,7 +5039,7 @@ xi
 3300(type)X
 3460(size)X
 3607(information\).)X
-576 4320(The)N
+576 1872(The)N
 725(other,)X
 934(using)X
 1131(dope)X
@@ -4723,7 +5056,7 @@ xi
 3287(debugger)X
 3611(must)X
 3791(process)X
-576 4416(the)N
+576 1968(the)N
 694(two)X
 834(representations)X
 1340(in)X
@@ -4741,7 +5074,7 @@ xi
 3378(debugger.)X
 3 f
 11 s
-576 4560(7.20)N
+576 2112(8.20)N
 774(Example)X
 1129(f90)X
 1268(code)X
@@ -4751,7 +5084,7 @@ xi
 1835(explanation)X
 1 f
 10 s
-576 4704([Note)N
+576 2256([Note)N
 786(We)X
 925(want)X
 1108(dwarf)X
@@ -4767,57 +5100,42 @@ xi
 3347(available.)X
 3705(end)X
 3849(Note])X
-576 4800(Consider)N
+576 2352(Consider)N
 885(the)X
 1003(following)X
 1334(code.)X
-716 4896(type)N
+716 2448(type)N
 874(array_ptr)X
-776 4992(real)N
+776 2544(real)N
 957(::)X
 1021(myvar)X
-776 5088(real,)N
+776 2640(real,)N
 937(dimension)X
 1290(\(:\),)X
 1406(pointer)X
 1653(::)X
 1717(ap)X
-716 5184(end)N
+716 2736(end)N
 852(type)X
 1010(array_ptr)X
-716 5376(type)N
+716 2928(type)N
 874(\(array_ptr\),)X
 1263(allocatable,)X
 1651(dimension)X
 2004(\(:\))X
 2100(::)X
 2164(arrays)X
-716 5568(allocate)N
+716 3120(allocate)N
 986 0.2841(\(arrays\(20\)\))AX
-716 5664(do)N
+716 3216(do)N
 816(i)X
 858(=)X
 923(1,20)X
-776 5760(allocate)N
+776 3312(allocate)N
 1046 0.2656(\(arrays\(i\)%ap\(i\)\))AX
-716 5856(end)N
+716 3408(end)N
 852(do)X
-576 6164(rev)N
-699(1.17,)X
-879(29)X
-979(Aug)X
-1137(2001)X
-2237(-)X
-2284(9)X
-2344(-)X
-
-10 p
-%%Page: 10 10
-10 s 0 xH 0 xS 1 f
-2217 384(-)N
-2264(10)X
-2364(-)X
-576 768(arrays)N
+576 3504(arrays)N
 808(is)X
 896(an)X
 1007(allocatable)X
@@ -4836,7 +5154,7 @@ xi
 3643(has)X
 3786(a)X
 3858(Dope)X
-576 864(Vector\).)N
+576 3600(Vector\).)N
 892(At)X
 1001(run)X
 1137(time,)X
@@ -4853,7 +5171,7 @@ xi
 3536(the)X
 3663(base)X
 3835(arrays)X
-576 960(dopevector)N
+576 3696(dopevector)N
 953(as)X
 1040(allocated.)X
 1390(The)X
@@ -4869,11 +5187,11 @@ xi
 3108(the)X
 3226(example)X
 3518(:-\))X
-576 1056(In)N
+576 3792(In)N
 663(the)X
 781(loop,)X
 963 0.2857(arrays\(1\)%ap\(1\))AX
-656 1152(is)N
+656 3888(is)N
 729(allocated)X
 1039(as)X
 1126(a)X
@@ -4882,11 +5200,11 @@ xi
 1667(array)X
 1853(of)X
 1940(reals.)X
-576 1248(In)N
+576 3984(In)N
 663(the)X
 781(loop,)X
 963 0.2857(arrays\(2\)%ap\(2\))AX
-656 1344(is)N
+656 4080(is)N
 729(allocated)X
 1039(as)X
 1126(an)X
@@ -4894,11 +5212,11 @@ xi
 1408(of)X
 1495(two)X
 1635(reals.)X
-576 1440(In)N
+576 4176(In)N
 663(the)X
 781(loop,)X
 963 0.2500(arrays\(20\)%ap\(20\))AX
-656 1536(is)N
+656 4272(is)N
 729(allocated)X
 1039(as)X
 1126(an)X
@@ -4908,7 +5226,7 @@ xi
 1733(reals.)X
 3 f
 11 s
-576 1680(7.21)N
+576 4416(8.21)N
 774(the)X
 913(problem)X
 1253(with)X
@@ -4919,7 +5237,7 @@ xi
 2369(example)X
 1 f
 10 s
-576 1920(In)N
+576 4656(In)N
 672(dwarf,)X
 909(there)X
 1099(is)X
@@ -4939,7 +5257,7 @@ xi
 3701(1:3)X
 3833(in)X
 3925(f90)X
-576 2016(syntax\))N
+576 4752(syntax\))N
 840(since)X
 1033(any)X
 1177(location)X
@@ -4958,7 +5276,7 @@ xi
 3760(\(the)X
 3912(3)X
 3979(is)X
-576 2112(known)N
+576 4848(known)N
 819(at)X
 902(debug)X
 1123(time)X
@@ -4978,7 +5296,7 @@ xi
 3317(location)X
 3601(expression)X
 3970(to)X
-576 2208(get)N
+576 4944(get)N
 707(to)X
 802(it\).)X
 946(And)X
@@ -4999,7 +5317,7 @@ xi
 3548('arrays')X
 3831(in)X
 3925(our)X
-576 2304(implementation,)N
+576 5040(implementation,)N
 1118(but)X
 1240(that)X
 1380(is)X
@@ -5013,7 +5331,7 @@ xi
 2586(with)X
 2748(the)X
 2866('3'.)X
-576 2496(Plus)N
+576 5232(Plus)N
 736(dwarf)X
 947(has)X
 1078(no)X
@@ -5034,14 +5352,14 @@ xi
 3534(know)X
 3736(when)X
 3934(the)X
-576 2592(allocate)N
+576 5328(allocate)N
 846(is)X
 919(done)X
 1095(for)X
 1209(a)X
 1265(particular)X
 1593 0.2596(arrays\(j\)%ap\).)AX
-576 2784(Consequently,)N
+576 5520(Consequently,)N
 1059(the)X
 1180(calculation)X
 1555(of)X
@@ -5057,7 +5375,7 @@ xi
 3596(arrays)X
 3817(is)X
 3894(now)X
-576 2880(pushed)N
+576 5616(pushed)N
 829(of)X
 922(into)X
 1072(the)X
@@ -5076,7 +5394,7 @@ xi
 3447(vector)X
 3673(C)X
 3751(structure)X
-576 2976(and)N
+576 5712(and)N
 714(use)X
 843(the)X
 964(field)X
@@ -5097,7 +5415,7 @@ xi
 3540(to)X
 3625(be)X
 3724(described)X
-576 3072(in)N
+576 5808(in)N
 660(standard)X
 954(dwarf.)X
 1204(At)X
@@ -5110,7 +5428,22 @@ xi
 3678(at)X
 3757(the)X
 3876(dope)X
-576 3168(vector)N
+576 6164(rev)N
+699(1.18,)X
+879(31)X
+979(March)X
+1209(2005)X
+2217(-)X
+2264(10)X
+2364(-)X
+
+11 p
+%%Page: 11 11
+10 s 0 xH 0 xS 1 f
+2217 384(-)N
+2264(11)X
+2364(-)X
+576 768(vector)N
 797(\(so)X
 915(debugger)X
 1234(calculations)X
@@ -5119,7 +5452,7 @@ xi
 1904(as)X
 1991(a)X
 2047(base\).)X
-576 3312(It)N
+576 912(It)N
 661(would)X
 897(have)X
 1085(been)X
@@ -5137,7 +5470,7 @@ xi
 3489(but)X
 3627(the)X
 3761(methods)X
-576 3408(considered)N
+576 1008(considered)N
 966(to)X
 1070(date)X
 1246(were)X
@@ -5153,7 +5486,7 @@ xi
 3374(dope)X
 3571(vector)X
 3813(centric)X
-576 3504(approach:)N
+576 1104(approach:)N
 921(essentially)X
 1287(just)X
 1430(as)X
@@ -5169,7 +5502,7 @@ xi
 3541(A)X
 3628(better)X
 3840(\(more)X
-576 3600(dwarf-ish\))N
+576 1200(dwarf-ish\))N
 931(design)X
 1160(would)X
 1380(be)X
@@ -5177,7 +5510,7 @@ xi
 1786(information.)X
 3 f
 11 s
-576 3840(7.22)N
+576 1440(8.22)N
 774(A)X
 859(simplified)X
 1254(sketch)X
@@ -5187,7 +5520,7 @@ xi
 1995(information)X
 1 f
 10 s
-576 3984([Note:)N
+576 1584([Note:)N
 821(Needs)X
 1042(to)X
 1124(be)X
@@ -5196,7 +5529,7 @@ xi
 1643(Note])X
 3 f
 11 s
-576 4224(7.23)N
+576 1824(8.23)N
 774(A)X
 859(simplified)X
 1254(sketch)X
@@ -5207,7 +5540,7 @@ xi
 2208(information)X
 1 f
 10 s
-576 4368([Note:)N
+576 1968([Note:)N
 826(This)X
 993(one)X
 1135(is)X
@@ -5226,7 +5559,7 @@ xi
 3646(is)X
 3725(an)X
 3827(overly)X
-576 4464(simplified)N
+576 2064(simplified)N
 920(version)X
 1176(of)X
 1263(a)X
@@ -5241,9 +5574,9 @@ xi
 2785(details)X
 3014(presented)X
 3342(later.)X
-576 4560(struct)N
+576 2160(struct)N
 774(simplified{)X
-616 4656(void)N
+616 2256(void)N
 778(*base;)X
 1003(//)X
 1067(pointer)X
@@ -5252,27 +5585,27 @@ xi
 1514(data)X
 1668(this)X
 1803(describes)X
-616 4752(long)N
+616 2352(long)N
 798(el_len;)X
-616 4848(int)N
+616 2448(int)N
 760(assoc:1)X
-616 4944(int)N
+616 2544(int)N
 760(ptr_alloc:1)X
-616 5040(int)N
+616 2640(int)N
 760(num_dims:3;)X
-616 5136(struct)N
+616 2736(struct)N
 814(dims_s)X
 1060({)X
-656 5232(long)N
+656 2832(long)N
 818(lb;)X
-656 5328(long)N
+656 2928(long)N
 818(ext;)X
-656 5424(long)N
+656 3024(long)N
 818(str_m;)X
-616 5520(})N
+616 3120(})N
 674(dims[7];)X
-576 5616(};)N
-576 5712(Only)N
+576 3216(};)N
+576 3312(Only)N
 756('num_dims')X
 1167(elements)X
 1472(of)X
@@ -5280,30 +5613,15 @@ xi
 1788(are)X
 1907(actually)X
 2181(used.)X
-576 6164(rev)N
-699(1.17,)X
-879(29)X
-979(Aug)X
-1137(2001)X
-2217(-)X
-2264(10)X
-2364(-)X
-
-11 p
-%%Page: 11 11
-10 s 0 xH 0 xS 1 f
-2217 384(-)N
-2264(11)X
-2364(-)X
 3 f
 11 s
-576 768(7.24)N
+576 3552(8.24)N
 774(The)X
 943(dwarf)X
 1189(information)X
 1 f
 10 s
-576 1008(Here)N
+576 3792(Here)N
 753(is)X
 826(dwarf)X
 1034(information)X
@@ -5318,15 +5636,15 @@ xi
 2874(printed)X
 3121(by)X
 3221(dwarfdump\(1\))X
-576 1104([Note:)N
-576 1200(The)N
+576 3888([Note:)N
+576 3984(The)N
 721(following)X
 1052(may)X
 1210(not)X
 1332(be)X
 1428(the)X
 1546(test.)X
-576 1296(Having)N
+576 4080(Having)N
 832(field)X
 999(names)X
 1224(with)X
@@ -5335,7 +5653,7 @@ xi
 1562(the)X
 1680(name)X
 1874(is)X
-576 1392(not)N
+576 4176(not)N
 698(such)X
 865(a)X
 921(good)X
@@ -5345,14 +5663,14 @@ xi
 1426(conflicts)X
 1722(with)X
 1884(the)X
-576 1488(use)N
+576 4272(use)N
 703(of)X
 790('.')X
 884(in)X
 966(dbx)X
 1106(extended)X
 1416(naming.)X
-576 1584(Something)N
+576 4368(Something)N
 942(else,)X
 1107(like)X
 1247(_$,)X
@@ -5360,7 +5678,7 @@ xi
 1587(be)X
 1683(much)X
 1881(easier)X
-576 1680(to)N
+576 4464(to)N
 658(work)X
 843(with)X
 1005(in)X
@@ -5370,11 +5688,11 @@ xi
 1806(care)X
 1961(about)X
 2159(this,)X
-576 1776(for)N
+576 4560(for)N
 690(the)X
 808(most)X
 983(part,)X
-576 1872(but)N
+576 4656(but)N
 698(folks)X
 878(working)X
 1165(on)X
@@ -5383,13 +5701,13 @@ xi
 1569(and)X
 1705(in)X
 1787(those)X
-576 1968(rare)N
+576 4752(rare)N
 722(circumstances)X
 1197(when)X
 1391(a)X
 1447(customer)X
 1761(cares,)X
-576 2064(the)N
+576 4848(the)N
 694('.')X
 788(will)X
 932(be)X
@@ -5398,7 +5716,7 @@ xi
 1225(problem)X
 1512(in)X
 1594(dbx.\).)X
-576 2160(Note)N
+576 4944(Note)N
 752(that)X
 892(to)X
 974(print)X
@@ -5408,13 +5726,13 @@ xi
 1919(in)X
 2001(dbx)X
 2141(one)X
-576 2256(would)N
+576 5040(would)N
 796(have)X
 968(to)X
 1050(do)X
-736 2352(whatis)N
+736 5136(whatis)N
 965(`.base.`)X
-576 2448(where)N
+576 5232(where)N
 793(that)X
 933(is)X
 1006(the)X
@@ -5425,14 +5743,14 @@ xi
 2033(I)X
 2080(am)X
 2198(using.)X
-576 2544(With)N
+576 5328(With)N
 756(extended)X
 1066(naming)X
 1326(one)X
 1462(do)X
-736 2640(whatis)N
+736 5424(whatis)N
 965(`.dope.`.`.base.`)X
-576 2736(which)N
+576 5520(which)N
 792(is)X
 865(hard)X
 1028(to)X
@@ -5441,82 +5759,16 @@ xi
 1404(hard)X
 1567(to)X
 1649(read.)X
-576 2832(end)N
+576 5616(end)N
 712(Note])X
-576 3024(<2><)N
+576 5808(<2><)N
 791(388>)X
 1076 0.2109(DW_TAG_array_type)AX
-896 3120(DW_AT_name)N
-1751(.base.)X
-896 3216(DW_AT_type)N
-1715(<815>)X
-896 3312(DW_AT_declaration)N
-1794(yes\(1\))X
-576 3408(<3><)N
-791(401>)X
-1076(DW_TAG_subrange_type)X
-896 3504(DW_AT_lower_bound)N
-1860(0)X
-896 3600(DW_AT_upper_bound)N
-1860(0)X
-576 3696(<2><)N
-791(405>)X
-1076(DW_TAG_pointer_type)X
-896 3792(DW_AT_type)N
-1715(<388>)X
-896 3888(DW_AT_byte_size)N
-1780(4)X
-896 3984(DW_AT_address_class)N
-1834(0)X
-576 4080(<2><)N
-791(412>)X
-1076(DW_TAG_structure_type)X
-896 4176(DW_AT_name)N
-1751(.flds.)X
-896 4272(DW_AT_byte_size)N
-1780(28)X
-576 4368(<3><)N
-791(421>)X
-1076(DW_TAG_member)X
-896 4464(DW_AT_name)N
-1751(el_len)X
-896 4560(DW_AT_type)N
-1715(<815>)X
-896 4656(DW_AT_data_member_location)N
-1992(DW_OP_consts)X
-2528(0)X
-576 4752(<3><)N
-791(436>)X
-1076(DW_TAG_member)X
-896 4848(DW_AT_name)N
-1751(assoc)X
-896 4944(DW_AT_type)N
-1715(<841>)X
-896 5040(DW_AT_byte_size)N
-1780(0)X
-896 5136(DW_AT_bit_offset)N
-1764(0)X
-896 5232(DW_AT_bit_size)N
-1746(1)X
-896 5328(DW_AT_data_member_location)N
-1992(DW_OP_consts)X
-2528(4)X
-576 5424(<3><)N
-791(453>)X
-1076(DW_TAG_member)X
-896 5520(DW_AT_name)N
-1751(ptr_alloc)X
-896 5616(DW_AT_type)N
-1715(<841>)X
-896 5712(DW_AT_byte_size)N
-1780(0)X
-896 5808(DW_AT_bit_offset)N
-1764(1)X
 576 6164(rev)N
-699(1.17,)X
-879(29)X
-979(Aug)X
-1137(2001)X
+699(1.18,)X
+879(31)X
+979(March)X
+1209(2005)X
 2217(-)X
 2264(11)X
 2364(-)X
@@ -5527,140 +5779,135 @@ xi
 2217 384(-)N
 2264(12)X
 2364(-)X
-896 768(DW_AT_bit_size)N
-1746(1)X
-896 864(DW_AT_data_member_location)N
-1992(DW_OP_consts)X
-2528(4)X
-576 960(<3><)N
-791(474>)X
-1076(DW_TAG_member)X
-896 1056(DW_AT_name)N
-1751(p_or_a)X
-896 1152(DW_AT_type)N
-1715(<841>)X
-896 1248(DW_AT_byte_size)N
-1780(0)X
-896 1344(DW_AT_bit_offset)N
-1764(2)X
-896 1440(DW_AT_bit_size)N
-1746(2)X
-896 1536(DW_AT_data_member_location)N
-1992(DW_OP_consts)X
-2528(4)X
-576 1632(<3><)N
-791(492>)X
-1076(DW_TAG_member)X
-896 1728(DW_AT_name)N
-1751(a_contig)X
-896 1824(DW_AT_type)N
-1715(<841>)X
-896 1920(DW_AT_byte_size)N
-1780(0)X
-896 2016(DW_AT_bit_offset)N
-1764(4)X
-896 2112(DW_AT_bit_size)N
-1746(1)X
-896 2208(DW_AT_data_member_location)N
-1992(DW_OP_consts)X
-2528(4)X
-576 2304(<3><)N
-791(532>)X
-1076(DW_TAG_member)X
-896 2400(DW_AT_name)N
-1751(num_dims)X
-896 2496(DW_AT_type)N
-1715(<841>)X
-896 2592(DW_AT_byte_size)N
-1780(0)X
-896 2688(DW_AT_bit_offset)N
-1764(29)X
-896 2784(DW_AT_bit_size)N
-1746(3)X
-896 2880(DW_AT_data_member_location)N
-1992(DW_OP_consts)X
-2528(8)X
-576 2976(<3><)N
-791(572>)X
-1076(DW_TAG_member)X
-896 3072(DW_AT_name)N
-1751(type_code)X
-896 3168(DW_AT_type)N
-1715(<841>)X
-896 3264(DW_AT_byte_size)N
-1780(0)X
-896 3360(DW_AT_bit_offset)N
-1764(0)X
-896 3456(DW_AT_bit_size)N
-1746(32)X
-896 3552(DW_AT_data_member_location)N
-1992(DW_OP_consts)X
-2528(16)X
-576 3648(<3><)N
-791(593>)X
-1076(DW_TAG_member)X
-896 3744(DW_AT_name)N
-1751(orig_base)X
-896 3840(DW_AT_type)N
-1715(<841>)X
-896 3936(DW_AT_data_member_location)N
-1992(DW_OP_consts)X
-2528(20)X
-576 4032(<3><)N
-791(611>)X
-1076(DW_TAG_member)X
-896 4128(DW_AT_name)N
-1751(orig_size)X
-896 4224(DW_AT_type)N
+896 768(DW_AT_name)N
+1751(.base.)X
+896 864(DW_AT_type)N
 1715(<815>)X
-896 4320(DW_AT_data_member_location)N
-1992(DW_OP_consts)X
-2528(24)X
-576 4416(<2><)N
-791(630>)X
+896 960(DW_AT_declaration)N
+1794(yes\(1\))X
+576 1056(<3><)N
+791(401>)X
+1076(DW_TAG_subrange_type)X
+896 1152(DW_AT_lower_bound)N
+1860(0)X
+896 1248(DW_AT_upper_bound)N
+1860(0)X
+576 1344(<2><)N
+791(405>)X
+1076(DW_TAG_pointer_type)X
+896 1440(DW_AT_type)N
+1715(<388>)X
+896 1536(DW_AT_byte_size)N
+1780(4)X
+896 1632(DW_AT_address_class)N
+1834(0)X
+576 1728(<2><)N
+791(412>)X
 1076(DW_TAG_structure_type)X
-896 4512(DW_AT_name)N
-1751(.dope_bnd.)X
-896 4608(DW_AT_byte_size)N
-1780(12)X
-576 4704(<3><)N
-791(643>)X
+896 1824(DW_AT_name)N
+1751(.flds.)X
+896 1920(DW_AT_byte_size)N
+1780(28)X
+576 2016(<3><)N
+791(421>)X
 1076(DW_TAG_member)X
-896 4800(DW_AT_name)N
-1751(lb)X
-896 4896(DW_AT_type)N
+896 2112(DW_AT_name)N
+1751(el_len)X
+896 2208(DW_AT_type)N
 1715(<815>)X
-896 4992(DW_AT_data_member_location)N
+896 2304(DW_AT_data_member_location)N
 1992(DW_OP_consts)X
 2528(0)X
-576 5088(<3><)N
-791(654>)X
+576 2400(<3><)N
+791(436>)X
 1076(DW_TAG_member)X
-896 5184(DW_AT_name)N
-1751(ext)X
-896 5280(DW_AT_type)N
-1715(<815>)X
-896 5376(DW_AT_data_member_location)N
+896 2496(DW_AT_name)N
+1751(assoc)X
+896 2592(DW_AT_type)N
+1715(<841>)X
+896 2688(DW_AT_byte_size)N
+1780(0)X
+896 2784(DW_AT_bit_offset)N
+1764(0)X
+896 2880(DW_AT_bit_size)N
+1746(1)X
+896 2976(DW_AT_data_member_location)N
 1992(DW_OP_consts)X
 2528(4)X
-576 5472(<3><)N
-791(666>)X
+576 3072(<3><)N
+791(453>)X
 1076(DW_TAG_member)X
-896 5568(DW_AT_name)N
-1751(str_m)X
-896 5664(DW_AT_type)N
-1715(<815>)X
-896 5760(DW_AT_data_member_location)N
+896 3168(DW_AT_name)N
+1751(ptr_alloc)X
+896 3264(DW_AT_type)N
+1715(<841>)X
+896 3360(DW_AT_byte_size)N
+1780(0)X
+896 3456(DW_AT_bit_offset)N
+1764(1)X
+896 3552(DW_AT_bit_size)N
+1746(1)X
+896 3648(DW_AT_data_member_location)N
+1992(DW_OP_consts)X
+2528(4)X
+576 3744(<3><)N
+791(474>)X
+1076(DW_TAG_member)X
+896 3840(DW_AT_name)N
+1751(p_or_a)X
+896 3936(DW_AT_type)N
+1715(<841>)X
+896 4032(DW_AT_byte_size)N
+1780(0)X
+896 4128(DW_AT_bit_offset)N
+1764(2)X
+896 4224(DW_AT_bit_size)N
+1746(2)X
+896 4320(DW_AT_data_member_location)N
+1992(DW_OP_consts)X
+2528(4)X
+576 4416(<3><)N
+791(492>)X
+1076(DW_TAG_member)X
+896 4512(DW_AT_name)N
+1751(a_contig)X
+896 4608(DW_AT_type)N
+1715(<841>)X
+896 4704(DW_AT_byte_size)N
+1780(0)X
+896 4800(DW_AT_bit_offset)N
+1764(4)X
+896 4896(DW_AT_bit_size)N
+1746(1)X
+896 4992(DW_AT_data_member_location)N
+1992(DW_OP_consts)X
+2528(4)X
+576 5088(<3><)N
+791(532>)X
+1076(DW_TAG_member)X
+896 5184(DW_AT_name)N
+1751(num_dims)X
+896 5280(DW_AT_type)N
+1715(<841>)X
+896 5376(DW_AT_byte_size)N
+1780(0)X
+896 5472(DW_AT_bit_offset)N
+1764(29)X
+896 5568(DW_AT_bit_size)N
+1746(3)X
+896 5664(DW_AT_data_member_location)N
 1992(DW_OP_consts)X
 2528(8)X
-576 5856(<2><)N
-791(681>)X
-1076 0.2109(DW_TAG_array_type)AX
+576 5760(<3><)N
+791(572>)X
+1076(DW_TAG_member)X
+896 5856(DW_AT_name)N
+1751(type_code)X
 576 6164(rev)N
-699(1.17,)X
-879(29)X
-979(Aug)X
-1137(2001)X
+699(1.18,)X
+879(31)X
+979(March)X
+1209(2005)X
 2217(-)X
 2264(12)X
 2364(-)X
@@ -5671,140 +5918,142 @@ xi
 2217 384(-)N
 2264(13)X
 2364(-)X
-896 768(DW_AT_name)N
-1751(.dims.)X
-896 864(DW_AT_type)N
-1715(<630>)X
-896 960(DW_AT_declaration)N
-1794(yes\(1\))X
-576 1056(<3><)N
-791(694>)X
-1076(DW_TAG_subrange_type)X
-896 1152(DW_AT_lower_bound)N
-1860(0)X
-896 1248(DW_AT_upper_bound)N
-1860(0)X
-576 1344(<2><)N
-791(698>)X
-1076(DW_TAG_structure_type)X
-896 1440(DW_AT_name)N
-1751(.dope.)X
-896 1536(DW_AT_byte_size)N
-1780(44)X
+896 768(DW_AT_type)N
+1715(<841>)X
+896 864(DW_AT_byte_size)N
+1780(0)X
+896 960(DW_AT_bit_offset)N
+1764(0)X
+896 1056(DW_AT_bit_size)N
+1746(32)X
+896 1152(DW_AT_data_member_location)N
+1992(DW_OP_consts)X
+2528(16)X
+576 1248(<3><)N
+791(593>)X
+1076(DW_TAG_member)X
+896 1344(DW_AT_name)N
+1751(orig_base)X
+896 1440(DW_AT_type)N
+1715(<841>)X
+896 1536(DW_AT_data_member_location)N
+1992(DW_OP_consts)X
+2528(20)X
 576 1632(<3><)N
-791(707>)X
+791(611>)X
 1076(DW_TAG_member)X
 896 1728(DW_AT_name)N
-1751(base)X
+1751(orig_size)X
 896 1824(DW_AT_type)N
-1715(<405>)X
+1715(<815>)X
 896 1920(DW_AT_data_member_location)N
 1992(DW_OP_consts)X
-2528(0)X
-576 2016(<3><)N
-791(720>)X
-1076(DW_TAG_member)X
+2528(24)X
+576 2016(<2><)N
+791(630>)X
+1076(DW_TAG_structure_type)X
 896 2112(DW_AT_name)N
-1751(.flds)X
-896 2208(DW_AT_type)N
-1715(<412>)X
-896 2304(DW_AT_data_member_location)N
-1992(DW_OP_consts)X
-2528(4)X
-576 2400(<3><)N
-791(734>)X
+1751(.dope_bnd.)X
+896 2208(DW_AT_byte_size)N
+1780(12)X
+576 2304(<3><)N
+791(643>)X
 1076(DW_TAG_member)X
-896 2496(DW_AT_name)N
-1751(.dims.)X
-896 2592(DW_AT_type)N
-1715(<681>)X
-896 2688(DW_AT_data_member_location)N
+896 2400(DW_AT_name)N
+1751(lb)X
+896 2496(DW_AT_type)N
+1715(<815>)X
+896 2592(DW_AT_data_member_location)N
 1992(DW_OP_consts)X
-2528(32)X
-576 2784(<2><)N
-791(750>)X
-1076(DW_TAG_variable)X
+2528(0)X
+576 2688(<3><)N
+791(654>)X
+1076(DW_TAG_member)X
+896 2784(DW_AT_name)N
+1751(ext)X
 896 2880(DW_AT_type)N
 1715(<815>)X
-896 2976(DW_AT_location)N
-1755(DW_OP_fbreg)X
-2261(-32)X
-896 3072(DW_AT_artificial)N
-1729(yes\(1\))X
-576 3168(<2><)N
-791(759>)X
-1076(DW_TAG_variable)X
+896 2976(DW_AT_data_member_location)N
+1992(DW_OP_consts)X
+2528(4)X
+576 3072(<3><)N
+791(666>)X
+1076(DW_TAG_member)X
+896 3168(DW_AT_name)N
+1751(str_m)X
 896 3264(DW_AT_type)N
 1715(<815>)X
-896 3360(DW_AT_location)N
-1755(DW_OP_fbreg)X
-2261(-28)X
-896 3456(DW_AT_artificial)N
-1729(yes\(1\))X
-576 3552(<2><)N
-791(768>)X
-1076(DW_TAG_variable)X
-896 3648(DW_AT_type)N
-1715(<815>)X
-896 3744(DW_AT_location)N
-1755(DW_OP_fbreg)X
-2261(-24)X
-896 3840(DW_AT_artificial)N
-1729(yes\(1\))X
-576 3936(<2><)N
-791(777>)X
+896 3360(DW_AT_data_member_location)N
+1992(DW_OP_consts)X
+2528(8)X
+576 3456(<2><)N
+791(681>)X
 1076 0.2109(DW_TAG_array_type)AX
-896 4032(DW_AT_type)N
-1715(<815>)X
-896 4128(DW_AT_declaration)N
+896 3552(DW_AT_name)N
+1751(.dims.)X
+896 3648(DW_AT_type)N
+1715(<630>)X
+896 3744(DW_AT_declaration)N
 1794(yes\(1\))X
-576 4224(<3><)N
-791(783>)X
+576 3840(<3><)N
+791(694>)X
 1076(DW_TAG_subrange_type)X
-896 4320(DW_AT_lower_bound)N
-1860(<750>)X
-896 4416(DW_AT_count)N
-1735(<759>)X
-896 4512(DW_AT_MIPS_stride)N
-1841(<768>)X
-576 4608(<2><)N
-791(797>)X
-1076(DW_TAG_variable)X
-896 4704(DW_AT_decl_file)N
-1758(1)X
-896 4800(DW_AT_decl_line)N
-1771(1)X
+896 3936(DW_AT_lower_bound)N
+1860(0)X
+896 4032(DW_AT_upper_bound)N
+1860(0)X
+576 4128(<2><)N
+791(698>)X
+1076(DW_TAG_structure_type)X
+896 4224(DW_AT_name)N
+1751(.dope.)X
+896 4320(DW_AT_byte_size)N
+1780(44)X
+576 4416(<3><)N
+791(707>)X
+1076(DW_TAG_member)X
+896 4512(DW_AT_name)N
+1751(base)X
+896 4608(DW_AT_type)N
+1715(<405>)X
+896 4704(DW_AT_data_member_location)N
+1992(DW_OP_consts)X
+2528(0)X
+576 4800(<3><)N
+791(720>)X
+1076(DW_TAG_member)X
 896 4896(DW_AT_name)N
-1751(ARRAY)X
+1751(.flds)X
 896 4992(DW_AT_type)N
-1715(<698>)X
-896 5088(DW_AT_location)N
-1755(DW_OP_fbreg)X
-2261(-64)X
-2388(DW_OP_deref)X
-576 5184(<1><)N
-791(815>)X
-1076(DW_TAG_base_type)X
+1715(<412>)X
+896 5088(DW_AT_data_member_location)N
+1992(DW_OP_consts)X
+2528(4)X
+576 5184(<3><)N
+791(734>)X
+1076(DW_TAG_member)X
 896 5280(DW_AT_name)N
-1751(INTEGER_4)X
-896 5376(DW_AT_encoding)N
-1791(DW_ATE_signed)X
-896 5472(DW_AT_byte_size)N
-1780(4)X
-576 5568(<1><)N
-791(828>)X
-1076(DW_TAG_base_type)X
-896 5664(DW_AT_name)N
-1751(INTEGER_8)X
-896 5760(DW_AT_encoding)N
-1791(DW_ATE_signed)X
-896 5856(DW_AT_byte_size)N
-1780(8)X
+1751(.dims.)X
+896 5376(DW_AT_type)N
+1715(<681>)X
+896 5472(DW_AT_data_member_location)N
+1992(DW_OP_consts)X
+2528(32)X
+576 5568(<2><)N
+791(750>)X
+1076(DW_TAG_variable)X
+896 5664(DW_AT_type)N
+1715(<815>)X
+896 5760(DW_AT_location)N
+1755(DW_OP_fbreg)X
+2261(-32)X
+896 5856(DW_AT_artificial)N
+1729(yes\(1\))X
 576 6164(rev)N
-699(1.17,)X
-879(29)X
-979(Aug)X
-1137(2001)X
+699(1.18,)X
+879(31)X
+979(March)X
+1209(2005)X
 2217(-)X
 2264(13)X
 2364(-)X
@@ -5815,27 +6064,96 @@ xi
 2217 384(-)N
 2264(14)X
 2364(-)X
-576 768(<1><)N
+576 768(<2><)N
+791(759>)X
+1076(DW_TAG_variable)X
+896 864(DW_AT_type)N
+1715(<815>)X
+896 960(DW_AT_location)N
+1755(DW_OP_fbreg)X
+2261(-28)X
+896 1056(DW_AT_artificial)N
+1729(yes\(1\))X
+576 1152(<2><)N
+791(768>)X
+1076(DW_TAG_variable)X
+896 1248(DW_AT_type)N
+1715(<815>)X
+896 1344(DW_AT_location)N
+1755(DW_OP_fbreg)X
+2261(-24)X
+896 1440(DW_AT_artificial)N
+1729(yes\(1\))X
+576 1536(<2><)N
+791(777>)X
+1076 0.2109(DW_TAG_array_type)AX
+896 1632(DW_AT_type)N
+1715(<815>)X
+896 1728(DW_AT_declaration)N
+1794(yes\(1\))X
+576 1824(<3><)N
+791(783>)X
+1076(DW_TAG_subrange_type)X
+896 1920(DW_AT_lower_bound)N
+1860(<750>)X
+896 2016(DW_AT_count)N
+1735(<759>)X
+896 2112(DW_AT_MIPS_stride)N
+1841(<768>)X
+576 2208(<2><)N
+791(797>)X
+1076(DW_TAG_variable)X
+896 2304(DW_AT_decl_file)N
+1758(1)X
+896 2400(DW_AT_decl_line)N
+1771(1)X
+896 2496(DW_AT_name)N
+1751(ARRAY)X
+896 2592(DW_AT_type)N
+1715(<698>)X
+896 2688(DW_AT_location)N
+1755(DW_OP_fbreg)X
+2261(-64)X
+2388(DW_OP_deref)X
+576 2784(<1><)N
+791(815>)X
+1076(DW_TAG_base_type)X
+896 2880(DW_AT_name)N
+1751(INTEGER_4)X
+896 2976(DW_AT_encoding)N
+1791(DW_ATE_signed)X
+896 3072(DW_AT_byte_size)N
+1780(4)X
+576 3168(<1><)N
+791(828>)X
+1076(DW_TAG_base_type)X
+896 3264(DW_AT_name)N
+1751(INTEGER_8)X
+896 3360(DW_AT_encoding)N
+1791(DW_ATE_signed)X
+896 3456(DW_AT_byte_size)N
+1780(8)X
+576 3552(<1><)N
 791(841>)X
 1076(DW_TAG_base_type)X
-896 864(DW_AT_name)N
+896 3648(DW_AT_name)N
 1751(INTEGER*4)X
-896 960(DW_AT_encoding)N
+896 3744(DW_AT_encoding)N
 1791(DW_ATE_unsigned)X
-896 1056(DW_AT_byte_size)N
+896 3840(DW_AT_byte_size)N
 1780(4)X
-576 1152(<1><)N
+576 3936(<1><)N
 791(854>)X
 1076(DW_TAG_base_type)X
-896 1248(DW_AT_name)N
+896 4032(DW_AT_name)N
 1751(INTEGER*8)X
-896 1344(DW_AT_encoding)N
+896 4128(DW_AT_encoding)N
 1791(DW_ATE_unsigned)X
-896 1440(DW_AT_byte_size)N
+896 4224(DW_AT_byte_size)N
 1780(8)X
 3 f
 11 s
-576 1680(7.25)N
+576 4464(8.25)N
 774(The)X
 943(dope)X
 1146(vector)X
@@ -5843,7 +6161,7 @@ xi
 1770(details)X
 1 f
 10 s
-576 1824(A)N
+576 4608(A)N
 655(dope)X
 832(vector)X
 1054(is)X
@@ -5865,7 +6183,7 @@ xi
 3725(It)X
 3796(may)X
 3956(be)X
-576 1920(that)N
+576 4704(that)N
 716(not)X
 838(all)X
 938(fields)X
@@ -5884,8 +6202,8 @@ xi
 2744(interest)X
 3000(to)X
 3082(debuggers\).)X
-576 2016([Note:)N
-576 2112(Need)N
+576 4800([Note:)N
+576 4896(Need)N
 766(details)X
 995(on)X
 1095(the)X
@@ -5893,7 +6211,7 @@ xi
 1340(of)X
 1427(each)X
 1595(field.)X
-576 2208(And)N
+576 4992(And)N
 734(need)X
 906(to)X
 988(know)X
@@ -5904,16 +6222,16 @@ xi
 1824(bits)X
 1959(and)X
 2095(which)X
-576 2304(are)N
+576 5088(are)N
 695(32)X
 795(or)X
 882(64.)X
-576 2400(end)N
+576 5184(end)N
 712(Note])X
-576 2496(The)N
+576 5280(The)N
 721(following)X
-576 2592(struct)N
-576 2688(is)N
+576 5376(struct)N
+576 5472(is)N
 649(a)X
 705(representation)X
 1180(of)X
@@ -5922,14 +6240,14 @@ xi
 1485(dope)X
 1661(vector)X
 1882(fields.)X
-576 2784(It)N
+576 5568(It)N
 645(suppresses)X
 1008(irrelevant)X
 1336(detail)X
 1534(and)X
 1670(may)X
 1828(not)X
-576 2880(exactly)N
+576 5664(exactly)N
 828(match)X
 1044(the)X
 1162(layout)X
@@ -5938,7 +6256,7 @@ xi
 1751(\(a)X
 1834(debugger)X
 2153(must)X
-576 2976(examine)N
+576 5760(examine)N
 868(the)X
 986(dwarf)X
 1194(to)X
@@ -5946,131 +6264,17 @@ xi
 1425(the)X
 1543(fields,)X
 1761(not)X
-576 3072(compile)N
+576 5856(compile)N
 854(this)X
 989(structure)X
 1290(into)X
 1434(the)X
 1552(debugger!\).)X
-576 3168(struct)N
-774(.dope.)X
-990({)X
-596 3264(void)N
-758(*base;)X
-1023(//)X
-1087(pointer)X
-1334(to)X
-1416(data)X
-596 3360(struct)N
-794(.flds.)X
-974({)X
-616 3456(long)N
-778(el_len;)X
-1016(//)X
-1080(length)X
-1300(of)X
-1387(element)X
-1661(in)X
-1743(bytes?)X
-616 3552(unsigned)N
-925(int)X
-1029(assoc:1;)X
-1387(//means?)X
-616 3648(unsigned)N
-925(int)X
-1029(ptr_alloc:1;)X
-1498(//means?)X
-616 3744(unsigned)N
-925(int)X
-1029(p_or_a:2;)X
-1416(//means?)X
-616 3840(unsigned)N
-925(int)X
-1029(a_contig:1;)X
-1429(//)X
-1493(means?)X
-616 3936(unsigned)N
-925(int)X
-1029(num_dims:)X
-1408(3;)X
-1490(//)X
-1554(0)X
-1614(thru)X
-1763(7)X
-616 4032(unsigned)N
-925(int)X
-1029(type_code:32;)X
-1503(//values?)X
-616 4128(unsigned)N
-925(int)X
-1029(orig_base;)X
-1383(//void)X
-1589(*?)X
-1685(means?)X
-616 4224(long)N
-938(orig_size;)X
-1274(//)X
-1338(means?)X
-596 4320(})N
-654(.flds;)X
-596 4512(struct)N
-794(.dope_bnd.)X
-1170({)X
-636 4608(long)N
-798(lb)X
-920(;)X
-962(//)X
-1026(lower)X
-1229(bound)X
-636 4704(long)N
-798(ext)X
-936(;)X
-998(//)X
-1062(means?)X
-636 4800(long)N
-798(str_m;)X
-1022(//)X
-1086(means?)X
-596 4896(})N
-654(.dims[7];)X
-576 4992(})N
-3 f
-11 s
-576 5232(7.26)N
-774(DW_AT_MIPS_assumed_size)X
-2056(0x2011)X
-1 f
-10 s
-576 5376(This)N
-738(flag)X
-883(was)X
-1028(invented)X
-1324(to)X
-1406(deal)X
-1560(with)X
-1722(f90)X
-1849(arrays.)X
-2106(For)X
-2237(example:)X
-696 5568(pointer)N
-943(\(rptr,)X
-1126(axx\(1\)\))X
-696 5664(pointer)N
-943(\(iptr,)X
-1121(ita\(*\)\))X
-696 5760(rptr)N
-832(=)X
-897(malloc)X
-1135(\(100*8\))X
-696 5856(iptr)N
-827(=)X
-892(malloc)X
-1130(\(100*4\))X
 576 6164(rev)N
-699(1.17,)X
-879(29)X
-979(Aug)X
-1137(2001)X
+699(1.18,)X
+879(31)X
+979(March)X
+1209(2005)X
 2217(-)X
 2264(14)X
 2364(-)X
@@ -6081,7 +6285,121 @@ xi
 2217 384(-)N
 2264(15)X
 2364(-)X
-576 768(This)N
+576 768(struct)N
+774(.dope.)X
+990({)X
+596 864(void)N
+758(*base;)X
+1023(//)X
+1087(pointer)X
+1334(to)X
+1416(data)X
+596 960(struct)N
+794(.flds.)X
+974({)X
+616 1056(long)N
+778(el_len;)X
+1016(//)X
+1080(length)X
+1300(of)X
+1387(element)X
+1661(in)X
+1743(bytes?)X
+616 1152(unsigned)N
+925(int)X
+1029(assoc:1;)X
+1387(//means?)X
+616 1248(unsigned)N
+925(int)X
+1029(ptr_alloc:1;)X
+1498(//means?)X
+616 1344(unsigned)N
+925(int)X
+1029(p_or_a:2;)X
+1416(//means?)X
+616 1440(unsigned)N
+925(int)X
+1029(a_contig:1;)X
+1429(//)X
+1493(means?)X
+616 1536(unsigned)N
+925(int)X
+1029(num_dims:)X
+1408(3;)X
+1490(//)X
+1554(0)X
+1614(thru)X
+1763(7)X
+616 1632(unsigned)N
+925(int)X
+1029(type_code:32;)X
+1503(//values?)X
+616 1728(unsigned)N
+925(int)X
+1029(orig_base;)X
+1383(//void)X
+1589(*?)X
+1685(means?)X
+616 1824(long)N
+938(orig_size;)X
+1274(//)X
+1338(means?)X
+596 1920(})N
+654(.flds;)X
+596 2112(struct)N
+794(.dope_bnd.)X
+1170({)X
+636 2208(long)N
+798(lb)X
+920(;)X
+962(//)X
+1026(lower)X
+1229(bound)X
+636 2304(long)N
+798(ext)X
+936(;)X
+998(//)X
+1062(means?)X
+636 2400(long)N
+798(str_m;)X
+1022(//)X
+1086(means?)X
+596 2496(})N
+654(.dims[7];)X
+576 2592(})N
+3 f
+11 s
+576 2832(8.26)N
+774(DW_AT_MIPS_assumed_size)X
+2056(0x2011)X
+1 f
+10 s
+576 2976(This)N
+738(flag)X
+883(was)X
+1028(invented)X
+1324(to)X
+1406(deal)X
+1560(with)X
+1722(f90)X
+1849(arrays.)X
+2106(For)X
+2237(example:)X
+696 3168(pointer)N
+943(\(rptr,)X
+1126(axx\(1\)\))X
+696 3264(pointer)N
+943(\(iptr,)X
+1121(ita\(*\)\))X
+696 3360(rptr)N
+832(=)X
+897(malloc)X
+1135(\(100*8\))X
+696 3456(iptr)N
+827(=)X
+892(malloc)X
+1130(\(100*4\))X
+576 3648(This)N
 743(flag)X
 893(attribute)X
 1185(has)X
@@ -6103,7 +6421,7 @@ xi
 3594(is.)X
 3713(Both)X
 3894(may)X
-576 864(show)N
+576 3744(show)N
 766(an)X
 863(explicit)X
 1124(upper)X
@@ -6124,9 +6442,9 @@ xi
 3557(is)X
 3630(explicitly)X
 3952(no)X
-576 960(user-provided)N
+576 3840(user-provided)N
 1042(size.)X
-576 1152(So)N
+576 4032(So)N
 682(if)X
 753(a)X
 811(user)X
@@ -6151,7 +6469,7 @@ xi
 3736(there)X
 3920(is)X
 3996(a)X
-576 1248(user)N
+576 4128(user)N
 737(slice)X
 911(bound)X
 1137(in)X
@@ -6172,7 +6490,7 @@ xi
 3645(array)X
 3837(so)X
 3934(the)X
-576 1344(default)N
+576 4224(default)N
 819(slice)X
 986(will)X
 1130(use)X
@@ -6190,7 +6508,7 @@ xi
 3286(the)X
 3404(dope)X
 3580(vector\).)X
-576 1536(Given)N
+576 4416(Given)N
 792(explicit)X
 1052(requests,)X
 1355(more)X
@@ -6204,7 +6522,7 @@ xi
 2688(default.)X
 3 f
 11 s
-576 1824(8.)N
+576 4704(9.)N
 686(Line)X
 880(information)X
 1352(and)X
@@ -6212,7 +6530,7 @@ xi
 1797(Position)X
 1 f
 10 s
-576 1968(DWARF)N
+576 4848(DWARF)N
 890(does)X
 1062(not)X
 1189(define)X
@@ -6231,7 +6549,7 @@ xi
 3655(way)X
 3815(to)X
 3903(find)X
-576 2064(the)N
+576 4944(the)N
 694(first)X
 843(user-written)X
 1251(executable)X
@@ -6239,7 +6557,7 @@ xi
 1787(in)X
 1869(a)X
 1925(function.)X
-576 2208(It)N
+576 5088(It)N
 649(does)X
 820(define)X
 1045(that)X
@@ -6260,7 +6578,7 @@ xi
 3616(\(see)X
 3771(Sec)X
 3912(6.2,)X
-576 2304(Line)N
+576 5184(Line)N
 751(Number)X
 1042(Information)X
 1453(of)X
@@ -6277,7 +6595,7 @@ xi
 3362(source)X
 3599(coordinates)X
 3996(a)X
-576 2400('source)N
+576 5280('source)N
 840(position')X
 1151(in)X
 1240(this)X
@@ -6294,7 +6612,7 @@ xi
 3521(a)X
 3585('line)X
 3760(number')X
-576 2496(since)N
+576 5376(since)N
 761(that)X
 901(is)X
 974(ambiguous)X
@@ -6305,19 +6623,34 @@ xi
 1754(means.)X
 3 f
 11 s
-576 2736(8.1)N
+576 5616(9.1)N
 730(Definition)X
 1129(of)X
 1224(Statement)X
 1 f
 10 s
-576 2880(A)N
+576 5760(A)N
 654(function)X
 941(prolog)X
 1170(is)X
 1243(a)X
 1299(statement.)X
-576 3024(A)N
+576 6164(rev)N
+699(1.18,)X
+879(31)X
+979(March)X
+1209(2005)X
+2217(-)X
+2264(15)X
+2364(-)X
+
+16 p
+%%Page: 16 16
+10 s 0 xH 0 xS 1 f
+2217 384(-)N
+2264(16)X
+2364(-)X
+576 768(A)N
 654(C,)X
 747(C++,)X
 930(Pascal,)X
@@ -6327,7 +6660,7 @@ xi
 1845(is)X
 1918(a)X
 1974(statement.)X
-576 3168(Each)N
+576 912(Each)N
 761(initialized)X
 1105(local)X
 1286(variable)X
@@ -6344,16 +6677,16 @@ xi
 3459(a)X
 3520(source)X
 3755(position.)X
-576 3264(This)N
+576 1008(This)N
 738(means)X
 963(that)X
-736 3360(x)N
+736 1104(x)N
 796(=3,)X
 921(y=4;)X
 1088(is)X
 1161(two)X
 1301(statements.)X
-576 3504(For)N
+576 1248(For)N
 719(C,)X
 824(C++:)X
 1041(The)X
@@ -6371,7 +6704,7 @@ xi
 3632(portion)X
 3896(of)X
 3996(a)X
-576 3600(while\(\))N
+576 1344(while\(\))N
 828(and)X
 964(do)X
 1064({})X
@@ -6388,7 +6721,7 @@ xi
 2698(number)X
 2963(of)X
 3050(statements\))X
-576 3744(For)N
+576 1488(For)N
 711(Fortran,)X
 991(the)X
 1113(controlling)X
@@ -6407,9 +6740,9 @@ xi
 3648(in)X
 3735(Fortran)X
 3996(a)X
-576 3840(DWARF)N
+576 1584(DWARF)N
 885(statement?)X
-576 3984(Each)N
+576 1728(Each)N
 761(function)X
 1052(return,)X
 1288(whether)X
@@ -6428,7 +6761,7 @@ xi
 3683(so)X
 3779(one)X
 3920(can)X
-576 4080(step)N
+576 1824(step)N
 737(over)X
 912(\(in)X
 1033(a)X
@@ -6446,7 +6779,7 @@ xi
 3727(any\))X
 3902(in)X
 3996(a)X
-576 4176(function)N
+576 1920(function)N
 863(wile)X
 1021(not)X
 1143(leaving)X
@@ -6455,7 +6788,7 @@ xi
 1804(scope.)X
 3 f
 11 s
-576 4464(8.2)N
+576 2208(9.2)N
 730(Finding)X
 1047(The)X
 1216(First)X
@@ -6466,17 +6799,17 @@ xi
 1995(Function)X
 1 f
 10 s
-576 4704(Consider:)N
-576 4800(int)N
+576 2448(Consider:)N
+576 2544(int)N
 680(func\(int)X
 954(a\))X
-576 4896({)N
+576 2640({)N
 1014(/*)X
 1096(source)X
 1326(position)X
 1603(1)X
 1663(*/)X
-736 4992(float)N
+736 2736(float)N
 903(b)X
 963(=)X
 1028(a;)X
@@ -6485,9 +6818,9 @@ xi
 1418(position)X
 1695(2)X
 1755(*/)X
-736 5088(int)N
+736 2832(int)N
 840(x;)X
-736 5184(x)N
+736 2928(x)N
 796(=)X
 861(b)X
 921(+)X
@@ -6497,13 +6830,13 @@ xi
 1420(position)X
 1697(3)X
 1757(*/)X
-576 5280(})N
+576 3024(})N
 1014(/*)X
 1096(source)X
 1326(position)X
 1603(4)X
 1663(*/)X
-576 5424(The)N
+576 3168(The)N
 721(DIE)X
 875(for)X
 989(a)X
@@ -6520,7 +6853,7 @@ xi
 3220(prolog\(s\))X
 3534(and)X
 3670(epilog\(s\))X
-576 5568(Since)N
+576 3312(Since)N
 779(there)X
 965(is)X
 1043(no)X
@@ -6540,7 +6873,7 @@ xi
 3240(beginning)X
 3586(address)X
 3853(range)X
-576 5664(for)N
+576 3408(for)N
 693(the)X
 814(outer)X
 1002(user)X
@@ -6558,7 +6891,7 @@ xi
 3466(user)X
 3622(scope)X
 3827(block\))X
-576 5760(it)N
+576 3504(it)N
 640(is)X
 713(necessary)X
 1046(to)X
@@ -6573,22 +6906,7 @@ xi
 2627(first)X
 2776 0.2232(user-executable)AX
 3301(statement.)X
-576 6164(rev)N
-699(1.17,)X
-879(29)X
-979(Aug)X
-1137(2001)X
-2217(-)X
-2264(15)X
-2364(-)X
-
-16 p
-%%Page: 16 16
-10 s 0 xH 0 xS 1 f
-2217 384(-)N
-2264(16)X
-2364(-)X
-576 768(This)N
+576 3648(This)N
 741(means)X
 969(that)X
 1112(the)X
@@ -6609,14 +6927,14 @@ xi
 3596(of)X
 3687(the)X
 3809(second)X
-576 864(source)N
+576 3744(source)N
 806(position)X
 1083(in)X
 1165(the)X
 1283(function)X
 1570(address)X
 1831(range.)X
-576 1008(If)N
+576 3888(If)N
 650(a)X
 706(function)X
 993(has)X
@@ -6632,7 +6950,7 @@ xi
 3318(of)X
 3405(a)X
 3461(return.)X
-576 1152(If)N
+576 4032(If)N
 651(a)X
 708(function)X
 996(has)X
@@ -6652,7 +6970,7 @@ xi
 3693(a)X
 3751(return)X
 3965(or)X
-576 1248(a)N
+576 4128(a)N
 636(single)X
 851(user)X
 1009(statement)X
@@ -6673,7 +6991,7 @@ xi
 3644(In)X
 3735(this)X
 3873(case,)X
-576 1344(there)N
+576 4224(there)N
 760(is)X
 836(no)X
 939(way)X
@@ -6697,12 +7015,12 @@ xi
 3494(presume)X
 3790(that)X
 3934(the)X
-576 1440(first)N
+576 4320(first)N
 725(address)X
 986(is)X
 1059(user)X
 1213(code.)X
-576 1584(If)N
+576 4464(If)N
 660(a)X
 727(function)X
 1025(consists)X
@@ -6721,7 +7039,7 @@ xi
 3450(source)X
 3691(position)X
 3979(is)X
-576 1680(function)N
+576 4560(function)N
 863(prolog)X
 1092(and)X
 1228(the)X
@@ -6734,7 +7052,7 @@ xi
 2447(code.)X
 3 f
 11 s
-576 1920(8.3)N
+576 4800(9.3)N
 730(Using)X
 967(debug_frame)X
 1487(Information)X
@@ -6745,7 +7063,7 @@ xi
 2598(statement)X
 1 f
 10 s
-576 2064(In)N
+576 4944(In)N
 665(addition)X
 949(to)X
 1033(the)X
@@ -6762,9 +7080,9 @@ xi
 3625(the)X
 3746(first)X
 3898(user)X
-576 2160(source)N
+576 5040(source)N
 806(line.)X
-576 2304(Given)N
+576 5184(Given)N
 792(that)X
 932(a)X
 988(function)X
@@ -6783,7 +7101,7 @@ xi
 3280(second)X
 3524(source)X
 3755(position,)X
-576 2400(then)N
+576 5280(then)N
 740(examine)X
 1038(the)X
 1162(debug_frame)X
@@ -6798,7 +7116,7 @@ xi
 3521(\(cfa\))X
 3700(is)X
 3778(updated)X
-576 2496(before)N
+576 5376(before)N
 805(the)X
 926(second)X
 1172(source)X
@@ -6818,7 +7136,7 @@ xi
 3632(sure)X
 3790(that)X
 3934(the)X
-576 2592(code)N
+576 5472(code)N
 748(for)X
 862(the)X
 980(first)X
@@ -6828,7 +7146,7 @@ xi
 1709(function)X
 1996(prolog)X
 2225(code.)X
-576 2736(Similarly,)N
+576 5616(Similarly,)N
 915(if)X
 987(the)X
 1108(cfa)X
@@ -6849,12 +7167,27 @@ xi
 3593(to)X
 3678(represent)X
 3996(a)X
-576 2832(function)N
+576 5712(function)N
 863(exit)X
 1003(block.)X
+576 6164(rev)N
+699(1.18,)X
+879(31)X
+979(March)X
+1209(2005)X
+2217(-)X
+2264(16)X
+2364(-)X
+
+17 p
+%%Page: 17 17
+10 s 0 xH 0 xS 1 f
+2217 384(-)N
+2264(17)X
+2364(-)X
 3 f
 11 s
-576 3072(8.4)N
+576 768(9.4)N
 730(Debugger)X
 1118(Use)X
 1276(Of)X
@@ -6862,7 +7195,7 @@ xi
 1677(Position)X
 1 f
 10 s
-576 3216(Command)N
+576 912(Command)N
 929(line)X
 1069(debuggers,)X
 1439(such)X
@@ -6879,7 +7212,7 @@ xi
 3456(statements)X
 3815(on)X
 3916(one)X
-576 3312(line)N
+576 1008(line)N
 725(to)X
 816(be)X
 921(a)X
@@ -6898,12 +7231,12 @@ xi
 3415('step')X
 3626(command)X
 3970(to)X
-576 3408(appear)N
+576 1104(appear)N
 811(to)X
 893(have)X
 1065(no)X
 1165(effect.)X
-576 3552(An)N
+576 1248(An)N
 704(exception)X
 1046(for)X
 1170(command)X
@@ -6919,7 +7252,7 @@ xi
 3437(as)X
 3535(detailed)X
 3820(above,)X
-576 3648(there)N
+576 1344(there)N
 758(one)X
 895(wants)X
 1103(to)X
@@ -6938,7 +7271,7 @@ xi
 3500(return)X
 3712(a)X
 3768(separate)X
-576 3744(statement.)N
+576 1440(statement.)N
 957(It)X
 1041(is)X
 1129(difficult)X
@@ -6955,7 +7288,7 @@ xi
 3600(however)X
 3912(if)X
 3996(a)X
-576 3840(function)N
+576 1536(function)N
 867(is)X
 943(coded)X
 1158(all)X
@@ -6980,8 +7313,8 @@ xi
 3701(line)X
 3844(as)X
 3934(the)X
-576 3936(return.)N
-576 4080(A)N
+576 1632(return.)N
+576 1776(A)N
 668(graphical)X
 1001(debugger)X
 1334(has)X
@@ -6999,7 +7332,7 @@ xi
 3566(the)X
 3699(line)X
 3854(being)X
-576 4176(executed.)N
+576 1872(executed.)N
 922(In)X
 1009(that)X
 1149(case,)X
@@ -7014,12 +7347,12 @@ xi
 2984(line.)X
 3 f
 11 s
-576 4368(9.)N
-686(Known)X
-982(Bugs)X
+576 2064(10.)N
+730(Known)X
+1026(Bugs)X
 1 f
 10 s
-576 4512(Up)N
+576 2208(Up)N
 702(through)X
 979(at)X
 1065(least)X
@@ -7034,7 +7367,7 @@ xi
 3773(or)X
 3869(4)X
 3938(for)X
-576 4608(DW_AT_const_value)N
+576 2304(DW_AT_const_value)N
 1321(in)X
 1424 0.1838(DW_TAG_enumerator.)AX
 2250(And)X
@@ -7045,7 +7378,7 @@ xi
 3556(read)X
 3735(this)X
 3890(with)X
-576 4704 0.2188(dwarf_formudata\(\))AN
+576 2400 0.2188(dwarf_formudata\(\))AN
 1218(or)X
 1315(form_sdata\(\))X
 1760(and)X
@@ -7060,7 +7393,7 @@ xi
 3659(of)X
 3756(128)X
 3907(was)X
-576 4800(printed)N
+576 2496(printed)N
 827(by)X
 931(debuggers)X
 1285(as)X
@@ -7078,7 +7411,7 @@ xi
 3719(to)X
 3804(use)X
 3934(the)X
-576 4896(value)N
+576 2592(value)N
 773(the)X
 894(same)X
 1082(way,)X
@@ -7094,7 +7427,7 @@ xi
 3459(has)X
 3590(been)X
 3766(emitting)X
-576 4992(32bit)N
+576 2688(32bit)N
 761(values)X
 986(in)X
 1068(a)X
@@ -7108,7 +7441,7 @@ xi
 3257(a)X
 3313(DW_FORM_sdata)X
 3938(for)X
-576 5088(enumerator)N
+576 2784(enumerator)N
 970(values.)X
 1243(And)X
 1409(consumers)X
@@ -7121,7 +7454,7 @@ xi
 3053(form_sdata\(\).)X
 3537(However,)X
 3881(right)X
-576 5184(now,)N
+576 2880(now,)N
 761(debuggers)X
 1118(should)X
 1358(call)X
@@ -7137,7 +7470,7 @@ xi
 3550(else)X
 3702(will)X
 3853(break)X
-576 5280(backward)N
+576 2976(backward)N
 909(compatibility)X
 1355(with)X
 1517(the)X
@@ -7145,25 +7478,10 @@ xi
 1882(produced)X
 2201(earlier.)X
 576 6164(rev)N
-699(1.17,)X
-879(29)X
-979(Aug)X
-1137(2001)X
-2217(-)X
-2264(16)X
-2364(-)X
-
-17 p
-%%Page: 17 17
-10 s 0 xH 0 xS 1 f
-2217 384(-)N
-2264(17)X
-2364(-)X
-576 6164(rev)N
-699(1.17,)X
-879(29)X
-979(Aug)X
-1137(2001)X
+699(1.18,)X
+879(31)X
+979(March)X
+1209(2005)X
 2217(-)X
 2264(17)X
 2364(-)X
@@ -7171,1193 +7489,1072 @@ xi
 18 p
 %%Page: 18 18
 10 s 0 xH 0 xS 1 f
-2095 768(CONTENTS)N
-576 1008(1.)N
-676(INTRODUCTION)X
-3 f
-1371(.)X
-1477(.)X
-1583(.)X
-1689(.)X
-1795(.)X
-1901(.)X
-2007(.)X
-2113(.)X
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(1)X
-576 1152(2.)N
-676(How)X
-852(much)X
-1050(symbol)X
-1305(information)X
-1703(is)X
-1776(emitted)X
-3 f
-2113(.)X
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(1)X
-676 1248(2.1)N
-856(Overview)X
-1193(of)X
-1280(information)X
-1678(emitted)X
-3 f
-2007(.)X
-2113(.)X
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(1)X
-676 1344(2.2)N
-856(Detecting)X
-1188('full)X
-1346(symbols')X
-1659(\(-g\))X
-3 f
-1901(.)X
-2007(.)X
-2113(.)X
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(2)X
-676 1440(2.3)N
-856(DWARF)X
-1165(and)X
-1301(strip\(1\))X
-3 f
-1583(.)X
-1689(.)X
-1795(.)X
-1901(.)X
-2007(.)X
-2113(.)X
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(2)X
-676 1536(2.4)N
-856(Evaluating)X
-1223(location)X
-1501(expressions)X
-3 f
-2007(.)X
-2113(.)X
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(2)X
-576 1680(3.)N
-676(Frame)X
-901(Information)X
-3 f
-1371(.)X
-1477(.)X
-1583(.)X
-1689(.)X
-1795(.)X
-1901(.)X
-2007(.)X
-2113(.)X
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(2)X
-676 1776(3.1)N
-856(Initial)X
-1067(Instructions)X
-3 f
-1583(.)X
-1689(.)X
-1795(.)X
-1901(.)X
-2007(.)X
-2113(.)X
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(2)X
-676 1872(3.2)N
-856(Augmentation)X
-1334(string)X
-1536(in)X
-1618(debug_frame)X
-3 f
-2113(.)X
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(3)X
-676 1968(3.3)N
-856(Stack)X
-1054(Pointer)X
-1305(recovery)X
-1607(from)X
-1783(debug_frame)X
-3 f
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(3)X
-576 2112(4.)N
-676(egcs)X
-839(dwarf)X
-1047(extensions)X
-1405(\(egcs-1.1.2)X
-1782(extensions\))X
-3 f
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(4)X
-676 2208(4.1)N
-856(DW_TAG_format_label)X
-1905(0x4101)X
-3 f
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(4)X
-676 2304(4.2)N
-856(DW_TAG_function_template)X
-1978(0x4102)X
-3 f
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(4)X
-676 2400(4.3)N
-856(DW_TAG_class_template)X
-1927(0x4103)X
-3 f
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(4)X
-676 2496(4.4)N
-856(DW_AT_sf_names)X
-2000(0x2101)X
-3 f
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(4)X
-676 2592(4.5)N
-856(DW_AT_src_info)X
-1960(0x2102)X
-3 f
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(4)X
-676 2688(4.6)N
-856(DW_AT_mac_info)X
-2000(0x2103)X
-3 f
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(4)X
-676 2784(4.7)N
-856(DW_AT_src_coords)X
-2005(0x2104)X
-3 f
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(4)X
-676 2880(4.8)N
-856(DW_AT_body_begin)X
-2035(0x2105)X
-3 f
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(4)X
-676 2976(4.9)N
-856(DW_AT_body_end)X
-2013(0x2106)X
-3 f
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(4)X
-576 3120(5.)N
-676(egcs)X
-839(.eh_frame)X
-1183(\(non-sgi\))X
-1497(\(egcs-1.1.2)X
-1874(extensions\))X
-3 f
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(4)X
-676 3216(5.1)N
-856(CIE_id)X
-1107(0)X
-3 f
-1265(.)X
-1371(.)X
-1477(.)X
-1583(.)X
-1689(.)X
-1795(.)X
-1901(.)X
-2007(.)X
-2113(.)X
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(4)X
-676 3312(5.2)N
-856(augmentation)X
-1312(eh)X
-3 f
-1477(.)X
-1583(.)X
-1689(.)X
-1795(.)X
-1901(.)X
-2007(.)X
-2113(.)X
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(5)X
-676 3408(5.3)N
-856(DW_CFA_GNU_window_save)X
-1940(0x2d)X
-3 f
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(5)X
-676 3504(5.4)N
-856(DW_CFA_GNU_args_size)X
-1838(0x2e)X
-3 f
-2113(.)X
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(5)X
-676 3600(5.5)N
-856(__EXCEPTION_TABLE__)X
-3 f
-1901(.)X
-2007(.)X
-2113(.)X
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(5)X
-576 3744(6.)N
-676(Interpretations)X
-1164(of)X
-1251(the)X
-1369(DWARF)X
-1678(V2)X
-1796(spec)X
-3 f
-2007(.)X
-2113(.)X
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(5)X
-676 3840(6.1)N
-856(template)X
-1152(TAG)X
-1337(spellings)X
-3 f
-1689(.)X
-1795(.)X
-1901(.)X
-2007(.)X
-2113(.)X
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(5)X
-676 3936(6.2)N
-856(DW_FORM_ref_addr)X
-3 f
-1689(.)X
-1795(.)X
-1901(.)X
-2007(.)X
-2113(.)X
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(5)X
-676 4032(6.3)N
-856(.debug_macinfo)X
-1395(in)X
-1477(a)X
-1533(debugger)X
-3 f
-1901(.)X
-2007(.)X
-2113(.)X
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(5)X
-676 4128(6.4)N
-856(Section)X
-1116(6.1.2)X
-1296(Lookup)X
-1565(by)X
-1665(address)X
-1926(problem)X
-3 f
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(6)X
-676 4224(6.5)N
-856(Section)X
-1116(5.10)X
-1276(Subrange)X
-1599(Type)X
-1784(Entries)X
-2031(problem)X
-3 f
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(6)X
-676 4320(6.6)N
-856(Section)X
-1116(5.5.6)X
-1296(Class)X
-1489(Template)X
-1812(Instantiations)X
-2263(problem)X
-3 f
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(6)X
-676 4416(6.7)N
-856(Section)X
-1116(2.4.3.4)X
-1376(#)X
-1436(11.)X
-1556(operator)X
-1844(spelling)X
-3 f
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(6)X
-676 4512(6.8)N
-856(No)X
-974(clear)X
-1151(specification)X
-1581(of)X
-1668(C++)X
-1831(static)X
-2020(funcs)X
-3 f
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(6)X
-676 4608(6.9)N
-856(Misspelling)X
-1253(of)X
-1340(DW_AT_const_value)X
-3 f
-2113(.)X
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(6)X
-676 4704(6.10)N
-856(Mistake)X
-1134(in)X
-1216(Atribute)X
-1503(Encodings)X
-3 f
-1901(.)X
-2007(.)X
-2113(.)X
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(6)X
-676 4800(6.11)N
-856(DW_OP_bregx)X
-3 f
-1477(.)X
-1583(.)X
-1689(.)X
-1795(.)X
-1901(.)X
-2007(.)X
-2113(.)X
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(6)X
-576 4944(7.)N
-676(MIPS)X
-882(attributes)X
-3 f
-1265(.)X
-1371(.)X
-1477(.)X
-1583(.)X
-1689(.)X
-1795(.)X
-1901(.)X
-2007(.)X
-2113(.)X
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(6)X
-676 5040(7.1)N
-856(DW_AT_MIPS_fde)X
-3 f
-1583(.)X
-1689(.)X
-1795(.)X
-1901(.)X
-2007(.)X
-2113(.)X
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(6)X
-676 5136(7.2)N
-856(DW_CFA_MIPS_advance_loc8)X
-1913(0x1d)X
-3 f
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(7)X
-676 5232(7.3)N
-856(DW_TAG_MIPS_loop)X
-1763(0x4081)X
-3 f
-2113(.)X
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(7)X
-676 5328(7.4)N
-856(DW_AT_MIPS_loop_begin)X
-1823(0x2002)X
-3 f
-2113(.)X
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(7)X
-676 5424(7.5)N
-856(DW_AT_MIPS_tail_loop_begin)X
-1945(0x2003)X
-3 f
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(7)X
-676 5520(7.6)N
-856(DW_AT_MIPS_epilog_begin)X
-1921(0x2004)X
-3 f
-2219(.)X
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(7)X
-676 5616(7.7)N
-856(DW_AT_MIPS_loop_unroll_factor)X
-2044(0x2005)X
-3 f
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(7)X
-676 5712(7.8)N
-856(DW_AT_MIPS_software_pipeline_depth)X
-2256(0x2006)X
-3 f
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(7)X
-676 5808(7.9)N
-856(DW_AT_MIPS_linkage_name)X
-2193(0x2007)X
-3 f
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(7)X
-2246 6164(-)N
-2293(i)X
-2335(-)X
+2217 384(-)N
+2264(18)X
+2364(-)X
+576 6164(rev)N
+699(1.18,)X
+879(31)X
+979(March)X
+1209(2005)X
+2217(-)X
+2264(18)X
+2364(-)X
 
 19 p
 %%Page: 19 19
 10 s 0 xH 0 xS 1 f
-676 768(7.10)N
-856(DW_AT_MIPS_stride)X
-1821(0x2008)X
+2095 768(CONTENTS)N
+616 1008(1.)N
+716(INTRODUCTION)X
+3 f
+1371(.)X
+1477(.)X
+1583(.)X
+1689(.)X
+1795(.)X
+1901(.)X
+2007(.)X
+2113(.)X
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(1)X
+616 1152(2.)N
+716(64)X
+816(BIT)X
+965(DWARF)X
+3 f
+1371(.)X
+1477(.)X
+1583(.)X
+1689(.)X
+1795(.)X
+1901(.)X
+2007(.)X
+2113(.)X
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(1)X
+616 1296(3.)N
+716(How)X
+892(much)X
+1090(symbol)X
+1345(information)X
+1743(is)X
+1816(emitted)X
+3 f
+2113(.)X
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(1)X
+716 1392(3.1)N
+896(Overview)X
+1233(of)X
+1320(information)X
+1718(emitted)X
+3 f
+2007(.)X
+2113(.)X
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(2)X
+716 1488(3.2)N
+896(Detecting)X
+1228('full)X
+1386(symbols')X
+1699(\(-g\))X
+3 f
+1901(.)X
+2007(.)X
+2113(.)X
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(2)X
+716 1584(3.3)N
+896(DWARF)X
+1205(and)X
+1341(strip\(1\))X
+3 f
+1689(.)X
+1795(.)X
+1901(.)X
+2007(.)X
+2113(.)X
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(2)X
+716 1680(3.4)N
+896(Evaluating)X
+1263(location)X
+1541(expressions)X
+3 f
+2007(.)X
+2113(.)X
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(2)X
+616 1824(4.)N
+716(Frame)X
+941(Information)X
+3 f
+1371(.)X
+1477(.)X
+1583(.)X
+1689(.)X
+1795(.)X
+1901(.)X
+2007(.)X
+2113(.)X
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(3)X
+716 1920(4.1)N
+896(Initial)X
+1107(Instructions)X
+3 f
+1583(.)X
+1689(.)X
+1795(.)X
+1901(.)X
+2007(.)X
+2113(.)X
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(3)X
+716 2016(4.2)N
+896(Augmentation)X
+1374(string)X
+1576(in)X
+1658(debug_frame)X
+3 f
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(3)X
+716 2112(4.3)N
+896(Stack)X
+1094(Pointer)X
+1345(recovery)X
+1647(from)X
+1823(debug_frame)X
+3 f
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(4)X
+616 2256(5.)N
+716(egcs)X
+879(dwarf)X
+1087(extensions)X
+1445(\(egcs-1.1.2)X
+1822(extensions\))X
+3 f
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(4)X
+716 2352(5.1)N
+896(DW_TAG_format_label)X
+1945(0x4101)X
+3 f
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(4)X
+716 2448(5.2)N
+896(DW_TAG_function_template)X
+2018(0x4102)X
+3 f
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(4)X
+716 2544(5.3)N
+896(DW_TAG_class_template)X
+1967(0x4103)X
+3 f
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(4)X
+716 2640(5.4)N
+896(DW_AT_sf_names)X
+2040(0x2101)X
+3 f
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(4)X
+716 2736(5.5)N
+896(DW_AT_src_info)X
+2000(0x2102)X
+3 f
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(4)X
+716 2832(5.6)N
+896(DW_AT_mac_info)X
+2040(0x2103)X
+3 f
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(4)X
+716 2928(5.7)N
+896(DW_AT_src_coords)X
+2045(0x2104)X
+3 f
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(5)X
+716 3024(5.8)N
+896(DW_AT_body_begin)X
+2075(0x2105)X
+3 f
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(5)X
+716 3120(5.9)N
+896(DW_AT_body_end)X
+2053(0x2106)X
+3 f
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(5)X
+616 3264(6.)N
+716(egcs)X
+879(.eh_frame)X
+1223(\(non-sgi\))X
+1537(\(egcs-1.1.2)X
+1914(extensions\))X
+3 f
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(5)X
+716 3360(6.1)N
+896(CIE_id)X
+1147(0)X
+3 f
+1265(.)X
+1371(.)X
+1477(.)X
+1583(.)X
+1689(.)X
+1795(.)X
+1901(.)X
+2007(.)X
+2113(.)X
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(5)X
+716 3456(6.2)N
+896(augmentation)X
+1352(eh)X
+3 f
+1477(.)X
+1583(.)X
+1689(.)X
+1795(.)X
+1901(.)X
+2007(.)X
+2113(.)X
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(5)X
+716 3552(6.3)N
+896(DW_CFA_GNU_window_save)X
+1980(0x2d)X
+3 f
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(5)X
+716 3648(6.4)N
+896(DW_CFA_GNU_args_size)X
+1878(0x2e)X
+3 f
+2113(.)X
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(5)X
+716 3744(6.5)N
+896(__EXCEPTION_TABLE__)X
+3 f
+1901(.)X
+2007(.)X
+2113(.)X
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(5)X
+616 3888(7.)N
+716(Interpretations)X
+1204(of)X
+1291(the)X
+1409(DWARF)X
+1718(V2)X
+1836(spec)X
+3 f
+2113(.)X
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(5)X
+716 3984(7.1)N
+896(template)X
+1192(TAG)X
+1377(spellings)X
+3 f
+1795(.)X
+1901(.)X
+2007(.)X
+2113(.)X
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(5)X
+716 4080(7.2)N
+896(DW_FORM_ref_addr)X
+3 f
+1689(.)X
+1795(.)X
+1901(.)X
+2007(.)X
+2113(.)X
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(6)X
+716 4176(7.3)N
+896(.debug_macinfo)X
+1435(in)X
+1517(a)X
+1573(debugger)X
+3 f
+2007(.)X
+2113(.)X
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(6)X
+716 4272(7.4)N
+896(Section)X
+1156(6.1.2)X
+1336(Lookup)X
+1605(by)X
+1705(address)X
+1966(problem)X
+3 f
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(6)X
+716 4368(7.5)N
+896(Section)X
+1156(5.10)X
+1316(Subrange)X
+1639(Type)X
+1824(Entries)X
+2071(problem)X
+3 f
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(6)X
+716 4464(7.6)N
+896(Section)X
+1156(5.5.6)X
+1336(Class)X
+1529(Template)X
+1852(Instantiations)X
+2303(problem)X
+3 f
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(7)X
+716 4560(7.7)N
+896(Section)X
+1156(2.4.3.4)X
+1416(#)X
+1476(11.)X
+1596(operator)X
+1884(spelling)X
+3 f
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(7)X
+716 4656(7.8)N
+896(No)X
+1014(clear)X
+1191(specification)X
+1621(of)X
+1708(C++)X
+1871(static)X
+2060(funcs)X
+3 f
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(7)X
+716 4752(7.9)N
+896(Misspelling)X
+1293(of)X
+1380(DW_AT_const_value)X
+3 f
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(7)X
+716 4848(7.10)N
+896(Mistake)X
+1174(in)X
+1256(Atribute)X
+1543(Encodings)X
+3 f
+2007(.)X
+2113(.)X
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(7)X
+716 4944(7.11)N
+896(DW_OP_bregx)X
+3 f
+1477(.)X
+1583(.)X
+1689(.)X
+1795(.)X
+1901(.)X
+2007(.)X
+2113(.)X
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(7)X
+616 5088(8.)N
+716(MIPS)X
+922(attributes)X
+3 f
+1265(.)X
+1371(.)X
+1477(.)X
+1583(.)X
+1689(.)X
+1795(.)X
+1901(.)X
+2007(.)X
+2113(.)X
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(7)X
+716 5184(8.1)N
+896(DW_AT_MIPS_fde)X
+3 f
+1689(.)X
+1795(.)X
+1901(.)X
+2007(.)X
+2113(.)X
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(7)X
+716 5280(8.2)N
+896(DW_CFA_MIPS_advance_loc8)X
+1953(0x1d)X
+3 f
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(7)X
+716 5376(8.3)N
+896(DW_TAG_MIPS_loop)X
+1803(0x4081)X
 3 f
 2113(.)X
 2219(.)X
@@ -8378,195 +8575,9 @@ xi
 3809(.)X
 1 f
 3992(7)X
-676 864(7.11)N
-856(DW_AT_MIPS_abstract_name)X
-2147(0x2009)X
-3 f
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(8)X
-676 960(7.12)N
-856(DW_AT_MIPS_clone_origin)X
-2108(0x200a)X
-3 f
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(8)X
-676 1056(7.13)N
-856(DW_AT_MIPS_has_inlines)X
-2063(0x200b)X
-3 f
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(8)X
-676 1152(7.14)N
-856(DW_AT_MIPS_stride_byte)X
-2119(0x200c)X
-3 f
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(9)X
-676 1248(7.15)N
-856(DW_AT_MIPS_stride_elem)X
-2137(0x200d)X
-3 f
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(9)X
-676 1344(7.16)N
-856(DW_AT_MIPS_ptr_dopetype)X
-2166(0x200e)X
-3 f
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(9)X
-676 1440(7.17)N
-856(DW_AT_MIPS_allocatable_dopetype)X
-2265(0x200f)X
-3 f
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(9)X
-676 1536(7.18)N
-856(DW_AT_MIPS_assumed_shape_dopetype)X
-2376(0x2010)X
-3 f
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(9)X
-676 1632(7.19)N
-856(Overview)X
-1193(of)X
-1280(debugger)X
-1599(use)X
-1726(of)X
-1813(dope)X
-1989(vectors)X
-3 f
-2325(.)X
-2431(.)X
-2537(.)X
-2643(.)X
-2749(.)X
-2855(.)X
-2961(.)X
-3067(.)X
-3173(.)X
-3279(.)X
-3385(.)X
-3491(.)X
-3597(.)X
-3703(.)X
-3809(.)X
-1 f
-3992(9)X
-676 1728(7.20)N
-856(Example)X
-1161(f90)X
-1288(code)X
-1460(for)X
-1574(use)X
-1701(in)X
-1783(explanation)X
+716 5472(8.4)N
+896(DW_AT_MIPS_loop_begin)X
+1863(0x2002)X
 3 f
 2219(.)X
 2325(.)X
@@ -8585,17 +8596,13 @@ xi
 3703(.)X
 3809(.)X
 1 f
-3992(9)X
-676 1824(7.21)N
-856(the)X
-974(problem)X
-1261(with)X
-1423(standard)X
-1715(dwarf)X
-1923(and)X
-2059(this)X
-2194(example)X
+3992(7)X
+716 5568(8.5)N
+896(DW_AT_MIPS_tail_loop_begin)X
+1985(0x2003)X
 3 f
+2325(.)X
+2431(.)X
 2537(.)X
 2643(.)X
 2749(.)X
@@ -8610,15 +8617,31 @@ xi
 3703(.)X
 3809(.)X
 1 f
-3952(10)X
-676 1920(7.22)N
-856(A)X
-934(simplified)X
-1278(sketch)X
-1503(of)X
-1590(the)X
-1708(dwarf)X
-1916(information)X
+3992(7)X
+716 5664(8.6)N
+896(DW_AT_MIPS_epilog_begin)X
+1961(0x2004)X
+3 f
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(7)X
+716 5760(8.7)N
+896(DW_AT_MIPS_loop_unroll_factor)X
+2084(0x2005)X
 3 f
 2431(.)X
 2537(.)X
@@ -8635,16 +8658,35 @@ xi
 3703(.)X
 3809(.)X
 1 f
-3952(10)X
-676 2016(7.23)N
-856(A)X
-934(simplified)X
-1278(sketch)X
-1503(of)X
-1590(the)X
-1708(dope)X
-1884(vector)X
-2105(information)X
+3992(8)X
+716 5856(8.8)N
+896(DW_AT_MIPS_software_pipeline_depth)X
+2296(0x2006)X
+3 f
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(8)X
+2246 6164(-)N
+2293(i)X
+2335(-)X
+
+20 p
+%%Page: 20 20
+10 s 0 xH 0 xS 1 f
+716 768(8.9)N
+896(DW_AT_MIPS_linkage_name)X
+2233(0x2007)X
 3 f
 2537(.)X
 2643(.)X
@@ -8660,11 +8702,309 @@ xi
 3703(.)X
 3809(.)X
 1 f
+3992(8)X
+716 864(8.10)N
+896(DW_AT_MIPS_stride)X
+1861(0x2008)X
+3 f
+2219(.)X
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(8)X
+716 960(8.11)N
+896(DW_AT_MIPS_abstract_name)X
+2187(0x2009)X
+3 f
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(8)X
+716 1056(8.12)N
+896(DW_AT_MIPS_clone_origin)X
+2148(0x200a)X
+3 f
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(9)X
+716 1152(8.13)N
+896(DW_AT_MIPS_has_inlines)X
+2103(0x200b)X
+3 f
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(9)X
+716 1248(8.14)N
+896(DW_AT_MIPS_stride_byte)X
+2159(0x200c)X
+3 f
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(9)X
+716 1344(8.15)N
+896(DW_AT_MIPS_stride_elem)X
+2177(0x200d)X
+3 f
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(9)X
+716 1440(8.16)N
+896(DW_AT_MIPS_ptr_dopetype)X
+2206(0x200e)X
+3 f
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(9)X
+716 1536(8.17)N
+896(DW_AT_MIPS_allocatable_dopetype)X
+2305(0x200f)X
+3 f
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(9)X
+716 1632(8.18)N
+896(DW_AT_MIPS_assumed_shape_dopetype)X
+2416(0x2010)X
+3 f
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3992(9)X
+716 1728(8.19)N
+896(Overview)X
+1233(of)X
+1320(debugger)X
+1639(use)X
+1766(of)X
+1853(dope)X
+2029(vectors)X
+3 f
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
 3952(10)X
-676 2112(7.24)N
-856(The)X
-1001(dwarf)X
-1209(information)X
+716 1824(8.20)N
+896(Example)X
+1201(f90)X
+1328(code)X
+1500(for)X
+1614(use)X
+1741(in)X
+1823(explanation)X
+3 f
+2325(.)X
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3952(10)X
+716 1920(8.21)N
+896(the)X
+1014(problem)X
+1301(with)X
+1463(standard)X
+1755(dwarf)X
+1963(and)X
+2099(this)X
+2234(example)X
+3 f
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3952(10)X
+716 2016(8.22)N
+896(A)X
+974(simplified)X
+1318(sketch)X
+1543(of)X
+1630(the)X
+1748(dwarf)X
+1956(information)X
+3 f
+2431(.)X
+2537(.)X
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3952(11)X
+716 2112(8.23)N
+896(A)X
+974(simplified)X
+1318(sketch)X
+1543(of)X
+1630(the)X
+1748(dope)X
+1924(vector)X
+2145(information)X
+3 f
+2643(.)X
+2749(.)X
+2855(.)X
+2961(.)X
+3067(.)X
+3173(.)X
+3279(.)X
+3385(.)X
+3491(.)X
+3597(.)X
+3703(.)X
+3809(.)X
+1 f
+3952(11)X
+716 2208(8.24)N
+896(The)X
+1041(dwarf)X
+1249(information)X
 3 f
 1689(.)X
 1795(.)X
@@ -8689,12 +9029,12 @@ xi
 3809(.)X
 1 f
 3952(11)X
-676 2208(7.25)N
-856(The)X
-1001(dope)X
-1177(vector)X
-1398(structure)X
-1699(details)X
+716 2304(8.25)N
+896(The)X
+1041(dope)X
+1217(vector)X
+1438(structure)X
+1739(details)X
 3 f
 2007(.)X
 2113(.)X
@@ -8716,9 +9056,9 @@ xi
 3809(.)X
 1 f
 3952(14)X
-676 2304(7.26)N
-856(DW_AT_MIPS_assumed_size)X
-1984(0x2011)X
+716 2400(8.26)N
+896(DW_AT_MIPS_assumed_size)X
+2024(0x2011)X
 3 f
 2325(.)X
 2431(.)X
@@ -8736,13 +9076,13 @@ xi
 3703(.)X
 3809(.)X
 1 f
-3952(14)X
-576 2448(8.)N
-676(Line)X
-843(information)X
-1241(and)X
-1377(Source)X
-1620(Position)X
+3952(15)X
+616 2544(9.)N
+716(Line)X
+883(information)X
+1281(and)X
+1417(Source)X
+1660(Position)X
 3 f
 2007(.)X
 2113(.)X
@@ -8764,12 +9104,11 @@ xi
 3809(.)X
 1 f
 3952(15)X
-676 2544(8.1)N
-856(Definition)X
-1205(of)X
-1292(Statement)X
+716 2640(9.1)N
+896(Definition)X
+1245(of)X
+1332(Statement)X
 3 f
-1689(.)X
 1795(.)X
 1901(.)X
 2007(.)X
@@ -8792,15 +9131,15 @@ xi
 3809(.)X
 1 f
 3952(15)X
-676 2640(8.2)N
-856(Finding)X
-1124(The)X
-1269(First)X
-1435(User)X
-1607(Code)X
-1796(in)X
-1878(a)X
-1934(Function)X
+716 2736(9.2)N
+896(Finding)X
+1164(The)X
+1309(First)X
+1475(User)X
+1647(Code)X
+1836(in)X
+1918(a)X
+1974(Function)X
 3 f
 2325(.)X
 2431(.)X
@@ -8818,16 +9157,16 @@ xi
 3703(.)X
 3809(.)X
 1 f
-3952(15)X
-676 2736(8.3)N
-856(Using)X
-1067(debug_frame)X
-1511(Information)X
-1914(to)X
-1996(find)X
-2145(first)X
-2294(user)X
-2448(statement)X
+3952(16)X
+716 2832(9.3)N
+896(Using)X
+1107(debug_frame)X
+1551(Information)X
+1954(to)X
+2036(find)X
+2185(first)X
+2334(user)X
+2488(statement)X
 3 f
 2855(.)X
 2961(.)X
@@ -8841,14 +9180,13 @@ xi
 3809(.)X
 1 f
 3952(16)X
-676 2832(8.4)N
-856(Debugger)X
-1193(Use)X
-1338(Of)X
-1443(Source)X
-1686(Position)X
+716 2928(9.4)N
+896(Debugger)X
+1233(Use)X
+1378(Of)X
+1483(Source)X
+1726(Position)X
 3 f
-2007(.)X
 2113(.)X
 2219(.)X
 2325(.)X
@@ -8867,12 +9205,11 @@ xi
 3703(.)X
 3809(.)X
 1 f
-3952(16)X
-576 2976(9.)N
-676(Known)X
-932(Bugs)X
+3952(17)X
+576 3072(10.)N
+716(Known)X
+972(Bugs)X
 3 f
-1159(.)X
 1265(.)X
 1371(.)X
 1477(.)X
@@ -8899,13 +9236,13 @@ xi
 3703(.)X
 3809(.)X
 1 f
-3952(16)X
+3952(17)X
 2235 6164(-)N
 2282(ii)X
 2346(-)X
 
-20 p
-%%Page: 20 20
+21 p
+%%Page: 21 21
 10 s 0 xH 0 xS 1 f
 3 f
 12 s
@@ -8937,12 +9274,35 @@ xi
 3347(Information)X
 3768(Format")X
 576 1488(\(version)N
-859(2.0.0)X
-1039(dated)X
-1233(July)X
-1386(27,)X
-1506(1993\).)X
-576 1632(Rather)N
+870(2.0.0)X
+1061(dated)X
+1266(July)X
+1430(27,)X
+1561(1993\).)X
+1819(DWARF3)X
+2179(draft)X
+2362(8)X
+2433(\(or)X
+2558(draft)X
+2741(9\))X
+2839(is)X
+2923(out)X
+3056(as)X
+3154(of)X
+3252(2005,)X
+3463(and)X
+3610(is)X
+3694(mentioned)X
+576 1584(below)N
+792(where)X
+1009(applicable.)X
+1399(MIPS/IRIX)X
+1792(compilers)X
+2128(emit)X
+2290(DWARF2)X
+2639(\(with)X
+2828(extensions\).)X
+576 1728(Rather)N
 810(than)X
 968(alter)X
 1131(the)X
@@ -8957,7 +9317,7 @@ xi
 3004(this)X
 3139(separate)X
 3423(document.)X
-576 1776(The)N
+576 1872(The)N
 721(extensions)X
 1079(documented)X
 1491(here)X
@@ -8965,7 +9325,7 @@ xi
 1769(subject)X
 2016(to)X
 2098(change.)X
-576 1920(It)N
+576 2016(It)N
 645(also)X
 794(describes)X
 1113(known)X
@@ -8975,17 +9335,17 @@ xi
 1904(incorrect)X
 2210(dwarf)X
 2418(usage.)X
-576 2064(rev)N
-699(1.17,)X
-879(29)X
-979(Aug)X
-1137(2001)X
+576 2160(rev)N
+699(1.18,)X
+879(31)X
+979(March)X
+1209(2005)X
 
-21 p
-%%Page: 21 21
+22 p
+%%Page: 22 22
 10 s 0 xH 0 xS 1 f
 
-21 p
+22 p
 %%Trailer
 xt
 

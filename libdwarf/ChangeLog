@@ -1,3 +1,26 @@
+2005-07-14 David Anderson <davea@sgi.com>
+      * dwarf_line.c: Added dwarf_srclines_dealloc and call it
+        for dwarf_srclines output.  Does complete deallocation,
+        unlike previous method, which was incomplete deallocation.
+        Thanks to Alan Alexander for pointing out there was
+        incomplete deallocation.
+      * dwarf_print_lines.c: remove references and allocation
+        of line_context. Memory was leaking due to unreferenced
+        variable.
+      * libdwarf2.1.mm: Document new dwarf_srclines_dealloc()
+        deallocation routine for dwarf_srclines().
+
+2005-07-13 David Anderson <davea@sgi.com>
+      * dwarf_init_finish.c (dwarf_init): if _dwarf_setup() fails,
+        free elf resources with elf_end() call.
+        Thanks to Cristi Vlasceanu for pointing out that a memory
+        leak existed here.
+
+2005-06-13 David Anderson <davea@sgi.com>
+      * dwarf_frame.c (_dwarf_exec_frame_instr): Corrected test
+        so that .o files (pre-relocation) are less likely to generate
+	DW_DLE_DF_NEW_LOC_LESS_OLD_LOC error. Renamed local variable
+	for better readability.
 2005-04-13 David Anderson <davea@sgi.com>
       * dwarf_error.c: Error  codes 194 and 195 were missing
 	strings, added them to table. 

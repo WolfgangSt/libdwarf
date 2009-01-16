@@ -1,3 +1,8 @@
+Mar 31, 2005
+  Documented  the libexc.so/.debug_funcnames
+  dependency and the 64bit-offset DWARF extension in
+  mips_extentions.{mm,ps}.
+
 Mar 21, 2005
   gcc 3.3 and 3.4 .eh_frame 'z' augmentations are not handled
   correctly, so libdwarf gives an error when attempting to

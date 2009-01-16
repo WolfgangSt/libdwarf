@@ -1,5 +1,5 @@
-\." $Revision: 1.7 $
-\." $Date: 2001/08/29 17:02:11 $
+\." $Revision: 1.8 $
+\." $Date: 2005/04/01 18:04:37 $
 \."
 \."
 \." the following line may be removed if the ff ligature works on your machine
@@ -9,7 +9,7 @@
 .ds HP +2 +2 +1 +0 +0
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.17, 29 Aug 2001
+.ds vE rev 1.18, 31 March 2005
 \." ==============================================
 \." ==============================================
 .nr Hs 5
@@ -41,6 +41,9 @@ MIPS Extensions to DWARF Version 2.0
 .AS 1
 This document describes the MIPS/Silicon Graphics extensions to the "DWARF
 Information Format" (version 2.0.0 dated July 27, 1993).
+DWARF3 draft 8 (or draft 9) is out as of 2005, and
+is mentioned below where applicable.
+MIPS/IRIX compilers emit DWARF2 (with extensions).
 .P
 Rather than alter the base documents to describe the extensions
 we provide this separate document.
@@ -57,6 +60,25 @@ This document describes MIPS extensions to the DWARF
 debugging information format.
 The extensions documented here are subject to change at
 any time.
+.H 1 "64 BIT DWARF"
+The DWARF2 spec has no provision for 64 bit offsets.
+SGI-IRIX/MIPS Elf64 objects contain DWARF 2 with all offsets
+(and addresses) as 64bit values.  
+This non-standard extension was adopted in 1992.
+Nothing in the dwarf itself identifies the dwarf as 64bit.
+This extension 64bit-offset dwarf cannot be mixed with 32bit-offset dwarf
+in a single object or executable, and SGI-IRIX/MIPS compilers
+and tools do not mix the sizes.
+.P
+In 2001 DWARF3 adopted a very different 64bit-offset
+format which can be mixed usefully with 32bit-offset DWARF2 or DWARF3.
+It is not very likely SGI-IRIX/MIPS compilers will switch to the 
+now-standard
+DWARF3 64bit-offset scheme, but such a switch is theoretically
+possible and would be a good idea.
+.P
+SGI-IRIX/MIPS Elf32 objects
+contain DWARF2 with all offsets (and addresses) 32 bits.
 .H 1 "How much symbol information is emitted"
 The following standard DWARF V2 sections may be emitted:
 .AL
@@ -100,6 +122,15 @@ symbols.
 is a MIPS extension
 containing .debug_pubnames-like entries describing file-static
 functions (C static functions).
+The gcc extension of nested subprograms (like Pascal)
+adds non-global non-static functions.  These should be treated like
+static functions and gcc should add such to this section
+so that IRIX libexc(3C) will work correctly.
+Similarly, Ada functions which are non-global should be here too
+so that libexc(3C) can work.
+Putting it another way, every function (other than inline code)
+belongs either in .debug_pubnames or in .debug_funcnames
+or else libexc(3C) cannot find the function name.
 .LI 
  .debug_varnames
 is a MIPS extension
@@ -137,11 +168,19 @@ The DW_AT_producer string has the optimization level: for example
 We put so much in the DW_AT_producer that the string
 is a significant user of space in .debug_info --
 this is perhaps a poor use of space.
+When optimizing the IRIX CC/cc option -DEBUG:optimize_space
+eliminates such wasted space.
 Debuggers only currently use the lack of -g
 of DW_AT_producer
 as a hint as to how a 'step' command should be interpreted, and
 the rest of the string is not used for anything (unless
-a human looks at it for some reason).
+a human looks at it for some reason), so if space-on-disk
+is an issue, it is quite appropriate to use -DEBUG:optimize_space
+and save disk space.
+Every function definition (not inline instances though) is mentioned
+in either .debug_pubnames or .debug_funcnames.
+This is crucial to allow libexc(3C) stack-traceback to work and
+show function names (for all languages).
 .LI 
 "C with full symbols"
 All possible info is emitted.
@@ -156,6 +195,10 @@ of DW_AT_producer
 as a hint as to how a 'step' command should be interpreted, and
 the rest of the string is not used for anything (unless
 a human looks at it for some reason).
+Every function definition (not inline instances though) is mentioned
+in either .debug_pubnames or .debug_funcnames.
+This is crucial to allow libexc(3C) stack-traceback to work and
+show function names (for all languages).
 .LI 
 "Assembler (-g, non -g are the same)"
 Frame information is output.
@@ -452,6 +495,9 @@ anyway (as a result of implementation details).
 And the 64bit pointer ABIs currently have the same limit
 as a result of how the compilers and tools are built
 (this has not proven to be a limit in practice, so far).
+.P
+This has been clarified in the DWARF3 spec and the IRIX use
+of DW_FORM_ref_addr being an offset is correct.
 .H 2 ".debug_macinfo in a debugger"
 It seems quite difficult, in general, to
 tie specific text(code) addresses to points in the

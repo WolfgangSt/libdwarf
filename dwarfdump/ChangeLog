@@ -1,3 +1,8 @@
+2005-07-14 David Anderson <davea@sgi.com>
+      * print_sections.c (print_line_numbers_this_cu): Use new
+        dwarf_srclines_dealloc() for deallocation after
+        dwarf_srclines() called.
+
 2005-04-13 David Anderson <davea@sgi.com>
       * print_sections.c: Factors out common print code into
         a new routine. Avoid indexing past end of register names

@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2003,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2 of the GNU General Public License as
@@ -246,9 +246,8 @@ print_line_numbers_this_cu(Dwarf_Debug dbg, Dwarf_Die cu_die)
 	    }
 	    printf("\n");
 
-	    dwarf_dealloc(dbg, line, DW_DLA_LINE);
 	}
-	dwarf_dealloc(dbg, linebuf, DW_DLA_LIST);
+	dwarf_srclines_dealloc(dbg,linebuf,linecount);
     }
 }
 

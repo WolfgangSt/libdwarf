@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000, 2001, 2002 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2001,2002,2005 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License
@@ -748,6 +748,14 @@ int dwarf_srclines(Dwarf_Die /*die*/,
     Dwarf_Line** 	/*linebuf*/, 
     Dwarf_Signed *      /*linecount*/,
     Dwarf_Error* 	/*error*/);
+
+/* dwarf_srclines_dealloc, created July 2005, is the new
+   method for deallocating what dwarf_srclines returns.
+   More complete free than using dwarf_dealloc directly. */
+void dwarf_srclines_dealloc(Dwarf_Debug /*dbg*/, 
+   Dwarf_Line*  /*linebuf*/,
+   Dwarf_Signed /*count */);
+
 
 int dwarf_srcfiles(Dwarf_Die /*die*/, 
     char*** 		/*srcfiles*/, 
