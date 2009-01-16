@@ -1506,11 +1506,10 @@ dwarf_get_fde_info_for_all_regs(Dwarf_Fde fde,
     struct Dwarf_Regtable_Entry_s *out_rule = NULL;
     int res = 0;
     Dwarf_Debug dbg = 0;
-    int output_table_real_data_size = 0;
+    /* For this interface the size is fixed at compile time. */
+    int output_table_real_data_size = DW_REG_TABLE_SIZE;
 
     FDE_NULL_CHECKS_AND_SET_DBG(fde, dbg);
-    output_table_real_data_size =
-	MIN(output_table_real_data_size, DW_REG_TABLE_SIZE);
 
     res = dwarf_initialize_fde_table(dbg, &fde_table,
 				     output_table_real_data_size,
