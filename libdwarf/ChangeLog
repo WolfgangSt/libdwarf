@@ -1,3 +1,18 @@
+2003-12-15 David Anderson <davea@sgi.com>
+      * dwarf_init_finish.c (_dwarf_setup): test for (section_size)
+        was wrong for eh_frame section. Changed this one to
+	(section_size == 0) so it is like all the others testing 
+	section_size.  Thanks to David Mosberger 
+	for pointing out this inconsistency.
+
+2003-12-08 David Anderson <davea@sgi.com>
+      * dwarf_line.h: reference in comment to li_dbg meant to
+        refer to li_offset. Corrected and amplified comment.
+
+2003-10-06 David Anderson <davea@sgi.com>
+      * dwarf_abbrev.c dwarf_die_deliv.c dwarf_form.c dwarf_loc.c 
+	dwarf_util.c: applied indent(1).
+
 2003-10-02 David Anderson <davea@sgi.com>
       * dwarf_loc.c: Implemented dwarf_get_loclist_entry(),
         implemented new dwarf_loclist_n() fully implementing

@@ -383,7 +383,7 @@ _dwarf_setup(Dwarf_Debug dbg, dwarf_elf_handle elf, Dwarf_Error * error)
 				DW_DLE_DEBUG_FRAME_DUPLICATE,
 				DW_DLV_ERROR);
 	    }
-	    if (section_size) {
+	    if (section_size == 0) {
 		/* a zero size section is just empty. Ok, no error */
 		continue;
 	    }

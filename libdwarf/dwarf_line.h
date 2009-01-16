@@ -108,9 +108,16 @@ struct Dwarf_Line_Context_s {
 
 /*
     This structure defines a row of the line table.
-    All of the fields except li_dbg have the exact 
+    All of the fields except li_offset have the exact 
     same meaning that is defined in Section 6.2.2 
-    of the Libdwarf Document.
+    of the Libdwarf Document. 
+
+    li_offset is used by _dwarf_addr_finder() which is called
+    by rqs(1), an sgi utility for 'moving' shared libraries
+    as if the static linker (ld) had linked the shared library
+    at the newly-specified address.  Most libdwarf-using 
+    apps will ignore li_offset and _dwarf_addr_finder().
+    
 */
 struct Dwarf_Line_s {
     Dwarf_Addr li_address;	/* pc value of machine instr */

@@ -112,14 +112,16 @@ _dwarf_get_size_of_val(Dwarf_Debug dbg,
 
     case DW_FORM_indirect:
 	{
-	Dwarf_Word indir_len = 0;
-	form_indirect = _dwarf_decode_u_leb128(val_ptr, &indir_len);
-	if (form_indirect == DW_FORM_indirect) {
-	    return (0); /* We are in big trouble: The true
-		form of DW_FORM_indirect is DW_FORM_indirect? 
-		Nonsense. Should never happen. */
-	}
-	return (indir_len + _dwarf_get_size_of_val(dbg,
+	    Dwarf_Word indir_len = 0;
+
+	    form_indirect = _dwarf_decode_u_leb128(val_ptr, &indir_len);
+	    if (form_indirect == DW_FORM_indirect) {
+		return (0);	/* We are in big trouble: The true form 
+				   of DW_FORM_indirect is
+				   DW_FORM_indirect? Nonsense. Should
+				   never happen. */
+	    }
+	    return (indir_len + _dwarf_get_size_of_val(dbg,
 						       form_indirect,
 						       val_ptr +
 						       indir_len,
@@ -358,23 +360,24 @@ _dwarf_length_of_cu_header_simple(Dwarf_Debug dbg)
 
 */
 int
-_dwarf_load_debug_info(Dwarf_Debug dbg,Dwarf_Error *error)
+_dwarf_load_debug_info(Dwarf_Debug dbg, Dwarf_Error * error)
 {
     int res;
-    /* Testing de_debug_info allows us to avoid
-       testing de_debug_abbrev. One test instead
-       of 2. .debug_info is useless without .debug_abbrev. */
-    if(dbg->de_debug_info) {
+
+    /* Testing de_debug_info allows us to avoid testing
+       de_debug_abbrev. One test instead of 2. .debug_info is useless
+       without .debug_abbrev. */
+    if (dbg->de_debug_info) {
 	return DW_DLV_OK;
     }
 
-    res = _dwarf_load_section(dbg,dbg->de_debug_abbrev_index,
-              &dbg->de_debug_abbrev,error);
-    if(res != DW_DLV_OK) {
-          return res;
+    res = _dwarf_load_section(dbg, dbg->de_debug_abbrev_index,
+			      &dbg->de_debug_abbrev, error);
+    if (res != DW_DLV_OK) {
+	return res;
     }
-    res = _dwarf_load_section(dbg,dbg->de_debug_info_index,
-                &dbg->de_debug_info,error);
+    res = _dwarf_load_section(dbg, dbg->de_debug_info_index,
+			      &dbg->de_debug_info, error);
     return res;
 
 }

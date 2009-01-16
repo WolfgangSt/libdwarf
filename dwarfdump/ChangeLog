@@ -1,3 +1,15 @@
+2003-10-06   David Anderson <davea@sgi.com>
+     * dwarfdump.c print_sections.c: applied indent(1).
+     * print_die.c: applied indent and added ; after
+       invocations of macros PUSH_DIE_STACK POP_DIE_STACK SPACE
+       as these were confusing indent a bit.
+       The indent control file .indent.pro contained:
+  	-bad -bap -nbbo -br -ce -brs
+  	-l72  -lc72  -hnl  -nprs
+  	-fca -i4  -lp -psl -npcs 
+        
+
+
 2003-10-02   David Anderson <davea@sgi.com>
      * dwarfdump.c: Add -g to indicate use of older 
        location entry code in libdwarf.  So dwarf_loclist 

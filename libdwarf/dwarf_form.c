@@ -45,6 +45,7 @@ dwarf_hasform(Dwarf_Attribute attr,
 	      Dwarf_Bool * return_bool, Dwarf_Error * error)
 {
     Dwarf_CU_Context cu_context;
+
     if (attr == NULL) {
 	_dwarf_error(NULL, error, DW_DLE_ATTR_NULL);
 	return (DW_DLV_ERROR);
@@ -70,10 +71,11 @@ dwarf_hasform(Dwarf_Attribute attr,
 */
 int
 dwarf_whatform_direct(Dwarf_Attribute attr,
-	       Dwarf_Half * return_form, Dwarf_Error * error)
+		      Dwarf_Half * return_form, Dwarf_Error * error)
 {
     int res = dwarf_whatform(attr, return_form, error);
-    if(res != DW_DLV_OK) {
+
+    if (res != DW_DLV_OK) {
 	return res;
     }
 
@@ -86,6 +88,7 @@ dwarf_whatform(Dwarf_Attribute attr,
 	       Dwarf_Half * return_form, Dwarf_Error * error)
 {
     Dwarf_CU_Context cu_context;
+
     if (attr == NULL) {
 	_dwarf_error(NULL, error, DW_DLE_ATTR_NULL);
 	return (DW_DLV_ERROR);
@@ -117,6 +120,7 @@ dwarf_whatattr(Dwarf_Attribute attr,
 	       Dwarf_Half * return_attr, Dwarf_Error * error)
 {
     Dwarf_CU_Context cu_context;
+
     if (attr == NULL) {
 	_dwarf_error(NULL, error, DW_DLE_ATTR_NULL);
 	return (DW_DLV_ERROR);
@@ -206,10 +210,9 @@ dwarf_formref(Dwarf_Attribute attr,
     }
 
     /* Check that offset is within current cu portion of .debug_info. */
-    
+
     if (offset >= cu_context->cc_length +
-	cu_context->cc_length_size +
-        cu_context->cc_extension_size) {
+	cu_context->cc_length_size + cu_context->cc_extension_size) {
 	_dwarf_error(dbg, error, DW_DLE_ATTR_FORM_OFFSET_BAD);
 	return (DW_DLV_ERROR);
     }
@@ -362,6 +365,7 @@ dwarf_formflag(Dwarf_Attribute attr,
 	       Dwarf_Bool * ret_bool, Dwarf_Error * error)
 {
     Dwarf_CU_Context cu_context;
+
     if (attr == NULL) {
 	_dwarf_error(NULL, error, DW_DLE_ATTR_NULL);
 	return (DW_DLV_ERROR);
@@ -382,8 +386,7 @@ dwarf_formflag(Dwarf_Attribute attr,
 	*ret_bool = (*(Dwarf_Small *) attr->ar_debug_info_ptr != 0);
 	return (DW_DLV_OK);
     }
-    _dwarf_error(cu_context->cc_dbg, error,
-		 DW_DLE_ATTR_FORM_BAD);
+    _dwarf_error(cu_context->cc_dbg, error, DW_DLE_ATTR_FORM_BAD);
     return (DW_DLV_ERROR);
 }
 
@@ -534,8 +537,7 @@ dwarf_formsdata(Dwarf_Attribute attr,
     default:
 	break;
     }
-    _dwarf_error(dbg, error,
-		 DW_DLE_ATTR_FORM_BAD);
+    _dwarf_error(dbg, error, DW_DLE_ATTR_FORM_BAD);
     return (DW_DLV_ERROR);
 }
 
@@ -616,8 +618,8 @@ dwarf_formblock(Dwarf_Attribute attr,
     ret_block->bl_len = length;
     ret_block->bl_data = (Dwarf_Ptr) data;
     ret_block->bl_from_loclist = 0;
-    ret_block->bl_section_offset  = data - dbg->de_debug_info;
-    
+    ret_block->bl_section_offset = data - dbg->de_debug_info;
+
 
     *return_block = ret_block;
     return (DW_DLV_OK);
@@ -673,16 +675,15 @@ dwarf_formstring(Dwarf_Attribute attr,
     if (attr->ar_attribute_form == DW_FORM_strp) {
 	READ_UNALIGNED(dbg, offset, Dwarf_Unsigned,
 		       attr->ar_debug_info_ptr,
-		       cu_context->cc_length_size );
+		       cu_context->cc_length_size);
 
-        res =
-           _dwarf_load_section(dbg,
-                               dbg->de_debug_str_index,
-                               &dbg->de_debug_str,
-                               error);
-        if (res != DW_DLV_OK) {
-            return res;
-        }
+	res =
+	    _dwarf_load_section(dbg,
+				dbg->de_debug_str_index,
+				&dbg->de_debug_str, error);
+	if (res != DW_DLV_OK) {
+	    return res;
+	}
 
 	*return_str = (char *) (dbg->de_debug_str + offset);
 	return DW_DLV_OK;
