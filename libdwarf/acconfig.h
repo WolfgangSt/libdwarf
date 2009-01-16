@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000, 2003 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 

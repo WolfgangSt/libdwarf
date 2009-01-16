@@ -1,3 +1,12 @@
+2003-12-31 David Anderson <davea@sgi.com>
+      * README: Added configure example.
+      * Makefile.in: Removed bogus LIBS line, updated copyright date.
+      * acconfig.h: Added LGPL copyright to match libdwarf
+	Silly, but it matches libdwarf version boilerplate.
+      * config.guess config.sub: new versions from automake-1.6.
+      * config.h.in configure: Regenerated.
+
+
 2003-10-06   David Anderson <davea@sgi.com>
      * dwarfdump.c print_sections.c: applied indent(1).
      * print_die.c: applied indent and added ; after

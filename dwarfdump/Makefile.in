@@ -28,12 +28,11 @@ DEFS =		@DEFS@
 LIBS =		@LIBS@ -L../libdwarf -ldwarf -lelf
 INCLUDES =	-I. -I$(srcdir) -I$(srcdir)/../libdwarf
 CFLAGS =	@CFLAGS@ $(INCLUDES)
-LDFLAGS =	@LDFLAGS@
+LDFLAGS =	@LDFLAGS@  $(LIBS)
 
 # ../libdwarf gets us to local headers
 
 DIRINC =  $(srcdir)/../libdwarf
-LDFLAGS = $(LIBS)
 INSTALL = cp
 
 binprefix =
