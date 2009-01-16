@@ -43,9 +43,6 @@
 #ifdef HAVE_ELF_H
 #include <elf.h>
 #endif
-#ifdef __SGI_FAST_LIBELF
-#include <libelf_sgi.h>
-#else
 #ifdef HAVE_LIBELF_H
 #include <libelf.h>
 #else
@@ -53,7 +50,6 @@
 #include <libelf/libelf.h>
 #endif
 #endif
-#endif /* !defined(__SGI_FAST_LIBELF) */
 
 #include <stdio.h>
 #include <sys/stat.h>
@@ -64,8 +60,8 @@
 #define DWARF_DBG_ERROR(dbg,errval,retval) \
      _dwarf_error(dbg, error, errval); return(retval);
 
-#define FALSE	0
-#define TRUE	1
+#define FALSE  0
+#define TRUE   1
 
 static int
 dwarf_elf_init_file_ownership(dwarf_elf_handle elf_file_pointer,
@@ -77,103 +73,50 @@ dwarf_elf_init_file_ownership(dwarf_elf_handle elf_file_pointer,
                               Dwarf_Error * error);
 
 
-
-
-#ifdef __SGI_FAST_LIBELF
-/*
-	This function translates an elf_sgi error code into a libdwarf
-	code.
- */
-static int
-_dwarf_error_code_from_elf_sgi_error_code(enum elf_sgi_error_type val)
-{
-    switch (val) {
-    case ELF_SGI_ERROR_OK:
-	return DW_DLE_NE;
-    case ELF_SGI_ERROR_BAD_ALLOC:
-	return DW_DLE_MAF;
-    case ELF_SGI_ERROR_FORMAT:
-	return DW_DLE_MDE;
-    case ELF_SGI_ERROR_ERRNO:
-	return DW_DLE_IOF;
-    case ELF_SGI_ERROR_TOO_BIG:
-	return DW_DLE_MOF;
-    default:
-	return DW_DLE_LEE;
-    }
-}
-#endif
-
-
-
 /*
     The basic dwarf initializer function for consumers using
-    libelf or  __SGI_FAST_LIBELF.
+    libelf. 
     Return a libdwarf error code on error, return DW_DLV_OK
     if this succeeds.
 */
 int
 dwarf_init(int fd,
-	   Dwarf_Unsigned access,
-	   Dwarf_Handler errhand,
-	   Dwarf_Ptr errarg, Dwarf_Debug * ret_dbg, Dwarf_Error * error)
+    Dwarf_Unsigned access,
+    Dwarf_Handler errhand,
+    Dwarf_Ptr errarg, Dwarf_Debug * ret_dbg, Dwarf_Error * error)
 {
     struct stat fstat_buf;
     dwarf_elf_handle elf_file_pointer = 0;
     int res = 0;
     int err = 0;
-
-    {
-#ifdef __SGI_FAST_LIBELF
-    enum elf_sgi_error_type sres;
-#else
-    Elf_Cmd what_kind_of_elf_read;
-#endif
+    /* ELF_C_READ is a portable value */
+    Elf_Cmd what_kind_of_elf_read = ELF_C_READ;
 
 #if !defined(S_ISREG)
 #define S_ISREG(mode) (((mode) & S_IFMT) == S_IFREG)
 #endif
     if (fstat(fd, &fstat_buf) != 0) {
-	DWARF_DBG_ERROR(NULL, DW_DLE_FSTAT_ERROR, DW_DLV_ERROR);
+        DWARF_DBG_ERROR(NULL, DW_DLE_FSTAT_ERROR, DW_DLV_ERROR);
     }
     if (!S_ISREG(fstat_buf.st_mode)) {
-	DWARF_DBG_ERROR(NULL, DW_DLE_FSTAT_MODE_ERROR, DW_DLV_ERROR);
+        DWARF_DBG_ERROR(NULL, DW_DLE_FSTAT_MODE_ERROR, DW_DLV_ERROR);
     }
 
     if (access != DW_DLC_READ) {
-	DWARF_DBG_ERROR(NULL, DW_DLE_INIT_ACCESS_WRONG, DW_DLV_ERROR);
+        DWARF_DBG_ERROR(NULL, DW_DLE_INIT_ACCESS_WRONG, DW_DLV_ERROR);
     }
 
-#ifdef __SGI_FAST_LIBELF
-    elf = elf_sgi_new();
-    if (elf == NULL) {
-	DWARF_DBG_ERROR(NULL, DW_DLE_MAF, DW_DLV_ERROR);
-    }
-
-    sres = elf_sgi_begin_fd(elf, fd, 0);
-    if (sres != ELF_SGI_ERROR_OK) {
-	elf_sgi_free(elf);
-	DWARF_DBG_ERROR(NULL,
-			_dwarf_error_code_from_elf_sgi_error_code(sres),
-			DW_DLV_ERROR);
-    }
-#else /* ! __SGI_FAST_LIBELF */
     elf_version(EV_CURRENT);
     /* changed to mmap request per bug 281217. 6/95 */
 #ifdef HAVE_ELF_C_READ_MMAP
     /* ELF_C_READ_MMAP is an SGI IRIX specific enum value from IRIX
        libelf.h meaning read but use mmap */
     what_kind_of_elf_read = ELF_C_READ_MMAP;
-#else /* !HAVE_ELF_C_READ_MMAP */
-    /* ELF_C_READ is a portable value */
-    what_kind_of_elf_read = ELF_C_READ;
-#endif /* HAVE_ELF_C_READ_MMAP */
+#endif /* !HAVE_ELF_C_READ_MMAP */
 
     elf_file_pointer = elf_begin(fd, what_kind_of_elf_read, 0);
     if (elf_file_pointer == NULL) {
-	DWARF_DBG_ERROR(NULL, DW_DLE_ELF_BEGIN_ERROR, DW_DLV_ERROR);
-    }
-#endif /* !defined(__SGI_FAST_LIBELF) */
+        DWARF_DBG_ERROR(NULL, DW_DLE_ELF_BEGIN_ERROR, DW_DLV_ERROR);
     }
 
     return dwarf_elf_init_file_ownership(elf_file_pointer, 
@@ -187,16 +130,16 @@ dwarf_init(int fd,
 
 /*
     An alternate dwarf setup call for consumers using
-    libelf or  __SGI_FAST_LIBELF.
+    libelf.
     When the caller has opened libelf already, so the
     caller must free libelf.
 */
 int
 dwarf_elf_init(dwarf_elf_handle elf_file_pointer,
-	       Dwarf_Unsigned access,
-	       Dwarf_Handler errhand,
-	       Dwarf_Ptr errarg,
-	       Dwarf_Debug * ret_dbg, Dwarf_Error * error)
+    Dwarf_Unsigned access,
+    Dwarf_Handler errhand,
+    Dwarf_Ptr errarg,
+    Dwarf_Debug * ret_dbg, Dwarf_Error * error)
 {
   return dwarf_elf_init_file_ownership(elf_file_pointer, 
                                        FALSE, 
@@ -226,14 +169,14 @@ dwarf_elf_init_file_ownership(dwarf_elf_handle elf_file_pointer,
     int err = 0;
 
     if (access != DW_DLC_READ) {
-	DWARF_DBG_ERROR(NULL, DW_DLE_INIT_ACCESS_WRONG, DW_DLV_ERROR);
+        DWARF_DBG_ERROR(NULL, DW_DLE_INIT_ACCESS_WRONG, DW_DLV_ERROR);
     }
    
     /* This allocates and fills in *binary_interface. */
     res = dwarf_elf_object_access_init(
-              elf_file_pointer, 
-	      libdwarf_owns_elf,
-              &binary_interface);
+        elf_file_pointer, 
+        libdwarf_owns_elf,
+        &binary_interface);
     if(res != DW_DLV_OK){
         DWARF_DBG_ERROR(NULL, DW_DLE_INIT_ACCESS_WRONG, DW_DLV_ERROR);
     }
@@ -250,12 +193,12 @@ dwarf_elf_init_file_ownership(dwarf_elf_handle elf_file_pointer,
 
 
 /*
-	Frees all memory that was not previously freed
-	by dwarf_dealloc.
-	Aside from certain categories.
+    Frees all memory that was not previously freed
+    by dwarf_dealloc.
+    Aside from certain categories.
 
-        This is only applicable when dwarf_init() or dwarf_elf_init()
-        was used to init 'dbg'.
+    This is only applicable when dwarf_init() or dwarf_elf_init()
+    was used to init 'dbg'.
 */
 int
 dwarf_finish(Dwarf_Debug dbg, Dwarf_Error * error)

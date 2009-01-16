@@ -1127,7 +1127,8 @@ print_reg_from_config_data(Dwarf_Signed reg,
         return;
     }
     if (config_data->cf_regs == 0 ||
-        reg < 0 || reg > config_data->cf_named_regs_table_size) {
+        reg < 0 || 
+        reg >= config_data->cf_named_regs_table_size) {
         printf("r%lld", (signed long long) reg);
         return;
     }

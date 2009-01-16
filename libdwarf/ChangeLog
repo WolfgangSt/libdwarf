@@ -1,3 +1,26 @@
+2008-06-13  DavidAnderson <davea42@earthlink.net>
+      * libdwarf.h: Remove __SGI_FAST_LIBELF
+        dwarf_original_elf_init.c: Remove __SGI_FAST_LIBELF
+        and fix some indentation botches.
+      * dwarf_init_finish.c: Fix typo in variable name introduced
+        a few days ago.
+      * dwarf_elf_access.c:  Remove __SGI_FAST_LIBELF
+        and fix some indentation botches.
+
+2008-05-20  DavidAnderson <davea42@earthlink.net>
+      * dwarf_init_finish.c: Expand tabs to spaces.
+2008-05-20  DavidAnderson <davea42@earthlink.net>
+      * dwarf_init_finish.c(dwarf_object_init): When there is no 
+        DWARF information return DW_DLV_NO_ENTRY gracefully.
+        Thanks to Carlos Alberto Enciso for pointing out
+        the bug.
+2008-04-12  DavidAnderson <davea42@earthlink.net>
+      * pro_section.c: Initialize local variables to zero.
+        Change leading tabs to spaces.
+      * pro_reloc_stream.c: Initialize local variables to zero.
+        Change leading tabs to spaces.
+      * pro_reloc.c: Initialize local variables to zero.
+        Change leading tabs to spaces.
 2008-04-04  DavidAnderson <davea42@earthlink.net>
       * dwarf_base_types.h: Removed unused macro definition.
       * dwarf_util.c: Altered abbreviations hash table for a small

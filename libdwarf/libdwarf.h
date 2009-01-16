@@ -62,13 +62,8 @@ extern "C" {
 
 */
 
-#ifdef __SGI_FAST_LIBELF
-struct elf_sgi;
-typedef struct elf_sgi* dwarf_elf_handle;
-#else
 struct Elf;
 typedef struct Elf* dwarf_elf_handle;
-#endif
 
 #if (_MIPS_SZLONG == 64)
 /* Special case for MIPS, so -64 (LP64) build gets simple -long-.

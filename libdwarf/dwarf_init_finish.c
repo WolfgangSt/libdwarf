@@ -49,8 +49,8 @@
 #define DWARF_DBG_ERROR(dbg,errval,retval) \
      _dwarf_error(dbg, error, errval); return(retval);
 
-#define FALSE	0
-#define TRUE	1
+#define FALSE 0
+#define TRUE  1
 
 
 
@@ -116,16 +116,16 @@ _dwarf_setup(Dwarf_Debug dbg, Dwarf_Error * error)
 #ifdef WORDS_BIGENDIAN
     dbg->de_big_endian_object = 1;
     if (endianness == DW_OBJECT_LSB ) {
-	dbg->de_same_endian = 0;
-	dbg->de_big_endian_object = 0;
-	dbg->de_copy_word = _dwarf_memcpy_swap_bytes;
+        dbg->de_same_endian = 0;
+        dbg->de_big_endian_object = 0;
+        dbg->de_copy_word = _dwarf_memcpy_swap_bytes;
     }
 #else /* little endian */
     dbg->de_big_endian_object = 0;
     if (endianness == DW_OBJECT_MSB ) {
-	dbg->de_same_endian = 0;
-	dbg->de_big_endian_object = 1;
-	dbg->de_copy_word = _dwarf_memcpy_swap_bytes;
+        dbg->de_same_endian = 0;
+        dbg->de_big_endian_object = 1;
+        dbg->de_copy_word = _dwarf_memcpy_swap_bytes;
     }
 #endif /* !WORDS_BIGENDIAN */
 
@@ -140,7 +140,7 @@ _dwarf_setup(Dwarf_Debug dbg, Dwarf_Error * error)
     /* We can skip index 0 when considering ELF files, but not other
        object types. */
     for (section_index = 0; section_index < section_count;
-	 ++section_index) {
+         ++section_index) {
         
         struct Dwarf_Obj_Access_Section_s doas;
         Dwarf_Error section_error;
@@ -158,226 +158,225 @@ _dwarf_setup(Dwarf_Debug dbg, Dwarf_Error * error)
         section_size = doas.size;
         scn_name = doas.name;
 
-	if (strncmp(scn_name, ".debug_", 7)
-	    && strcmp(scn_name, ".eh_frame")
-	    )
-	    continue;
+        if (strncmp(scn_name, ".debug_", 7)
+            && strcmp(scn_name, ".eh_frame")
+            )
+            continue;
 
-	else if (strcmp(scn_name, ".debug_info") == 0) {
-	    if (dbg->de_debug_info != NULL) {
-		DWARF_DBG_ERROR(dbg, DW_DLE_DEBUG_INFO_DUPLICATE,
-				DW_DLV_ERROR);
-	    }
-	    if (section_size == 0) {
-		/* Know no reason to allow empty debug_info section */
-		DWARF_DBG_ERROR(dbg, DW_DLE_DEBUG_INFO_NULL,
-				DW_DLV_ERROR);
-	    }
-	    foundDwarf = TRUE;
-	    dbg->de_debug_info_index = section_index;
-	    dbg->de_debug_info_size = section_size;
-	}
+        else if (strcmp(scn_name, ".debug_info") == 0) {
+            if (dbg->de_debug_info != NULL) {
+                DWARF_DBG_ERROR(dbg, DW_DLE_DEBUG_INFO_DUPLICATE,
+                                DW_DLV_ERROR);
+            }
+            if (section_size == 0) {
+                /* Know no reason to allow empty debug_info section */
+                DWARF_DBG_ERROR(dbg, DW_DLE_DEBUG_INFO_NULL,
+                                DW_DLV_ERROR);
+            }
+            foundDwarf = TRUE;
+            dbg->de_debug_info_index = section_index;
+            dbg->de_debug_info_size = section_size;
+        }
 
-	else if (strcmp(scn_name, ".debug_abbrev") == 0) {
-	    if (dbg->de_debug_abbrev != NULL) {
-		DWARF_DBG_ERROR(dbg, DW_DLE_DEBUG_ABBREV_DUPLICATE,
-				DW_DLV_ERROR);
-	    }
-	    if (section_size == 0) {
-		/* Know no reason to allow empty debug_abbrev section */
-		DWARF_DBG_ERROR(dbg, DW_DLE_DEBUG_ABBREV_NULL,
-				DW_DLV_ERROR);
-	    }
-	    dbg->de_debug_abbrev_index = section_index;
-	    dbg->de_debug_abbrev_size = section_size;
-	}
+        else if (strcmp(scn_name, ".debug_abbrev") == 0) {
+            if (dbg->de_debug_abbrev != NULL) {
+                DWARF_DBG_ERROR(dbg, DW_DLE_DEBUG_ABBREV_DUPLICATE,
+                                DW_DLV_ERROR);
+            }
+            if (section_size == 0) {
+                /* Know no reason to allow empty debug_abbrev section */
+                DWARF_DBG_ERROR(dbg, DW_DLE_DEBUG_ABBREV_NULL,
+                                DW_DLV_ERROR);
+            }
+            dbg->de_debug_abbrev_index = section_index;
+            dbg->de_debug_abbrev_size = section_size;
+        }
 
-	else if (strcmp(scn_name, ".debug_aranges") == 0) {
-	    if (dbg->de_debug_aranges_index != 0) {
-		DWARF_DBG_ERROR(dbg,
-				DW_DLE_DEBUG_ARANGES_DUPLICATE,
-				DW_DLV_ERROR);
-	    }
-	    if (section_size == 0) {
-		/* a zero size section is just empty. Ok, no error */
-		continue;
-	    }
-	    dbg->de_debug_aranges_index = section_index;
-	    dbg->de_debug_aranges_size = section_size;
-	}
+        else if (strcmp(scn_name, ".debug_aranges") == 0) {
+            if (dbg->de_debug_aranges_index != 0) {
+                DWARF_DBG_ERROR(dbg,
+                                DW_DLE_DEBUG_ARANGES_DUPLICATE,
+                                DW_DLV_ERROR);
+            }
+            if (section_size == 0) {
+                /* a zero size section is just empty. Ok, no error */
+                continue;
+            }
+            dbg->de_debug_aranges_index = section_index;
+            dbg->de_debug_aranges_size = section_size;
+        }
 
-	else if (strcmp(scn_name, ".debug_line") == 0) {
-	    if (dbg->de_debug_line_index != 0) {
-		DWARF_DBG_ERROR(dbg,
-				DW_DLE_DEBUG_LINE_DUPLICATE,
-				DW_DLV_ERROR);
-	    }
-	    if (section_size == 0) {
-		/* a zero size section is just empty. Ok, no error */
-		continue;
-	    }
-	    dbg->de_debug_line_index = section_index;
-	    dbg->de_debug_line_size = section_size;
-	}
+        else if (strcmp(scn_name, ".debug_line") == 0) {
+            if (dbg->de_debug_line_index != 0) {
+                DWARF_DBG_ERROR(dbg,
+                                DW_DLE_DEBUG_LINE_DUPLICATE,
+                                DW_DLV_ERROR);
+            }
+            if (section_size == 0) {
+                /* a zero size section is just empty. Ok, no error */
+                continue;
+            }
+            dbg->de_debug_line_index = section_index;
+            dbg->de_debug_line_size = section_size;
+        }
 
-	else if (strcmp(scn_name, ".debug_frame") == 0) {
-	    if (dbg->de_debug_frame_index != 0) {
-		DWARF_DBG_ERROR(dbg,
-				DW_DLE_DEBUG_FRAME_DUPLICATE,
-				DW_DLV_ERROR);
-	    }
-	    if (section_size == 0) {
-		/* a zero size section is just empty. Ok, no error */
-		continue;
-	    }
-	    dbg->de_debug_frame_index = section_index;
-	    dbg->de_debug_frame_size = section_size;
-	    foundDwarf = TRUE;
-	} else if (strcmp(scn_name, ".eh_frame") == 0) {
-	    /* gnu egcs-1.1.2 data */
-	    if (dbg->de_debug_frame_eh_gnu_index != 0) {
-		DWARF_DBG_ERROR(dbg,
-				DW_DLE_DEBUG_FRAME_DUPLICATE,
-				DW_DLV_ERROR);
-	    }
-	    if (section_size == 0) {
-		/* a zero size section is just empty. Ok, no error */
-		continue;
-	    }
-	    dbg->de_debug_frame_eh_gnu_index = section_index;
-	    dbg->de_debug_frame_size_eh_gnu = section_size;
-	    dbg->de_debug_frame_eh_addr = section_addr;
-	    foundDwarf = TRUE;
-	}
+        else if (strcmp(scn_name, ".debug_frame") == 0) {
+            if (dbg->de_debug_frame_index != 0) {
+                DWARF_DBG_ERROR(dbg,
+                                DW_DLE_DEBUG_FRAME_DUPLICATE,
+                                DW_DLV_ERROR);
+            }
+            if (section_size == 0) {
+                /* a zero size section is just empty. Ok, no error */
+                continue;
+            }
+            dbg->de_debug_frame_index = section_index;
+            dbg->de_debug_frame_size = section_size;
+            foundDwarf = TRUE;
+        } else if (strcmp(scn_name, ".eh_frame") == 0) {
+            /* gnu egcs-1.1.2 data */
+            if (dbg->de_debug_frame_eh_gnu_index != 0) {
+                DWARF_DBG_ERROR(dbg,
+                                DW_DLE_DEBUG_FRAME_DUPLICATE,
+                                DW_DLV_ERROR);
+            }
+            if (section_size == 0) {
+                /* a zero size section is just empty. Ok, no error */
+                continue;
+            }
+            dbg->de_debug_frame_eh_gnu_index = section_index;
+            dbg->de_debug_frame_size_eh_gnu = section_size;
+            dbg->de_debug_frame_eh_addr = section_addr;
+            foundDwarf = TRUE;
+        }
 
-	else if (strcmp(scn_name, ".debug_loc") == 0) {
-	    if (dbg->de_debug_loc_index != 0) {
-		DWARF_DBG_ERROR(dbg, DW_DLE_DEBUG_LOC_DUPLICATE,
-				DW_DLV_ERROR);
-	    }
-	    if (section_size == 0) {
-		/* a zero size section is just empty. Ok, no error */
-		continue;
-	    }
-	    dbg->de_debug_loc_index = section_index;
-	    dbg->de_debug_loc_size = section_size;
-	}
+        else if (strcmp(scn_name, ".debug_loc") == 0) {
+            if (dbg->de_debug_loc_index != 0) {
+                DWARF_DBG_ERROR(dbg, DW_DLE_DEBUG_LOC_DUPLICATE,
+                                DW_DLV_ERROR);
+            }
+            if (section_size == 0) {
+                /* a zero size section is just empty. Ok, no error */
+                continue;
+            }
+            dbg->de_debug_loc_index = section_index;
+            dbg->de_debug_loc_size = section_size;
+        }
 
 
-	else if (strcmp(scn_name, ".debug_pubnames") == 0) {
-	    if (dbg->de_debug_pubnames_index != 0) {
-		DWARF_DBG_ERROR(dbg, DW_DLE_DEBUG_PUBNAMES_DUPLICATE,
-				DW_DLV_ERROR);
-	    }
-	    if (section_size == 0) {
-		/* a zero size section is just empty. Ok, no error */
-		continue;
-	    }
-	    dbg->de_debug_pubnames_index = section_index;
-	    dbg->de_debug_pubnames_size = section_size;
-	}
+        else if (strcmp(scn_name, ".debug_pubnames") == 0) {
+            if (dbg->de_debug_pubnames_index != 0) {
+                DWARF_DBG_ERROR(dbg, DW_DLE_DEBUG_PUBNAMES_DUPLICATE,
+                                DW_DLV_ERROR);
+            }
+            if (section_size == 0) {
+                /* a zero size section is just empty. Ok, no error */
+                continue;
+            }
+            dbg->de_debug_pubnames_index = section_index;
+            dbg->de_debug_pubnames_size = section_size;
+        }
 
-	else if (strcmp(scn_name, ".debug_str") == 0) {
-	    if (dbg->de_debug_str_index != 0) {
-		DWARF_DBG_ERROR(dbg,
-				DW_DLE_DEBUG_STR_DUPLICATE,
-				DW_DLV_ERROR);
-	    }
-	    if (section_size == 0) {
-		/* a zero size section is just empty. Ok, no error */
-		continue;
-	    }
-	    dbg->de_debug_str_index = section_index;
-	    dbg->de_debug_str_size = section_size;
-	}
+        else if (strcmp(scn_name, ".debug_str") == 0) {
+            if (dbg->de_debug_str_index != 0) {
+                DWARF_DBG_ERROR(dbg,
+                                DW_DLE_DEBUG_STR_DUPLICATE,
+                                DW_DLV_ERROR);
+            }
+            if (section_size == 0) {
+                /* a zero size section is just empty. Ok, no error */
+                continue;
+            }
+            dbg->de_debug_str_index = section_index;
+            dbg->de_debug_str_size = section_size;
+        }
 
-	else if (strcmp(scn_name, ".debug_funcnames") == 0) {
-	    if (dbg->de_debug_funcnames_index != 0) {
-		DWARF_DBG_ERROR(dbg,
-				DW_DLE_DEBUG_FUNCNAMES_DUPLICATE,
-				DW_DLV_ERROR);
-	    }
-	    if (section_size == 0) {
-		/* a zero size section is just empty. Ok, no error */
-		continue;
-	    }
-	    dbg->de_debug_funcnames_index = section_index;
-	    dbg->de_debug_funcnames_size = section_size;
-	}
+        else if (strcmp(scn_name, ".debug_funcnames") == 0) {
+            if (dbg->de_debug_funcnames_index != 0) {
+                DWARF_DBG_ERROR(dbg,
+                                DW_DLE_DEBUG_FUNCNAMES_DUPLICATE,
+                                DW_DLV_ERROR);
+            }
+            if (section_size == 0) {
+                /* a zero size section is just empty. Ok, no error */
+                continue;
+            }
+            dbg->de_debug_funcnames_index = section_index;
+            dbg->de_debug_funcnames_size = section_size;
+        }
 
-	else if (strcmp(scn_name, ".debug_typenames") == 0) {
-	    /* SGI IRIX-only, created years before DWARF3. Content
-	       essentially identical to .debug_pubtypes.  */
-	    if (dbg->de_debug_typenames_index != 0) {
-		DWARF_DBG_ERROR(dbg,
-				DW_DLE_DEBUG_TYPENAMES_DUPLICATE,
-				DW_DLV_ERROR);
-	    }
-	    if (section_size == 0) {
-		/* a zero size section is just empty. Ok, no error */
-		continue;
-	    }
-	    dbg->de_debug_typenames_index = section_index;
-	    dbg->de_debug_typenames_size = section_size;
-	} else if (strcmp(scn_name, ".debug_pubtypes") == 0) {
-	    /* Section new in DWARF3.  */
-	    if (dbg->de_debug_pubtypes_index != 0) {
-		DWARF_DBG_ERROR(dbg,
-				DW_DLE_DEBUG_PUBTYPES_DUPLICATE,
-				DW_DLV_ERROR);
-	    }
-	    if (section_size == 0) {
-		/* a zero size section is just empty. Ok, no error */
-		continue;
-	    }
-	    dbg->de_debug_pubtypes_index = section_index;
-	    dbg->de_debug_pubtypes_size = section_size;
-	}
+        else if (strcmp(scn_name, ".debug_typenames") == 0) {
+            /* SGI IRIX-only, created years before DWARF3. Content
+               essentially identical to .debug_pubtypes.  */
+            if (dbg->de_debug_typenames_index != 0) {
+                DWARF_DBG_ERROR(dbg,
+                                DW_DLE_DEBUG_TYPENAMES_DUPLICATE,
+                                DW_DLV_ERROR);
+            }
+            if (section_size == 0) {
+                /* a zero size section is just empty. Ok, no error */
+                continue;
+            }
+            dbg->de_debug_typenames_index = section_index;
+            dbg->de_debug_typenames_size = section_size;
+        } else if (strcmp(scn_name, ".debug_pubtypes") == 0) {
+            /* Section new in DWARF3.  */
+            if (dbg->de_debug_pubtypes_index != 0) {
+                DWARF_DBG_ERROR(dbg,
+                                DW_DLE_DEBUG_PUBTYPES_DUPLICATE,
+                                DW_DLV_ERROR);
+            }
+            if (section_size == 0) {
+                /* a zero size section is just empty. Ok, no error */
+                continue;
+            }
+            dbg->de_debug_pubtypes_index = section_index;
+            dbg->de_debug_pubtypes_size = section_size;
+        }
 
-	else if (strcmp(scn_name, ".debug_varnames") == 0) {
-	    if (dbg->de_debug_varnames_index != 0) {
-		DWARF_DBG_ERROR(dbg,
-				DW_DLE_DEBUG_VARNAMES_DUPLICATE,
-				DW_DLV_ERROR);
-	    }
-	    if (section_size == 0) {
-		/* a zero size section is just empty. Ok, no error */
-		continue;
-	    }
-	    dbg->de_debug_varnames_index = section_index;
-	    dbg->de_debug_varnames_size = section_size;
-	}
+        else if (strcmp(scn_name, ".debug_varnames") == 0) {
+            if (dbg->de_debug_varnames_index != 0) {
+                DWARF_DBG_ERROR(dbg,
+                                DW_DLE_DEBUG_VARNAMES_DUPLICATE,
+                                DW_DLV_ERROR);
+            }
+            if (section_size == 0) {
+                /* a zero size section is just empty. Ok, no error */
+                continue;
+            }
+            dbg->de_debug_varnames_index = section_index;
+            dbg->de_debug_varnames_size = section_size;
+        }
 
-	else if (strcmp(scn_name, ".debug_weaknames") == 0) {
-	    if (dbg->de_debug_weaknames_index != 0) {
-		DWARF_DBG_ERROR(dbg,
-				DW_DLE_DEBUG_WEAKNAMES_DUPLICATE,
-				DW_DLV_ERROR);
-	    }
-	    if (section_size == 0) {
-		/* a zero size section is just empty. Ok, no error */
-		continue;
-	    }
-	    dbg->de_debug_weaknames_index = section_index;
-	    dbg->de_debug_weaknames_size = section_size;
-	} else if (strcmp(scn_name, ".debug_macinfo") == 0) {
-	    if (dbg->de_debug_macinfo_index != 0) {
-		DWARF_DBG_ERROR(dbg,
-				DW_DLE_DEBUG_MACINFO_DUPLICATE,
-				DW_DLV_ERROR);
-	    }
-	    if (section_size == 0) {
-		/* a zero size section is just empty. Ok, no error */
-		continue;
-	    }
-	    dbg->de_debug_macinfo_index = section_index;
-	    dbg->de_debug_macinfo_size = section_size;
-	}
+        else if (strcmp(scn_name, ".debug_weaknames") == 0) {
+            if (dbg->de_debug_weaknames_index != 0) {
+                DWARF_DBG_ERROR(dbg,
+                                DW_DLE_DEBUG_WEAKNAMES_DUPLICATE,
+                                DW_DLV_ERROR);
+            }
+            if (section_size == 0) {
+                /* a zero size section is just empty. Ok, no error */
+                continue;
+            }
+            dbg->de_debug_weaknames_index = section_index;
+            dbg->de_debug_weaknames_size = section_size;
+        } else if (strcmp(scn_name, ".debug_macinfo") == 0) {
+            if (dbg->de_debug_macinfo_index != 0) {
+                DWARF_DBG_ERROR(dbg,
+                                DW_DLE_DEBUG_MACINFO_DUPLICATE,
+                                DW_DLV_ERROR);
+            }
+            if (section_size == 0) {
+                /* a zero size section is just empty. Ok, no error */
+                continue;
+            }
+            dbg->de_debug_macinfo_index = section_index;
+            dbg->de_debug_macinfo_size = section_size;
+        }
     }
     if (foundDwarf) {
-	return DW_DLV_OK;
+        return DW_DLV_OK;
     }
-
     return (DW_DLV_NO_ENTRY);
 }
 
@@ -394,12 +393,12 @@ dwarf_object_init(Dwarf_Obj_Access_Interface* obj, Dwarf_Handler errhand,
                Dwarf_Ptr errarg, Dwarf_Debug* ret_dbg, 
                Dwarf_Error* error)
 {
-    Dwarf_Debug dbg;
-    int res;
+    Dwarf_Debug dbg = 0;
+    int setup_result = DW_DLV_OK;
 
     dbg = _dwarf_get_debug();
     if (dbg == NULL) {
-	DWARF_DBG_ERROR(dbg, DW_DLE_DBG_ALLOC, DW_DLV_ERROR);
+        DWARF_DBG_ERROR(dbg, DW_DLE_DBG_ALLOC, DW_DLV_ERROR);
     }
     dbg->de_errhand = errhand;
     dbg->de_errarg = errarg;
@@ -408,14 +407,17 @@ dwarf_object_init(Dwarf_Obj_Access_Interface* obj, Dwarf_Handler errhand,
 
     dbg->de_obj_file = obj;
 
-    res = _dwarf_setup(dbg, error);
-    if (res != DW_DLV_OK) {
-        res = _dwarf_free_all_of_one_debug(dbg);
-        if (res == DW_DLV_ERROR) {
-	DWARF_DBG_ERROR(dbg, DW_DLE_DBG_ALLOC, DW_DLV_ERROR);
+    setup_result = _dwarf_setup(dbg, error);
+    if (setup_result != DW_DLV_OK) {
+        /* The status we want to return  here is of _dwarf_setup,
+           not of the  _dwarf_free_all_of_one_debug(dbg) call. 
+           So use a local status variable for the free.  */
+        int freeresult = _dwarf_free_all_of_one_debug(dbg);
+        if (freeresult == DW_DLV_ERROR) {
+            DWARF_DBG_ERROR(dbg, DW_DLE_DBG_ALLOC, DW_DLV_ERROR);
         }
         dwarf_malloc_check_complete("After Final free");
-	return (res);
+        return setup_result;
     }
 
     /* This call cannot fail: allocates nothing, releases nothing */
@@ -441,7 +443,7 @@ dwarf_object_finish(Dwarf_Debug dbg, Dwarf_Error * error)
 
     res = _dwarf_free_all_of_one_debug(dbg);
     if (res == DW_DLV_ERROR) {
-	DWARF_DBG_ERROR(dbg, DW_DLE_DBG_ALLOC, DW_DLV_ERROR);
+        DWARF_DBG_ERROR(dbg, DW_DLE_DBG_ALLOC, DW_DLV_ERROR);
     }
     dwarf_malloc_check_complete("After Final free");
 
@@ -450,21 +452,21 @@ dwarf_object_finish(Dwarf_Debug dbg, Dwarf_Error * error)
 
 
 /*
-	Load the ELF section with the specified index and set the
-	pointer pointed to by section_data to the memory where it
-	was loaded.
+    Load the ELF section with the specified index and set the
+    pointer pointed to by section_data to the memory where it
+    was loaded.
  */
 int
 _dwarf_load_section(Dwarf_Debug dbg,
-		    Dwarf_Half section_index,
-		    Dwarf_Small ** section_data, Dwarf_Error * error)
+    Dwarf_Half section_index,
+    Dwarf_Small ** section_data, Dwarf_Error * error)
 {
     int res;
     int err;
 
     /* check to see if the section is already loaded */
     if (*section_data != NULL) {
-	return DW_DLV_OK;
+        return DW_DLV_OK;
     }
 
     {
@@ -488,17 +490,17 @@ _dwarf_load_section(Dwarf_Debug dbg,
 */
 int
 dwarf_get_section_max_offsets(Dwarf_Debug dbg,
-			      Dwarf_Unsigned * debug_info_size,
-			      Dwarf_Unsigned * debug_abbrev_size,
-			      Dwarf_Unsigned * debug_line_size,
-			      Dwarf_Unsigned * debug_loc_size,
-			      Dwarf_Unsigned * debug_aranges_size,
-			      Dwarf_Unsigned * debug_macinfo_size,
-			      Dwarf_Unsigned * debug_pubnames_size,
-			      Dwarf_Unsigned * debug_str_size,
-			      Dwarf_Unsigned * debug_frame_size,
-			      Dwarf_Unsigned * debug_ranges_size,
-			      Dwarf_Unsigned * debug_typenames_size)
+    Dwarf_Unsigned * debug_info_size,
+    Dwarf_Unsigned * debug_abbrev_size,
+    Dwarf_Unsigned * debug_line_size,
+    Dwarf_Unsigned * debug_loc_size,
+    Dwarf_Unsigned * debug_aranges_size,
+    Dwarf_Unsigned * debug_macinfo_size,
+    Dwarf_Unsigned * debug_pubnames_size,
+    Dwarf_Unsigned * debug_str_size,
+    Dwarf_Unsigned * debug_frame_size,
+    Dwarf_Unsigned * debug_ranges_size,
+    Dwarf_Unsigned * debug_typenames_size)
 {
     *debug_info_size = dbg->de_debug_info_size;
     *debug_abbrev_size = dbg->de_debug_abbrev_size;
@@ -509,7 +511,7 @@ dwarf_get_section_max_offsets(Dwarf_Debug dbg,
     *debug_pubnames_size = dbg->de_debug_pubnames_size;
     *debug_str_size = dbg->de_debug_str_size;
     *debug_frame_size = dbg->de_debug_frame_size;
-    *debug_ranges_size = 0;	/* Not yet supported. */
+    *debug_ranges_size = 0;  /* Not yet supported. */
     *debug_typenames_size = dbg->de_debug_typenames_size;
 
 

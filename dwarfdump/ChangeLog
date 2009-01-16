@@ -1,3 +1,13 @@
+2008-06-13 David Anderson <davea42@earthlink.net>
+      * dwconf.c: Fix an off-by-one condition where
+        we could index off the end of the cf_regs array in printing
+        a register name.
+2008-04-12 David Anderson <davea42@earthlink.net>
+      * print_reloc.c:  Verify stringtab exists and is
+        large enough before indexing into it to get a string
+        in printing relocations.
+        (Providing default name "<no name>" so it's evident from
+        the output that we used a default name string).
 2008-04-09 David Anderson <davea42@earthlink.net>
       * print_sections.c (get_fde_proc_name): Initialize some
         local variables at declaration.  The function is very slow

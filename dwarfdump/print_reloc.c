@@ -202,8 +202,10 @@ static void *get_scndata(Elf_Scn * fd_scn, size_t * scn_size);
 static void print_relocinfo_64(Dwarf_Debug dbg, Elf * elf);
 static void print_relocinfo_32(Dwarf_Debug dbg, Elf * elf);
 
-static SYM *sym_data;
+static SYM   *sym_data;
 static SYM64 *sym_data_64;
+static long   sym_data_entry_count;
+static long   sym_data_64_entry_count;
 
 void
 print_relocinfo(Dwarf_Debug dbg)
@@ -273,6 +275,7 @@ print_relocinfo_64(Dwarf_Debug dbg, Elf * elf)
             sym_64++;
             free(sym_data_64);
             sym_data_64 = read_64_syms(sym_64, count, elf, shdr64->sh_link);
+            sym_data_64_entry_count = count;
             if (sym_data_64  == NULL) {
                 print_error(dbg, "problem reading symbol table data",
                             DW_DLV_OK, err);
@@ -340,6 +343,7 @@ print_relocinfo_32(Dwarf_Debug dbg, Elf * elf)
             sym++;
             free(sym_data);
             sym_data = readsyms(sym, count, elf, shdr32->sh_link);
+            sym_data_entry_count = count;
             if (sym_data  == NULL) {
                 print_error(dbg, "problem reading symbol table data",
                             DW_DLV_OK, err);
@@ -397,22 +401,47 @@ print_reloc_information_64(int section_no, Dwarf_Small * buf,
 #if HAVE_ELF64_R_INFO
         /* This works for the Elf64_Rel in linux */
         Elf64_Rel *p = (Elf64_Rel *) (buf + off);
+        char *name = "<no name>";
+        if(sym_data ) {
+           size_t index = ELF64_R_SYM(p->r_info) - 1;
+           if(index < sym_data_entry_count) {
+              name = sym_data[index].name;
+           }
+        } else if (sym_data_64) {
+           size_t index = ELF64_R_SYM(p->r_info) - 1;
+           if(index < sym_data_entry_count) {
+              name = sym_data_64[index].name;
+           }
+        }
 
         printf("%5lu\t<%3ld> %-34s%s\n",
-               (unsigned long int) (p->r_offset),
-               (long)ELF64_R_SYM(p->r_info),
-               sym_data[ELF64_R_SYM(p->r_info) - 1].name,
-               get_reloc_type_names(ELF64_R_TYPE(p->r_info)));
+            (unsigned long int) (p->r_offset),
+            (long)ELF64_R_SYM(p->r_info),
+            name,
+            get_reloc_type_names(ELF64_R_TYPE(p->r_info)));
 #else
         /* sgi/mips -64 does not have r_info in the 64bit relocations,
            but seperate fields, with 3 types, actually. Only one of
            which prints here, as only one really used with dwarf */
         Elf64_Rel *p = (Elf64_Rel *) (buf + off);
+        char *name = "<no name>";
+        if(sym_data ) {
+           size_t index = p->r_sym - 1;
+           if(index < sym_data_entry_count) {
+              name = sym_data[index].name;
+           }
+        } else if (sym_data_64) {
+           size_t index = p->r_sym - 1;
+           if(index < sym_data_64_entry_count) {
+               name = sym_data_64[index].name;
+           }
+        }
 
-        printf("%5llu\t<%3d> %-34s%s\n",
-               (unsigned long long int) (p->r_offset),
-               (long)p->r_sym, sym_data_64[p->r_sym - 1].name,
-               get_reloc_type_names(p->r_type));
+        printf("%5llu\t<%3ld> %-34s%s\n",
+            (unsigned long long int) (p->r_offset),
+            (long)p->r_sym,
+            name,
+            get_reloc_type_names(p->r_type));
 #endif
     }
 #endif /* HAVE_ELF64_GETEHDR */
@@ -427,11 +456,18 @@ print_reloc_information_32(int section_no, Dwarf_Small * buf,
     printf("\n%s:\n", sectnames[section_no]);
     for (off = 0; off < size; off += sizeof(Elf32_Rel)) {
         Elf32_Rel *p = (Elf32_Rel *) (buf + off);
+        char *name = "<no name>";
+        if(sym_data) {
+           size_t index = ELF32_R_SYM(p->r_info) - 1;
+           if(index < sym_data_entry_count) {
+               name = sym_data[index].name;
+           }
+        }
 
         printf("%5lu\t<%3d> %-34s%s\n",
                (unsigned long int) (p->r_offset),
                ELF32_R_SYM(p->r_info),
-               sym_data[ELF32_R_SYM(p->r_info) - 1].name,
+               name,
                get_reloc_type_names(ELF32_R_TYPE(p->r_info)));
     }
 }
@@ -508,5 +544,9 @@ void
 clean_up_syms_malloc_data()
 {
     free(sym_data);
+    sym_data = 0;
     free(sym_data_64);
+    sym_data_64 = 0;
+    sym_data_64_entry_count = 0;
+    sym_data_entry_count = 0;
 }

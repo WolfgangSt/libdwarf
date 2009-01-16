@@ -41,9 +41,6 @@
 #ifdef HAVE_ELF_H
 #include <elf.h>
 #endif
-#ifdef __SGI_FAST_LIBELF
-#include <libelf_sgi.h>
-#else
 #ifdef HAVE_LIBELF_H
 #include <libelf.h>
 #else
@@ -51,7 +48,6 @@
 #include <libelf/libelf.h>
 #endif
 #endif
-#endif /* !defined(__SGI_FAST_LIBELF) */
 
 #include <stdio.h>
 #include <sys/stat.h>
@@ -59,44 +55,16 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define FALSE	0
-#define TRUE	1
+#define FALSE 0
+#define TRUE  1
 
 
 
-#ifdef __SGI_FAST_LIBELF
-#else
 #ifdef HAVE_ELF64_GETEHDR
 extern Elf64_Ehdr *elf64_getehdr(Elf *);
 #endif
 #ifdef HAVE_ELF64_GETSHDR
 extern Elf64_Shdr *elf64_getshdr(Elf_Scn *);
-#endif
-#endif /* !defined(__SGI_FAST_LIBELF) */
-
-#ifdef __SGI_FAST_LIBELF
-/*
-	This function translates an elf_sgi error code into a libdwarf
-	code.
- */
-static int
-_dwarf_error_code_from_elf_sgi_error_code(enum elf_sgi_error_type val)
-{
-    switch (val) {
-    case ELF_SGI_ERROR_OK:
-	return DW_DLE_NE;
-    case ELF_SGI_ERROR_BAD_ALLOC:
-	return DW_DLE_MAF;
-    case ELF_SGI_ERROR_FORMAT:
-	return DW_DLE_MDE;
-    case ELF_SGI_ERROR_ERRNO:
-	return DW_DLE_IOF;
-    case ELF_SGI_ERROR_TOO_BIG:
-	return DW_DLE_MOF;
-    default:
-	return DW_DLE_LEE;
-    }
-}
 #endif
 
 
@@ -108,16 +76,12 @@ typedef struct {
     Dwarf_Unsigned   section_count;
     Dwarf_Endianness endianness;
     int              libdwarf_owns_elf;
-#ifdef __SGI_FAST_LIBELF
-    Elf64_Ehdr ehdr;
-#else
     Elf32_Ehdr *ehdr32;
 
 #ifdef HAVE_ELF64_GETEHDR
     Elf64_Ehdr *ehdr64;
 #endif
 
-#endif /* !defined(__SGI_FAST_LIBELF) */
 } dwarf_elf_object_access_internals_t;
 
 
@@ -131,66 +95,45 @@ dwarf_elf_object_access_internals_init(void* obj_in,
 {
     dwarf_elf_object_access_internals_t*obj = 
         (dwarf_elf_object_access_internals_t*)obj_in;
-#ifdef __SGI_FAST_LIBELF
-    enum elf_sgi_error_type sres;
-    unsigned char const *ehdr_ident = 0;
-#else
     char *ehdr_ident = 0;
-#endif /* !defined(__SGI_FAST_LIBELF) */
     Dwarf_Half machine = 0;
     obj->elf = elf;
 
-#ifdef __SGI_FAST_LIBELF
-    sres = elf_sgi_ehdr(elf, &obj->ehdr);
-    if (sres != ELF_SGI_ERROR_OK) {
-      *error = _dwarf_error_code_from_elf_sgi_error_code(sres);
-      return DW_DLV_ERROR;
-    }
-    ehdr_ident = obj->ehdr.e_ident;
-    obj->section_count = obj->ehdr.e_shnum;
-    machine = obj->ehdr.e_machine;
-#else
     if ((ehdr_ident = elf_getident(elf, NULL)) == NULL) {
-      *error = DW_DLE_ELF_GETIDENT_ERROR;
-      return DW_DLV_ERROR;
+        *error = DW_DLE_ELF_GETIDENT_ERROR;
+        return DW_DLV_ERROR;
     }
-#endif /* !defined(__SGI_FAST_LIBELF) */
 
     obj->is_64bit = (ehdr_ident[EI_CLASS] == ELFCLASS64);
 
 
     if(ehdr_ident[EI_DATA] == ELFDATA2LSB){
-      obj->endianness = DW_OBJECT_LSB;
+        obj->endianness = DW_OBJECT_LSB;
     }
     else if(ehdr_ident[EI_DATA] == ELFDATA2MSB){
-      obj->endianness = DW_OBJECT_MSB;
+        obj->endianness = DW_OBJECT_MSB;
     }
 
-#ifdef __SGI_FAST_LIBELF
-    /* We've already loaded the ELF header, so there's nothing to do
-       here */
-#else
 #ifdef HAVE_ELF64_GETEHDR
     if (obj->is_64bit) {
-	obj->ehdr64 = elf64_getehdr(elf);
-	if (obj->ehdr64 == NULL) {
-          *error = DW_DLE_ELF_GETEHDR_ERROR;
-          return DW_DLV_ERROR;
-	}
-	obj->section_count = obj->ehdr64->e_shnum;
-	machine = obj->ehdr64->e_machine;
+        obj->ehdr64 = elf64_getehdr(elf);
+        if (obj->ehdr64 == NULL) {
+            *error = DW_DLE_ELF_GETEHDR_ERROR;
+            return DW_DLV_ERROR;
+        }
+        obj->section_count = obj->ehdr64->e_shnum;
+        machine = obj->ehdr64->e_machine;
     } else
 #endif
     {
-	obj->ehdr32 = elf32_getehdr(elf);
-	if (obj->ehdr32 == NULL) {
-          *error = DW_DLE_ELF_GETEHDR_ERROR;
-          return DW_DLV_ERROR;
-	}
-	obj->section_count = obj->ehdr32->e_shnum;
-	machine = obj->ehdr32->e_machine;
+        obj->ehdr32 = elf32_getehdr(elf);
+        if (obj->ehdr32 == NULL) {
+           *error = DW_DLE_ELF_GETEHDR_ERROR;
+           return DW_DLV_ERROR;
+        }
+        obj->section_count = obj->ehdr32->e_shnum;
+        machine = obj->ehdr32->e_machine;
     }
-#endif /* !defined(__SGI_FAST_LIBELF) */
 
     /* The following de_length_size is Not Too Significant. Only used
        one calculation, and an approximate one at that. */
@@ -198,11 +141,11 @@ dwarf_elf_object_access_internals_init(void* obj_in,
     obj->pointer_size = obj->is_64bit ? 8 : 4;    
 
     if (obj->is_64bit && machine != EM_MIPS) {
-	/* MIPS/IRIX makes pointer size and length size 8 for -64.
-	   Other platforms make length 4 always. */
-	/* 4 here supports 32bit-offset dwarf2, as emitted by cygnus
-	   tools, and the dwarfv2.1 64bit extension setting. */
-	obj->length_size = 4;
+        /* MIPS/IRIX makes pointer size and length size 8 for -64.
+           Other platforms make length 4 always. */
+        /* 4 here supports 32bit-offset dwarf2, as emitted by cygnus
+           tools, and the dwarfv2.1 64bit extension setting. */
+        obj->length_size = 4;
     }
     return DW_DLV_OK;
 }
@@ -245,38 +188,14 @@ dwarf_elf_object_access_get_section_info(
     dwarf_elf_object_access_internals_t*obj = 
         (dwarf_elf_object_access_internals_t*)obj_in;
 
-    {
-#ifdef __SGI_FAST_LIBELF
-    Elf64_Shdr shdr;
-    enum elf_sgi_error_type sres;
-#else
     Elf32_Shdr *shdr32 = 0;
 
 #ifdef HAVE_ELF64_GETSHDR
     Elf64_Shdr *shdr64 = 0;
 #endif
     Elf_Scn *scn = 0;
-#endif /* !defined(__SGI_FAST_LIBELF) */
 
 
-#ifdef __SGI_FAST_LIBELF
-    sres = elf_sgi_shdr(obj->elf, section_index, &shdr);
-    if (sres != ELF_SGI_ERROR_OK) {
-        *error = _dwarf_error_code_from_elf_sgi_error_code(sres);
-        return DW_DLV_ERROR;
-    }
-
-    ret_scn->size = shdr.sh_size;
-    ret_scn->addr = shdr.sh_addr;
-
-    sres =
-        elf_sgi_string(obj->elf, obj->ehdr.e_shstrndx, shdr.sh_name,
-                       (char const **) &ret_scn->name);
-    if (sres != ELF_SGI_ERROR_OK) {
-        *error = _dwarf_error_code_from_elf_sgi_error_code(sres);
-        return DW_DLV_ERROR;
-    }
-#else /* !defined(__SGI_FAST_LIBELF) */
     scn = elf_getscn(obj->elf, section_index);
     if (scn == NULL) {
         *error = DW_DLE_MDE;
@@ -298,26 +217,23 @@ dwarf_elf_object_access_get_section_info(
         if(ret_scn->name == NULL) {
             *error = DW_DLE_ELF_STRPTR_ERROR;
             return DW_DLV_ERROR;
-	}
-    } else
+        }
+        return DW_DLV_OK;
+    } 
 #endif /* HAVE_ELF64_GETSHDR */
-    {
-        if ((shdr32 = elf32_getshdr(scn)) == NULL) {
-            *error = DW_DLE_ELF_GETSHDR_ERROR;
-            return DW_DLV_ERROR;
-	}
-
-	ret_scn->size = shdr32->sh_size;
-	ret_scn->addr = shdr32->sh_addr;
-
-	ret_scn->name = elf_strptr(obj->elf, obj->ehdr32->e_shstrndx,
-		                        shdr32->sh_name);
-	if (ret_scn->name == NULL) {
-            *error = DW_DLE_ELF_STRPTR_ERROR;
-            return DW_DLV_ERROR;
-	}
+    if ((shdr32 = elf32_getshdr(scn)) == NULL) {
+        *error = DW_DLE_ELF_GETSHDR_ERROR;
+        return DW_DLV_ERROR;
     }
-#endif /* !defined(__SGI_FAST_LIBELF) */
+
+    ret_scn->size = shdr32->sh_size;
+    ret_scn->addr = shdr32->sh_addr;
+
+    ret_scn->name = elf_strptr(obj->elf, obj->ehdr32->e_shstrndx,
+        shdr32->sh_name);
+    if (ret_scn->name == NULL) {
+        *error = DW_DLE_ELF_STRPTR_ERROR;
+        return DW_DLV_ERROR;
     }
     return DW_DLV_OK;
 }
@@ -359,43 +275,32 @@ dwarf_elf_object_access_load_section(void* obj_in,
     dwarf_elf_object_access_internals_t*obj = 
         (dwarf_elf_object_access_internals_t*)obj_in;
     if (section_index == 0) {
-	return DW_DLV_NO_ENTRY;
+        return DW_DLV_NO_ENTRY;
     }
 
     {
-#ifdef __SGI_FAST_LIBELF
-	enum elf_sgi_error_type sres;
+        Elf_Scn *scn = 0;
+        Elf_Data *data = 0;
 
-	sres = elf_sgi_section(obj->elf,
-			       section_index, (void **) section_data);
-	if (sres != ELF_SGI_ERROR_OK) {
-            *error = _dwarf_error_code_from_elf_sgi_error_code(sres);
+        scn = elf_getscn(obj->elf, section_index);
+        if (scn == NULL) {
+            *error = DW_DLE_MDE;
             return DW_DLV_ERROR;
-	}
-#else
-	Elf_Scn *scn;
-	Elf_Data *data;
+        }
 
-	scn = elf_getscn(obj->elf, section_index);
-	if (scn == NULL) {
-	    *error = DW_DLE_MDE;
-            return DW_DLV_ERROR;
-	}
-
-	/* 
-	   When using libelf as a producer, section data may be stored
-	   in multiple buffers. In libdwarf however, we only use libelf
-	   as a consumer (there is a dwarf producer API, but it doesn't
-	   use libelf). Because of this, this single call to elf_getdata
-	   will retrieve the entire section in a single contiguous
-	   buffer. */
-	data = elf_getdata(scn, NULL);
-	if (data == NULL) {
-          *error = DW_DLE_MDE;
-          return DW_DLV_ERROR;
-	}
-	*section_data = data->d_buf;
-#endif /* !defined(__SGI_FAST_LIBELF) */
+        /* 
+           When using libelf as a producer, section data may be stored
+           in multiple buffers. In libdwarf however, we only use libelf
+           as a consumer (there is a dwarf producer API, but it doesn't
+           use libelf). Because of this, this single call to elf_getdata
+           will retrieve the entire section in a single contiguous
+           buffer. */
+        data = elf_getdata(scn, NULL);
+        if (data == NULL) {
+                  *error = DW_DLE_MDE;
+                  return DW_DLV_ERROR;
+        }
+        *section_data = data->d_buf;
     }
     return DW_DLV_OK;
 }
@@ -467,11 +372,7 @@ dwarf_elf_object_access_finish(Dwarf_Obj_Access_Interface* obj)
         dwarf_elf_object_access_internals_t *internals = 
             (dwarf_elf_object_access_internals_t *)obj->object;
         if(internals->libdwarf_owns_elf){
-#ifdef __SGI_FAST_LIBELF
-            elf_sgi_free(internals->elf);
-#else
             elf_end(internals->elf);
-#endif
         }
     }
     free(obj->object);
