@@ -62,22 +62,27 @@
  * is an LEB128 data item that denotes the size (in bytes) of
  * the augmented fields (not including the size of
  * "length_of_augmented_fields" itself).
- * This implementation of libdwarf will assume that the length of
- * augmented fields follow the augmenter string when the augmentation
- * starts with the string "z". It will skip over any augmented fields
- * that it does not understand to the start of  initial instructions 
- * (in case of CIE) or the instruction table (in case of FDE).
- * 
- * Future sgi versions of cie or fde should use "z1", "z2" as the
- * augmenter strings and it should guarantee that all the above fields
- * are laid out in the same fashion. Older libraries will continue to be able 
- * to read all the old data, skipping over newly added data items.
+ 
+ * Handling of cie augmentation strings is necessarly a heuristic.
+ * See dwarf_frame.c for the currently known augmentation strings.
+
+   ---START SGI-ONLY COMMENT:
+ * SGI-IRIX versions of cie or fde  were intended to use "z1", "z2" as the
+ * augmenter strings if required for new augmentation.
+ * However, that never happened (as of March 2005).
  *
- * The fde's augmented by the string "z" have a new field (signed constant, 4
-   byte field)
- * called offset_into_exception_tables, following the length_of_augmented field.
- * This field contains an offset into the "_MIPS_eh_region", which describes
- * the exception handling tables.
+ * The fde's augmented by the string "z" have a new field 
+ * (signed constant, 4 byte field)
+ * called offset_into_exception_tables, following the 
+ * length_of_augmented field.   This field contains an offset 
+ * into the "_MIPS_eh_region", which describes
+ * the IRIX CC exception handling tables.
+   ---END SGI-ONLY COMMENT
+ 
+
+ * AMD 64 .eh_frame has an augmentation string of zR (gcc 3.4)
+ * The similarity to IRIX 'z' (and proposed but never
+ * implemented IRIX z1, z2 etc) was confusing things.
  */
 
 #define DW_DEBUG_FRAME_VERSION                 	1 /* DWARF2 */
@@ -149,6 +154,34 @@ struct Dwarf_Frame_Op_List_s {
     Dwarf_Frame_Op_List fl_next;
 };
 
+/* See dwarf_frame.c for the heuristics used to set the
+   Dwarf_Cie ci_augmentation_type.  
+
+   This succinctly helps interpret the size and meaning of .debug_frame
+   and (for gcc) .eh_frame.
+
+   In the case of gcc .eh_frame (gcc 3.3, 3.4)
+   z may be followed by one or more of
+   L R P.  
+
+*/
+enum Dwarf_augmentation_type {
+        aug_empty_string, /* Default empty augmentation string.  */
+        aug_irix_exception_table,  /* IRIX  plain  "z",
+                   for exception handling, IRIX CC compiler.
+		   Proposed z1 z2 ... never implemented.  */
+        aug_gcc_eh_z,       /* gcc z augmentation,  (including
+			L R P variations). gcc 3.3 3.4 exception
+			handling in eh_frame.  */
+        aug_irix_mti_v1,  /* IRIX "mti v1" augmentation string. Probably
+                             never in any released SGI-IRIX compiler. */
+        aug_eh,           /* For gcc .eh_frame, "eh" is the string.,
+				gcc 1,2, egcs. Older values.  */
+        aug_unknown,      /* Unknown augmentation, we cannot do much. */
+        aug_past_last
+};
+
+
 /* 
     This structure contains all the pertinent info for a Cie. Most 
     of the fields are taken straight from the definition of a Cie.  
@@ -172,6 +205,9 @@ struct Dwarf_Cie_s {
     Dwarf_Small ci_length_size;
     Dwarf_Small ci_extension_size;
     Dwarf_Half ci_cie_version_number;
+    enum Dwarf_augmentation_type ci_augmentation_type;	 /* On 
+	reading FDEs one does  not normally have a CIE pointer 
+	at the right time to use this. Yet. */
 };
 
 /*

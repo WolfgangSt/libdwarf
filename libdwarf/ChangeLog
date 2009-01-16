@@ -1,3 +1,36 @@
+2005-04-13 David Anderson <davea@sgi.com>
+      * dwarf_error.c: Error  codes 194 and 195 were missing
+	strings, added them to table. 
+      * dwarf_frame.c: Check for newer gcc .eh_frame
+          augmentation strings and avoid trying to handle these
+          for now.
+      * dwarf_global.c: Add an error check for
+          pubnames-style sections for bad offset.
+      * dwarf_init_finish.c: Add dwarf_get_section_max_offsets()
+          to allow clients to do additional error checking.
+          This code will have to change again, so leaving it
+          undocumented. As written it's not useful for COMDAT
+          style DWARF sections.
+      * libdwarf.h: Added prototype for dwarf_get_section_max_offsets().
+
+2005-03-31 David Anderson <davea@sgi.com>
+      * mips_extensions.mm: Documented  the libexc/.debug_funcnames
+        dependency and the 64bit-offset DWARF extension.
+      * mips_extensions.ps: Regenerated.
+
+2005-03-21 David Anderson <davea@sgi.com>
+      * dwarf_line.c: Added commentary.
+      * libdwarf2.1.mm: Documented dwarf_lineendsequence() better.
+      * libdwarf2.1.ps: Regenerated.
+      * libdwarf.h: Added DW_DLE_FRAME_AUGMENTATION_UNKNOWN as
+        error code 195.
+      * dwarf_init_finish.c: Corrected comment spelling. 
+      * dwarf_frame.h dwarf_frame.c: Added handling for 
+        much (but not all) of gcc 3.3 gcc 3.4 .eh_frame
+	'z' augmentation.  Gives error on attempting
+        to get z augmentation data since such is not
+        completely handled.
+
 2005-03-18 David Anderson <davea@sgi.com>
       * dwarf_frame.h dwarf_frame.c: The gcc .eh_frame
         info did not print correctly so we now access the

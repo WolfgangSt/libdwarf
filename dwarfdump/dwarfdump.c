@@ -30,7 +30,7 @@
   http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 
-$Header: /plroot/cmplrs.src/v7.4.4m/.RCS/PL/dwarfdump/RCS/dwarfdump.c,v 1.38 2004/05/07 21:17:56 davea Exp $ */
+$Header: /plroot/cmplrs.src/v7.4.4m/.RCS/PL/dwarfdump/RCS/dwarfdump.c,v 1.40 2005/03/30 02:27:09 davea Exp $ */
 #include "globals.h"
 
 /* for 'open' */
@@ -70,7 +70,8 @@ boolean use_old_dwarf_loclist = FALSE;	/* This so both dwarf_loclist()
 
 static boolean line_flag = FALSE;
 static boolean abbrev_flag = FALSE;
-static boolean frame_flag = FALSE;
+static boolean frame_flag = FALSE;    /* .debug_frame section. */
+static boolean eh_frame_flag = FALSE; /* GNU .eh_frame section. */
 static boolean exceptions_flag = FALSE;
 static boolean pubnames_flag = FALSE;
 static boolean macinfo_flag = FALSE;
@@ -232,9 +233,9 @@ process_one_file(Elf * elf, string file_name, int archive)
 	print_strings(dbg);
     if (aranges_flag)
 	print_aranges(dbg);
-    if (frame_flag) {
+    if (frame_flag || eh_frame_flag) {
 	current_cu_die_for_print_frames = 0;
-	print_frames(dbg);
+	print_frames(dbg,frame_flag,eh_frame_flag);
     }
     if (static_func_flag)
 	print_static_funcs(dbg);
@@ -284,8 +285,9 @@ process_args(int argc, char *argv[])
 
     program_name = argv[0];
 
+	/* j q x unused */
     while ((c =
-	    getopt(argc, argv, "ailfghbprmcsvdeok:gu:t:ywz")) != EOF) {
+	    getopt(argc, argv, "abcdefFghik:lmoprst:u:vwyz")) != EOF) {
 	switch (c) {
 	case 'g':
 	    use_old_dwarf_loclist = TRUE;
@@ -297,6 +299,9 @@ process_args(int argc, char *argv[])
 	    break;
 	case 'f':
 	    frame_flag = TRUE;
+	    break;
+	case 'F':
+	    eh_frame_flag = TRUE;
 	    break;
 	case 'b':
 	    abbrev_flag = TRUE;
@@ -318,6 +323,7 @@ process_args(int argc, char *argv[])
 	    break;
 	case 'a':
 	    info_flag = line_flag = frame_flag = abbrev_flag = TRUE;
+	    /* Do not turn on eh_frame_flag. */
 	    pubnames_flag = aranges_flag = macinfo_flag = TRUE;
 	    loc_flag = string_flag = TRUE;
 	    reloc_flag = TRUE;
@@ -408,14 +414,15 @@ process_args(int argc, char *argv[])
     if (usage_error || (optind != (argc - 1))) {
 	fprintf(stderr, "Usage:  %s <options> <object file>\n",
 		program_name);
-	fprintf(stderr, "options:\t-a\tprint all sections\n");
+	fprintf(stderr, "options:\t-a\tprint all .debug_* sections\n");
 	fprintf(stderr, "\t\t-b\tprint abbrev section\n");
 	fprintf(stderr, "\t\t-c\tprint loc section\n");
 	fprintf(stderr,
 		"\t\t-d\tdense: one line per entry (info section only)\n");
 	fprintf(stderr,
 		"\t\t-e\tellipsis: short names for tags, attrs etc.\n");
-	fprintf(stderr, "\t\t-f\tprint frame section\n");
+	fprintf(stderr, "\t\t-f\tprint dwarf frame section\n");
+	fprintf(stderr, "\t\t-F\tprint gnu .eh_frame section\n");
 	fprintf(stderr, "\t\t-g\t(use incomplete loclist support)\n");
 	fprintf(stderr, "\t\t-h\tprint exception tables\n");
 	fprintf(stderr, "\t\t-i\tprint info section\n");
@@ -449,18 +456,18 @@ process_args(int argc, char *argv[])
 static void
 print_infos(Dwarf_Debug dbg)
 {
-    Dwarf_Unsigned cu_header_length;
-    Dwarf_Unsigned abbrev_offset;
-    Dwarf_Half version_stamp;
-    Dwarf_Half address_size;
-    Dwarf_Die cu_die;
-    Dwarf_Unsigned next_cu_offset;
-    int nres;
+    Dwarf_Unsigned cu_header_length = 0;
+    Dwarf_Unsigned abbrev_offset = 0;
+    Dwarf_Half version_stamp = 0;
+    Dwarf_Half address_size = 0;
+    Dwarf_Die cu_die = 0;
+    Dwarf_Unsigned next_cu_offset = 0;
+    int nres = DW_DLV_OK;
 
     if (info_flag)
 	printf("\n.debug_info\n");
 
-    /* loop until it returns 0 */
+    /* Loop until it fails.  */
     while ((nres =
 	    dwarf_next_cu_header(dbg, &cu_header_length, &version_stamp,
 				 &abbrev_offset, &address_size,
@@ -525,7 +532,7 @@ print_infos(Dwarf_Debug dbg)
 	    dwarf_dealloc(dbg, attrib, DW_DLA_ATTR);
 	    dwarf_dealloc(dbg, cu_die, DW_DLA_DIE);
 	}
-	if (verbose && info_flag) {
+	if (verbose) {
 	    if (dense) {
 		printf("<%s>", "cu_header");
 		printf(" %s<%llu>", "cu_header_length",

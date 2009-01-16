@@ -41,7 +41,7 @@ extern "C" {
 #endif
 /*
 	libdwarf.h  
-	$Revision: 1.77 $ $Date: 2004/10/28 22:30:10 $
+	$Revision: 1.78 $ $Date: 2005/03/30 02:27:09 $
 
 	For libdwarf producers and consumers
 
@@ -468,9 +468,10 @@ typedef void  (*Dwarf_Handler)(Dwarf_Error /*error*/, Dwarf_Ptr /*errarg*/);
 #define DW_DLE_DF_ALLOC_FAIL                   	192
 #define DW_DLE_DF_FRAME_DECODING_ERROR         	193
 #define DW_DLE_DEBUG_LOC_SECTION_SHORT         	194
+#define DW_DLE_FRAME_AUGMENTATION_UNKNOWN       195
 
     /* DW_DLE_LAST MUST EQUAL LAST ERROR NUMBER */
-#define DW_DLE_LAST        			194
+#define DW_DLE_LAST        			195
 #define DW_DLE_LO_USER     0x10000
 
         /* taken as meaning 'undefined value', this is not
@@ -1589,6 +1590,26 @@ int dwarf_attr_offset(Dwarf_Die /*die*/,
     Dwarf_Attribute /*attr of above die*/,
     Dwarf_Off     * /*returns offset thru this ptr */,
     Dwarf_Error   * /*error*/);
+
+/* This is a hack so clients can verify offsets.
+   Added April 2005 so that debugger can detect broken offsets
+   (which happened in an IRIX executable larger than 2GB
+    with MIPSpro 7.3.1.3 toolchain.).
+*/
+int
+dwarf_get_section_max_offsets(Dwarf_Debug /*dbg*/,
+    Dwarf_Unsigned * /*debug_info_size*/,
+    Dwarf_Unsigned * /*debug_abbrev_size*/,
+    Dwarf_Unsigned * /*debug_line_size*/,
+    Dwarf_Unsigned * /*debug_loc_size*/,
+    Dwarf_Unsigned * /*debug_aranges_size*/,
+    Dwarf_Unsigned * /*debug_macinfo_size*/,
+    Dwarf_Unsigned * /*debug_pubnames_size*/,
+    Dwarf_Unsigned * /*debug_str_size*/,
+    Dwarf_Unsigned * /*debug_frame_size*/,
+    Dwarf_Unsigned * /*debug_ranges_size*/,
+    Dwarf_Unsigned * /*debug_pubtypes_size*/);
+
 
 
 #ifdef __cplusplus

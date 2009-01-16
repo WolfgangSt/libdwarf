@@ -1108,7 +1108,12 @@ dwarf_srclines(Dwarf_Die die,
 
 
 
-
+/* Every line table entry (except DW_DLE_end_sequence,
+   which is returned using dwarf_lineendsequence())
+   potentially has the begin-statement
+   flag marked 'on'.   This returns thru *return_bool,
+   the begin-statement flag.
+*/
 
 int
 dwarf_linebeginstatement(Dwarf_Line line,
@@ -1123,6 +1128,19 @@ dwarf_linebeginstatement(Dwarf_Line line,
     return DW_DLV_OK;
 }
 
+/* At the end of any contiguous line-table there may be
+   a DW_LNE_end_sequence operator.
+   This returns non-zero thru *return_bool
+   if and only if this 'line' entry was a DW_LNE_end_sequence.
+
+   Within a compilation unit or function there may be multiple
+   line tables, each ending with a DW_LNE_end_sequence.
+   Each table describes a contiguous region.
+   Because compilers may split function code up in arbitrary ways
+   compilers may need to emit multiple contigous regions (ie
+   line tables) for a single function.
+   See the DWARF3 spec section 6.2.
+*/
 int
 dwarf_lineendsequence(Dwarf_Line line,
 		      Dwarf_Bool * return_bool, Dwarf_Error * error)
@@ -1137,6 +1155,10 @@ dwarf_lineendsequence(Dwarf_Line line,
 }
 
 
+/* Each 'line' entry has a line-number.
+   If the entry is a DW_LNE_end_sequence the line-number is
+   meaningless (see dwarf_lineendsequence(), just above).
+*/
 int
 dwarf_lineno(Dwarf_Line line,
 	     Dwarf_Unsigned * ret_lineno, Dwarf_Error * error)
@@ -1150,7 +1172,12 @@ dwarf_lineno(Dwarf_Line line,
     return DW_DLV_OK;
 }
 
-
+/* Each 'line' entry has a line-address.
+   If the entry is a DW_LNE_end_sequence the adddress
+   is one-beyond the last address this contigous region
+   covers, so the address is not inside the region, 
+   but is just outside it.
+*/
 int
 dwarf_lineaddr(Dwarf_Line line,
 	       Dwarf_Addr * ret_lineaddr, Dwarf_Error * error)
@@ -1165,6 +1192,15 @@ dwarf_lineaddr(Dwarf_Line line,
 }
 
 
+/* Each 'line' entry has a column-within-line (offset
+   within the line) where the
+   source text begins.
+   If the entry is a DW_LNE_end_sequence the line-number is
+   meaningless (see dwarf_lineendsequence(), just above).
+   Lines of text begin at column 1.  The value 0
+   means the line begins at the left edge of the line.
+   (See the DWARF3 spec, section 6.2.2).
+*/
 int
 dwarf_lineoff(Dwarf_Line line,
 	      Dwarf_Signed * ret_lineoff, Dwarf_Error * error)
@@ -1321,7 +1357,10 @@ dwarf_linesrc(Dwarf_Line line, char **ret_linesrc, Dwarf_Error * error)
     return DW_DLV_OK;
 }
 
-
+/* Every line table entry potentially has the basic-block-start
+   flag marked 'on'.   This returns thru *return_bool,
+   the basic-block-start flag.
+*/
 int
 dwarf_lineblock(Dwarf_Line line,
 		Dwarf_Bool * return_bool, Dwarf_Error * error)

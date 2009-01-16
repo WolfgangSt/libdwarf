@@ -1,3 +1,13 @@
+Mar 21, 2005
+  gcc 3.3 and 3.4 .eh_frame 'z' augmentations are not handled
+  correctly, so libdwarf gives an error when attempting to
+  print such. gcc 2 'eh' augmentation is simpler and
+  prints correctly.  (.eh_frame is a GNU section,
+  not DWARF2/3, and what is recorded in .eh_frame is not
+  specified by DWARF2/3, though .eh_frame does resemble
+  DWARF2/3 .debug_frame).
+
+
 Oct 28, 2004
   Updated contact address in copyright: SGI moved 1/4 mile
   in 2003 to a new address: 1500 Crittenden Lane.

@@ -31,7 +31,7 @@
 
 
 
-$Header: /plroot/cmplrs.src/v7.4.4m/.RCS/PL/dwarfdump/RCS/globals.h,v 1.18 2003/10/03 16:19:09 davea Exp $ */
+$Header: /plroot/cmplrs.src/v7.4.4m/.RCS/PL/dwarfdump/RCS/globals.h,v 1.20 2005/03/30 02:27:09 davea Exp $ */
 #ifndef globals_INCLUDED
 #define globals_INCLUDED
 
@@ -141,7 +141,8 @@ extern Dwarf_Error err;
 extern void print_error (Dwarf_Debug dbg, string msg,int res, Dwarf_Error err);
 
 extern void print_line_numbers_this_cu (Dwarf_Debug dbg, Dwarf_Die in_die);
-extern void print_frames (Dwarf_Debug dbg);
+extern void print_frames (Dwarf_Debug dbg, int print_debug_frame,
+		int print_eh_frame);
 extern void print_pubnames (Dwarf_Debug dbg);
 extern void print_macinfo (Dwarf_Debug dbg);
 extern void print_locs (Dwarf_Debug dbg);

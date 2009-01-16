@@ -32,8 +32,8 @@
   http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 	makename.h   
-	$Revision: 1.2 $
-	$Date: 2001/01/16 17:47:55 $
+	$Revision: 1.3 $
+	$Date: 2004/10/28 22:26:58 $
 
 	This is for putting strings into stable storage.
 

@@ -8,7 +8,7 @@
 .nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.52, 02 Oct 2003
+.ds vE rev 1.53, 28 Mar 2005
 \." ==============================================
 \." ==============================================
 .ds | |
@@ -35,7 +35,7 @@ A Consumer Library Interface to DWARF
 .AF ""
 .AU "UNIX International Programming Languages Special Interest Group" 
 .PF "'\*(vE'- \\\\nP -''"
-.PM ""
+\.".PM ""
 .AS 1
 This document describes an interface to a library of functions
 .FS 
@@ -1362,9 +1362,9 @@ the function \f(CWdwarf_attr()\fP
 sets 
 \f(CW*return_attr\fP to the  \f(CWDwarf_Attribute\fP 
 descriptor of \f(CWdie\fP having the attribute \f(CWattr\fP.
-It returns \f(CDW_DLV_NO_ENTRY\fP if \f(CWattr\fP is not contained 
+It returns \f(CWDW_DLV_NO_ENTRY\fP if \f(CWattr\fP is not contained 
 in \f(CWdie\fP. 
-It returns \f(CDW_DLV_ERROR\fP if an error occurred.
+It returns \f(CWDW_DLV_ERROR\fP if an error occurred.
 
 .\"#if 0
 .\".DS
@@ -2065,12 +2065,21 @@ It never returns \f(CWDW_DLV_NO_ENTRY\fP.
 The function \f(CWdwarf_lineendsequence()\fP returns
 \f(CWDW_DLV_OK\fP and sets \f(CW*return_bool\fP
 \fInon-zero\fP
-if \f(CWline\fP represents a line number entry that is marked as
+(in which case 
+\f(CWline\fP represents a line number entry that is marked as
 ending a text sequence)
 or
-\fIzero\fP ((if \f(CWline\fP represents a line number entry
+\fIzero\fP (in which case 
+\f(CWline\fP represents a line number entry
 that is not marked as ending a text sequence).
-It returns \f(CWDW_DLV_ERROR\fP on error.
+A line number entry that is marked as
+ending a text sequence is an entry with an address 
+one beyond the highest address used by the current
+sequence of line table entries (that is, the table entry is
+a DW_LNE_end_sequence entry (see the DWARF specification)).
+.P
+The function \f(CWdwarf_lineendsequence()\fP 
+returns \f(CWDW_DLV_ERROR\fP on error.
 It never returns \f(CWDW_DLV_NO_ENTRY\fP.
 
 .P
@@ -3581,7 +3590,7 @@ unit.
 \f(CWint dwarf_get_abbrev_tag(
         Dwarf_abbrev abbrev,
 	Dwarf_Half  *return_tag,
-        Dwarf_Error *error);\P
+        Dwarf_Error *error);\fP
 .DE
 If successful,
 \f(CWdwarf_get_abbrev_tag()\fP returns
@@ -3596,7 +3605,7 @@ It never returns \f(CWDW_DLV_NO_ENTRY\fP.
 \f(CWint dwarf_get_abbrev_code(
         Dwarf_abbrev     abbrev,
 	Dwarf_Unsigned  *return_code,
-        Dwarf_Error     *error);\P
+        Dwarf_Error     *error);\fP
 .DE
 If successful,
 \f(CWdwarf_get_abbrev_code()\fP returns

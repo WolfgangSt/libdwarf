@@ -1,3 +1,21 @@
+Mar 21, 2005
+  The -f flag now prints only .debug_frame data. The .eh_frame section
+  (GNU exceptions data) now prints with -F (not -a). 
+  Printing gcc 3.3 or 3.4 .eh_frame with zR augmentation
+  does not work at this time, so do not use -F
+  to print such an object.
+  The line section print now prints a CU-DIE offset for each such DIEs
+  line information.   This makes it much easier to correctly associate
+  -l (or -v -l) output with -v -v -l when debugging a faulty
+  linetable in an executable.
+  With -v -v -l (two -v) the output of line info continues to be a 
+  completely different format than zero or one -v, the two-v
+  form showing the detailed line table opcodes.
+  With g++ 3.3.3 one sees bad line addresses at times as the 
+  DW_LNE_set_address address for header files do not always 
+  get their relocations applied.  I am told this is fixed in 3.4.x.
+
+
 Mar 18, 2005
   In correcting printing of macro information the format
   of the macro (-m) output has changed substantially.

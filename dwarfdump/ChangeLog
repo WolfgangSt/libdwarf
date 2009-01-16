@@ -1,3 +1,20 @@
+2005-04-13 David Anderson <davea@sgi.com>
+      * print_sections.c: Factors out common print code into
+        a new routine. Avoid indexing past end of register names
+        array.  Adds checks and prints so that certain errors
+        in pubnames-like sections are printed usefully (and dwarfdump
+        then stops if libdwarf gave an error).
+        
+2005-03-21 David Anderson <davea@sgi.com>
+      * dwarfdump.c: Add -F flag to
+        request .eh_frame section print. Changed -f flag meaning
+        to print .debug_frame only. -a flag no longer
+	prints .debug_frame by default.
+      * print_sections.c: avoid printing an eh_frame we don't understand.
+	Add new information per CU when printing line info: specifically
+        the line section offset.  
+      * globals.h: Added arguments to print_frames() for -F flag.
+
 2005-03-18 David Anderson <davea@sgi.com>
       * print_sections.c: Correct macro section printing.
 

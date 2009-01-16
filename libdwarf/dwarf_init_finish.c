@@ -206,7 +206,7 @@ _dwarf_setup(Dwarf_Debug dbg, dwarf_elf_handle elf, Dwarf_Error * error)
 #endif /* !WORDS_BIGENDIAN */
 
     /* The following de_length_size is Not Too Significant.
-	Only used one calculation, and an appoximate one at that. */
+	Only used one calculation, and an approximate one at that. */
     dbg->de_length_size = is_64bit ? 8 : 4;
     dbg->de_pointer_size = is_64bit ? 8 : 4;
 
@@ -737,3 +737,41 @@ _dwarf_load_section(Dwarf_Debug dbg,
 
     return DW_DLV_OK;
 }
+
+/* This is a hack so clients can verify offsets.
+   Added April 2005 so that debugger can detect broken offsets
+   (which happened in an IRIX  -64 executable larger than 2GB
+    using MIPSpro 7.3.1.3 compilers. A couple .debug_pubnames
+    offsets were wrong.).
+*/
+int
+dwarf_get_section_max_offsets(Dwarf_Debug dbg,
+    Dwarf_Unsigned *debug_info_size,
+    Dwarf_Unsigned *debug_abbrev_size,
+    Dwarf_Unsigned *debug_line_size,
+    Dwarf_Unsigned *debug_loc_size,
+    Dwarf_Unsigned *debug_aranges_size,
+    Dwarf_Unsigned *debug_macinfo_size,
+    Dwarf_Unsigned *debug_pubnames_size,
+    Dwarf_Unsigned *debug_str_size,
+    Dwarf_Unsigned *debug_frame_size,
+	Dwarf_Unsigned *debug_ranges_size,
+	Dwarf_Unsigned *debug_pubtypes_size)
+{
+    *debug_info_size = dbg->de_debug_info_size;
+    *debug_abbrev_size = dbg->de_debug_abbrev_size;
+    *debug_line_size = dbg->de_debug_line_size;
+    *debug_loc_size =dbg->de_debug_loc_size;
+    *debug_aranges_size = dbg->de_debug_aranges_size;
+    *debug_macinfo_size  =dbg->de_debug_macinfo_size;
+    *debug_pubnames_size  = dbg->de_debug_pubnames_size;
+    *debug_str_size = dbg->de_debug_str_size;
+    *debug_frame_size = dbg->de_debug_frame_size;
+    *debug_ranges_size = 0; /* Not yet supported. */
+    *debug_pubtypes_size = dbg->de_debug_typenames_size;
+
+	
+   return DW_DLV_OK;
+}
+
+

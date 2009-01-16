@@ -44,6 +44,111 @@
 				   list */
 
 
+/* 
+	All augmentation string checking done here now.
+
+	For .eh_frame, gcc from 3.3 uses the z style, earlier used
+ 	only "eh" as augmentation.  We don't yet handle 
+        decoding .eh_frame with the z style extensions like L P. 
+
+	These are nasty heuristics, but then that's life
+        as augmentations are implementation specific.
+*/
+/* ARGSUSED */
+static enum Dwarf_augmentation_type
+get_augmentation_type(Dwarf_Debug dbg,
+	Dwarf_Small *augmentation_string,
+	int is_gcc_eh_frame)
+{
+  	enum Dwarf_augmentation_type t = aug_unknown;
+	char *ag_string = (char *)augmentation_string;
+	if (ag_string[0] == 0) {
+		/* Empty string. 
+	           We'll just guess that we know what this means:
+		   standard dwarf2/3 with no implementation-defined
+		   fields.  */
+		t = aug_empty_string;
+	} else if (strcmp(ag_string,DW_DEBUG_FRAME_AUGMENTER_STRING) == 0){
+		/* The string is "mti v1". Used internally
+		   at SGI, probably never shipped. Replaced by "z".   
+		   Treat like 'nothing special'.  */
+		t = aug_irix_mti_v1;
+	} else if (ag_string[0] == 'z') {
+		/* If it's IRIX cc, z  means aug_irix_exception_table. 
+			z1 z2 were designed as for IRIX CC, but
+			never implemented*/
+		/* If it's gcc, z may be any of several things. 
+		   "z" or z followed optionally followed by 
+			one or more of L R P, each of which
+			means a value may be present. 
+		   Should be in eh_frame only, I think. */
+		if(is_gcc_eh_frame) {
+		   t = aug_gcc_eh_z;
+		} else  if(ag_string[1] == 0) {
+		   /* This is the normal  IRIX C++ case, where there is
+		      an offset into  a table in each fde.  
+		      The table being for IRIX CC exception
+		      handling.  */ 
+		   /* DW_CIE_AUGMENTER_STRING_V0              "z"   */
+		   t = aug_irix_exception_table;
+		}  /* Else unknown. */
+	} else if (strncmp(ag_string,"eh",2) == 0) {
+		/* gcc .eh_frame augmentation for egcs and gcc 2.x,
+		   at least for x86. */
+		t = aug_eh;
+	}
+	return t;
+}
+
+/* Using augmentation, and version 
+   read in the augmentation data for GNU eh. 
+
+   Return DW_DLV_OK if we succeeded,
+   DW_DLV_ERR if we fail.
+
+   On success, update  'size_of_augmentation_data' with
+   the length of the fields that are part of augmentation (so the
+   caller can increment frame_ptr appropriately).
+*/
+/* ARGSUSED */
+static int
+get_gcc_eh_augmentation(Dwarf_Debug dbg,
+              Dwarf_Small   *frame_ptr /* Points within section. */,
+              unsigned long *size_of_augmentation_data,
+              enum Dwarf_augmentation_type augtype,
+              Dwarf_Small   *section_pointer /* Points to section base. */ , 
+              Dwarf_Small   *fde_eh_encoding_out,
+              char          *augmentation)
+{
+   char *suffix = 0;
+   unsigned long augdata_size = 0;
+   if(augtype == aug_gcc_eh_z) {
+      /* Has leading 'z'. */
+      Dwarf_Word leb128_length = 0;
+        /*Dwarf_Unsigned eh_value  =  */
+         _dwarf_decode_u_leb128(frame_ptr, &leb128_length);
+      augdata_size += leb128_length;
+      frame_ptr += leb128_length;
+      suffix = augmentation + 1;
+  } else {
+      /* Prefix is 'eh'.  As in gcc 3.2. No suffix present
+	 apparently. */
+      suffix = augmentation + 2;
+  }
+  for( ; *suffix; ++suffix) {
+     /* We have no idea what this is as yet. 
+	Some extensions beyond dwarf exist which
+        we do not yet handle.
+     */
+     return DW_DLV_ERROR;
+      
+  }
+
+  *size_of_augmentation_data = augdata_size;
+  return DW_DLV_OK;
+}
+
+
 static int
   __dwarf_get_fde_list_internal(Dwarf_Debug dbg,
 				Dwarf_Cie ** cie_data,
@@ -813,6 +918,24 @@ get_augmentation_string(Dwarf_Debug dbg,
     return DW_DLV_OK;
 }
 
+static Dwarf_Unsigned 
+get_return_address_reg(Dwarf_Small *frame_ptr,
+		  	int version,
+			unsigned long *size)
+{
+        Dwarf_Unsigned uvalue =  0;
+	Dwarf_Word leb128_length = 0;
+	if(version == 1) {
+		*size = 1;
+		uvalue = *(unsigned char *)frame_ptr;
+		return uvalue;
+	}
+        uvalue =   _dwarf_decode_u_leb128(frame_ptr, &leb128_length);
+        *size = leb128_length;
+	return uvalue;
+}
+
+
 int
 dwarf_get_cie_of_fde(Dwarf_Fde fde,
 		     Dwarf_Cie * cie_returned, Dwarf_Error * error)
@@ -926,7 +1049,8 @@ __dwarf_get_fde_list_internal(Dwarf_Debug dbg,
 			      Dwarf_Unsigned section_length,
 			      Dwarf_Unsigned section_index,
 			      Dwarf_Unsigned cie_id_value,
-			      int use_gnu_cie_calc, 
+			      int use_gnu_cie_calc,  /* If non-zero,
+				this is gcc eh_frame. */
 			      Dwarf_Error * error)
 {
     /* Scans the debug_frame section. */
@@ -948,8 +1072,7 @@ __dwarf_get_fde_list_internal(Dwarf_Debug dbg,
     Dwarf_Small *augmentation = 0;
     Dwarf_Word code_alignment_factor = 4;
     Dwarf_Sword data_alignment_factor = -1;
-    Dwarf_Small return_address_register = 31;
-    Dwarf_Word length_of_augmented_fields = 0;
+    Dwarf_Unsigned return_address_register = 31;
 
     /* 
        New_cie points to the Cie being read, and head_cie_ptr and
@@ -962,12 +1085,12 @@ __dwarf_get_fde_list_internal(Dwarf_Debug dbg,
     /* 
        Points to a list of contiguous pointers to Dwarf_Cie
        structures. */
-    Dwarf_Cie *cie_list_ptr;
+    Dwarf_Cie *cie_list_ptr = 0;
 
     /* Fields for the current Fde being read.  */
-    Dwarf_Addr initial_location;	/* must be min de_pointer_size
+    Dwarf_Addr initial_location = 0;	/* must be min de_pointer_size
 					   bytes in size */
-    Dwarf_Addr address_range;	/* must be min de_pointer_size bytes in 
+    Dwarf_Addr address_range = 0;	/* must be min de_pointer_size bytes in 
 				   size */
 
     /* 
@@ -996,6 +1119,7 @@ __dwarf_get_fde_list_internal(Dwarf_Debug dbg,
 
     Dwarf_Small *prev_augmentation_cie_ptr = 0;
     Dwarf_Small *prev_augmentation_ptr = 0;
+    enum Dwarf_augmentation_type prev_augmentation_type = aug_unknown;
 
 
     frame_ptr = section_ptr;
@@ -1015,7 +1139,6 @@ __dwarf_get_fde_list_internal(Dwarf_Debug dbg,
 	READ_AREA_LENGTH(dbg, length, Dwarf_Unsigned,
 			 frame_ptr, local_length_size,
 			 local_extension_size);
-
 
 	if (length % local_length_size != 0) {
 	    _dwarf_error(dbg, error, DW_DLE_DEBUG_FRAME_LENGTH_BAD);
@@ -1048,7 +1171,9 @@ __dwarf_get_fde_list_internal(Dwarf_Debug dbg,
 	    /* egcs-1.1.2 .eh_frame uses 0 as the distinguishing id.
 	       sgi uses -1 (in .debug_frame). .eh_frame not quite
 	       identical to .debug_frame */
+	    Dwarf_Small eh_fde_encoding = 0;
 
+	    enum Dwarf_augmentation_type augt = aug_unknown;
 
 
 	    /* this is a CIE, Common Information Entry: See the dwarf
@@ -1063,63 +1188,11 @@ __dwarf_get_fde_list_internal(Dwarf_Debug dbg,
 
 	    augmentation = frame_ptr;
 	    frame_ptr = frame_ptr + strlen((char *) frame_ptr) + 1;
-	    if ((strcmp((char *) augmentation,
-			DW_DEBUG_FRAME_AUGMENTER_STRING) == 0) ||
-		(strcmp((char *) augmentation, DW_EMPTY_STRING) == 0)) {
-
-		Dwarf_Unsigned lreg;
-
-		DECODE_LEB128_UWORD(frame_ptr, lreg)
-		    code_alignment_factor = (Dwarf_Word) lreg;
-
-
-		data_alignment_factor =
-		    (Dwarf_Sword) _dwarf_decode_s_leb128(frame_ptr,
-							 &leb128_length);
-
-		frame_ptr = frame_ptr + leb128_length;
-
-		return_address_register = *(Dwarf_Small *) frame_ptr;
-		if (return_address_register > DW_FRAME_LAST_REG_NUM) {
-		    _dwarf_error(dbg, error,
-				 DW_DLE_CIE_RET_ADDR_REG_ERROR);
-		    return (DW_DLV_ERROR);
-		}
-		frame_ptr++;
-	    } else if (augmentation[0] == 'z') {
-		/* The augmentation starts with a known prefix. See the
-		   dwarf_frame.h for details on the layout. */
-
-		Dwarf_Unsigned lreg;
-
-		DECODE_LEB128_UWORD(frame_ptr, lreg)
-		    code_alignment_factor = (Dwarf_Word) lreg;
-
-
-		data_alignment_factor =
-		    (Dwarf_Sword) _dwarf_decode_s_leb128(frame_ptr,
-							 &leb128_length);
-		frame_ptr = frame_ptr + leb128_length;
-
-		return_address_register = *(Dwarf_Small *) frame_ptr;
-		if (return_address_register > DW_FRAME_LAST_REG_NUM) {
-		    _dwarf_error(dbg, error,
-				 DW_DLE_CIE_RET_ADDR_REG_ERROR);
-		    return (DW_DLV_ERROR);
-		}
-		frame_ptr++;
-
-		/* Decode the length of augmented fields. */
-		DECODE_LEB128_UWORD(frame_ptr, lreg)
-		    length_of_augmented_fields = (Dwarf_Word) lreg;
-
-
-		/* set the frame_ptr to point at the instruction start. 
-		 */
-		frame_ptr += length_of_augmented_fields;
-	    } else if (0 == strcmp((const char *) augmentation, "eh")) {
-
-    	    	/*REFERENCED*/ /* Not used in this instance of the macro */
+	    augt = get_augmentation_type(dbg,
+					augmentation,
+					use_gnu_cie_calc);
+	    if(augt == aug_eh) {
+    	    	/* REFERENCED*/ /* Not used in this instance */
 		Dwarf_Unsigned exception_table_addr;
 
 		/* this is per egcs-1.1.2 as on RH 6.0 */
@@ -1127,12 +1200,13 @@ __dwarf_get_fde_list_internal(Dwarf_Debug dbg,
 			       Dwarf_Unsigned, frame_ptr,
 			       local_length_size);
 		frame_ptr += local_length_size;
+            }
+	    {
+		Dwarf_Unsigned lreg = 0;
+		unsigned long size = 0;
 
-		code_alignment_factor =
-		    (Dwarf_Word) _dwarf_decode_s_leb128(frame_ptr,
-							&leb128_length);
-		frame_ptr = frame_ptr + leb128_length;
-
+		DECODE_LEB128_UWORD(frame_ptr, lreg);
+		code_alignment_factor = (Dwarf_Word) lreg;
 
 		data_alignment_factor =
 		    (Dwarf_Sword) _dwarf_decode_s_leb128(frame_ptr,
@@ -1140,15 +1214,61 @@ __dwarf_get_fde_list_internal(Dwarf_Debug dbg,
 
 		frame_ptr = frame_ptr + leb128_length;
 
-		return_address_register = *(Dwarf_Small *) frame_ptr;
+		return_address_register = get_return_address_reg(
+			frame_ptr,version,&size);
 		if (return_address_register > DW_FRAME_LAST_REG_NUM) {
 		    _dwarf_error(dbg, error,
 				 DW_DLE_CIE_RET_ADDR_REG_ERROR);
 		    return (DW_DLV_ERROR);
 		}
-		frame_ptr++;
+		frame_ptr += size;
+	    }
+	    switch(augt) {
+	    case aug_empty_string:
+		break;
+	    case aug_irix_mti_v1:
+		break;
+	    case aug_irix_exception_table: {
+		Dwarf_Unsigned lreg;
+                Dwarf_Word length_of_augmented_fields;
 
-	    } else {
+		/* Decode the length of augmented fields. */
+		DECODE_LEB128_UWORD(frame_ptr, lreg);
+		length_of_augmented_fields = (Dwarf_Word) lreg;
+
+
+		/* set the frame_ptr to point at the instruction start. 
+		 */
+		frame_ptr += length_of_augmented_fields;
+	    }
+	    break;
+	
+	    case aug_eh: {
+
+		int err = 0;
+		unsigned long increment = 0;
+		if(!use_gnu_cie_calc) {
+		    /* This should be impossible. */
+		    _dwarf_error(dbg, error,
+				 DW_DLE_FRAME_AUGMENTATION_UNKNOWN);
+		    return DW_DLV_ERROR;
+		} 
+
+		err = get_gcc_eh_augmentation(dbg,frame_ptr,&increment,
+			augt,
+			section_ptr,
+			&eh_fde_encoding,
+			(char *)augmentation);
+		if(err == DW_DLV_ERROR) {
+		    _dwarf_error(dbg, error,
+				 DW_DLE_FRAME_AUGMENTATION_UNKNOWN);
+		    return DW_DLV_ERROR;
+		}
+		frame_ptr += increment;
+		break;
+	    }
+	    case aug_gcc_eh_z:
+	    default: {
 		/* We do not understand the augmentation string. No
 		   assumption can be made about any fields other than
 		   what we have already read. */
@@ -1159,7 +1279,9 @@ __dwarf_get_fde_list_internal(Dwarf_Debug dbg,
 		   instruction start? They were clearly uninitalized in
 		   the previous version and I am leaving them the same
 		   way. */
+	        break;
 	    }
+	    } /* End switch on augmentation type. */
 
 	    new_cie = (Dwarf_Cie) _dwarf_get_alloc(dbg, DW_DLA_CIE, 1);
 	    if (new_cie == NULL) {
@@ -1183,6 +1305,7 @@ __dwarf_get_fde_list_internal(Dwarf_Debug dbg,
 	    new_cie->ci_cie_start = start_frame_ptr;
 	    new_cie->ci_cie_instr_start = frame_ptr;
 	    new_cie->ci_dbg = dbg;
+	    new_cie->ci_augmentation_type = augt;
 
 	    cie_count++;
 	    if (head_cie_ptr == NULL)
@@ -1198,21 +1321,16 @@ __dwarf_get_fde_list_internal(Dwarf_Debug dbg,
 	    /* this is an FDE, Frame Description Entry, see the Dwarf
 	       Spec, section 6.4.1 */
 	    Dwarf_Small *cieptr;
+	    enum Dwarf_augmentation_type augt = aug_unknown;
 
 	    Dwarf_Small *initloc = frame_ptr;
 	    Dwarf_Signed offset_into_exception_tables
 		/* must be min dwarf_sfixed in size */
 		= (Dwarf_Signed) DW_DLX_NO_EH_OFFSET;
 
-	    READ_UNALIGNED(dbg, initial_location, Dwarf_Addr,
-			   frame_ptr, dbg->de_pointer_size);
-	    frame_ptr += dbg->de_pointer_size;
-
-	    READ_UNALIGNED(dbg, address_range, Dwarf_Addr,
-			   frame_ptr, dbg->de_pointer_size);
-	    frame_ptr += dbg->de_pointer_size;
 	    /* Get the augmentation string from Cie to identify the
-	       layout of this Fde.  */
+	       layout of this Fde.    */ 
+
 	    if (use_gnu_cie_calc) {
 		/* cie_id value is offset, in section, of the cie_id
 		   itself, to use vm ptr of the value, less the value,
@@ -1226,11 +1344,11 @@ __dwarf_get_fde_list_internal(Dwarf_Debug dbg,
 		cieptr =
 		    (Dwarf_Small *) (section_ptr + cie_base_offset);
 	    }
-
-
 	    if (prev_augmentation_cie_ptr == cieptr &&
 		prev_augmentation_ptr != NULL) {
 		augmentation = prev_augmentation_ptr;
+		augt = prev_augmentation_type;
+		
 	    } else {
 		res = get_augmentation_string(dbg,
 					      cieptr,
@@ -1241,51 +1359,85 @@ __dwarf_get_fde_list_internal(Dwarf_Debug dbg,
 		}
 		prev_augmentation_cie_ptr = cieptr;
 		prev_augmentation_ptr = augmentation;
+	        augt = get_augmentation_type(dbg,
+					augmentation,
+					use_gnu_cie_calc);
+		prev_augmentation_type = augt;
 	    }
-	    if ((strcmp((char *) augmentation,
-			DW_DEBUG_FRAME_AUGMENTER_STRING) == 0) ||
-		(strcmp((char *) augmentation, DW_EMPTY_STRING) == 0)) {
-		/* We are pointing at the start of instructions. Do
-		   nothing. */
-	    } else if (augmentation[0] == 'z') {
-		Dwarf_Unsigned lreg;
+		
+	    if( augt == aug_gcc_eh_z ) {
+	       /* If z augmentation this is eh_frame,
+	       and initial_location and address_range in
+	       the  FDE are read according to the
+	       CIE augmentation string instructions.  */
 
-		DECODE_LEB128_UWORD(frame_ptr, lreg)
-		    length_of_augmented_fields = (Dwarf_Word) lreg;
+	       /* Representation of augmentation zR is
+		   not handled correctly. */
+               _dwarf_error(dbg, error,
+                                 DW_DLE_FRAME_AUGMENTATION_UNKNOWN);
+               return DW_DLV_ERROR;
+	    } else {
+	      READ_UNALIGNED(dbg, initial_location, Dwarf_Addr,
+			   frame_ptr, dbg->de_pointer_size);
+	      frame_ptr += dbg->de_pointer_size;
+
+	      READ_UNALIGNED(dbg, address_range, Dwarf_Addr,
+			   frame_ptr, dbg->de_pointer_size);
+	      frame_ptr += dbg->de_pointer_size;
+	    }
+
+
+
+
+
+	    switch(augt) {
+	    case aug_irix_mti_v1:
+            case aug_empty_string:
+		break;
+	    case aug_irix_exception_table: {
+		Dwarf_Unsigned lreg;
+                Dwarf_Word length_of_augmented_fields;
+
+		DECODE_LEB128_UWORD(frame_ptr, lreg);
+		length_of_augmented_fields = (Dwarf_Word) lreg;
 
 		saved_frame_ptr = frame_ptr;
-		if (strcmp((char *) augmentation,
-			   DW_CIE_AUGMENTER_STRING_V0) == 0) {
-		    /* The first word is an offset into execption
-		       tables. */
-		    /* ?? THis presumes that the offset is always 32
-		       bits */
-		    READ_UNALIGNED(dbg, offset_into_exception_tables,
+		/* The first word is an offset into exception
+		   tables.  Defined as a 32bit offset even
+		   for CC -64. */
+		READ_UNALIGNED(dbg, offset_into_exception_tables,
 				   Dwarf_Addr, frame_ptr,
 				   sizeof(Dwarf_sfixed));
-		    SIGN_EXTEND(offset_into_exception_tables,
+		SIGN_EXTEND(offset_into_exception_tables,
 				sizeof(Dwarf_sfixed));
-		    frame_ptr += local_length_size;
-		}
+		frame_ptr += local_length_size;
 		frame_ptr =
 		    saved_frame_ptr + length_of_augmented_fields;
-	    } else if (strcmp((const char *) augmentation, "eh") == 0) {
+	    } 
+	     break;
+	    case aug_eh: {
+		Dwarf_Unsigned eh_table_value;
+		if(!use_gnu_cie_calc) {
+                    /* This should be impossible. */
+                    _dwarf_error(dbg, error,
+                                 DW_DLE_FRAME_AUGMENTATION_UNKNOWN);
+                    return DW_DLV_ERROR;
+                }
+
 		/* gnu eh fde case. we do not need to do anything */
     	    	/*REFERENCED*/ /* Not used in this instance of the macro */
-		Dwarf_Unsigned exception_table_addr;
-
-		READ_UNALIGNED(dbg, exception_table_addr,
+		READ_UNALIGNED(dbg, eh_table_value,
 			       Dwarf_Unsigned, frame_ptr,
 			       dbg->de_pointer_size);
 		frame_ptr += dbg->de_pointer_size;
-	    } else {
-		/* We do not understand the augmentation string. No
-		   assumption can be made about if the instructions is
-		   present. */
-		/* FIX -- The old code assumed that the instruction
-		   table starts at the location pointed to by
-		   frame_ptr, clearly incorrect. */
 	    }
+            break;
+
+	    case aug_gcc_eh_z:  {
+		/* We  cannot deal with this yet. */
+	    }
+	    break;
+	    } /* End switch on augmentation type */
 	    new_fde = (Dwarf_Fde) _dwarf_get_alloc(dbg, DW_DLA_FDE, 1);
 	    if (new_fde == NULL) {
 		_dwarf_error(dbg, error, DW_DLE_ALLOC_FAIL);
@@ -1419,30 +1571,30 @@ __dwarf_get_fde_list_internal(Dwarf_Debug dbg,
 int
 dwarf_get_fde_for_die(Dwarf_Debug dbg,
 		      Dwarf_Die die,
-		      Dwarf_Fde * ret_fde, Dwarf_Error * error)
+		      Dwarf_Fde * ret_fde, 
+		      Dwarf_Error * error)
 {
     Dwarf_Attribute attr;
-    Dwarf_Unsigned fde_offset;
-    Dwarf_Signed signdval;
-    Dwarf_Unsigned length;	/* must be min de_length_size bytes */
-    Dwarf_Signed signed_offset;	/* must be min de_length_size bytes */
-    Dwarf_Addr initial_location;	/* must be min de_pointer_size 
+    Dwarf_Unsigned fde_offset = 0;
+    Dwarf_Signed signdval = 0;
+    Dwarf_Unsigned length = 0;	/* must be min de_length_size bytes */
+    Dwarf_Signed signed_offset = 0;	/* must be min de_length_size bytes */
+    Dwarf_Addr initial_location = 0;	/* must be min de_pointer_size 
 					   bytes */
-    Dwarf_Addr address_range;	/* must be min de_pointer_size bytes */
-    Dwarf_Fde new_fde;
-    unsigned char *fde_ptr;
-    Dwarf_Small *saved_fde_ptr;
-    unsigned char *cie_ptr;
-    unsigned char *start_cie_ptr;
+    Dwarf_Addr address_range = 0;	/* must be min de_pointer_size bytes */
+    Dwarf_Fde new_fde = 0;
+    unsigned char *fde_ptr = 0;
+    Dwarf_Small *saved_fde_ptr = 0;
+    unsigned char *cie_ptr = 0;
+    unsigned char *start_cie_ptr = 0;
     Dwarf_Cie new_cie;
 
     /* Fields for the current Cie being read. */
     Dwarf_Small version;
     Dwarf_Small *augmentation;
-    Dwarf_Word code_alignment_factor;
-    Dwarf_Sword data_alignment_factor;
+    Dwarf_Word code_alignment_factor = 1;
+    Dwarf_Sword data_alignment_factor = 1;
     Dwarf_Small return_address_register;
-    Dwarf_Word length_of_augmented_fields;
     Dwarf_Signed offset_into_exception_tables =
 	(Dwarf_Signed) DW_DLX_NO_EH_OFFSET;
     int res;
@@ -1452,6 +1604,7 @@ dwarf_get_fde_for_die(Dwarf_Debug dbg,
     int fde_local_length_size = 0;
     int cie_local_extension_size = 0;
     int cie_local_length_size = 0;
+    enum Dwarf_augmentation_type augt  = aug_unknown;
 
 
     Dwarf_Word leb128_length;
@@ -1515,24 +1668,39 @@ dwarf_get_fde_for_die(Dwarf_Debug dbg,
     if (res != DW_DLV_OK) {
 	return res;
     }
+    augt  = get_augmentation_type(dbg,
+                                        augmentation,
+					/* gcc eh_frame cie= */0);
+    switch(augt) {
+    case aug_irix_mti_v1:
+    case aug_empty_string: {
 
-    if ((strcmp((char *) augmentation, DW_DEBUG_FRAME_AUGMENTER_STRING)
-	 == 0) ||
-	(strcmp((char *) augmentation, DW_EMPTY_STRING) == 0)) {
 	/* Do nothing. The fde_ptr is pointing at start of
 	   instructions. */
-    } else if (augmentation[0] == 'z') {
-	/* The augmentation starts with a known prefix. See the
+    }
+    break;
+    case aug_eh:
+    case aug_gcc_eh_z:  {
+	/* Not .eh_frame, should not happen. */
+	_dwarf_error(dbg, error,
+		 DW_DLE_FRAME_AUGMENTATION_UNKNOWN);
+	return DW_DLV_ERROR;
+    }
+    /* NOTREACHED */
+    break;
+    case aug_irix_exception_table: {
+	/* If it's SGI IRIX/MIPS,
+	   The augmentation starts with a known (SGI) prefix. See the
 	   dwarf_frame.h for details on the layout. */
 
 	Dwarf_Unsigned lreg;
+    	Dwarf_Word length_of_augmented_fields = 0;
 
-	DECODE_LEB128_UWORD(fde_ptr, lreg)
-	    length_of_augmented_fields = (Dwarf_Word) lreg;
+	DECODE_LEB128_UWORD(fde_ptr, lreg);
+	length_of_augmented_fields = (Dwarf_Word) lreg;
 
 	saved_fde_ptr = fde_ptr;
-	if (strcmp((char *) augmentation, DW_CIE_AUGMENTER_STRING_V0) ==
-	    0) {
+	{
 	    /* The first word is an offset into execption tables. */
 	    READ_UNALIGNED(dbg, offset_into_exception_tables,
 			   Dwarf_Signed, fde_ptr, sizeof(Dwarf_sfixed));
@@ -1541,13 +1709,16 @@ dwarf_get_fde_for_die(Dwarf_Debug dbg,
 	    fde_ptr += sizeof(Dwarf_sfixed);
 	}
 	fde_ptr = saved_fde_ptr + length_of_augmented_fields;
-    } else {
+    }
+    break;
+    default: {
 	/* We do not understand the augmentation string. No assumption
-	   can be made about if the instructions is present. */
+	   can be made as to whether the instructions are present. */
 	/* FIX -- The old code assumed that the instruction table
 	   starts at location pointed to by fde_ptr, clearly incorrect. 
 	 */
     }
+    } /* End switch on augmentation string.  */
 
     new_fde = (Dwarf_Fde) _dwarf_get_alloc(dbg, DW_DLA_FDE, 1);
     if (new_fde == NULL) {
@@ -1572,7 +1743,7 @@ dwarf_get_fde_for_die(Dwarf_Debug dbg,
 
 
     /* now read the cie corresponding to the fde */
-    cie_ptr = (dbg->de_debug_frame + signed_offset);
+    cie_ptr = (new_fde->fd_section_ptr + signed_offset);
     start_cie_ptr = cie_ptr;
 
     /* READ_AREA_LENGTH updates cie_ptr for consumed bytes */
@@ -1592,6 +1763,7 @@ dwarf_get_fde_for_die(Dwarf_Debug dbg,
     cie_ptr += cie_local_length_size;
 
     if (signed_offset == DW_CIE_ID) {
+	enum Dwarf_augmentation_type augt = aug_unknown;
 
 	version = *(Dwarf_Small *) cie_ptr;
 	cie_ptr++;
@@ -1603,11 +1775,15 @@ dwarf_get_fde_for_die(Dwarf_Debug dbg,
 
 	augmentation = cie_ptr;
 	cie_ptr = cie_ptr + strlen((char *) cie_ptr) + 1;
-	if ((strcmp((char *) augmentation,
-		    DW_DEBUG_FRAME_AUGMENTER_STRING) == 0) ||
-	    (strcmp((char *) augmentation, DW_EMPTY_STRING) == 0)) {
+    	augt  = get_augmentation_type(dbg,
+                                        augmentation,
+					/* gcc eh_frame cie= */0);
+        switch(augt) {
+        case aug_irix_mti_v1:
+        case aug_empty_string: {
 
-	    Dwarf_Unsigned lreg;
+	    Dwarf_Unsigned lreg = 0;
+	    unsigned long size = 0;
 
 	    DECODE_LEB128_UWORD(cie_ptr, lreg)
 		code_alignment_factor = (Dwarf_Word) lreg;
@@ -1617,18 +1793,22 @@ dwarf_get_fde_for_die(Dwarf_Debug dbg,
 		_dwarf_decode_s_leb128(cie_ptr, &leb128_length);
 	    cie_ptr = cie_ptr + leb128_length;
 
-	    return_address_register = *(Dwarf_Small *) cie_ptr;
+	    return_address_register = get_return_address_reg(
+                        cie_ptr,version,&size);
 	    if (return_address_register > DW_FRAME_LAST_REG_NUM) {
 		_dwarf_error(dbg, error, DW_DLE_CIE_RET_ADDR_REG_ERROR);
 		return (DW_DLV_ERROR);
 	    }
-	    cie_ptr++;
-	} else if (augmentation[0] == 'z') {
+	    cie_ptr += size;
+	} 
+        break;
+        case aug_irix_exception_table: {
 	    /* The augmentation starts with a known prefix. We can
 	       asssume that the first field is the length of the
 	       augmented fields. */
 
-	    Dwarf_Unsigned lreg;
+	    Dwarf_Unsigned lreg = 0;
+    	    Dwarf_Word length_of_augmented_fields = 0;
 
 	    DECODE_LEB128_UWORD(cie_ptr, lreg)
 		code_alignment_factor = (Dwarf_Word) lreg;
@@ -1643,30 +1823,20 @@ dwarf_get_fde_for_die(Dwarf_Debug dbg,
 	    }
 	    cie_ptr++;
 	    /* Decode the length of augmented fields. */
-	    DECODE_LEB128_UWORD(cie_ptr, lreg)
-		length_of_augmented_fields = (Dwarf_Word) lreg;
+	    DECODE_LEB128_UWORD(cie_ptr, lreg);
+	    length_of_augmented_fields = (Dwarf_Word) lreg;
 
 	    /* set the cie_ptr to point at the instruction start. */
 	    cie_ptr += length_of_augmented_fields;
-	} else if (strcmp((const char *) augmentation, "eh") == 0) {
-	    Dwarf_Unsigned lreg;
-
-	    DECODE_LEB128_UWORD(cie_ptr, lreg)
-		code_alignment_factor = (Dwarf_Word) lreg;
-
-
-	    data_alignment_factor = (Dwarf_Sword)
-		_dwarf_decode_s_leb128(cie_ptr, &leb128_length);
-	    cie_ptr = cie_ptr + leb128_length;
-
-	    return_address_register = *(Dwarf_Small *) cie_ptr;
-	    if (return_address_register > DW_FRAME_LAST_REG_NUM) {
-		_dwarf_error(dbg, error, DW_DLE_CIE_RET_ADDR_REG_ERROR);
-		return (DW_DLV_ERROR);
-	    }
-	    cie_ptr++;
-
-	} else {
+	}
+	break;
+	case aug_eh:
+	case aug_gcc_eh_z: {
+            _dwarf_error(dbg, error,
+                 DW_DLE_FRAME_AUGMENTATION_UNKNOWN);
+            return DW_DLV_ERROR;
+        }
+	default: {
 	    /* We do not understand the augmentation string. No
 	       assumption can be made about any fields other than what
 	       we have already read. */
@@ -1678,6 +1848,7 @@ dwarf_get_fde_for_die(Dwarf_Debug dbg,
 	       the previous version and I am leaving them the same way. 
 	     */
 	}
+	} /* End augmentation switch. */
 
 	new_cie = (Dwarf_Cie) _dwarf_get_alloc(dbg, DW_DLA_CIE, 1);
 	if (new_cie == NULL) {
@@ -1698,6 +1869,7 @@ dwarf_get_fde_for_die(Dwarf_Debug dbg,
 	new_cie->ci_return_address_register = return_address_register;
 	new_cie->ci_cie_start = start_cie_ptr;
 	new_cie->ci_cie_instr_start = cie_ptr;
+	new_cie->ci_augmentation_type = augt;
 	new_cie->ci_dbg = dbg;
     } else {
 	_dwarf_error(dbg, error, DW_DLE_NO_CIE_FOR_FDE);
@@ -1870,6 +2042,7 @@ _dwarf_get_fde_info_for_a_pc_row(Dwarf_Fde fde,
 	    cie->ci_initial_table->fr_reg[i].ru_offset = 0;
 	}
 
+
 	res = _dwarf_exec_frame_instr( /* make_instr= */ false,
 				      /* ret_frame_instr= */ NULL,
 				      /* search_pc */ false,
@@ -1892,16 +2065,23 @@ _dwarf_get_fde_info_for_a_pc_row(Dwarf_Fde fde,
 	}
     }
 
+    {
+    Dwarf_Small * instr_end = fde->fd_fde_instr_start +
+                                   fde->fd_length +
+                                  fde->fd_length_size +
+                                  fde->fd_extension_size -
+                                  ( fde->fd_fde_instr_start -
+                                        fde->fd_fde_start);
+		
     res = _dwarf_exec_frame_instr( /* make_instr= */ false,
 				  /* ret_frame_instr= */ NULL,
 				  /* search_pc */ true,
 				  /* search_pc_val */ pc_requested,
 				  fde->fd_initial_location,
 				  fde->fd_fde_instr_start,
-				  fde->fd_fde_start + fde->fd_length +
-				  fde->fd_length_size +
-				  fde->fd_extension_size,
+				  instr_end,
 				  table, cie, dbg, &icount, &dw_err);
+    }
     if (res == DW_DLV_ERROR) {
 	_dwarf_error(dbg, error, dw_err);
 	return (res);
@@ -1993,8 +2173,8 @@ dwarf_get_fde_instr_bytes(Dwarf_Fde inFde, Dwarf_Ptr * outinstraddr,
 			  Dwarf_Unsigned * outaddrlen,
 			  Dwarf_Error * error)
 {
-    Dwarf_Unsigned len;
-    unsigned char *instrs;
+    Dwarf_Unsigned len = 0;
+    unsigned char *instrs = 0;
     Dwarf_Debug dbg;
 
     if (inFde == NULL) {
@@ -2008,10 +2188,11 @@ dwarf_get_fde_instr_bytes(Dwarf_Fde inFde, Dwarf_Ptr * outinstraddr,
 	return (DW_DLV_ERROR);
     }
 
-    instrs = inFde->fd_fde_instr_start,
-	len = (inFde->fd_fde_start + inFde->fd_length +
-	       inFde->fd_length_size + inFde->fd_extension_size)
-	- instrs;
+    instrs = inFde->fd_fde_instr_start;
+
+    len = (inFde->fd_fde_start + inFde->fd_length +
+	  inFde->fd_length_size + inFde->fd_extension_size)
+	  - instrs;
 
     *outinstraddr = instrs;
     *outaddrlen = len;
