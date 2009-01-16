@@ -55,14 +55,14 @@ makename(char *s)
     char *newstr;
 
     if (!s) {
-	return "";
+        return "";
     }
 
     newstr = strdup(s);
     if (newstr == 0) {
-	fprintf(stderr, "Out of memory mallocing %d bytes\n",
-		(int) strlen(s));
-	exit(1);
+        fprintf(stderr, "Out of memory mallocing %d bytes\n",
+                (int) strlen(s));
+        exit(1);
     }
     return newstr;
 }

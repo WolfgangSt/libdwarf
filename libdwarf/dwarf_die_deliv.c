@@ -1,7 +1,7 @@
 /*
 
   Copyright (C) 2000,2001,2002,2003,2004,2005,2006 Silicon Graphics, Inc.  All Rights Reserved.
-  Portions Copyright (C) 2007 David Anderson. All Rights Reserved.
+  Portions Copyright (C) 2007,2008 David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -68,7 +68,7 @@
 static Dwarf_CU_Context
 _dwarf_find_CU_Context(Dwarf_Debug dbg, Dwarf_Off offset)
 {
-    Dwarf_CU_Context cu_context;
+    Dwarf_CU_Context cu_context = 0;
 
     if (offset >= dbg->de_info_last_offset)
 	return (NULL);
@@ -119,7 +119,7 @@ _dwarf_find_CU_Context(Dwarf_Debug dbg, Dwarf_Off offset)
 static Dwarf_CU_Context
 _dwarf_find_offdie_CU_Context(Dwarf_Debug dbg, Dwarf_Off offset)
 {
-    Dwarf_CU_Context cu_context;
+    Dwarf_CU_Context cu_context = 0;
 
     for (cu_context = dbg->de_offdie_cu_context;
 	 cu_context != NULL; cu_context = cu_context->cc_next)
@@ -153,12 +153,12 @@ static Dwarf_CU_Context
 _dwarf_make_CU_Context(Dwarf_Debug dbg,
 		       Dwarf_Off offset, Dwarf_Error * error)
 {
-    Dwarf_CU_Context cu_context;
-    Dwarf_Unsigned length;
-    Dwarf_Signed abbrev_offset;
-    Dwarf_Byte_Ptr cu_ptr;
+    Dwarf_CU_Context cu_context = 0;
+    Dwarf_Unsigned length = 0;
+    Dwarf_Signed abbrev_offset = 0;
+    Dwarf_Byte_Ptr cu_ptr = 0;
     int local_extension_size = 0;
-    int local_length_size;
+    int local_length_size = 0;
 
     cu_context =
 	(Dwarf_CU_Context) _dwarf_get_alloc(dbg, DW_DLA_CU_CONTEXT, 1);
@@ -261,10 +261,10 @@ dwarf_next_cu_header(Dwarf_Debug dbg,
 		     Dwarf_Error * error)
 {
     /* Offset for current and new CU. */
-    Dwarf_Unsigned new_offset;
+    Dwarf_Unsigned new_offset = 0;
 
     /* CU Context for current CU. */
-    Dwarf_CU_Context cu_context;
+    Dwarf_CU_Context cu_context = 0;
 
     /* ***** BEGIN CODE ***** */
 
@@ -376,16 +376,16 @@ _dwarf_next_die_info_ptr(Dwarf_Byte_Ptr die_info_ptr,
 			 Dwarf_Bool want_AT_sibling,
 			 Dwarf_Bool * has_die_child)
 {
-    Dwarf_Byte_Ptr info_ptr;
-    Dwarf_Byte_Ptr abbrev_ptr;
-    Dwarf_Word abbrev_code;
+    Dwarf_Byte_Ptr info_ptr = 0;
+    Dwarf_Byte_Ptr abbrev_ptr = 0;
+    Dwarf_Word abbrev_code = 0;
     Dwarf_Abbrev_List abbrev_list;
-    Dwarf_Half attr;
-    Dwarf_Half attr_form;
-    Dwarf_Unsigned offset;
-    Dwarf_Word leb128_length;
-    Dwarf_Unsigned utmp;
-    Dwarf_Debug dbg;
+    Dwarf_Half attr = 0;
+    Dwarf_Half attr_form = 0;
+    Dwarf_Unsigned offset = 0;
+    Dwarf_Word leb128_length = 0;
+    Dwarf_Unsigned utmp = 0;
+    Dwarf_Debug dbg = 0;
 
     info_ptr = die_info_ptr;
     DECODE_LEB128_UWORD(info_ptr, utmp);
@@ -393,6 +393,7 @@ _dwarf_next_die_info_ptr(Dwarf_Byte_Ptr die_info_ptr,
     if (abbrev_code == 0) {
 	return NULL;
     }
+
 
     abbrev_list = _dwarf_get_abbrev_for_code(cu_context, abbrev_code);
     if (abbrev_list == NULL) {
@@ -505,14 +506,14 @@ dwarf_siblingof(Dwarf_Debug dbg,
 		Dwarf_Die die,
 		Dwarf_Die * caller_ret_die, Dwarf_Error * error)
 {
-    Dwarf_Die ret_die;
-    Dwarf_Byte_Ptr die_info_ptr;
+    Dwarf_Die ret_die = 0;
+    Dwarf_Byte_Ptr die_info_ptr = 0;
     Dwarf_Byte_Ptr cu_info_start = 0;
 
     /* die_info_end points 1-past end of die (once set) */
     Dwarf_Byte_Ptr die_info_end = 0;
-    Dwarf_Half abbrev_code;
-    Dwarf_Unsigned utmp;
+    Dwarf_Word abbrev_code = 0;
+    Dwarf_Unsigned utmp = 0;
 
 
     if (dbg == NULL) {
@@ -540,7 +541,7 @@ dwarf_siblingof(Dwarf_Debug dbg,
     } else {
 	/* Find sibling die. */
 	Dwarf_Bool has_child = false;
-	Dwarf_Sword child_depth;
+	Dwarf_Sword child_depth = 0;
 
 	/* We cannot have a legal die unless debug_info was loaded, so
 	   no need to load debug_info here. */
@@ -616,7 +617,7 @@ dwarf_siblingof(Dwarf_Debug dbg,
 	die == NULL ? dbg->de_cu_context : die->di_cu_context;
 
     DECODE_LEB128_UWORD(die_info_ptr, utmp);
-    abbrev_code = (Dwarf_Half) utmp;
+    abbrev_code = (Dwarf_Word) utmp;
     if (abbrev_code == 0) {
 	/* Zero means a null DIE */
 	dwarf_dealloc(dbg, ret_die, DW_DLA_DIE);
@@ -649,7 +650,7 @@ dwarf_child(Dwarf_Die die,
     Dwarf_Die ret_die = 0;
     Dwarf_Bool has_die_child = 0;
     Dwarf_Debug dbg;
-    Dwarf_Half abbrev_code = 0;
+    Dwarf_Word abbrev_code = 0;
     Dwarf_Unsigned utmp = 0;
 
 
@@ -688,7 +689,7 @@ dwarf_child(Dwarf_Die die,
     ret_die->di_cu_context = die->di_cu_context;
 
     DECODE_LEB128_UWORD(die_info_ptr, utmp);
-    abbrev_code = (Dwarf_Half) utmp;
+    abbrev_code = (Dwarf_Word) utmp;
     if (abbrev_code == 0) {
 	/* We have arrived at a null DIE, at the end of a CU or the end 
 	   of a list of siblings. */
@@ -718,11 +719,11 @@ int
 dwarf_offdie(Dwarf_Debug dbg,
 	     Dwarf_Off offset, Dwarf_Die * new_die, Dwarf_Error * error)
 {
-    Dwarf_CU_Context cu_context;
+    Dwarf_CU_Context cu_context = 0;
     Dwarf_Off new_cu_offset = 0;
     Dwarf_Die die = 0;
     Dwarf_Byte_Ptr info_ptr = 0;
-    Dwarf_Half abbrev_code = 0;
+    Dwarf_Unsigned abbrev_code = 0;
     Dwarf_Unsigned utmp = 0;
 
     if (dbg == NULL) {
@@ -795,7 +796,7 @@ dwarf_offdie(Dwarf_Debug dbg,
     info_ptr = dbg->de_debug_info + offset;
     die->di_debug_info_ptr = info_ptr;
     DECODE_LEB128_UWORD(info_ptr, utmp);
-    abbrev_code = (Dwarf_Half) utmp;
+    abbrev_code = utmp;
     if (abbrev_code == 0) {
 	/* we are at a null DIE (or there is a bug). */
 	*new_die = 0;

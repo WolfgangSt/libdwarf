@@ -31,23 +31,23 @@
 
   http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
-	makename.h   
-	$Revision: 1.3 $
-	$Date: 2004/10/28 22:26:58 $
+        makename.h   
+        $Revision: 1.3 $
+        $Date: 2004/10/28 22:26:58 $
 
-	This is for putting strings into stable storage.
+        This is for putting strings into stable storage.
 
         Effectively an strdup() wrapper.
 
-	Rarely called.
+        Rarely called.
 
-	It leaks memory, (the memory
+        It leaks memory, (the memory
         is never freed) but that seems unimportant since
-	use of this is very rare.
+        use of this is very rare.
 
 */
 
 char * makename(char *); /* makes a copy of the string in
-	a malloc area.  Can never return 0. */
+        a malloc area.  Can never return 0. */
 
 #endif

@@ -1,3 +1,8 @@
+April 9, 2008
+  libdwarf would behave badly if one compilation unit had more than 64K
+  abbreviations: It was both very slow dealing with abbreviations and would
+  get mixed up and error-off.  Increased the size of some internal variables
+  and rewrote abbreviation lookup.
 February 18, 2008
   It is now possible to write one's own access to objects, making it possible
   to use a different library than libelf or even read a completely

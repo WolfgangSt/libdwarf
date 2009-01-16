@@ -35,15 +35,15 @@ $Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/print_frames.h,v 1.2 2
 
 int
   print_one_fde(Dwarf_Debug dbg, Dwarf_Fde fde,
-		Dwarf_Unsigned fde_index,
-		Dwarf_Cie * cie_data,
-		Dwarf_Signed cie_element_count,
-		Dwarf_Half address_size, 
-		int is_eh,
-		struct dwconf_s * config_data);
+                Dwarf_Unsigned fde_index,
+                Dwarf_Cie * cie_data,
+                Dwarf_Signed cie_element_count,
+                Dwarf_Half address_size, 
+                int is_eh,
+                struct dwconf_s * config_data);
 
 int
   print_one_cie(Dwarf_Debug dbg, Dwarf_Cie cie,
-		Dwarf_Unsigned cie_index, 
-		Dwarf_Half address_size,
-		struct dwconf_s * config_data);
+                Dwarf_Unsigned cie_index, 
+                Dwarf_Half address_size,
+                struct dwconf_s * config_data);

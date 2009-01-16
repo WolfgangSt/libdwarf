@@ -130,6 +130,10 @@ extern boolean check_pubname_attr;
 extern boolean check_attr_tag;
 extern boolean check_tag_tree;
 extern boolean check_type_offset;
+extern boolean check_decl_file;
+extern boolean suppress_nested_name_search;
+
+extern int break_after_n_units;
 
 extern Dwarf_Check_Result abbrev_code_result;
 extern Dwarf_Check_Result pubname_attr_result;
@@ -137,6 +141,7 @@ extern Dwarf_Check_Result reloc_offset_result;
 extern Dwarf_Check_Result attr_tag_result;
 extern Dwarf_Check_Result tag_tree_result;
 extern Dwarf_Check_Result type_offset_result;
+extern Dwarf_Check_Result decl_file_result;
 
 extern boolean info_flag;
 extern boolean use_old_dwarf_loclist;
@@ -155,7 +160,7 @@ extern void print_error (Dwarf_Debug dbg, string msg,int res, Dwarf_Error err);
 extern void print_line_numbers_this_cu (Dwarf_Debug dbg, Dwarf_Die in_die);
 struct dwconf_s;
 extern void print_frames (Dwarf_Debug dbg, int print_debug_frame,
-		int print_eh_frame,struct dwconf_s *);
+                int print_eh_frame,struct dwconf_s *);
 extern void print_pubnames (Dwarf_Debug dbg);
 extern void print_macinfo (Dwarf_Debug dbg);
 extern void print_locs (Dwarf_Debug dbg);
@@ -171,30 +176,30 @@ extern void print_weaknames(Dwarf_Debug dbg);
 extern void print_exception_tables(Dwarf_Debug dbg);
 extern string get_fde_proc_name(Dwarf_Debug dbg, Dwarf_Addr low_pc);
 extern void print_die_and_children(
-	Dwarf_Debug dbg, 
-	Dwarf_Die in_die,
-	char **srcfiles,
-	Dwarf_Signed cnt);
+        Dwarf_Debug dbg, 
+        Dwarf_Die in_die,
+        char **srcfiles,
+        Dwarf_Signed cnt);
 extern void print_one_die(
-	Dwarf_Debug dbg, 
-	Dwarf_Die die, 
-	boolean print_information,
-	char **srcfiles,
-	Dwarf_Signed cnt);
+        Dwarf_Debug dbg, 
+        Dwarf_Die die, 
+        boolean print_information,
+        char **srcfiles,
+        Dwarf_Signed cnt);
 
 #define DWARF_CHECK_ERROR(str) {\
-	printf("*** DWARF CHECK: %s ***\n", str);\
-	check_error ++; \
+        printf("*** DWARF CHECK: %s ***\n", str);\
+        check_error ++; \
 }
 
 #define DWARF_CHECK_ERROR2(str1, str2) {\
-	printf("*** DWARF CHECK: %s: %s ***\n", str1, str2);\
-	check_error ++; \
+        printf("*** DWARF CHECK: %s: %s ***\n", str1, str2);\
+        check_error ++; \
 }
 
 #define DWARF_CHECK_ERROR3(str1, str2,strexpl) {\
-	printf("*** DWARF CHECK: %s -> %s: %s ***\n", str1, str2,strexpl);\
-	check_error ++; \
+        printf("*** DWARF CHECK: %s -> %s: %s ***\n", str1, str2,strexpl);\
+        check_error ++; \
 }
 
 struct esb_s;
@@ -206,7 +211,7 @@ extern void print_frame_inst_bytes(Dwarf_Debug dbg,
                        Dwarf_Ptr cie_init_inst, Dwarf_Signed len,
                        Dwarf_Signed data_alignment_factor,
                        int code_alignment_factor, Dwarf_Half addr_size,
-			struct dwconf_s *config_data);
+                        struct dwconf_s *config_data);
 
 
 extern Dwarf_Unsigned local_dwarf_decode_u_leb128(unsigned char *leb128,
@@ -220,7 +225,7 @@ extern void dump_block(char *prefix, char *data, Dwarf_Signed len);
 int
 dwarfdump_print_one_locdesc(Dwarf_Debug dbg,
                          Dwarf_Locdesc * llbuf,
-			 int skip_locdesc_header,
+                         int skip_locdesc_header,
                          struct esb_s *string_out);
 void clean_up_die_esb();
 void clean_up_syms_malloc_data();

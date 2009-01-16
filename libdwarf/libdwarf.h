@@ -2296,13 +2296,11 @@ dwarf_get_section_max_offsets(Dwarf_Debug /*dbg*/,
     Dwarf_Unsigned * /*debug_ranges_size*/,
     Dwarf_Unsigned * /*debug_pubtypes_size*/);
 
-Dwarf_Half
-dwarf_set_frame_rule_inital_value(Dwarf_Debug /*dbg*/,
+Dwarf_Half dwarf_set_frame_rule_inital_value(Dwarf_Debug /*dbg*/,
     Dwarf_Half /*value*/);
 
-Dwarf_Half
-dwarf_set_frame_rule_table_size(Dwarf_Debug dbg,
-        Dwarf_Half value);
+Dwarf_Half dwarf_set_frame_rule_table_size(Dwarf_Debug dbg, 
+    Dwarf_Half value);
 
 
 #ifdef __cplusplus

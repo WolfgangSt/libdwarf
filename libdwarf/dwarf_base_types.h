@@ -1,6 +1,7 @@
 /*
 
   Copyright (C) 2000,2005 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright (C) 2008  David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -44,7 +45,6 @@
 #define DW_CIE_ID 		~(0x0)
 #define DW_CIE_VERSION		1 /* DWARF2 */
 #define DW_CIE_VERSION3		3 /* DWARF3 */
-#define ABBREV_HASH_TABLE_SIZE	10
 
 
 /* 
@@ -65,9 +65,10 @@
 #define DW_DLA_VAR_CONTEXT	DW_DLA_ADDR + 12
 #define DW_DLA_WEAK_CONTEXT	DW_DLA_ADDR + 13
 #define DW_DLA_PUBTYPES_CONTEXT	DW_DLA_ADDR + 14 /* DWARF3 */
+#define DW_DLA_HASH_TABLE_ENTRY	DW_DLA_ADDR + 15 
 
 /* Maximum number of allocation types for allocation routines. */
-#define MAX_DW_DLA		DW_DLA_PUBTYPES_CONTEXT
+#define MAX_DW_DLA		DW_DLA_HASH_TABLE_ENTRY
 
 /*Dwarf_Word  is unsigned word usable for index, count in memory */
 /*Dwarf_Sword is   signed word usable for index, count in memory */
@@ -104,6 +105,7 @@ typedef struct Dwarf_Abbrev_List_s *Dwarf_Abbrev_List;
 typedef struct Dwarf_File_Entry_s *Dwarf_File_Entry;
 typedef struct Dwarf_CU_Context_s *Dwarf_CU_Context;
 typedef struct Dwarf_Hash_Table_s *Dwarf_Hash_Table;
+typedef struct Dwarf_Hash_Table_Entry_s *Dwarf_Hash_Table_Entry;
 
 
 typedef struct Dwarf_Alloc_Hdr_s *Dwarf_Alloc_Hdr;

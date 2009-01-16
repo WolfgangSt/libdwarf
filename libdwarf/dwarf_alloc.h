@@ -1,6 +1,7 @@
 /*
 
   Copyright (C) 2000,2005 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright (C) 2008  David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -43,7 +44,16 @@ int _dwarf_free_all_of_one_debug(Dwarf_Debug);
 typedef struct Dwarf_Alloc_Area_s *Dwarf_Alloc_Area;
 typedef struct Dwarf_Free_List_s *Dwarf_Free_List;
 
-#define ALLOC_AREA_INDEX_TABLE_MAX 43
+/* ALLOC_AREA_INDEX_TABLE_MAX is the size of the
+   struct ial_s index_into_allocated array in dwarf_alloc.c
+*/
+#define ALLOC_AREA_INDEX_TABLE_MAX 44
+/* ALLOC_AREA_REAL_TABLE_MAX is the size of the array needed
+   to hold pointers to dwarf alloc chunk areas.
+   It's smaller as some of the index_into_allocated 
+   entries (they look like {0,1,1,0,0} )
+   are treated specially and don't use 'chunks'.
+*/
 #define ALLOC_AREA_REAL_TABLE_MAX 32
 
 /* 

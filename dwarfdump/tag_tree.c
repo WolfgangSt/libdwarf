@@ -34,8 +34,8 @@
 $Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/tag_tree.c,v 1.8 2005/12/01 17:34:59 davea Exp $ */
 #include <dwarf.h>
 #include <stdio.h>
-#include <stdlib.h>		/* For exit() declaration etc. */
-#include <errno.h>		/* For errno declaration. */
+#include <stdlib.h>             /* For exit() declaration etc. */
+#include <errno.h>              /* For errno declaration. */
 
 
 /*  The following is the magic token used to
@@ -144,8 +144,8 @@ static char *tag_name[] = {
     "0x3b DW_TAG_unspecified_type",
     "0x3c DW_TAG_partial_unit",
     "0x3d DW_TAG_imported_unit",
-    "0x3e",			/* was DW_TAG_mutable_type, removed
-				   from DWARF3f. */
+    "0x3e",                     /* was DW_TAG_mutable_type, removed
+                                   from DWARF3f. */
     "0x3f DW_TAG_condition",
     "0x40 DW_TAG_shared_type",
 };
@@ -163,8 +163,8 @@ static void
 bad_line_input(char *msg)
 {
     fprintf(stderr,
-	    "tag_tree table build failed %s, line %d: \"%s\"  \n",
-	    msg, linecount, line_in);
+            "tag_tree table build failed %s, line %d: \"%s\"  \n",
+            msg, linecount, line_in);
     exit(1);
 
 }
@@ -174,11 +174,11 @@ trim_newline(char *line, int max)
     char *end = line + max - 1;
 
     for (; *line && (line < end); ++line) {
-	if (*line == '\n') {
-	    /* Found newline, drop it */
-	    *line = 0;
-	    return;
-	}
+        if (*line == '\n') {
+            /* Found newline, drop it */
+            *line = 0;
+            return;
+        }
     }
 
     return;
@@ -201,31 +201,31 @@ read_value(unsigned int *outval)
     *outval = 0;
     res = fgets(line_in, sizeof(line_in), file);
     if (res == 0) {
-	if (ferror(file)) {
-	    fprintf(stderr,
-		    "tag_attr: Error reading table, %d lines read\n",
-		    linecount);
-	    exit(1);
-	}
-	if (feof(file)) {
-	    return IS_EOF;
-	}
-	/* impossible */
-	fprintf(stderr, "tag_attr: Impossible error reading table, "
-		"%d lines read\n", linecount);
-	exit(1);
+        if (ferror(file)) {
+            fprintf(stderr,
+                    "tag_attr: Error reading table, %d lines read\n",
+                    linecount);
+            exit(1);
+        }
+        if (feof(file)) {
+            return IS_EOF;
+        }
+        /* impossible */
+        fprintf(stderr, "tag_attr: Impossible error reading table, "
+                "%d lines read\n", linecount);
+        exit(1);
     }
     trim_newline(line_in, sizeof(line_in));
     errno = 0;
     lval = strtoul(line_in, &strout, 0);
     if (strout == line_in) {
-	bad_line_input("bad number input!");
+        bad_line_input("bad number input!");
     }
     if (errno != 0) {
-	int myerr = errno;
+        int myerr = errno;
 
-	fprintf(stderr, "tag_attr errno %d\n", myerr);
-	bad_line_input("invalid number on line");
+        fprintf(stderr, "tag_attr errno %d\n", myerr);
+        bad_line_input("invalid number on line");
     }
     *outval = (int) lval;
     return NOT_EOF;
@@ -240,53 +240,53 @@ main()
     int input_eof;
 
 
-    input_eof = read_value(&num);	/* 0xffffffff */
+    input_eof = read_value(&num);       /* 0xffffffff */
     if (IS_EOF == input_eof) {
-	bad_line_input("Empty input file");
+        bad_line_input("Empty input file");
     }
     if (num != MAGIC_TOKEN_VALUE) {
-	bad_line_input("Expected 0xffffffff");
+        bad_line_input("Expected 0xffffffff");
     }
 
     while (!feof(stdin)) {
-	unsigned int tag;
+        unsigned int tag;
 
-	input_eof = read_value(&tag);
-	if (IS_EOF == input_eof) {
-	    /* Reached normal eof */
-	    break;
-	}
-	if (tag >= TABLE_SIZE) {
-	    bad_line_input("tag value exceeds table size");
-	}
-	input_eof = read_value(&num);
-	if (IS_EOF == input_eof) {
-	    bad_line_input("Not terminated correctly..");
-	}
+        input_eof = read_value(&tag);
+        if (IS_EOF == input_eof) {
+            /* Reached normal eof */
+            break;
+        }
+        if (tag >= TABLE_SIZE) {
+            bad_line_input("tag value exceeds table size");
+        }
+        input_eof = read_value(&num);
+        if (IS_EOF == input_eof) {
+            bad_line_input("Not terminated correctly..");
+        }
 
-	while (num != 0xffffffff) {
-	    int idx = num / BITS_PER_WORD;
-	    int bit = num % BITS_PER_WORD;
+        while (num != 0xffffffff) {
+            int idx = num / BITS_PER_WORD;
+            int bit = num % BITS_PER_WORD;
 
-	    if (idx >= COLUMN_COUNT) {
-		bad_line_input("too many TAGs: table incomplete.");
-	    }
+            if (idx >= COLUMN_COUNT) {
+                bad_line_input("too many TAGs: table incomplete.");
+            }
 
-	    tag_tree_combination_table[tag][idx] |= (1 << bit);
-	    input_eof = read_value(&num);
-	    if (IS_EOF == input_eof) {
-		bad_line_input("Not terminated correctly.");
-	    }
-	}
+            tag_tree_combination_table[tag][idx] |= (1 << bit);
+            input_eof = read_value(&num);
+            if (IS_EOF == input_eof) {
+                bad_line_input("Not terminated correctly.");
+            }
+        }
     }
     printf
-	("static unsigned int tag_tree_combination_table [ ][%d] = {\n",
-	 COLUMN_COUNT);
+        ("static unsigned int tag_tree_combination_table [ ][%d] = {\n",
+         COLUMN_COUNT);
     for (i = 0; i < TABLE_SIZE; i++) {
-	printf("/* %-37s*/\n", tag_name[i]);
-	printf("    { %#.8x, %#.8x},\n",
-	       tag_tree_combination_table[i][0],
-	       tag_tree_combination_table[i][1]);
+        printf("/* %-37s*/\n", tag_name[i]);
+        printf("    { %#.8x, %#.8x},\n",
+               tag_tree_combination_table[i][0],
+               tag_tree_combination_table[i][1]);
     }
     printf("};\n");
     return (0);

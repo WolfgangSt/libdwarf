@@ -1,3 +1,40 @@
-2008-02-26
+2008-04-09 David Anderson <davea42@earthlink.net>
+      * print_sections.c (get_fde_proc_name): Initialize some
+        local variables at declaration.  The function is very slow
+        and needs a replacement.
+      * print_die.c:  Fixes a typo in a comment.
+      * dwarfdump.c: Added -n option to suppress function name search
+        when printing FDEs. Current dwarfdump is n-squared at least
+        getting those names, this is a bandage-type-workaround when
+        there are so many FDEs the slowness is painful.
+      * globals.h: Support for -n option.
+      * print_frames.c: Support for -n option.
+2008-04-08 David Anderson <davea42@earthlink.net>
+      * dwarfdump.c: Added -H option for testing
+        (it limits the run length).
+        And the support for -H in printing DIEs.
+      * globals.h: Added extern for -H option declaration.
+      * print_sections.c: Added -H option support to limit frames printing.
+
+2008-04-04 David Anderson <davea42@earthlink.net>
+      * print_die.c (tag_tree_combination, tag_attr_combination):
+        Ensure we do not index off the end of the -k checking arrays.
+      * print_sections.c: Increase the size of a local variable,.
+2008-03-03 David Anderson <davea42@earthlink.net>
+      * dwarfdump.1: Add description of -ka option.
+      * print_frames.h print_sections.c testesb.c print_die.c print_reloc.c
+        dwarfdump.c tag_tree.c tag_attr.c esb.c esb.h makename.c dwconf.c
+        makename.h dwconf.h globals.h print_frames.c: Change tabs
+        to spaces with expand(1).
+2008-03-03 David Anderson <davea42@earthlink.net>
+      * print_die.c: Now check that DW_AT_decl_file
+        and DW_AT_call_file indexes are valid and count instances of the
+        attribute and errors found in it.
+      * dwarfdump.c: With -ka and -ky now check that DW_AT_decl_file
+        and DW_AT_call_file indexes are valid and warn if bad.
+        Thanks to Carlos Alberto Enciso for the suggestion.
+      * globals.h: Declare new fields for the  DW_AT_decl_file
+        DW_AT_call_file checks. 
+2008-02-26 David Anderson <davea42@earthlink.net>
       * print_die.c (get_attr_value): Print DW_AT_call_file,
         DW_AT_call_line, DW_AT_call_column nicely.

@@ -1,7 +1,7 @@
 /*
 
   Copyright (C) 2000,2002,2003,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
-  Portions Copyright (C) 2007  David Anderson. All Rights Reserved.
+  Portions Copyright (C) 2007,2008  David Anderson. All Rights Reserved.
   Portions Copyright (C) 2008  Arxan Technologies, Inc. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
@@ -58,6 +58,8 @@ struct Dwarf_Die_s {
        the .debug_info section. */
     Dwarf_Byte_Ptr di_debug_info_ptr;
 
+    /* Points to the abbreviation record for this DIE.
+    */
     Dwarf_Abbrev_List di_abbrev_list;
 
     /* Points to cu context for this die.  */

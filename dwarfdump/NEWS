@@ -1,3 +1,9 @@
+April 9, 2008
+  Added -H  <num>  to limit the number of compilation-units/FDEs
+  dwarfdump prints in one run.  Added -n to eliminate function-name
+  printing in .debug_frame output (with a large-enough debug_info
+  section function-name printing is too slow). The function name
+  printing will be fixed in another release.
 December 8, 2007
   Had to add an ugly configure conditional as libelf has
   unconditional use of off64_t in recent libelf.h

@@ -1,7 +1,7 @@
 /*
 
   Copyright (C) 2000,2002,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
-  Portions Copyright (C) 2007  David Anderson. All Rights Reserved.
+  Portions Copyright (C) 2007,2008  David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -67,6 +67,7 @@
 #include "dwarf_types.h"
 #include "dwarf_vars.h"
 #include "dwarf_weaks.h"
+
 
 static void _dwarf_free_special_error(Dwarf_Ptr space);
 
@@ -241,11 +242,7 @@ struct ial_s index_into_allocated[ALLOC_AREA_INDEX_TABLE_MAX] = {
     {25, sizeof(struct Dwarf_Loc_Chain_s), BASE_ALLOC, 0, 0},	/* 36 */
     /* 36 DW_DLA_LOC_CHAIN */
 
-    /* See use of ABBREV_HASH_TABLE_SIZE below for final dealloc. */
-    {26, ABBREV_HASH_TABLE_SIZE * sizeof(struct Dwarf_Hash_Table_s),
-     BASE_ALLOC, 0, 0},		/* 37 */
-
-
+    {26, sizeof(struct Dwarf_Hash_Table_s),BASE_ALLOC, 0, 0},   /* 37 */
     /* 37 DW_DLA_HASH_TABLE */
 
 /* The following really use Global struct: used to be unique struct
@@ -266,6 +263,9 @@ struct ial_s index_into_allocated[ALLOC_AREA_INDEX_TABLE_MAX] = {
     /* 41 DW_DLA_WEAK_CONTEXT */
     {31, sizeof(struct Dwarf_Global_Context_s), BASE_ALLOC, 0, 0},
     /* 42 DW_DLA_PUBTYPES_CONTEXT DWARF3 */
+
+    {0,1,1,0,0 }
+    /* 43 DW_DLA_HASH_TABLE_ENTRY */
 
 };
 
@@ -502,6 +502,8 @@ _dwarf_get_alloc(Dwarf_Debug dbg,
 	    size = count * sizeof(Dwarf_Frame_Op);
 	} else if (alloc_type == DW_DLA_LOC_BLOCK) {
 	    size = count * sizeof(Dwarf_Loc);
+	} else if (alloc_type == DW_DLA_HASH_TABLE_ENTRY) {
+	    size = count * sizeof(struct Dwarf_Hash_Table_Entry_s);
 	} else if (alloc_type == DW_DLA_ADDR) {
 	    size = count *
 		(sizeof(Dwarf_Addr) > sizeof(Dwarf_Off) ?
@@ -734,7 +736,8 @@ dwarf_dealloc(Dwarf_Debug dbg,
 
 	if (type == DW_DLA_LIST ||
 	    type == DW_DLA_FRAME_BLOCK ||
-	    type == DW_DLA_LOC_BLOCK || type == DW_DLA_ADDR) {
+	    type == DW_DLA_LOC_BLOCK || type == DW_DLA_ADDR ||
+            type == DW_DLA_HASH_TABLE_ENTRY) {
 
 #ifdef DWARF_SIMPLE_MALLOC
             _dwarf_simple_malloc_delete_from_list(dbg, space, type);
@@ -954,7 +957,9 @@ dwarf_print_memory_stats(Dwarf_Debug dbg)
 	"DW_DLA_FUNC_CONTEXT",
 	"DW_DLA_TYPENAME_CONTEXT",
 	"DW_DLA_VAR_CONTEXT",
-	"DW_DLA_WEAK_CONTEXT" "DW_DLA_PUBTYPES_CONTEXT"
+	"DW_DLA_WEAK_CONTEXT",
+        "DW_DLA_PUBTYPES_CONTEXT",
+        "DW_DLA_HASH_TABLE_ENTRY",
     };
 
     if (dbg == NULL)
@@ -1032,23 +1037,9 @@ _dwarf_free_all_of_one_debug(Dwarf_Debug dbg)
     for (context = dbg->de_cu_context_list;
 	 context; context = nextcontext) {
 	Dwarf_Hash_Table hash_table = context->cc_abbrev_hash_table;
-
-	/* A Hash Table is an array with ABBREV_HASH_TABLE_SIZE struct
-	   Dwarf_Hash_Table_s entries in the array. */
-	int hashnum = 0;
-
-	for (; hashnum < ABBREV_HASH_TABLE_SIZE; ++hashnum) {
-	    struct Dwarf_Abbrev_List_s *abbrev = 0;
-	    struct Dwarf_Abbrev_List_s *nextabbrev = 0;
-
-	    abbrev = hash_table[hashnum].at_head;
-	    for (; abbrev; abbrev = nextabbrev) {
-		nextabbrev = abbrev->ab_next;
-		dwarf_dealloc(dbg, abbrev, DW_DLA_ABBREV_LIST);
-	    }
-	}
-	nextcontext = context->cc_next;
-	dwarf_dealloc(dbg, hash_table, DW_DLA_HASH_TABLE);
+        _dwarf_free_abbrev_hash_table_contents(dbg,hash_table);
+        nextcontext = context->cc_next;
+        dwarf_dealloc(dbg, hash_table, DW_DLA_HASH_TABLE);
 	dwarf_dealloc(dbg, context, DW_DLA_CU_CONTEXT);
     }
 

@@ -33,7 +33,7 @@ $Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/esb.h,v 1.1 2005/08/04
 
 
 /*  esb.h
-	Extensible string buffer.
+        Extensible string buffer.
     A simple vaguely  object oriented extensible string buffer.
 
     The struct could be opaque here, but it seems ok to expose

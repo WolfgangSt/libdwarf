@@ -1,6 +1,7 @@
 /*
 
   Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright (C) 2008  David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -43,7 +44,7 @@
 */
 struct Dwarf_Abbrev_List_s {
 
-    Dwarf_Word ab_code;
+    Dwarf_Unsigned ab_code;
     Dwarf_Half ab_tag;
     Dwarf_Half ab_has_child;
 

@@ -1,7 +1,7 @@
 /*
 
   Copyright (C) 2000,2001,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
-  Portions Copyright (C) David Anderson. All Rights Reserved.
+  Portions Copyright (C) 2008 David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -161,6 +161,8 @@ dwarf_get_abbrev_code(Dwarf_Abbrev abbrev,
     return (DW_DLV_OK);
 }
 
+/* DWARF defines DW_TAG_hi_user as 0xffff so no tag should be
+   over 16 bits.  */
 int
 dwarf_get_abbrev_tag(Dwarf_Abbrev abbrev,
 		     Dwarf_Half * returned_tag, Dwarf_Error * error)

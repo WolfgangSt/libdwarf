@@ -57,10 +57,10 @@ struct dwconf_s {
 
     /* Array of cf_table_entry_count reg names. Names not filled in
        from dwarfdump.conf have NULL (0) pointer value. 
-	cf_named_regs_table_size must match size of cf_regs array.
-	Set cf_regs_malloced  1  if table was malloced. Set 0
+        cf_named_regs_table_size must match size of cf_regs array.
+        Set cf_regs_malloced  1  if table was malloced. Set 0
         if static.
-	*/
+        */
     char **cf_regs;
     unsigned long cf_named_regs_table_size;
     int    cf_regs_malloced; 
@@ -80,12 +80,12 @@ struct dwconf_s {
 
 /* Returns DW_DLV_OK if works. DW_DLV_ERROR if cannot do what is asked. */
 int find_conf_file_and_read_config(char *named_file,
-				   char *named_abi, char **defaults,
-				   struct dwconf_s *conf_out);
+                                   char *named_abi, char **defaults,
+                                   struct dwconf_s *conf_out);
 void init_conf_file_data(struct dwconf_s *config_file_data);
 
 void print_reg_from_config_data(Dwarf_Signed reg,
-		struct dwconf_s *config_data);
+                struct dwconf_s *config_data);
 
 
 void init_generic_config_1000_regs(struct dwconf_s *conf);

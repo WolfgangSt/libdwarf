@@ -3,7 +3,7 @@
 dwarfdump \- dumps DWARF debug information of an ELF object
 .SH SYNOPSIS
 .B dwarfdump
-[-abcdefilmoprsvy] [-t{afv}] [-u\f2objectfile\fP] \f2filename\fP
+[-abcdefilmoprsvy] [-ka]  [-t{afv}] [-u\f2objectfile\fP] \f2filename\fP
 .SH DESCRIPTION
 The 
 .B dwarfdump
@@ -66,6 +66,13 @@ Dumps the .debug_frame section.
 .TP
 .B \-i
 Dumps the .debug_info section.
+.TP
+.B \-ka
+Adds all available error checks to whatever sections
+are being read. At the end of the run prints the
+instances inspected and the number of errors for each
+type of check.  If there are more than zero errors
+the compiler has emitted invalid DWARF.
 .TP
 .B \-l
 Dumps the .debug_line information.  
