@@ -71,6 +71,7 @@ OBJS= dwarf_abbrev.o \
         dwarf_alloc.o \
         dwarf_arange.o \
         dwarf_die_deliv.o \
+        dwarf_elf_access.o \
         dwarf_error.o \
         dwarf_form.o \
         dwarf_frame.o \
@@ -82,6 +83,7 @@ OBJS= dwarf_abbrev.o \
         dwarf_line.o \
         dwarf_line2.o \
         dwarf_loc.o \
+        dwarf_original_elf_init.o \
         dwarf_query.o \
         dwarf_string.o \
         dwarf_stubs.o \

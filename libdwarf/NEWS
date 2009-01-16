@@ -1,3 +1,12 @@
+February 18, 2008
+  It is now possible to write one's own access to objects, making it possible
+  to use a different library than libelf or even read a completely
+  different object format than ELF.
+  See dwarf_object_init() and see the new source files
+  dwarf_original_elf_init.c and dwarf_elf_access.c  for example
+  code using the new function-pointer approach as it's implementation.
+  Thanks to Josh Fuhs for doing the design and 99% of the work to make
+  this happen.
 February 2, 2008
   Now pro_init() defaults to standard DWARF3 generated offset sizes.
   But if a new flag DW_DLC_OFFSET_SIZE_64 or'd into flags passed to

@@ -1,3 +1,40 @@
+2008-02-27  DavidAnderson <davea42@earthlink.net>
+      * libdwarf.h: Fixed minor typo in latest libdwarf.h that gcc did not 
+        complain about. Noted by Josh Fuhs.
+2008-02-26  DavidAnderson <davea42@earthlink.net>
+      * dwarf_alloc.h: Add comment giving placement of DWARF_SIMPLE_MALLOC.
+      * pro_opaque.h: Remove de_access field, it is never used.
+      * libdwarf.h: Add new data structures to allow reading of
+        non-Elf object files.
+      * dwarf_original_elf_init.c: dwarf_init(), dwarf_elf_init()
+        moved here from dwarf_init_finish.c.
+      * Makefile.in: Build new source files dwarf_original_elf_init.c
+        and dwarf_elf_access.c.
+      * dwarf_init_finish.c: All dependencies on libelf and elf
+        have been removed.
+      * dwarf_opaque.h: The elf related info is removed and Dwarf_Debug_s
+        now contains a new structure (from libdwarf.h) to hide object
+        information.
+      * dwarf_elf_access.c: All the Elf-using code is now in this
+        source file and elf details are kept in a struct defined and
+        used here.   Non-libelf and non-elf object access code would
+        write a new source file with their own details using this
+        as an example.
+      * dwarf_elf_access.h: Prototypes for calling between
+        dwarf_original_elf_init.c and dwarf_elf_access.c.
+2008-02-18  DavidAnderson <davea42@earthlink.net>
+      * libdwarf.h: Declare new object-access functions and structures.
+      * dwarf_original_elf_init.c: Traditional dwarf_init() and dwarf_elf_init()
+        are moved to this new source file.
+      * Makefile.in: Add new source files.
+      * dwarf_init_finish.c: Now uses the function pointers, not
+        libelf specific fields or ifdefs.
+      * pro_opaque.h:  Remove de_access field, it is unused.
+      * dwarf_opaque.h: New fields for new object-access functions.
+      * dwarf_elf_access.c: New implementation details for elf access functions
+        moved here from dwarf_init_finish.c.
+      * dwarf_elf_access.h: New function interface so  dwarf_elf_access.c
+        and dwarf_original_elf_init.c can communicate.
 2008-02-08  DavidAnderson <davea42@earthlink.net>
      * dwarf_print_lines.c: Added commentary to clarify that
        dwarf_print_lines() and _dwarf_print_lines are intentionally

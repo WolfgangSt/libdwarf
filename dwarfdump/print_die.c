@@ -1,7 +1,7 @@
 /* 
   Copyright (C) 2000,2004,2005,2006 Silicon Graphics, Inc.  All Rights Reserved.
   Portions Copyright 2007 Sun Microsystems, Inc. All rights reserved.
-  Portions Copyright 2007 David Anderson. All rights reserved.
+  Portions Copyright 2007,2008 David Anderson. All rights reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2 of the GNU General Public License as
@@ -1139,6 +1139,9 @@ get_attr_value(Dwarf_Debug dbg, Dwarf_Half tag, Dwarf_Attribute attrib,
 	    case DW_AT_decl_column:
 	    case DW_AT_decl_file:
 	    case DW_AT_decl_line:
+	    case DW_AT_call_column:
+	    case DW_AT_call_file:
+	    case DW_AT_call_line:
 	    case DW_AT_start_scope:
 	    case DW_AT_byte_stride:
 	    case DW_AT_bit_stride:
@@ -1161,7 +1164,7 @@ get_attr_value(Dwarf_Debug dbg, Dwarf_Half tag, Dwarf_Attribute attrib,
 		    snprintf(small_buf, sizeof(small_buf), "%llu",
 			     tempud);
 		    esb_append(esbp, small_buf);
-		    if (attr == DW_AT_decl_file) {
+		    if (attr == DW_AT_decl_file || attr == DW_AT_call_file) {
 			if (srcfiles && tempud > 0 && tempud <= cnt) {
 			    /* added by user request */
 			    /* srcfiles is indexed starting at 0, but

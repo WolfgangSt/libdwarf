@@ -2,6 +2,7 @@
 
   Copyright (C) 2000,2002,2003,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
   Portions Copyright (C) 2007  David Anderson. All Rights Reserved.
+  Portions Copyright (C) 2008  Arxan Technologies, Inc. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -111,11 +112,13 @@ struct Dwarf_CU_Context_s {
     unsigned char cc_offset_length;
 };
 
-
 struct Dwarf_Debug_s {
-    dwarf_elf_handle de_elf; /* see de_elf_must_close at end of struct */
+    /* All file access methods and support data 
+       are hidden in this structure. 
+       We get a pointer, callers control the lifetime of the
+       structure and contents. */
+    struct Dwarf_Obj_Access_Interface_s *de_obj_file;
 
-    Dwarf_Unsigned de_access;
     Dwarf_Handler de_errhand;
     Dwarf_Ptr de_errarg;
 

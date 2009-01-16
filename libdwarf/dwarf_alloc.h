@@ -33,7 +33,7 @@
 
 */
 
-
+/* #define DWARF_SIMPLE_MALLOC 1  */
 
 Dwarf_Ptr _dwarf_get_alloc(Dwarf_Debug, Dwarf_Small, Dwarf_Unsigned);
 Dwarf_Debug _dwarf_get_debug(void);

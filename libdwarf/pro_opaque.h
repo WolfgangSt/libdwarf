@@ -333,7 +333,6 @@ struct Dwarf_P_Debug_s {
        version of libdwarf See PRO_VERSION_MAGIC */
     int de_version_magic_number;
 
-    Dwarf_Unsigned de_access;
     Dwarf_Handler de_errhand;
     Dwarf_Ptr de_errarg;
 
