@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000,2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2002,2004,2006 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -44,15 +44,13 @@
 #include <alloca.h>
 #endif
 
-#define MINIMUM_POSSIBLE_PROLOG_LEN 10  /* 10 is  based on */
-	/*  the definition of the DWARF2/3 line table prolog.
-	    The value here should be >8 (accounting for
-	    a 64 bit read) and  <= the length
-	    of a legal DWARF2/3 line prolog, 
-	    which is at least 10 bytes long (but can be longer).
-	    What this constant helps avoid is reading past the end of a 
-	    malloc'd buffer in _dwarf_update_line_sec().
-	*/
+#define MINIMUM_POSSIBLE_PROLOG_LEN 10	/* 10 is based on */
+	/* the definition of the DWARF2/3 line table prolog. The value
+	   here should be >8 (accounting for a 64 bit read) and <= the
+	   length of a legal DWARF2/3 line prolog, which is at least
+	   10 bytes long (but can be longer). What this constant helps
+	   avoid is reading past the end of a malloc'd buffer in
+	   _dwarf_update_line_sec(). */
 
 static int
   _dwarf_update_line_sec(Dwarf_Small * line_ptr,
@@ -65,10 +63,10 @@ static int
    a linked list of so we can sort and reorder the line info.
 */
 struct a_line_area {
-    Dwarf_Addr ala_address;	/* from DW_LNE_set_address */
-    Dwarf_Unsigned ala_offset;	/* byte offset in buffer */
-    Dwarf_Unsigned ala_length;	/* byte length in buffer */
-    int ala_entry_num;		/* to guarantee stable sort */
+    Dwarf_Addr     ala_address;	 /* from DW_LNE_set_address */
+    Dwarf_Unsigned ala_offset;	 /* byte offset in buffer */
+    Dwarf_Unsigned ala_length;	 /* byte length in buffer */
+    long           ala_entry_num;/* to guarantee stable sort */
     struct a_line_area *ala_next;
 };
 
@@ -176,9 +174,8 @@ _dwarf_ld_sort_lines(void *orig_buffer,
 
     /* all passed */
     if (did_change) {
-	/* So update the passed in buffer orig_buffer is caller's
-	   input area. orig_line_ptr is our modified copy of input
-	   area. */
+	/* So update the passed in buffer orig_buffer is caller's input 
+	   area. orig_line_ptr is our modified copy of input area. */
 	memcpy(orig_buffer, orig_line_ptr, buffer_len);
 	*any_change = 1;
     }
@@ -262,13 +259,13 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 
 
     /* 
-       This points to the last byte of the .debug_line portion for the 
+       This points to the last byte of the .debug_line portion for the
        current cu. */
     Dwarf_Small *line_ptr_end;
 
     /* 
        This points to the end of the statement program prologue for the 
-       current cu, and serves to check that the prologue was correctly 
+       current cu, and serves to check that the prologue was correctly
        decoded. */
     Dwarf_Small *check_line_ptr;
 
@@ -330,21 +327,17 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 
     dbg->de_copy_word = memcpy;
     /* 
-       Following is a straightforward decoding of the statement
-       program prologue information. */
+       Following is a straightforward decoding of the statement program 
+       prologue information. */
     *any_change = 0;
     orig_line_ptr = line_ptr;
-    if(remaining_bytes < MINIMUM_POSSIBLE_PROLOG_LEN) {
-        /* We are at the end. Remaining should be zero bytes,
-           padding.
-           This is really just 'end of CU buffer'
-                not an error.
-	   The is no 'entry' left so report there is none.
-	   We don't want to READ_UNALIGNED the total_length below
-	   and then belatedly discover that we read off the end 
-	   already.
-        */
-        return(DW_DLV_NO_ENTRY);
+    if (remaining_bytes < MINIMUM_POSSIBLE_PROLOG_LEN) {
+	/* We are at the end. Remaining should be zero bytes, padding.
+	   This is really just 'end of CU buffer' not an error. The is
+	   no 'entry' left so report there is none. We don't want to
+	   READ_UNALIGNED the total_length below and then belatedly
+	   discover that we read off the end already. */
+	return (DW_DLV_NO_ENTRY);
     }
 
     READ_UNALIGNED(dbg, total_length, Dwarf_Unsigned,
@@ -360,7 +353,8 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
     READ_UNALIGNED(dbg, version, Dwarf_Half,
 		   line_ptr, sizeof(Dwarf_Half));
     line_ptr += sizeof(Dwarf_Half);
-    if (version != CURRENT_VERSION_STAMP) {
+    if (version != CURRENT_VERSION_STAMP &&
+	version != CURRENT_VERSION_STAMP3) {
 	*err_code = DW_DLE_VERSION_STAMP_ERROR;
 	return (DW_DLV_ERROR);
     }
@@ -446,7 +440,8 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 	line_ptr++;
 	/* 'type' is the output */
 	WHAT_IS_OPCODE(type, opcode, opcode_base,
-		       opcode_length, line_ptr);
+		       opcode_length, line_ptr,
+		       WHAT_IS_HIGHEST_STD(version));
 
 
 
@@ -665,7 +660,8 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
     /* so now we have something to sort. First, finish off the last
        area record: */
     area_current->ala_length = (line_ptr - orig_line_ptr)	/* final 
-								   offset */
+								   offset 
+								 */
 	-area_current->ala_offset;
 
     /* Build and sort a simple array of sections. Forcing a stable sort 

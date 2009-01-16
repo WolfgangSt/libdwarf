@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2000, 2001, 2003, 2004, 2005 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2001,2003,2004,2005,2006 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License
@@ -139,6 +139,16 @@ extern "C" {
 #define DW_TAG_class_template           0x4103 /* GNU. For C++ */
 #define DW_TAG_GNU_BINCL                0x4104 /* GNU */
 #define DW_TAG_GNU_EINCL                0x4105 /* GNU */
+
+/* ALTIUM extensions */
+	/* DSP-C/Starcore __circ qualifier */
+#define DW_TAG_ALTIUM_circ_type         0x5101 /* ALTIUM */
+	/* Starcore __mwa_circ qualifier */ 
+#define DW_TAG_ALTIUM_mwa_circ_type     0x5102 /* ALTIUM */
+	/* Starcore __rev_carry qualifier */
+#define DW_TAG_ALTIUM_rev_carry_type    0x5103 /* ALTIUM */
+	/* M16 __rom qualifier */
+#define DW_TAG_ALTIUM_rom               0x5111 /* ALTIUM */
 
 /* The following 3 are extensions to support UPC */
 #define DW_TAG_upc_shared_type          0x8765 /* UPC */
@@ -523,6 +533,11 @@ extern "C" {
 /* HP Floating point extensions. */
 #define DW_ATE_HP_float80             0x80 /* (80 bit). HP */
 
+/* ALTIUM extensions. */
+#define DW_ATE_ALTIUM_fract             0x80 /* ALTIUM __fract type */
+#define DW_ATE_ALTIUM_accum             0x81 /* ALTIUM __accum type */
+
+
 #define DW_ATE_lo_user                  0x80
 
 /* HP Floating point extensions. */
@@ -591,6 +606,8 @@ extern "C" {
 #define DW_LANG_Mips_Assembler          0x8001 /* MIPS   */
 #define DW_LANG_Upc                     0x8765 /* UPC, use
                                         DW_LANG_UPC instead. */
+/* ALTIUM extension */
+#define DW_LANG_ALTIUM_Assembler        0x9101  /* ALTIUM */
 
 #define DW_LANG_hi_user                 0xffff
 
@@ -605,6 +622,20 @@ extern "C" {
 #define DW_CC_program                   0x02
 #define DW_CC_nocall                    0x03
 #define DW_CC_lo_user                   0x40
+
+/* ALTIUM extensions. */
+/* Function is an interrupt handler, return address on system stack. */
+#define DW_CC_ALTIUM_interrupt          0x65  /* ALTIUM*/
+
+/* Near function model, return address on system stack. */
+#define DW_CC_ALTIUM_near_system_stack  0x66  /*ALTIUM */
+
+/* Near function model, return address on user stack. */
+#define DW_CC_ALTIUM_near_user_stack    0x67  /* ALTIUM */  
+
+/* Huge function model, return address on user stack.  */
+#define DW_CC_ALTIUM_huge_user_stack    0x68  /* ALTIUM */    
+
 
 #define DW_CC_hi_user                   0xff
 

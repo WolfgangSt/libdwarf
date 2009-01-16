@@ -62,18 +62,18 @@ dwarf_srcfiles(Dwarf_Die die,
     Dwarf_Small *line_ptr;
 
     /* 
-       This points to the last byte of the .debug_line portion for the 
+       This points to the last byte of the .debug_line portion for the
        current cu. */
     Dwarf_Small *line_ptr_end;
 
     /* 
        This points to the end of the statement program prologue for the 
-       current cu, and serves to check that the prologue was correctly 
+       current cu, and serves to check that the prologue was correctly
        decoded. */
     Dwarf_Small *check_line_ptr;
 
     /* 
-       Pointer to a DW_AT_stmt_list attribute in case it exists in the 
+       Pointer to a DW_AT_stmt_list attribute in case it exists in the
        die. */
     Dwarf_Attribute stmt_list_attr;
 
@@ -92,7 +92,7 @@ dwarf_srcfiles(Dwarf_Die die,
     Dwarf_Unsigned total_length = 0;
     Dwarf_Half version = 0;
     Dwarf_Unsigned prologue_length = 0;
-    Dwarf_Small special_opcode_base= 0;
+    Dwarf_Small special_opcode_base = 0;
 
     /* File name excluding included directory. */
     char *file_name = 0;
@@ -110,8 +110,8 @@ dwarf_srcfiles(Dwarf_Die die,
 
     Dwarf_Small *include_directories = 0;
 
-    Dwarf_Sword i = 0; 
-    Dwarf_Sword file_count = 0; 
+    Dwarf_Sword i = 0;
+    Dwarf_Sword file_count = 0;
     Dwarf_Sword directories_count = 0;
 
     /* 
@@ -135,7 +135,9 @@ dwarf_srcfiles(Dwarf_Die die,
     int lres;
 
     int local_length_size = 0;
-    /*REFERENCED*/ /* Not used in this instance of the macro */
+
+     /*REFERENCED*/		/* Not used in this instance of the
+				   macro */
     int local_extension_size = 0;
 
     int res;
@@ -153,17 +155,16 @@ dwarf_srcfiles(Dwarf_Die die,
     if (resattr != DW_DLV_OK) {
 	return resattr;
     }
-    
+
     if (dbg->de_debug_line_index == 0) {
 	_dwarf_error(dbg, error, DW_DLE_DEBUG_LINE_NULL);
 	return (DW_DLV_ERROR);
     }
 
     res =
-       _dwarf_load_section(dbg,
-		           dbg->de_debug_line_index,
-			   &dbg->de_debug_line,
-			   error);
+	_dwarf_load_section(dbg,
+			    dbg->de_debug_line_index,
+			    &dbg->de_debug_line, error);
     if (res != DW_DLV_OK) {
 	return res;
     }
@@ -202,8 +203,8 @@ dwarf_srcfiles(Dwarf_Die die,
     }
 
     /* 
-       Following is a straightforward decoding of the statement
-       program prologue information. */
+       Following is a straightforward decoding of the statement program 
+       prologue information. */
     /* READ_AREA_LENGTH updates line_ptr for consumed bytes */
     READ_AREA_LENGTH(dbg, total_length, Dwarf_Unsigned,
 		     line_ptr, local_length_size, local_extension_size);
@@ -375,18 +376,18 @@ _dwarf_internal_srclines(Dwarf_Die die,
     Dwarf_Small *line_ptr;
 
     /* 
-       This points to the last byte of the .debug_line portion for the 
+       This points to the last byte of the .debug_line portion for the
        current cu. */
     Dwarf_Small *line_ptr_end;
 
     /* 
        This points to the end of the statement program prologue for the 
-       current cu, and serves to check that the prologue was correctly 
+       current cu, and serves to check that the prologue was correctly
        decoded. */
     Dwarf_Small *check_line_ptr;
 
     /* 
-       Pointer to a DW_AT_stmt_list attribute in case it exists in the 
+       Pointer to a DW_AT_stmt_list attribute in case it exists in the
        die. */
     Dwarf_Attribute stmt_list_attr;
 
@@ -422,12 +423,15 @@ _dwarf_internal_srclines(Dwarf_Die die,
     Dwarf_Word column;
     Dwarf_Bool is_stmt;
     Dwarf_Bool basic_block;
+    Dwarf_Bool prologue_end;
+    Dwarf_Bool epilogue_begin;
+    Dwarf_Small isa;
     Dwarf_Bool end_sequence;
 
     /* 
-       These pointers are used to build the list of files names by
-       this cu.  cur_file_entry points to the file name being added,
-       and prev_file_entry to the previous one. */
+       These pointers are used to build the list of files names by this 
+       cu.  cur_file_entry points to the file name being added, and
+       prev_file_entry to the previous one. */
     Dwarf_File_Entry cur_file_entry, prev_file_entry;
 
     Dwarf_Sword i, file_entry_count, include_directories_count;
@@ -483,7 +487,9 @@ _dwarf_internal_srclines(Dwarf_Die die,
     int resattr;
     int lres;
     int local_length_size = 0;
-    /*REFERENCED*/ /* Not used in this instance of the macro */
+
+     /*REFERENCED*/		/* Not used in this instance of the
+				   macro */
     int local_extension_size = 0;
 
     int res;
@@ -497,10 +503,9 @@ _dwarf_internal_srclines(Dwarf_Die die,
 	dbg = die->di_cu_context->cc_dbg;
 
     res =
-       _dwarf_load_section(dbg,
-		           dbg->de_debug_line_index,
-			   &dbg->de_debug_line,
-			   error);
+	_dwarf_load_section(dbg,
+			    dbg->de_debug_line_index,
+			    &dbg->de_debug_line, error);
     if (res != DW_DLV_OK) {
 	return res;
     }
@@ -547,8 +552,8 @@ _dwarf_internal_srclines(Dwarf_Die die,
     }
 
     /* 
-       Following is a straightforward decoding of the statement
-       program prologue information. */
+       Following is a straightforward decoding of the statement program 
+       prologue information. */
     /* READ_AREA_LENGTH updates line_ptr for consumed bytes */
     READ_AREA_LENGTH(dbg, total_length, Dwarf_Unsigned,
 		     line_ptr, local_length_size, local_extension_size);
@@ -661,6 +666,10 @@ _dwarf_internal_srclines(Dwarf_Die die,
     is_stmt = default_is_stmt;
     basic_block = false;
     end_sequence = false;
+    prologue_end = false;
+    epilogue_begin = false;
+    isa = 0;
+
 
     /* Start of statement program.  */
     while (line_ptr < line_ptr_end) {
@@ -672,7 +681,8 @@ _dwarf_internal_srclines(Dwarf_Die die,
 
 	/* 'type' is the output */
 	WHAT_IS_OPCODE(type, opcode, special_opcode_base,
-		       opcode_length, line_ptr);
+		       opcode_length, line_ptr,
+		       WHAT_IS_HIGHEST_STD(version));
 
 
 
@@ -709,7 +719,11 @@ _dwarf_internal_srclines(Dwarf_Die die,
 		curr_line->li_addr_line.li_l_data.li_basic_block =
 		    basic_block;
 		curr_line->li_addr_line.li_l_data.li_end_sequence =
-		    end_sequence;
+		    curr_line->li_addr_line.li_l_data.
+		    li_epilogue_begin = epilogue_begin;
+		curr_line->li_addr_line.li_l_data.li_prologue_end =
+		    prologue_end;
+		curr_line->li_addr_line.li_l_data.li_isa = isa;
 		curr_line->li_context = line_context;
 		line_count++;
 
@@ -765,6 +779,11 @@ _dwarf_internal_srclines(Dwarf_Die die,
 			curr_line->li_addr_line.li_l_data.
 			    li_end_sequence = end_sequence;
 			curr_line->li_context = line_context;
+			curr_line->li_addr_line.li_l_data.
+			    li_epilogue_begin = epilogue_begin;
+			curr_line->li_addr_line.li_l_data.
+			    li_prologue_end = prologue_end;
+			curr_line->li_addr_line.li_l_data.li_isa = isa;
 			line_count++;
 
 			chain_line = (Dwarf_Chain)
@@ -783,6 +802,8 @@ _dwarf_internal_srclines(Dwarf_Die die,
 		    }
 
 		    basic_block = false;
+		    prologue_end = false;
+		    epilogue_begin = false;
 		    break;
 		}
 
@@ -889,6 +910,53 @@ _dwarf_internal_srclines(Dwarf_Die die,
 		    address = address + fixed_advance_pc;
 		    break;
 		}
+
+		/* New in DWARF3 */
+	    case DW_LNS_set_prologue_end:{
+		    if (opcode_length[DW_LNS_set_prologue_end] != 0) {
+			_dwarf_error(dbg, error,
+				     DW_DLE_LINE_NUM_OPERANDS_BAD);
+			return (DW_DLV_ERROR);
+		    }
+
+		    prologue_end = true;
+		    break;
+
+
+		}
+		/* New in DWARF3 */
+	    case DW_LNS_set_epilogue_begin:{
+		    if (opcode_length[DW_LNS_set_epilogue_begin] != 0) {
+			_dwarf_error(dbg, error,
+				     DW_DLE_LINE_NUM_OPERANDS_BAD);
+			return (DW_DLV_ERROR);
+		    }
+		    epilogue_begin = true;
+		    break;
+		}
+
+		/* New in DWARF3 */
+	    case DW_LNS_set_isa:{
+		    Dwarf_Unsigned utmp2;
+
+		    if (opcode_length[DW_LNS_set_isa] != 1) {
+			_dwarf_error(dbg, error,
+				     DW_DLE_LINE_NUM_OPERANDS_BAD);
+			return (DW_DLV_ERROR);
+		    }
+
+		    DECODE_LEB128_UWORD(line_ptr, utmp2)
+			isa = utmp2;
+		    if (isa != utmp2) {
+			/* The value of the isa did not fit in our
+			   local so we record it wrong. declare an
+			   error. */
+			_dwarf_error(dbg, error,
+				     DW_DLE_LINE_NUM_OPERANDS_BAD);
+			return (DW_DLV_ERROR);
+		    }
+		    break;
+		}
 	    }
 
 	} else if (type == LOP_EXTENDED) {
@@ -896,10 +964,9 @@ _dwarf_internal_srclines(Dwarf_Die die,
 
 	    DECODE_LEB128_UWORD(line_ptr, utmp3)
 		instr_length = (Dwarf_Word) utmp3;
-	    /* Dwarf_Small is a ubyte and the extended opcode
-	       is a ubyte, though not stated as clearly in
-	       the 2.0.0 spec as one might hope.
-	    */
+	    /* Dwarf_Small is a ubyte and the extended opcode is a
+	       ubyte, though not stated as clearly in the 2.0.0 spec as 
+	       one might hope. */
 	    ext_opcode = *(Dwarf_Small *) line_ptr;
 	    line_ptr++;
 	    switch (ext_opcode) {
@@ -929,6 +996,11 @@ _dwarf_internal_srclines(Dwarf_Die die,
 			curr_line->li_addr_line.li_l_data.
 			    li_end_sequence = end_sequence;
 			curr_line->li_context = line_context;
+			curr_line->li_addr_line.li_l_data.
+			    li_epilogue_begin = epilogue_begin;
+			curr_line->li_addr_line.li_l_data.
+			    li_prologue_end = prologue_end;
+			curr_line->li_addr_line.li_l_data.li_isa = isa;
 			line_count++;
 
 			chain_line = (Dwarf_Chain)
@@ -954,6 +1026,8 @@ _dwarf_internal_srclines(Dwarf_Die die,
 		    is_stmt = default_is_stmt;
 		    basic_block = false;
 		    end_sequence = false;
+		    prologue_end = false;
+		    epilogue_begin = false;
 
 		    break;
 		}
@@ -1021,8 +1095,7 @@ _dwarf_internal_srclines(Dwarf_Die die,
 			line_ptr =
 			    line_ptr + strlen((char *) line_ptr) + 1;
 
-			cur_file_entry->fi_dir_index =
-			    (Dwarf_Sword)
+			cur_file_entry->fi_dir_index = (Dwarf_Sword)
 			    _dwarf_decode_u_leb128(line_ptr,
 						   &leb128_length);
 			line_ptr = line_ptr + leb128_length;
@@ -1080,7 +1153,7 @@ _dwarf_internal_srclines(Dwarf_Die die,
 	include_directories_count;
     line_context->lc_line_count = line_count;
     line_context->lc_compilation_directory = comp_dir;
-    line_context->lc_version_number = version;	
+    line_context->lc_version_number = version;
     line_context->lc_dbg = dbg;
     *count = line_count;
 
@@ -1096,8 +1169,8 @@ dwarf_srclines(Dwarf_Die die,
     Dwarf_Signed count;
     int res;
 
-    res = _dwarf_internal_srclines(die, linebuf,
-				   &count, /* addrlist= */ false,
+    res = _dwarf_internal_srclines(die, linebuf, &count,	/* addrlist= 
+								 */ false,
 				   /* linelist= */ true, error);
     if (res != DW_DLV_OK) {
 	return res;
@@ -1171,6 +1244,7 @@ dwarf_lineno(Dwarf_Line line,
     *ret_lineno = (line->li_addr_line.li_l_data.li_line);
     return DW_DLV_OK;
 }
+
 /* Each 'line' entry has a file-number, and index into the file table.
    If the entry is a DW_LNE_end_sequence the index is
    meaningless (see dwarf_lineendsequence(), just above).
@@ -1184,14 +1258,14 @@ dwarf_lineno(Dwarf_Line line,
 */
 int
 dwarf_line_srcfileno(Dwarf_Line line,
-             Dwarf_Unsigned * ret_fileno, Dwarf_Error * error)
+		     Dwarf_Unsigned * ret_fileno, Dwarf_Error * error)
 {
     if (line == NULL || ret_fileno == 0) {
-        _dwarf_error(NULL, error, DW_DLE_DWARF_LINE_NULL);
-        return (DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_DWARF_LINE_NULL);
+	return (DW_DLV_ERROR);
     }
-    /* li_file must be <= line->li_context->lc_file_entry_count else
-       it is trash. li_file  0 means not attributable to any source file
+    /* li_file must be <= line->li_context->lc_file_entry_count else it 
+       is trash. li_file 0 means not attributable to any source file
        per dwarf2/3 spec. */
 
     *ret_fileno = (line->li_addr_line.li_l_data.li_file);
@@ -1277,19 +1351,17 @@ dwarf_linesrc(Dwarf_Line line, char **ret_linesrc, Dwarf_Error * error)
 	return (DW_DLV_ERROR);
     }
     file_entry = line->li_context->lc_file_entries;
-    /* ASSERT: li_file > 0, dwarf correctness issue,
-	see line table definition of dwarf2/3 spec.*/
-    /* Example:
-        if li_file is 2 and lc_file_entry_count is 3,
-	file_entry is file 3 (1 based), aka 2( 0 based)
-	file_entry->next is file 2 (1 based), aka 1( 0 based)
-	file_entry->next->next is file 1 (1 based), aka 0( 0 based)
-	file_entry->next->next->next is NULL.
- 
-	and this loop finds the file_entry we need (2 (1 based) in this case).
-	Because lc_file_entries are in reverse order and effectively
-        zero based as a count whereas li_file is 1 based. 
-        */
+    /* ASSERT: li_file > 0, dwarf correctness issue, see line table
+       definition of dwarf2/3 spec. */
+    /* Example: if li_file is 2 and lc_file_entry_count is 3,
+       file_entry is file 3 (1 based), aka 2( 0 based) file_entry->next 
+       is file 2 (1 based), aka 1( 0 based) file_entry->next->next is
+       file 1 (1 based), aka 0( 0 based) file_entry->next->next->next
+       is NULL.
+
+       and this loop finds the file_entry we need (2 (1 based) in this
+       case). Because lc_file_entries are in reverse order and
+       effectively zero based as a count whereas li_file is 1 based. */
     for (i = line->li_addr_line.li_l_data.li_file - 1; i > 0; i--)
 	file_entry = file_entry->fi_next;
 
@@ -1446,29 +1518,29 @@ dwarf_pclines(Dwarf_Debug dbg,
 
     /* 
        These flags are for efficiency reasons. Check_line is true
-       initially, but set false when the address of the current line
-       is greater than pc.  It is set true only when the address of the 
-       current line falls below pc.  This assumes that addresses
-       within the same segment increase, and we are only interested in
-       the switch from a less than pc address to a greater than.
-       First_line is set true initially, but set false after the first
-       line is scanned.  This is to prevent looking at the address of
-       previous line when slide is DW_DLS_BACKWARD, and the first line
-       is being scanned. */
+       initially, but set false when the address of the current line is 
+       greater than pc.  It is set true only when the address of the
+       current line falls below pc.  This assumes that addresses within 
+       the same segment increase, and we are only interested in the
+       switch from a less than pc address to a greater than. First_line 
+       is set true initially, but set false after the first line is
+       scanned.  This is to prevent looking at the address of previous
+       line when slide is DW_DLS_BACKWARD, and the first line is being
+       scanned. */
     Dwarf_Bool check_line, first_line;
 
     /* 
-       Diff tracks the smallest difference a line address and the
-       input pc value. */
+       Diff tracks the smallest difference a line address and the input 
+       pc value. */
     Dwarf_Signed diff, i;
 
     /* 
        For the slide = DW_DLS_BACKWARD case, pc_less is the value of
        the address of the line immediately preceding the first line
-       that has value greater than pc. For the slide = DW_DLS_FORWARD 
+       that has value greater than pc. For the slide = DW_DLS_FORWARD
        case, pc_more is the values of address for the first line that
-       is greater than pc. Diff is the difference between either of
-       the these values and pc. */
+       is greater than pc. Diff is the difference between either of the 
+       these values and pc. */
     Dwarf_Addr pc_less, pc_more;
 
     /* 
@@ -1508,7 +1580,7 @@ dwarf_pclines(Dwarf_Debug dbg,
 	    chain_head = chain_ptr;
 	} else
 	    /* 
-	       Look for crossover from less than pc address to greater 
+	       Look for crossover from less than pc address to greater
 	       than. */
 	if (check_line && line->li_address > pc &&
 		(first_line ? 0 : prev_line->li_address) < pc)
@@ -1589,33 +1661,34 @@ dwarf_pclines(Dwarf_Debug dbg,
    So this function, new July 2005, does it.  
 */
 
-void 
-dwarf_srclines_dealloc(Dwarf_Debug dbg, Dwarf_Line *linebuf, 
-   Dwarf_Signed count)
+void
+dwarf_srclines_dealloc(Dwarf_Debug dbg, Dwarf_Line * linebuf,
+		       Dwarf_Signed count)
 {
 
-        Dwarf_Signed i = 0;
-	struct Dwarf_Line_Context_s *context = 0;
+    Dwarf_Signed i = 0;
+    struct Dwarf_Line_Context_s *context = 0;
 
-	if(count > 0) {
-	   /* All these entries share a single context */
-	   context = linebuf[0]->li_context;
-        }
-        for (i = 0; i < count; ++i) {
-                dwarf_dealloc(dbg, linebuf[i], DW_DLA_LINE);
-        }
-        dwarf_dealloc(dbg, linebuf, DW_DLA_LIST);
+    if (count > 0) {
+	/* All these entries share a single context */
+	context = linebuf[0]->li_context;
+    }
+    for (i = 0; i < count; ++i) {
+	dwarf_dealloc(dbg, linebuf[i], DW_DLA_LINE);
+    }
+    dwarf_dealloc(dbg, linebuf, DW_DLA_LIST);
 
-	if (context) {
-	   Dwarf_File_Entry fe = context->lc_file_entries;
-	
-           while(fe) {
-		Dwarf_File_Entry fenext = fe->fi_next;
-	 	dwarf_dealloc(dbg,fe,DW_DLA_FILE_ENTRY);
-		fe = fenext;
-	   }
-	   dwarf_dealloc(dbg,context,DW_DLA_LINE_CONTEXT);
+    if (context) {
+	Dwarf_File_Entry fe = context->lc_file_entries;
+
+	while (fe) {
+	    Dwarf_File_Entry fenext = fe->fi_next;
+
+	    dwarf_dealloc(dbg, fe, DW_DLA_FILE_ENTRY);
+	    fe = fenext;
 	}
+	dwarf_dealloc(dbg, context, DW_DLA_LINE_CONTEXT);
+    }
 
-	return;
+    return;
 }

@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000,2002,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2002,2004,2005,2006 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -90,18 +90,18 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
     Dwarf_Small *orig_line_ptr;
 
     /* 
-       This points to the last byte of the .debug_line portion for the 
+       This points to the last byte of the .debug_line portion for the
        current cu. */
     Dwarf_Small *line_ptr_end;
 
     /* 
        This points to the end of the statement program prologue for the 
-       current cu, and serves to check that the prologue was correctly 
+       current cu, and serves to check that the prologue was correctly
        decoded. */
     Dwarf_Small *check_line_ptr;
 
     /* 
-       Pointer to a DW_AT_stmt_list attribute in case it exists in the 
+       Pointer to a DW_AT_stmt_list attribute in case it exists in the
        die. */
     Dwarf_Attribute stmt_list_attr;
 
@@ -161,7 +161,9 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
     Dwarf_Word instr_length;
     Dwarf_Small ext_opcode;
     int local_length_size;
-    /*REFERENCED*/ /* Not used in this instance of the macro */
+
+     /*REFERENCED*/		/* Not used in this instance of the
+				   macro */
     int local_extension_size;
 
     /* The Dwarf_Debug this die belongs to. */
@@ -180,10 +182,9 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
 	dbg = die->di_cu_context->cc_dbg;
 
     res =
-       _dwarf_load_section(dbg,
-		           dbg->de_debug_line_index,
-			   &dbg->de_debug_line,
-		           error);
+	_dwarf_load_section(dbg,
+			    dbg->de_debug_line_index,
+			    &dbg->de_debug_line, error);
     if (res != DW_DLV_OK) {
 	return res;
     }
@@ -231,8 +232,8 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
     }
 
     /* 
-       Following is a straightforward decoding of the statement
-       program prologue information. */
+       Following is a straightforward decoding of the statement program 
+       prologue information. */
 
     /* READ_AREA_LENGTH updates line_ptr for consumed bytes */
     READ_AREA_LENGTH(dbg, total_length, Dwarf_Unsigned,
@@ -255,7 +256,8 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
     READ_UNALIGNED(dbg, version, Dwarf_Half,
 		   line_ptr, sizeof(Dwarf_Half));
     line_ptr += sizeof(Dwarf_Half);
-    if (version != CURRENT_VERSION_STAMP) {
+    if (version != CURRENT_VERSION_STAMP &&
+	version != CURRENT_VERSION_STAMP3) {
 	_dwarf_error(dbg, error, DW_DLE_VERSION_STAMP_ERROR);
 	return (DW_DLV_ERROR);
     }
@@ -370,7 +372,8 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
 	line_ptr++;
 	/* 'type' is the output */
 	WHAT_IS_OPCODE(type, opcode, opcode_base,
-		       opcode_length, line_ptr);
+		       opcode_length, line_ptr,
+		       WHAT_IS_HIGHEST_STD(version));
 
 
 

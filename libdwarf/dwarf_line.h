@@ -139,10 +139,20 @@ struct Dwarf_Line_s {
 
 	    Dwarf_Sword li_line;	/* source file line number. */
 	    Dwarf_Half li_column;	/* source file column number */
-	    Dwarf_Small li_is_stmt;	/* indicate start of stmt */
-	    Dwarf_Small li_basic_block;	/* indicate start basic block */
-	    Dwarf_Small li_end_sequence;	/* first post sequence
-						   instr */
+	    Dwarf_Small li_isa;
+
+	/* To save space, use bit flags. */
+	/* indicate start of stmt */
+	    unsigned char li_is_stmt:1;	
+
+	/* indicate start basic block */
+	    unsigned char li_basic_block:1;	
+
+	/* first post sequence instr */
+	    unsigned char li_end_sequence:1;	
+
+	    unsigned char li_prologue_end:1;
+	    unsigned char li_epilogue_begin:1;
 	} li_l_data;
 	Dwarf_Off li_offset;	/* for rqs */
     } li_addr_line;
@@ -170,27 +180,37 @@ int _dwarf_internal_srclines(Dwarf_Die die,
    a macro.
 
    Handling the line section where the header and the
-    file being process do not match (unusual, but
+   file being processed do not match (unusual, but
    planned for in the  design of .debug_line)
    is too tricky to recode this several times and keep
    it right.
+
+   As it is the code starting up line-reading is duplicated
+   and that is just wrong to do. FIXME!
 */
 #define LOP_EXTENDED 1
 #define LOP_DISCARD  2
 #define LOP_STANDARD 3
 #define LOP_SPECIAL  4
 
-#define HIGHEST_STANDARD_OPCODE  DW_LNS_fixed_advance_pc
 
-#define WHAT_IS_OPCODE(type,opcode,base,opcode_length,line_ptr) \
-        if( opcode < base ) {                              \
+/* Here testing the dwarf version number of the line table.  */
+/* The highest standard opcode is different for DWARF2 versus DWARF3.
+   This macro (see it's use in .c files) accomodates the difference.
+   This could be folded into WHAT_IS_OPCODE if the version were
+   passed into WHAT_IS_OPCODE instead of 'highest_std' being
+   passed in.  */
+#define WHAT_IS_HIGHEST_STD(ver) (ver ==2?DW_LNS_fixed_advance_pc:DW_LNS_set_isa)
+
+/* Now the tricky WHAT_IS_OPCODE macro itself. */
+#define WHAT_IS_OPCODE(type,opcode,base,opcode_length,line_ptr,highest_std) \
+        if( (opcode) < (base) ) {                          \
            /* we know we must treat as a standard op       \
                 or a special case.                         \
            */                                              \
-           if(opcode == DW_EXTENDED_OPCODE) {              \
+           if((opcode) == DW_EXTENDED_OPCODE) {            \
                 type = LOP_EXTENDED;                       \
-           } else  if( (HIGHEST_STANDARD_OPCODE+1) >=      \
-                        base) {                            \
+           } else  if( ((highest_std)+1) >=  (base)) {     \
                 /* == Standard case: compile of            \
                    dwarf_line.c and object                 \
                    have same standard op codes set.        \

@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000,2001,2002,2005 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2001,2002,2005,2006 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License
@@ -134,21 +134,165 @@ typedef struct {
         Dwarf_Small     fp_base_op;
         Dwarf_Small     fp_extended_op;
         Dwarf_Half      fp_register;
+
+	/* Value may be signed, depends on op. 
+           Any applicable data_alignment_factor has
+           not been applied, this is the  raw offset. */
         Dwarf_Unsigned  fp_offset;
         Dwarf_Off       fp_instr_offset;
-} Dwarf_Frame_Op;
+} Dwarf_Frame_Op; /* DWARF2 */
+
+typedef struct {
+        Dwarf_Small     fp_base_op;
+        Dwarf_Small     fp_extended_op;
+        Dwarf_Half      fp_register;
+
+	/* Value may be signed, depends on op. 
+           Any applicable data_alignment_factor has
+           not been applied, this is the  raw offset. */
+        Dwarf_Unsigned  fp_offset_or_block_len; 
+	Dwarf_Small     *fp_expr_block;
+
+        Dwarf_Off       fp_instr_offset;
+} Dwarf_Frame_Op3;  /* DWARF3 and DWARF2 compatible */
 
 /* DW_REG_TABLE_SIZE must reflect the number of registers 
  *(DW_FRAME_LAST_REG_NUM) as defined in dwarf.h
  */
+#ifndef DW_REG_TABLE_SIZE
 #define DW_REG_TABLE_SIZE  66
-typedef struct {
-    struct {
+#endif
+
+/* The following are all needed to evaluate DWARF3 register rules.
+*/
+#define DW_EXPR_OFFSET 0  /* DWARF2 only sees this. */
+#define DW_EXPR_VAL_OFFSET 1
+#define DW_EXPR_EXPRESSION 2
+#define DW_EXPR_VAL_EXPRESSION 3
+
+typedef struct Dwarf_Regtable_Entry_s {
+	/*  For each index i (naming a hardware register with dwarf number
+            i) the following is true and defines the value of that register:
+
+           If dw_regnum is Register DW_FRAME_UNDEFINED_VAL  
+	     it is not DWARF register number but
+		a place holder indicating the register has no defined value.
+           If dw_regnum is Register DW_FRAME_SAME_VAL 
+  	     it  is not DWARF register number but
+		a place holder indicating the register has the same
+                value in the previous frame.
+	   DW_FRAME_UNDEFINED_VAL, DW_FRAME_SAME_VAL are
+           only present at libdwarf runtime. Never on disk.
+           DW_FRAME_* Values present on disk are in dwarf.h
+
+          Otherwise: the register number is a DWARF register number
+          (see ABI documents for how this translates to hardware/
+           software register numbers in the machine hardware)
+	  and the following applies:
+
+          if dw_value_type == DW_EPXR_STANDARD (the only  possible case for dwarf2):
+	    If dw_offset_relevant is non-zero, then
+	     the value is stored at at the address CFA+N where N is a signed offset. 
+	     Rule: Offset(N)
+            If dw_offset_relevant is zero, then the value of the register
+             is the value of (DWARF) register number dw_regnum.
+             Rule: register(F)
+          Other values of dw_value_type are an error.
+        */
 	Dwarf_Small         dw_offset_relevant;
+
+	/* For DWARF2, always 0 */
+        Dwarf_Small         dw_value_type; 
+
 	Dwarf_Half          dw_regnum;
+
+	/* The data type here should  the larger of Dwarf_Addr
+           and Dwarf_Unsigned and Dwarf_Signed. */
 	Dwarf_Addr          dw_offset;
-    }			    rules[DW_REG_TABLE_SIZE];
+} Dwarf_Regtable_Entry;
+
+typedef struct Dwarf_Regtable_s {
+    struct Dwarf_Regtable_Entry_s rules[DW_REG_TABLE_SIZE];
 } Dwarf_Regtable;
+
+/* opaque type. Functional interface shown later. */
+struct Dwarf_Reg_value3_s;
+typedef struct Dwarf_Reg_value3_s Dwarf_Reg_Value3; 
+
+typedef struct Dwarf_Regtable_Entry3_s {
+	/*  For each index i (naming a hardware register with dwarf number
+            i) the following is true and defines the value of that register:
+
+           If dw_regnum is Register DW_FRAME_UNDEFINED_VAL  
+	     it is not DWARF register number but
+		a place holder indicating the register has no defined value.
+           If dw_regnum is Register DW_FRAME_SAME_VAL 
+  	     it  is not DWARF register number but
+		a place holder indicating the register has the same
+                value in the previous frame.
+	   DW_FRAME_UNDEFINED_VAL, DW_FRAME_SAME_VAL are
+           only present at libdwarf runtime. Never on disk.
+           DW_FRAME_* Values present on disk are in dwarf.h
+
+          Otherwise: the register number is a DWARF register number
+          (see ABI documnets for how this translates to hardware/
+           software register numbers in the machine hardware)
+	  and the following applies:
+
+          if dw_value_type == DW_EPXR_STANDARD (the only  possible case for 
+		dwarf2):
+	    If dw_offset_relevant is non-zero, then
+	     the value is stored at at the address 
+	     CFA+N where N is a signed offset. 
+	     Rule: Offset(N)
+            If dw_offset_relevant is zero, then the value of the register
+             is the value of (DWARF) register number dw_regnum.
+             Rule: register(R)
+          if dw_value_type  == DW_EXPR_VAL_OFFSET
+            the  value of this register is CFA +N where N is a signed offset.
+            Rule: val_offset(N)
+
+	  E is pointed to by dw_block_ptr (length is dw_offset_or_block_len);
+          if dw_value_type  == DW_EXPR_EXPRESSION
+	    The value of the register is the value at the address
+            computed by evaluating the DWARF expression E.
+            Rule: expression(E)
+          if dw_value_type  == DW_EXPR_VAL_EXPRESSION
+	    The value of the register is the value
+            computed by evaluating the DWARF expression E.
+            Rule: val_expression(E)
+          Other values of dw_value_type are an error.
+        */
+	Dwarf_Small         dw_offset_relevant;
+        Dwarf_Small         dw_value_type; 
+	Dwarf_Half          dw_regnum;
+	Dwarf_Unsigned      dw_offset_or_block_len;
+	Dwarf_Ptr           dw_block_ptr;
+
+}Dwarf_Regtable_Entry3;
+
+typedef struct Dwarf_Regtable3_s {
+    struct Dwarf_Regtable_Entry3_s rules[DW_REG_TABLE_SIZE];
+} Dwarf_Regtable3;
+
+/* Use for DW_EPXR_STANDARD., DW_EXPR_VAL_OFFSET. 
+   Returns DW_DLV_OK if the value is available.
+   If DW_DLV_OK returns the regnum and offset thru the pointers
+   (which the consumer must use appropriately). 
+*/
+int dwarf_frame_get_reg_register(struct Dwarf_Regtable_Entry3_s *reg_in,
+	Dwarf_Small *offset_relevant,
+	Dwarf_Half *regnum_out,
+	Dwarf_Signed *offset_out);
+
+/* Use for DW_EXPR_EXPRESSION, DW_EXPR_VAL_EXPRESSION.
+   Returns DW_DLV_OK if the value is available.
+   The caller must pass in the address of a valid
+   Dwarf_Block (the caller need not initialize it).
+*/
+int dwarf_frame_get_reg_expression(struct Dwarf_Regtable_Entry3_s *reg_in,
+	Dwarf_Block *block_out);
+
 
 /* for DW_DLC_SYMBOLIC_RELOCATIONS output to caller 
    v2, adding drd_length: some relocations are 4 and
@@ -474,11 +618,12 @@ typedef void  (*Dwarf_Handler)(Dwarf_Error /*error*/, Dwarf_Ptr /*errarg*/);
 #define DW_DLE_DEBUG_PUBTYPES_VERSION_ERROR     198
 #define DW_DLE_DEBUG_PUBTYPES_DUPLICATE         199
 #define DW_DLE_FRAME_CIE_DECODE_ERROR           200
+#define DW_DLE_FRAME_REGISTER_UNREPRESENTABLE   201
 
 
 
     /* DW_DLE_LAST MUST EQUAL LAST ERROR NUMBER */
-#define DW_DLE_LAST        			199
+#define DW_DLE_LAST        			201
 #define DW_DLE_LO_USER     0x10000
 
         /* taken as meaning 'undefined value', this is not
@@ -1108,6 +1253,12 @@ int dwarf_get_fde_info_for_all_regs(Dwarf_Fde /*fde*/,
     Dwarf_Addr*         /*row_pc*/,
     Dwarf_Error*        /*error*/);
 
+int dwarf_get_fde_info_for_all_regs3(Dwarf_Fde /*fde*/, 
+    Dwarf_Addr          /*pc_requested*/,
+    Dwarf_Regtable3*     /*reg_table*/,
+    Dwarf_Addr*         /*row_pc*/,
+    Dwarf_Error*        /*error*/);
+
 int dwarf_get_fde_info_for_reg(Dwarf_Fde /*fde*/, 
     Dwarf_Half    	/*table_column*/, 
     Dwarf_Addr    	/*pc_requested*/, 
@@ -1115,6 +1266,18 @@ int dwarf_get_fde_info_for_reg(Dwarf_Fde /*fde*/,
     Dwarf_Signed* 	/*register*/,  
     Dwarf_Signed* 	/*offset*/, 
     Dwarf_Addr* 	/*row_pc*/, 
+    Dwarf_Error* 	/*error*/);
+
+/* See discussion of dw_value_type, libdwarf.h. */
+int dwarf_get_fde_info_for_reg3(Dwarf_Fde /*fde*/, 
+    Dwarf_Half    	/*table_column*/, 
+    Dwarf_Addr    	/*pc_requested*/, 
+    Dwarf_Small  *  	/*value_type*/, 
+    Dwarf_Small *       /*offset_relevant*/,
+    Dwarf_Signed* 	/*register*/,  
+    Dwarf_Signed* 	/*offset_or_block_len*/, 
+    Dwarf_Ptr   *       /*block_ptr */,
+    Dwarf_Addr* 	/*row_pc_out*/, 
     Dwarf_Error* 	/*error*/);
 
 int dwarf_get_fde_for_die(Dwarf_Debug /*dbg*/, 
@@ -1137,13 +1300,13 @@ int dwarf_get_fde_at_pc(Dwarf_Fde* /*fde_data*/,
 /* GNU .eh_frame augmentation information, raw form, see
    Linux Standard Base Core Specification version 3.0 . */
 int dwarf_get_cie_augmentation_data(Dwarf_Cie /* cie*/,
-    Dwarf_Ptr *         /* augdata */,
+    Dwarf_Small **         /* augdata */,
     Dwarf_Unsigned *    /* augdata_len */,
     Dwarf_Error*        /*error*/);
 /* GNU .eh_frame augmentation information, raw form, see
    Linux Standard Base Core Specification version 3.0 . */
 int dwarf_get_fde_augmentation_data(Dwarf_Fde /* fde*/,
-    Dwarf_Ptr *         /* augdata */,
+    Dwarf_Small **         /* augdata */,
     Dwarf_Unsigned *    /* augdata_len */,
     Dwarf_Error*        /*error*/);
 

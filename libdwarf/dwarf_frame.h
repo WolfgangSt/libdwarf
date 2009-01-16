@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000, 2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000, 2004, 2006 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -111,8 +111,9 @@ struct Dwarf_Reg_Rule_s {
 
     /* 
        Is a flag indicating whether the rule includes the offset
-       field, ie whether the ru_offset field is valid or not. It is
-       important, since reg+offset (offset of 0) is different from
+       field, ie whether the ru_offset field is valid or not. 
+       Applies only if DW_EXPR_OFFSET or DW_EXPR_VAL_OFFSET.
+       It is important, since reg+offset (offset of 0) is different from
        just 'register' since the former means 'read memory at address
        given by the sum of register contents plus offset to get the
        value'. whereas the latter means 'the value is in the register'.
@@ -123,13 +124,27 @@ struct Dwarf_Reg_Rule_s {
        DW_FRAME_CFA_COL.
 
      */
-    Dwarf_Sbyte ru_is_off;
+    Dwarf_Sbyte ru_is_off; 
+
+    /* DW_EXPR_OFFSET (0, DWARF2)  
+       DW_EXPR_VAL_OFFSET 1 (dwarf2/3)
+       DW_EXPR_EXPRESSION 2  (dwarf2/3)
+	DW_EXPR_VAL_EXPRESSION 3 (dwarf2/3) 
+       See dwarf_frame.h. */
+    Dwarf_Sbyte ru_value_type;
 
     /* Register involved in this rule. */
     Dwarf_Half ru_register;
 
-    /* Offset to add to register, if indicated by ru_is_offset. */
-    Dwarf_Addr ru_offset;
+    /* Offset to add to register, if indicated by ru_is_offset
+       and if DW_EXPR_OFFSET or DW_EXPR_VAL_OFFSET. 
+       If DW_EXPR_EXPRESSION or DW_EXPR_VAL_EXPRESSION
+       this is DW_FORM_block block-length, not offset. */
+    Dwarf_Unsigned ru_offset_or_block_len;
+    
+    /* For DW_EXPR_EXPRESSION DW_EXPR_VAL_EXPRESSION these is set,
+       else 0. */
+    Dwarf_Small *ru_block;
 };
 
 typedef struct Dwarf_Frame_s *Dwarf_Frame;
@@ -217,9 +232,23 @@ struct Dwarf_Cie_s {
     Dwarf_Unsigned ci_gnu_eh_augmentation_len;
     Dwarf_Ptr      ci_gnu_eh_augmentation_bytes;
 
+    /* These are extracted from the gnu eh_frame
+       augmentation if the
+       augmentation begins with 'z'. See Linux LSB documents.
+       Otherwize these are zero. */
+    unsigned char    ci_gnu_personality_handler_encoding;
+    unsigned char    ci_gnu_lsda_encoding;
+    unsigned char    ci_gnu_fde_begin_encoding;
+
+    /* If 'P' augmentation present, is handler addr. Else
+	is zero. */
+    Dwarf_Addr     ci_gnu_personality_handler_addr;
+
+
     /* In creating list of cie's (which will become an array)
        record the position so fde can get it on fde creation. */
     Dwarf_Unsigned ci_index;
+    Dwarf_Small *  ci_section_ptr;
 };
 
 /*
@@ -233,7 +262,7 @@ struct Dwarf_Cie_s {
 	points to the associated Dwarf_Debug structure.
 */
 struct Dwarf_Fde_s {
-    Dwarf_Word fd_length;
+    Dwarf_Unsigned fd_length;
     Dwarf_Addr fd_cie_offset;
     Dwarf_Unsigned fd_cie_index;
     Dwarf_Cie fd_cie;
@@ -256,6 +285,9 @@ struct Dwarf_Fde_s {
        is aug_gcc_eh_z. Zero if unused. */
     Dwarf_Unsigned fd_gnu_eh_augmentation_len;
     Dwarf_Ptr fd_gnu_eh_augmentation_bytes;
+    Dwarf_Addr fd_gnu_eh_lsda; /* If 'L' augmentation letter
+         present:  is address of the 
+         Language Specific Data Area (LSDA). If not 'L" is zero. */
 
     /* The following 3 are about the Elf section the FDEs come from. */
     Dwarf_Small * fd_section_ptr;
@@ -300,7 +332,7 @@ Dwarf_Unsigned _dwarf_get_return_address_reg(Dwarf_Small *frame_ptr,
 struct cie_fde_prefix_s {
    Dwarf_Small *  cf_start_addr;
    Dwarf_Small *  cf_addr_after_prefix;
-   Dwarf_Word     cf_length;
+   Dwarf_Unsigned cf_length;
    int            cf_local_length_size;
    int            cf_local_extension_size;
    Dwarf_Unsigned cf_cie_id;
