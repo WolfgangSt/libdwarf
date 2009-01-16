@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000, 2002 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2002,2003 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -159,7 +159,6 @@ _dwarf_setup(Dwarf_Debug dbg, dwarf_elf_handle elf, Dwarf_Error * error)
     char *scn_name;
     int is_64bit;
     int foundDwarf;
-    int res;
 
     Dwarf_Unsigned section_size;
     Dwarf_Unsigned section_count;
@@ -191,19 +190,23 @@ _dwarf_setup(Dwarf_Debug dbg, dwarf_elf_handle elf, Dwarf_Error * error)
     dbg->de_same_endian = 1;
     dbg->de_copy_word = memcpy;
 #ifdef WORDS_BIGENDIAN
+    dbg->de_big_endian_object = 1;
     if (ehdr_ident[EI_DATA] == ELFDATA2LSB) {
 	dbg->de_same_endian = 0;
+	dbg->de_big_endian_object = 0;
 	dbg->de_copy_word = _dwarf_memcpy_swap_bytes;
     }
 #else /* little endian */
+    dbg->de_big_endian_object = 0;
     if (ehdr_ident[EI_DATA] == ELFDATA2MSB) {
 	dbg->de_same_endian = 0;
+        dbg->de_big_endian_object = 1;
 	dbg->de_copy_word = _dwarf_memcpy_swap_bytes;
     }
 #endif /* !WORDS_BIGENDIAN */
 
-    /* The following de_length_size is later modified in this routine
-       in the important cases. To allow cygnus 32bit-offset dwarf2. */
+    /* The following de_length_size is Not Too Significant.
+	Only used one calculation, and an appoximate one at that. */
     dbg->de_length_size = is_64bit ? 8 : 4;
     dbg->de_pointer_size = is_64bit ? 8 : 4;
 
@@ -313,60 +316,9 @@ _dwarf_setup(Dwarf_Debug dbg, dwarf_elf_handle elf, Dwarf_Error * error)
 		DWARF_DBG_ERROR(dbg, DW_DLE_DEBUG_INFO_NULL,
 				DW_DLV_ERROR);
 	    }
-	    res = _dwarf_load_section(dbg,
-			              section_index,
-				      &dbg->de_debug_info,
-				      error);
-	    if (res != DW_DLV_OK) {
-		return res;
-	    }
-	    dbg->de_debug_info_size = section_size;
 	    foundDwarf = TRUE;
-/*
-	    Here we'll try to determine if this is
-            true 64 bit (sgi) or cygnus 32bit-offset (pure dwarf2 v2.0.0)
-	    by looking for the dwarf version number (which is 2).
-
-	    If de_length_size winds up 4 we can still read extensions,
-	    per the dwarf2 offset extensions rule, added to dwarf2
-	    in late 1999.
-*/
-	    if (is_64bit && section_size > 10) {
-		Dwarf_Half v1;
-		Dwarf_Half v64;
-		Dwarf_Unsigned length;
-
-		READ_UNALIGNED(dbg, length, Dwarf_Unsigned,
-			       dbg->de_debug_info,
-			       sizeof(Dwarf_Unsigned));
-		READ_UNALIGNED(dbg, v1, Dwarf_Half,
-			       dbg->de_debug_info + 4,
-			       sizeof(Dwarf_Half));
-		READ_UNALIGNED(dbg, v64, Dwarf_Half,
-			       dbg->de_debug_info + 8,
-			       sizeof(Dwarf_Half));
-		if (length == DISTINGUISHED_VALUE) {
-		    /* Using the dwarf2 1999 offset extension facility.
-		       This field is not used in this case */
-		    dbg->de_length_size = 4;
-		} else if (v1 == 2) {
-		    if (v64 == 2) {
-			/* Ambiguous! */
-			/* Assume we have it right already. */
-		    } else {
-			/* Assume is cygnus 32bit-offset, otherwise
-			   this is junk anyway. */
-			dbg->de_length_size = 4;
-		    }
-		} else if (v64 == 2) {
-		    /* Definitely sgi true 64 bit */
-		    dbg->de_length_size = 8;
-		} else {
-		    /* Impossible: wrong version. */
-		    /* Error caught later. */
-		}
-
-	    }
+	    dbg->de_debug_info_index = section_index;
+	    dbg->de_debug_info_size = section_size;
 	}
 
 	else if (strcmp(scn_name, ".debug_abbrev") == 0) {
@@ -379,13 +331,7 @@ _dwarf_setup(Dwarf_Debug dbg, dwarf_elf_handle elf, Dwarf_Error * error)
 		DWARF_DBG_ERROR(dbg, DW_DLE_DEBUG_ABBREV_NULL,
 				DW_DLV_ERROR);
 	    }
-	    res = _dwarf_load_section(dbg,
-			              section_index,
-				      &dbg->de_debug_abbrev,
-				      error);
-	    if (res != DW_DLV_OK) {
-		return res;
-	    }
+	    dbg->de_debug_abbrev_index = section_index;
 	    dbg->de_debug_abbrev_size = section_size;
 	}
 

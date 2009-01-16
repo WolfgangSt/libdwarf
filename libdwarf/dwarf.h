@@ -124,10 +124,7 @@ extern "C" {
 #define DW_TAG_function_template        0x4102 /* for C++ */
 #define DW_TAG_class_template           0x4103 /* for C++ */
 
-/* The following 3 are extensions to support UPC
-   See http://hpc.gwu.edu/~upc/
-   or  http://projects.seas.gwu.edu/~hpcl/upcdev/dwarf2_proposal.html
-*/
+/* The following 3 are extensions to support UPC */
 #define DW_TAG_upc_shared_type          0x8765 /* UPC */
 #define DW_TAG_upc_strict_type          0x8766 /* UPC */
 #define DW_TAG_upc_relaxed_type         0x8767 /* UPC */

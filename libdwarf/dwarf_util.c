@@ -340,3 +340,31 @@ _dwarf_length_of_cu_header_simple(Dwarf_Debug dbg)
 	dbg->de_length_size +	/* Size of abbrev offset field. */
 	sizeof(Dwarf_Small);	/* Size of address size field. */
 }
+
+/* Now that we delay loading .debug_info, we need to do the
+   load in more places. So putting the load
+   code in one place now instead of replicating it in multiple
+   places.
+
+*/
+int
+_dwarf_load_debug_info(Dwarf_Debug dbg,Dwarf_Error *error)
+{
+    int res;
+    /* Testing de_debug_info allows us to avoid
+       testing de_debug_abbrev. One test instead
+       of 2. .debug_info is useless without .debug_abbrev. */
+    if(dbg->de_debug_info) {
+	return DW_DLV_OK;
+    }
+
+    res = _dwarf_load_section(dbg,dbg->de_debug_abbrev_index,
+              &dbg->de_debug_abbrev,error);
+    if(res != DW_DLV_OK) {
+          return res;
+    }
+    res = _dwarf_load_section(dbg,dbg->de_debug_info_index,
+                &dbg->de_debug_info,error);
+    return res;
+
+}

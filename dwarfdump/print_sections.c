@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2 of the GNU General Public License as
@@ -1851,7 +1851,7 @@ print_weaknames(Dwarf_Debug dbg)
 
 	    dwarf_dealloc (dbg, name, DW_DLA_STRING);
 	    /* print associated die too? */
-	    dwarf_dealloc (dbg, weaknamebuf[i], DW_DLA_TYPENAME);
+	    dwarf_dealloc (dbg, weaknamebuf[i], DW_DLA_WEAK);
 	}
 	dwarf_dealloc (dbg, weaknamebuf, DW_DLA_LIST);
     }

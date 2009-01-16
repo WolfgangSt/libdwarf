@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000, 2002 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2002,2003 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -125,14 +125,8 @@ struct Dwarf_Debug_s {
 
     /* 
        Number of bytes in the length, and offset field in various
-       .debug_* sections.  Check that this is in agreement with the
-       address size in those sections. This field is dervied from the 
-       Elf header. 4 for mips32, ia32, 8 for MIPS -64
-
-       For the dwarf2 32->64 extension, this is no longer applicable,
-       as the extension-64 method makes 64bit length_size be specific
-       to each compilation unit. */
-
+       .debug_* sections.  It's not very meaningful, and is
+       only used in one 'approximate' calculation.  */
     Dwarf_Small de_length_size;
 
     /* number of bytes in a pointer of the target in various .debug_
@@ -193,7 +187,7 @@ struct Dwarf_Debug_s {
     Dwarf_Unsigned de_debug_frame_size;
 
     Dwarf_Unsigned de_debug_frame_size_eh_gnu;	/* gnu for the g++
-						   eh_frame section */
+					   eh_frame section */
 
     Dwarf_Unsigned de_debug_funcnames_size;
     Dwarf_Unsigned de_debug_typenames_size;
@@ -227,6 +221,10 @@ struct Dwarf_Debug_s {
     Dwarf_Half de_debug_frame_index;
     Dwarf_Half de_debug_frame_eh_gnu_index;
     Dwarf_Half de_debug_str_index;
+    Dwarf_Half de_debug_info_index;
+    Dwarf_Half de_debug_abbrev_index;
+    unsigned char de_big_endian_object; /* non-zero if big-endian
+		object opened. */
 };
 
 typedef struct Dwarf_Chain_s *Dwarf_Chain;

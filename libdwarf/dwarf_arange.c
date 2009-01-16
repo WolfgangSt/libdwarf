@@ -539,6 +539,13 @@ dwarf_get_cu_die_offset(Dwarf_Arange arange,
 
 
     offset = arange->ar_info_offset;
+    if(!dbg->de_debug_info) {
+        int res = _dwarf_load_debug_info(dbg,error);
+        if(res != DW_DLV_OK) {
+	    return res;
+        }
+    }
+
     *returned_offset = offset + _dwarf_length_of_cu_header(dbg, offset);
     return DW_DLV_OK;
 }
@@ -592,6 +599,13 @@ dwarf_get_arange_info(Dwarf_Arange arange,
     if (cu_die_offset != NULL) {
 	Dwarf_Debug dbg = arange->ar_dbg;
 	Dwarf_Off offset = arange->ar_info_offset;
+
+	if(!dbg->de_debug_info) {
+	   int res = _dwarf_load_debug_info(dbg,error);
+           if(res != DW_DLV_OK) {
+               return res;
+           }
+        }
 
 	*cu_die_offset =
 	    offset + _dwarf_length_of_cu_header(dbg, offset);

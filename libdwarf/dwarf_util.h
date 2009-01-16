@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -138,7 +138,6 @@
 
 
 /* 
-   Same as above, but elids the test for size.
    Reads 'source' for 'length' bytes from unaligned addr.
 
    Avoids any constant-in-conditional warnings and
@@ -228,46 +227,47 @@ typedef Dwarf_Unsigned BIGGEST_UINT;
 	or
 	0xffffffxx xxxxxxxx (64bit length)
    which makes possible auto-detection of the extension.
+
+   This depends on knowing that only a non-zero length
+   is legitimate (AFAICT), and for IRIX non-standard -64 
+   dwarf that the first 32 bits of the 64bit offset will be
+   zero (because the compiler could not handle a truly large 
+   value as of Jan 2003 and because no app has that much debug 
+   info anyway (yet)).
+
+   At present not testing for '64bit elf' here as that
+   does not seem necessary (none of the 64bit length seems 
+   appropriate unless it's  ident[EI_CLASS] == ELFCLASS64).
+   Might be a good idea though.
+
 */
 #   define    READ_AREA_LENGTH(r_dbg,w_target,r_targtype,         \
 	rw_src_data_p,w_length_size,w_exten_size)                 \
     READ_UNALIGNED(r_dbg,w_target,r_targtype,                     \
                 rw_src_data_p, ORIGINAL_DWARF_OFFSET_SIZE);       \
     if(w_target == DISTINGUISHED_VALUE) {                         \
-                w_length_size  = DISTINGUISHED_VALUE_OFFSET_SIZE; \
-                rw_src_data_p += ORIGINAL_DWARF_OFFSET_SIZE;      \
-                w_exten_size   = ORIGINAL_DWARF_OFFSET_SIZE;      \
-                READ_UNALIGNED(r_dbg,w_target,r_targtype,         \
+	     /* dwarf3 64bit extension */                         \
+             w_length_size  = DISTINGUISHED_VALUE_OFFSET_SIZE;    \
+             rw_src_data_p += ORIGINAL_DWARF_OFFSET_SIZE;         \
+             w_exten_size   = ORIGINAL_DWARF_OFFSET_SIZE;         \
+             READ_UNALIGNED(r_dbg,w_target,r_targtype,            \
                   rw_src_data_p, DISTINGUISHED_VALUE_OFFSET_SIZE);\
-                rw_src_data_p += DISTINGUISHED_VALUE_OFFSET_SIZE; \
+             rw_src_data_p += DISTINGUISHED_VALUE_OFFSET_SIZE;    \
     } else {                                                      \
-	if(r_dbg->de_length_size == ORIGINAL_DWARF_OFFSET_SIZE) { \
-		/* done, everything read, 32 bit */               \
-		w_exten_size   = 0;                               \
-                w_length_size  = ORIGINAL_DWARF_OFFSET_SIZE;      \
-                rw_src_data_p += w_length_size;                   \
-	} else /*if (r_dbg->de_length_size ==                     \
-			DISTINGUISHED_VALUE_OFFSET_SIZE) */ {     \
-		/* mips 64 bit */                                 \
+	if(w_target == 0 && r_dbg->de_big_endian_object) {        \
+	     /* IRIX 64 bit, big endian */                        \
              READ_UNALIGNED(r_dbg,w_target,r_targtype,            \
                 rw_src_data_p, DISTINGUISHED_VALUE_OFFSET_SIZE);  \
 	     w_length_size  = DISTINGUISHED_VALUE_OFFSET_SIZE;    \
 	     rw_src_data_p += DISTINGUISHED_VALUE_OFFSET_SIZE;    \
 	     w_exten_size = 0;                                    \
+	} else {                                                  \
+	     /* standard 32 bit dwarf2/dwarf3 */                  \
+	     w_exten_size   = 0;                                  \
+             w_length_size  = ORIGINAL_DWARF_OFFSET_SIZE;         \
+             rw_src_data_p += w_length_size;                      \
 	}                                                         \
     }
-#if 0
-/* this one only handles mips or other fixed 32/64, not extension.
-   Not used.
-*/
-#   define    READ_AREA_LENGTH(r_dbg,w_target,r_targtype,\
-	rw_src_data_p,w_length_size,w_exten_size) \
-    READ_UNALIGNED(r_dbg,w_target, r_targtype,       \
-                rw_src_data_p, r_dbg->de_length_size); \
-    w_length_size  = r_dbg->de_length_size;\
-    w_exten_size   = 0; \
-    rw_src_data_p += w_length_size
-#endif
 
 
 
@@ -307,3 +307,5 @@ int _dwarf_string_valid(void *startptr, void *endptr);
 Dwarf_Unsigned _dwarf_length_of_cu_header(Dwarf_Debug,
 					  Dwarf_Unsigned offset);
 Dwarf_Unsigned _dwarf_length_of_cu_header_simple(Dwarf_Debug);
+
+int _dwarf_load_debug_info(Dwarf_Debug dbg, Dwarf_Error *error);

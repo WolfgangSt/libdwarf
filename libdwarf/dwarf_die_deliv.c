@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000, 2001, 2002 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2001,2002,2003 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -53,6 +53,10 @@
     is passed.
 
     **This is a sequential search.  May be too slow.
+
+    If debug_info and debug_abbrev not loaded, this will
+    wind up returning NULL. So no need to load before calling
+    this.
 */
 static Dwarf_CU_Context
 _dwarf_find_CU_Context(Dwarf_Debug dbg, Dwarf_Off offset)
@@ -255,17 +259,24 @@ dwarf_next_cu_header(Dwarf_Debug dbg,
 	_dwarf_error(NULL, error, DW_DLE_DBG_NULL);
 	return (DW_DLV_ERROR);
     }
-
     /* 
        Get offset into .debug_info of next CU. If dbg has no context,
        this has to be the first one. */
-    if (dbg->de_cu_context == NULL)
+    if (dbg->de_cu_context == NULL) {
 	new_offset = 0;
-    else
+	if(!dbg->de_debug_info) {
+            int res = _dwarf_load_debug_info(dbg,error);
+	    if(res != DW_DLV_OK) {
+	        return res;
+	    }
+	}
+
+    } else {
 	new_offset = dbg->de_cu_context->cc_debug_info_offset +
 	    dbg->de_cu_context->cc_length +
 	    dbg->de_cu_context->cc_length_size +
 	    dbg->de_cu_context->cc_extension_size;
+    }
 
     /* 
        Check that there is room in .debug_info beyond the new offset
@@ -478,6 +489,8 @@ dwarf_siblingof(Dwarf_Debug dbg,
 	/* die_info_end is untouched here, need not
 	   be set in this branch. */
 	Dwarf_Off off2;
+	/* If we've not loaded debug_info, de_cu_context
+	   will be NULL, so no need to laod */
 
 	if (dbg->de_cu_context == NULL) {
 	    _dwarf_error(dbg, error, DW_DLE_DBG_NO_CU_CONTEXT);
@@ -492,6 +505,8 @@ dwarf_siblingof(Dwarf_Debug dbg,
         Dwarf_Bool has_child;
         Dwarf_Sword child_depth;
 
+	/* We cannot have a legal die unless debug_info
+	   was loaded, so no need to load debug_info here. */
 	CHECK_DIE(die, DW_DLV_ERROR)
 
 	die_info_ptr = die->di_debug_info_ptr;
@@ -665,6 +680,10 @@ dwarf_offdie(Dwarf_Debug dbg,
 	cu_context = _dwarf_find_offdie_CU_Context(dbg, offset);
 
     if (cu_context == NULL) {
+        int res = _dwarf_load_debug_info(dbg,error);
+        if(res != DW_DLV_OK) {
+            return res;
+        }
 
 	if (dbg->de_cu_context_list_end != NULL)
 	    new_cu_offset =
