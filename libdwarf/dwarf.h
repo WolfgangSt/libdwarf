@@ -86,11 +86,18 @@ extern "C" {
 #define DW_TAG_file_type		0x29
 #define DW_TAG_friend			0x2a
 #define DW_TAG_namelist			0x2b
-#define DW_TAG_namelist_item		0x2c
+	/* Previous releases of this header had the following
+	   misspelled with a trailing 's' */
+#define DW_TAG_namelist_item		0x2c /* DWARF3/2 spelling */
+#define DW_TAG_namelist_items		0x2c /* SGI misspelling/typo */
 #define DW_TAG_packed_type		0x2d
 #define DW_TAG_subprogram		0x2e
-#define DW_TAG_template_type_param	0x2f
-#define DW_TAG_template_value_param	0x30
+	/* The DWARF2 document had two spellings of the following
+	   two TAGs, DWARF3 specifies the longer spelling. */
+#define DW_TAG_template_type_parameter	0x2f /* DWARF3/2 spelling*/
+#define DW_TAG_template_type_param	0x2f /* DWARF2   spelling*/
+#define DW_TAG_template_value_parameter	0x30 /* DWARF3/2 spelling*/
+#define DW_TAG_template_value_param	0x30 /* DWARF2   spelling*/
 #define DW_TAG_thrown_type		0x31
 #define DW_TAG_try_block		0x32
 #define DW_TAG_variant_part		0x33
@@ -116,6 +123,14 @@ extern "C" {
 #define DW_TAG_format_label             0x4101 /* for FORTRAN 77, Fortran 90 */
 #define DW_TAG_function_template        0x4102 /* for C++ */
 #define DW_TAG_class_template           0x4103 /* for C++ */
+
+/* The following 3 are extensions to support UPC
+   See http://hpc.gwu.edu/~upc/
+   or  http://projects.seas.gwu.edu/~hpcl/upcdev/dwarf2_proposal.html
+*/
+#define DW_TAG_upc_shared_type          0x8765 /* UPC */
+#define DW_TAG_upc_strict_type          0x8766 /* UPC */
+#define DW_TAG_upc_relaxed_type         0x8767 /* UPC */
 
 
 #define DW_children_no			0
@@ -249,6 +264,8 @@ extern "C" {
 #define DW_AT_src_coords                        0x2104
 #define DW_AT_body_begin                        0x2105
 #define DW_AT_body_end                          0x2106
+/* UPC extension */
+#define DW_AT_upc_threads_scaled                0x3210 /* UPC */
 
 
 #define DW_AT_hi_user				0x3fff
@@ -446,6 +463,7 @@ extern "C" {
 #define DW_LANG_PLI			0x000f /* DWARF3 */
 #define DW_LANG_lo_user			0x8000
 #define DW_LANG_Mips_Assembler		0x8001
+#define DW_LANG_Upc                     0x8765 /* UPC */
 #define DW_LANG_hi_user			0xffff
 
 

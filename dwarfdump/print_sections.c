@@ -1216,8 +1216,39 @@ print_pubnames (Dwarf_Debug dbg)
 extern void 
 print_macinfo (Dwarf_Debug dbg)
 {
+	Dwarf_Off offset = 0;
+	Dwarf_Unsigned max = 0;
+	Dwarf_Signed count;
+	Dwarf_Macro_Details *maclist;
+	int lres;
+        
 	printf("\n.debug_macinfo\n");
-	printf("(NYI)\n");
+	while ((lres = dwarf_get_macro_details (dbg, offset,
+		max, &count, &maclist, &err)) == DW_DLV_OK)
+	{
+		Dwarf_Signed i;
+
+		for (i = 0; i < count; i++) {
+			switch (maclist[i].dmd_type) {
+			case DW_MACINFO_define:
+			    printf("[%lld] #define %s\n", 
+			       maclist[i].dmd_lineno, 
+			       maclist[i].dmd_macro);
+			    break;
+			case DW_MACINFO_undef:
+			    printf("[%lld] #undef %s\n", 
+			       maclist[i].dmd_lineno, 
+			       maclist[i].dmd_macro);
+			    break;
+			}
+		}
+		
+		offset = maclist[count-1].dmd_offset + 1;
+		dwarf_dealloc (dbg, maclist, DW_DLA_STRING);
+	}
+	if (lres == DW_DLV_ERROR) {
+		print_error (dbg, "dwarf_get_macro_details", lres, err);
+	}
 }
 
 /* print data in .debug_loc */

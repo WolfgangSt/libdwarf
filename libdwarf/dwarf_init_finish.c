@@ -258,14 +258,14 @@ _dwarf_setup(Dwarf_Debug dbg, dwarf_elf_handle elf, Dwarf_Error * error)
 	    DWARF_DBG_ERROR(dbg, _dwarf_error_code_from_elf_sgi_error_code(sres),
 			    DW_DLV_ERROR);
 	}
-#else
-#ifdef HAVE_ELF64_GETSHDR
+#else /* !defined(__SGI_FAST_LIBELF) */
 	scn = elf_getscn(elf, section_index);
 	if (scn == NULL) {
 	    DWARF_DBG_ERROR(dbg, DW_DLE_MDE,
 			    DW_DLV_ERROR);
 	}
 
+#ifdef HAVE_ELF64_GETSHDR
 	if (is_64bit) {
 	    shdr64 = elf64_getshdr(scn);
 	    if (shdr64 == NULL) {
@@ -282,7 +282,7 @@ _dwarf_setup(Dwarf_Debug dbg, dwarf_elf_handle elf, Dwarf_Error * error)
 				DW_DLV_ERROR);
 	    }
 	} else
-#endif
+#endif /* HAVE_ELF64_GETSHDR */
 	{
 	    if ((shdr32 = elf32_getshdr(scn)) == NULL) {
 		DWARF_DBG_ERROR(dbg, DW_DLE_ELF_GETSHDR_ERROR, 0);

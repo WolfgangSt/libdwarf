@@ -556,8 +556,6 @@ print_infos (Dwarf_Debug dbg)
 		program_name, "attempting to print .debug_info" , 
 		errmsg,myerr);
 	  fprintf(stderr,"attempting to continue.\n");
-	  /*dwarf_dealloc (dbg, errmsg, DW_DLA_STRING);
-		*/
 	}
 }
 
@@ -569,7 +567,6 @@ print_error(Dwarf_Debug dbg, string msg,int dwarf_code, Dwarf_Error err)
 	  long long myerr = dwarf_errno(err);
 	  fprintf(stderr, "%s ERROR:  %s:  %s (%lld)\n", 
 		program_name, msg, errmsg,myerr);
-	  dwarf_dealloc (dbg, errmsg, DW_DLA_STRING);
 	} else if (dwarf_code == DW_DLV_NO_ENTRY) {
 	  fprintf(stderr, "%s NO ENTRY:  %s: \n", 
 		program_name, msg);

@@ -1,3 +1,22 @@
+2002-10-22  Tom Hughes <thh@cyberscience.com>
+      * print_sections.c: macro printing now supported.
+      * dwarfdump.c: removed erroneous dwarf_dealloc()
+        of string returned by dwarf_errmsg().
+ 
+2002-11-22  David Anderson <davea@sgi.com>
+      * dwarf_names.awk at_list.awk: Allow an name to have two 
+        spellings so the historical name preserved yet the dwarf3 
+        version is supported. First name seen is used/reported
+        by dwarfdump.
+      * dwarf.h:   DW_TAG_template_type_param(eter)
+        DW_TAG_template_value_param(eter) DW_AT_namelist_itm(s)   
+        are the ones with alternate spellings now.
+        Added Universal Parallel C TAGs/Attributes in
+	user namespace.
+      * tag_attr.c tag_attr.list tag_tree.c tag_tree.list:
+        Use the DW_TAG_template_* dwarf3 spellings.
+
+
 2002-05-08  David Anderson <davea@sgi.com>
       * tag_attr.list dwarf.h: DW_AT_namelist_items is
 	wrong, changed to DW_AT_namelist_item

@@ -69,8 +69,8 @@ DW_TAG_member
 DW_TAG_inheritance
 DW_TAG_access_declaration
 DW_TAG_friend
-DW_TAG_template_type_param
-DW_TAG_template_value_param
+DW_TAG_template_type_parameter
+DW_TAG_template_value_parameter
 0xffffffff
 DW_TAG_entry_point
 DW_TAG_formal_parameter
@@ -239,7 +239,7 @@ DW_TAG_subprogram
 DW_TAG_formal_parameter
 DW_TAG_unspecified_parameters
 DW_TAG_thrown_type
-DW_TAG_template_type_param
+DW_TAG_template_type_parameter
 DW_TAG_common_inclusion
 DW_TAG_common_block
 DW_TAG_array_type
@@ -266,9 +266,9 @@ DW_TAG_subprogram
 DW_TAG_variable
 DW_TAG_volatile_type
 0xffffffff
-DW_TAG_template_type_param
+DW_TAG_template_type_parameter
 0xffffffff
-DW_TAG_template_value_param
+DW_TAG_template_value_parameter
 0xffffffff
 DW_TAG_thrown_type
 0xffffffff

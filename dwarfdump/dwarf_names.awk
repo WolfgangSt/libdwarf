@@ -3,6 +3,10 @@
 # For each set of names with a common prefix, we create a routine
 # to return the name given the value.
 # Also print header file that gives prototypes of routines.
+# To handle cases where there are multiple names for a single
+# value (DW_AT_* has some due to ambiguities in the DWARF2 spec)
+# we take the first of a given value as the definitive name.
+# TAGs, Attributes, etc are given distinct checks.
 BEGIN {
 	prefix = "foo"
 	prefix_id = "foo"
@@ -14,6 +18,7 @@ BEGIN {
 	printf "#include \"makename.h\"\n\n"
 	header = "dwarf_names.h"
 	printf "/* automatically generated routines */\n" > header
+	dup_arr["0"] = ""
 }
 {
 	if (skipit && $1 == "#endif") {
@@ -36,6 +41,9 @@ BEGIN {
 				# (have both high-order and low-order bits)
 				next
 			} else {
+				# New prefix, empty the dup_arr
+				for (k in dup_arr)
+					dup_arr[k] = ""
 				if (start_routine) {
 					# end routine
 					printf "\tdefault:\n"
@@ -78,11 +86,16 @@ printf "\t\t} \n"
 				second_underscore = index(post_dw,"_")
 				main_part = substr($2,dw_len+second_underscore+1, length($2))
 			}
-			printf "\tcase %s:\n", $2
-			printf "\t\tif (ellipsis)\n"
-			printf "\t\t\treturn \"%s\";\n", main_part
-			printf "\t\telse\n"
-			printf "\t\t\treturn \"%s\";\n", $2
+			if( dup_arr[$3] != $3 ) {
+			  # Take first of those with identical value,
+			  # ignore others.
+			  dup_arr[$3] = $3
+			  printf "\tcase %s:\n", $2
+			  printf "\t\tif (ellipsis)\n"
+			  printf "\t\t\treturn \"%s\";\n", main_part
+			  printf "\t\telse\n"
+			  printf "\t\t\treturn \"%s\";\n", $2
+		        }
 		}
 	}
 }

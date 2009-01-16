@@ -1,4 +1,12 @@
 
+2002-11-22 Tom Hughes <thh@cyberscience.com>
+      * dwarf_macro.c: Corrected bugs in macro-info functions.
+
+2002-10-29 David Anderson <davea@sgi.com>
+      * dwarf_init_finish.c: The libelf_sgi mods
+      left a HAVE_ELF64_GETSHDR ifdef in the wrong place 
+      so folks without Elf64 could not build. Fixed.
+
 2002-10-21 David Anderson <davea@sgi.com>
       * dwarf_form.c: the form_ref functions were failing to
       add in cc_extension_size when checking for offset

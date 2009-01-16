@@ -464,7 +464,7 @@ DW_AT_start_scope
 DW_AT_type
 DW_AT_visibility
 0xffffffff
-DW_TAG_template_type_param
+DW_TAG_template_type_parameter
 DW_AT_decl_column
 DW_AT_decl_file
 DW_AT_decl_line
@@ -472,7 +472,7 @@ DW_AT_name
 DW_AT_sibling
 DW_AT_type
 0xffffffff
-DW_TAG_template_value_param
+DW_TAG_template_value_parameter
 DW_AT_decl_column
 DW_AT_decl_file
 DW_AT_decl_line
