@@ -22,7 +22,7 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston MA 02111-1307, 
   USA.
 
-  Contact information:  Silicon Graphics, Inc., 1600 Amphitheatre Pky,
+  Contact information:  Silicon Graphics, Inc., 1500 Crittenden Lane,
   Mountain View, CA 94043, or:
 
   http://www.sgi.com

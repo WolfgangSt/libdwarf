@@ -1,6 +1,13 @@
+Oct 28, 2004
+  Updated contact address in copyright: SGI moved 1/4 mile
+  in 2003 to a new address: 1500 Crittenden Lane.
+  
+  Documented additional vendor extensions.
+
 Oct 27, 2004
   Added known vendor extensions to dwarf2/3 to dwarf.h
   HP, GNU, PGI and UPC extensions are now recorded.
+  Recorded vendor extensions from Concurrent.
 
 Feb 3, 2004
   If 'Dwarf_Word' is 64 bits, two macros reading leb numbers

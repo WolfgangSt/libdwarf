@@ -1,3 +1,32 @@
+2004-11-21 David Anderson <davea@sgi.com>
+     *  configure.in libdwarfdefs.h: Now tests more precisely for __uint32_t
+	and __uint64_t (previous test was not sufficient for debian/mips). 
+	Regenerated configure config.h.in.
+
+2004-10-28 David Anderson <davea@sgi.com>
+      * LIBDWARFCOPYRIGHT Makefile.in NEWS config.h dwarf_abbrev.c 
+        dwarf_abbrev.h dwarf_addr_finder.c dwarf_alloc.c dwarf_alloc.h
+        dwarf_arange.c dwarf_arange.h dwarf_base_types.h dwarf_die_deliv.c
+        dwarf_die_deliv.h dwarf_error.c dwarf_error.h dwarf_form.c
+        dwarf_frame.c dwarf_frame.h dwarf_funcs.c dwarf_funcs.h
+        dwarf_global.c dwarf_global.h dwarf_incl.h dwarf_init_finish.c
+	dwarf_leb.c dwarf_line.c dwarf_line.h dwarf_loc.c dwarf_loc.h
+	dwarf_macro.c dwarf_macro.h dwarf_opaque.h dwarf_print_lines.c
+	dwarf_query.c dwarf_sort_line.c dwarf_string.c dwarf_stubs.c
+	dwarf_types.c dwarf_types.h dwarf_util.c dwarf_util.h
+	dwarf_vars.c dwarf_vars.h dwarf_weaks.c dwarf_weaks.h
+	libdwarfdefs.h pro_alloc.c pro_alloc.h pro_arange.c pro_arange.h
+	pro_die.c pro_die.h pro_encode_nm.c pro_encode_nm.h pro_error.c
+	pro_error.h pro_expr.c pro_expr.h pro_finish.c pro_forms.c
+	pro_frame.c pro_frame.h pro_funcs.c pro_funcs.h pro_incl.h
+	pro_init.c pro_line.c pro_line.h pro_macinfo.c pro_macinfo.h
+	pro_opaque.h pro_pubnames.c pro_pubnames.h pro_reloc.c
+	pro_reloc.h pro_reloc_stream.c pro_reloc_stream.h pro_reloc_symbolic.c
+	pro_reloc_symbolic.h pro_section.c pro_section.h pro_types.c
+	pro_types.h pro_util.c pro_util.h pro_vars.c pro_vars.h
+	pro_weaks.c pro_weaks.h: Copyright update with
+        2004 and new SGI official address.
+
 2004-10-26 David Anderson <davea@sgi.com>
       * acconfig.h: removed. Was old style autoconf usage.
       * configure.in: Updated AC_DEFINE usage, adding args 2 & 3.

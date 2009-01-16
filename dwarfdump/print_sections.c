@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2 of the GNU General Public License as
@@ -20,7 +20,7 @@
   with this program; if not, write the Free Software Foundation, Inc., 59
   Temple Place - Suite 330, Boston MA 02111-1307, USA.
 
-  Contact information:  Silicon Graphics, Inc., 1600 Amphitheatre Pky,
+  Contact information:  Silicon Graphics, Inc., 1500 Crittenden Lane,
   Mountain View, CA 94043, or:
 
   http://www.sgi.com

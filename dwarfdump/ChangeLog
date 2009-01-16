@@ -1,3 +1,10 @@
+2004-10-28 David Anderson <davea@sgi.com>
+      * DWARFDUMPCOPYRIGHT config.h defs.h dwarfdump.c globals.h
+	makename.c makename.h print_die.c print_exception_tables.c 
+	print_reloc.c print_sections.c tag_attr.c tag_attr.list
+	tag_tree.c tag_tree.list: Copyright update, SGI
+        corporate address change.
+
 2004-10-26 David Anderson <davea@sgi.com>
       * acconfig.h: removed. Was old style autoconf usage.
       * configure.in: Updated AC_DEFINE usage, adding args 2 & 3.

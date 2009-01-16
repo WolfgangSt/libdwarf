@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2000, 2001 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000, 2001, 2003, 2004 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License
@@ -21,7 +21,7 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston MA 02111-1307,
   USA.
 
-  Contact information:  Silicon Graphics, Inc., 1600 Amphitheatre Pky,
+  Contact information:  Silicon Graphics, Inc., 1500 Crittenden Lane,
   Mountain View, CA 94043, or:
 
   http://www.sgi.com
@@ -41,10 +41,19 @@ extern "C" {
 
 /*
 	dwarf.h   DWARF  debugging information values
-	$Revision: 1.29 $    $Date: 2003/02/05 22:57:01 $    
+	$Revision: 1.31 $    $Date: 2004/10/27 23:24:15 $    
 
 	The comment "DWARF3" appears where there are
-	new entries from DWARF3.
+	new entries from DWARF3, and other comments apply
+	where extension entries appear.
+
+ 	A few extension names have omitted the 'vendor id'
+        (See chapter 7, "Vendor Extensibility"). Please
+	always use a 'vendor id' string in extension names.
+
+	Vendors should use a vendor string in names and
+	whereever possible avoid duplicating values used by
+	other vendor extensions 
 
 */
 
@@ -86,7 +95,7 @@ extern "C" {
 #define DW_TAG_file_type		0x29
 #define DW_TAG_friend			0x2a
 #define DW_TAG_namelist			0x2b
-	/* Previous releases of this header had the following
+	/* Early releases of this header had the following
 	   misspelled with a trailing 's' */
 #define DW_TAG_namelist_item		0x2c /* DWARF3/2 spelling */
 #define DW_TAG_namelist_items		0x2c /* SGI misspelling/typo */
@@ -115,10 +124,9 @@ extern "C" {
 #define DW_TAG_lo_user			0x4080
 
 #define DW_TAG_MIPS_loop		0x4081
+
 /* HP extensions: ftp://ftp.hp.com/pub/lang/tools/WDB/wdb-4.0.tar.gz  */
 #define DW_TAG_HP_array_descriptor      0x4090 /* HP */
-
-#define DW_TAG_hi_user			0xffff
 
 /* GNU extensions.  The first 3 missing the GNU_. */
 #define DW_TAG_format_label             0x4101 /* GNU. Fortran. */
@@ -136,6 +144,7 @@ extern "C" {
 #define DW_TAG_PGI_kanji_type           0xa000 /* PGI */
 #define DW_TAG_PGI_interface_block      0xa020 /* PGI */
 
+#define DW_TAG_hi_user			0xffff
 
 #define DW_children_no			0
 #define DW_children_yes			1
@@ -494,7 +503,6 @@ extern "C" {
 #define DW_ATE_HP_imaginary_float80   0x85 /* HP */
 #define DW_ATE_HP_imaginary_float128  0x86 /* HP */
 
-
 #define DW_ATE_hi_user			0xff
 
 #define DW_ACCESS_public		1
@@ -538,7 +546,8 @@ extern "C" {
 #define DW_CC_normal			0x1
 #define DW_CC_program			0x2
 #define DW_CC_nocall			0x3
-#define DW_CC_lo_user			0x40
+#define DW_CC_lo_user			0x40 
+
 #define DW_CC_hi_user			0xff
 
 #define DW_INL_not_inlined		0
@@ -590,7 +599,7 @@ extern "C" {
 #define DW_MACINFO_end_file		4
 #define DW_MACINFO_vendor_ext		255
 
-#define DW_CFA_advance_loc        0x40
+#define DW_CFA_advance_loc        0x40 
 #define DW_CFA_offset             0x80
 #define DW_CFA_restore            0xc0
 #define DW_CFA_extended           0
