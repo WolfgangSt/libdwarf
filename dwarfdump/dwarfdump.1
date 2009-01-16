@@ -121,5 +121,17 @@ dwarfdump
 ./dwarfdump.conf
 $(HOME)/.dwarfdump.conf
 <install-prefix>/lib/dwarfdump.conf
+.SH NOTES
+In some cases compilers use DW_FORM_data1 (for example)
+and in such cases the signedness of the value must be taken
+from context. Rather than attempt to determine the
+context, dwarfdump prints the value with both signednesses
+whenever there is ambiguity about the correct interpretation.
+For example, 
+"DW_AT_const_value           176(as signed = -80)".
+For normal DWARF consumers that correctly and fully
+evaluate all attributes there is no ambiguity of signedness:
+the ambiguity for dwarfdump is due to dwarfdump evaluating
+DIEs in a simple order and not keeping track of much context.
 .SH BUGS
 Support for DWARF3 is being completed but may not be complete.

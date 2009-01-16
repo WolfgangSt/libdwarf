@@ -1,6 +1,9 @@
+2006-04-28 David Anderson <davea@sgi.com>
+      * dwarf_frame.c: Changed local variable type to
+        avoid compiler warning. 
 2006-04-21 David Anderson <davea@sgi.com>
       * dwarf_frame.c: Initialized local to 0, wrong value.
-        Thanks to Cristi Vlasceanu for noticing.
+         Thanks to Cristi Vlasceanu for noticing.
 2006-04-18 David Anderson <davea@sgi.com>
       * All *.c: Ran indent so all c files follow a standard look.
 2006-04-16 David Anderson <davea@sgi.com>

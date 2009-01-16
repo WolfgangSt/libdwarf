@@ -676,6 +676,78 @@ get_location_list(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Attribute attr,
     dwarf_dealloc(dbg, llbufarray, DW_DLA_LIST);
 }
 
+static void
+formx_unsigned(Dwarf_Unsigned u, struct esb_s *esbp)
+{
+     char small_buf[40];
+     snprintf(small_buf, sizeof(small_buf),
+      "%llu", (unsigned long long)u);
+     esb_append(esbp, small_buf);
+
+}
+static void
+formx_signed(Dwarf_Signed u, struct esb_s *esbp)
+{
+     char small_buf[40];
+     snprintf(small_buf, sizeof(small_buf),
+      "%lld", (long long)u);
+     esb_append(esbp, small_buf);
+}
+/* We think this is an integer. Figure out how to print it.
+   In case the signedness is ambiguous (such as on 
+   DW_FORM_data1 (ie, unknown signedness) print two ways.
+*/
+static int
+formxdata_print_value(Dwarf_Attribute attrib, struct esb_s *esbp,
+	Dwarf_Error * err)
+{
+    Dwarf_Signed tempsd = 0;
+    Dwarf_Unsigned tempud = 0;
+    int sres = 0;
+    int ures = 0;
+    Dwarf_Error serr = 0;
+    ures = dwarf_formudata(attrib, &tempud, err);
+    sres = dwarf_formsdata(attrib, &tempsd, &serr);
+    if(ures == DW_DLV_OK) {
+      if(sres == DW_DLV_OK) {
+	if(tempud == tempsd) {
+	   /* Data is the same value, so makes no difference which
+		we print. */
+	   formx_unsigned(tempud,esbp);
+	} else {
+	   formx_unsigned(tempud,esbp);
+	   esb_append(esbp,"(as signed = ");
+	   formx_signed(tempsd,esbp);
+	   esb_append(esbp,")");
+        }
+      } else if (sres == DW_DLV_NO_ENTRY) {
+	formx_unsigned(tempud,esbp);
+      } else /* DW_DLV_ERROR */{
+	formx_unsigned(tempud,esbp);
+      }
+      return DW_DLV_OK;
+    } else  if (ures == DW_DLV_NO_ENTRY) {
+      if(sres == DW_DLV_OK) {
+	formx_signed(tempsd,esbp);
+	return sres;
+      } else if (sres == DW_DLV_NO_ENTRY) {
+	return sres;
+      } else /* DW_DLV_ERROR */{
+	*err = serr;
+        return sres;
+      }
+    } 
+    /* else ures ==  DW_DLV_ERROR */ 
+    if(sres == DW_DLV_OK) {
+	formx_signed(tempsd,esbp);
+    } else if (sres == DW_DLV_NO_ENTRY) {
+	return ures;
+    } 
+    /* DW_DLV_ERROR */
+    return ures;
+}
+
+
 /* Fill buffer with attribute value.
    We pass in tag so we can try to do the right thing with
    broken compiler DW_TAG_enumerator 
@@ -908,61 +980,23 @@ get_attr_value(Dwarf_Debug dbg, Dwarf_Half tag, Dwarf_Attribute attrib,
 		}
 		break;
 	    case DW_AT_const_value:
-		wres = dwarf_formudata(attrib, &tempud, &err);
-		if (wres == DW_DLV_OK) {
-		    if (tag == DW_TAG_enumerator) {
-			/* See bug 583450. ** we are recording
-			   enumerators ** as unsigned. Wrong. Thru
-			   cmplrs 7.2.1
-			   ------------------------------------- **
-			   Using temp int i due to compiler ** bug
-			   584010 (cast to int ignored ** if no
-			   variable assigned to). */
-			int i = (int) tempud;
-
-			tempsd = i;
-			snprintf(small_buf, sizeof(small_buf), "%lld",
-				 tempsd);
-			esb_append(esbp, small_buf);
-		    } else {
-
-			snprintf(small_buf, sizeof(small_buf), "%llu",
-				 tempud);
-			esb_append(esbp, small_buf);
-		    }
+		wres = formxdata_print_value(attrib,esbp, &err);
+		if(wres == DW_DLV_OK){
+		    /* String appended already. */
 		} else if (wres == DW_DLV_NO_ENTRY) {
 		    /* nothing? */
 		} else {
-		    if (tag == DW_TAG_enumerator) {
-			wres = dwarf_formsdata(attrib, &tempsd, &err);
-			if (wres == DW_DLV_OK) {
-			    /* See bug 583450. ** we are recording
-			       enumerators ** as unsigned. Wrong. Thru
-			       cmplrs 7.2.1 */
-			    snprintf(small_buf, sizeof(small_buf),
-				     "%lld", tempsd);
-			    esb_append(esbp, small_buf);
-			} else if (wres == DW_DLV_NO_ENTRY) {
-			    /* nothing? */
-			} else {
-			    print_error(dbg,
-					"Cannot get formudata or formsdata..",
-					wres, err);
-			}
-		    } else {
-			print_error(dbg, "Cannot get formudata..", wres,
-				    err);
-		    }
+		   print_error(dbg,"Cannot get DW_AT_const_value ",wres,err);
 		}
+  
+		
 		break;
 	    case DW_AT_upper_bound:
 	    case DW_AT_lower_bound:
 	    default:
-		wres = dwarf_formsdata(attrib, &tempsd, &err);
+		wres = formxdata_print_value(attrib,esbp, &err);
 		if (wres == DW_DLV_OK) {
-		    snprintf(small_buf, sizeof(small_buf), "%lld",
-			     tempsd);
-		    esb_append(esbp, small_buf);
+		    /* String appended already. */
 		} else if (wres == DW_DLV_NO_ENTRY) {
 		    /* nothing? */
 		} else {

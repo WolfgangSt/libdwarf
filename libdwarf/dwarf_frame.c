@@ -1919,9 +1919,9 @@ dwarf_get_fde_at_pc(Dwarf_Fde * fde_data,
     {
 	/* The fde's are sorted by their addresses. Binary search to
 	   find correct fde. */
-	int low = 0;
-	int high = dbg->de_fde_count - 1;
-	int middle = 0;
+	Dwarf_Signed low = 0;
+	Dwarf_Signed high = dbg->de_fde_count - 1L;
+	Dwarf_Signed middle = 0;
 	Dwarf_Fde cur_fde;
 
 	while (low <= high) {
