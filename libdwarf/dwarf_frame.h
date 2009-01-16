@@ -199,6 +199,12 @@ struct Dwarf_Fde_s {
     Dwarf_Fde fd_next;
     Dwarf_Small fd_length_size;
     Dwarf_Small fd_extension_size;
+
+    /* The following 3 are about the Elf section the FDEs come from. */
+    Dwarf_Small * fd_section_ptr;
+    Dwarf_Unsigned fd_section_length;
+    Dwarf_Unsigned fd_section_index; 
+
 };
 
 

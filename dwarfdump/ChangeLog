@@ -1,3 +1,6 @@
+2005-03-18 David Anderson <davea@sgi.com>
+      * print_sections.c: Correct macro section printing.
+
 2004-10-28 David Anderson <davea@sgi.com>
       * DWARFDUMPCOPYRIGHT config.h defs.h dwarfdump.c globals.h
 	makename.c makename.h print_die.c print_exception_tables.c 

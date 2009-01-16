@@ -1,3 +1,11 @@
+2005-03-18 David Anderson <davea@sgi.com>
+      * dwarf_frame.h dwarf_frame.c: The gcc .eh_frame
+        info did not print correctly so we now access the
+	correct section data so it prints. Still no support
+	for dwarf3 frame operators.
+      * dwarf_macro.c: Detect end-of-macros properly
+        (stopped too soon before).
+	
 2005-02-14 David Anderson <davea@sgi.com>
       * pro_incl.h: Added #elif defined(HAVE_LIBELF_H)
         enabling build on a platform missing normal elf.h.

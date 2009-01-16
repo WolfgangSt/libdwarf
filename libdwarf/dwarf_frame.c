@@ -52,6 +52,7 @@ static int
 				Dwarf_Signed * fde_element_count,
 				Dwarf_Small * section_ptr,
 				Dwarf_Unsigned section_length,
+				Dwarf_Unsigned section_index,
 				Dwarf_Unsigned cie_id_value,
 				int use_gnu_cie_calc,
 				Dwarf_Error * error);
@@ -865,6 +866,7 @@ dwarf_get_fde_list_eh(Dwarf_Debug dbg,
 				      fde_element_count,
 				      dbg->de_debug_frame_eh_gnu,
 				      dbg->de_debug_frame_size_eh_gnu,
+				      dbg->de_debug_frame_eh_gnu_index,
 				      /* cie_id_value */ 0,
 				      /* use_gnu_cie_calc= */ 1,
 				      error);
@@ -906,9 +908,11 @@ dwarf_get_fde_list(Dwarf_Debug dbg,
 				      fde_element_count,
 				      dbg->de_debug_frame,
 				      dbg->de_debug_frame_size,
+				      dbg->de_debug_frame_index,
 				      DW_CIE_ID,
 				      /* use_gnu_cie_calc= */ 0,
 				      error);
+
     return res;
 }
 
@@ -920,8 +924,10 @@ __dwarf_get_fde_list_internal(Dwarf_Debug dbg,
 			      Dwarf_Signed * fde_element_count,
 			      Dwarf_Small * section_ptr,
 			      Dwarf_Unsigned section_length,
+			      Dwarf_Unsigned section_index,
 			      Dwarf_Unsigned cie_id_value,
-			      int use_gnu_cie_calc, Dwarf_Error * error)
+			      int use_gnu_cie_calc, 
+			      Dwarf_Error * error)
 {
     /* Scans the debug_frame section. */
     Dwarf_Small *frame_ptr = 0;
@@ -1298,6 +1304,9 @@ __dwarf_get_fde_list_internal(Dwarf_Debug dbg,
 	    new_fde->fd_dbg = dbg;
 	    new_fde->fd_offset_into_exception_tables =
 		offset_into_exception_tables;
+	    new_fde->fd_section_ptr = section_ptr;
+	    new_fde->fd_section_length = section_length;
+	    new_fde->fd_section_index = section_index;
 
 	    fde_count++;
 	    if (head_fde_ptr == NULL)
@@ -1557,6 +1566,10 @@ dwarf_get_fde_for_die(Dwarf_Debug dbg,
     new_fde->fd_dbg = dbg;
     new_fde->fd_offset_into_exception_tables =
 	offset_into_exception_tables;
+    new_fde->fd_section_ptr = dbg->de_debug_frame;
+    new_fde->fd_section_length = dbg->de_debug_frame_size;
+    new_fde->fd_section_index = dbg->de_debug_frame_index;
+
 
     /* now read the cie corresponding to the fde */
     cie_ptr = (dbg->de_debug_frame + signed_offset);
@@ -1707,7 +1720,6 @@ dwarf_get_fde_range(Dwarf_Fde fde,
 		    Dwarf_Signed * cie_index,
 		    Dwarf_Off * fde_offset, Dwarf_Error * error)
 {
-    int res;
     Dwarf_Debug dbg;
 
     if (fde == NULL) {
@@ -1721,14 +1733,12 @@ dwarf_get_fde_range(Dwarf_Fde fde,
 	return (DW_DLV_ERROR);
     }
 
-    res =
-        _dwarf_load_section(dbg,
-			    dbg->de_debug_frame_index,
-			    &dbg->de_debug_frame,
-			    error);
-    if (res != DW_DLV_OK) {
-        return res;
-    }
+	
+    /* We have always already done the section load here, so
+       no need to load the section.
+       We did the section load in order to create the Dwarf_Fde pointer
+       passed in here. */
+
 
     if (low_pc != NULL)
 	*low_pc = fde->fd_initial_location;
@@ -1743,7 +1753,7 @@ dwarf_get_fde_range(Dwarf_Fde fde,
     if (cie_index != NULL)
 	*cie_index = fde->fd_cie_index;
     if (fde_offset != NULL)
-	*fde_offset = fde->fd_fde_start - dbg->de_debug_frame;
+	*fde_offset = fde->fd_fde_start - fde->fd_section_ptr;
 
     return DW_DLV_OK;
 }

@@ -160,26 +160,34 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
 			Dwarf_Macro_Details ** details,
 			Dwarf_Error * error)
 {
-    Dwarf_Small *macro_base;
-    Dwarf_Small *pnext;
-    Dwarf_Unsigned endloc;
-    unsigned char uc;
-    unsigned long depth;
+    Dwarf_Small *macro_base = 0;
+    Dwarf_Small *pnext = 0;
+    Dwarf_Unsigned endloc = 0;
+    unsigned char uc = 0;
+    unsigned long depth = 0; /* By section 6.3.2 Dwarf3
+        draft 8/9, the base file should appear as DW_MACINFO_start_file.
+	See http://gcc.gnu.org/ml/gcc-bugs/2005-02/msg03442.html
+	on "[Bug debug/20253] New: [3.4/4.0 regression]: 
+        Macro debug info broken due to lexer change"
+	for how gcc is broken in some versions.
+	We no longer use depth as a stopping point, it's not
+	needed as a stopping point anyway.  */
+	
 
-    int res;
+    int res = 0;
 
     /* count space used by strings */
     unsigned long str_space = 0;
     int done = 0;
-    unsigned long space_needed;
-    unsigned long string_offset;
-    Dwarf_Small *return_data;
-    Dwarf_Small *pdata;
+    unsigned long space_needed = 0;
+    unsigned long string_offset = 0;
+    Dwarf_Small *return_data = 0;
+    Dwarf_Small *pdata = 0;
     unsigned long final_count = 0;
     Dwarf_Signed fileindex = -1;
-    Dwarf_Small *latest_str_loc;
+    Dwarf_Small *latest_str_loc = 0;
 
-    unsigned long count;
+    unsigned long count = 0;
     unsigned long max_count = (unsigned long) maximum_count;
 
     _dwarf_reset_index_stack();
@@ -272,7 +280,9 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
 
 	case DW_MACINFO_end_file:
 	    if (--depth == 0) {
-		done = 1;
+		/* done = 1; no, do not stop here, at least
+		one gcc had the wrong depth settings in
+		the gcc 3.4 timeframe. */
 	    }
 	    break;		/* no string or number here */
 	case 0:
@@ -315,6 +325,8 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
     pnext = macro_base + macro_offset;
 
     done = 0;
+
+    /* A series ends with a type code of 0. */
     
     for (final_count = 0; !done && final_count < count; ++final_count) {
 	unsigned long slen;
@@ -397,6 +409,7 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
 	    done = 1;
 	    break;
 	default:
+	    /* FIXME: leaks memory via return_data. */
 	    _dwarf_error(dbg, error, DW_DLE_DEBUG_MACRO_INCONSISTENT);
 	    return (DW_DLV_ERROR);
 	    /* bogus macinfo! */

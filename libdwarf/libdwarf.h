@@ -41,7 +41,7 @@ extern "C" {
 #endif
 /*
 	libdwarf.h  
-	$Revision: 1.76 $ $Date: 2003/10/03 16:19:09 $
+	$Revision: 1.77 $ $Date: 2004/10/28 22:30:10 $
 
 	For libdwarf producers and consumers
 
