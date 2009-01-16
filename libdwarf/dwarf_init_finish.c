@@ -34,6 +34,8 @@
 */
 
 
+#if (!defined(HAVE_RAW_LIBELF_OK) && defined(HAVE_LIBELF_OFF64_OK) )
+#endif
 
 #include "config.h"
 #include "dwarf_incl.h"

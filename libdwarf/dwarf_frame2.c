@@ -1063,6 +1063,24 @@ gnu_aug_encodings(Dwarf_Debug dbg, char *augmentation,
             /* Means that the augmentation data is present. */
 	    continue;
 
+	case 'S':
+            /* Indicates this is a signal stack frame.  Debuggers have to do 
+               special handling.  We don't need to do more than print this flag at 
+               the right time, though (see dwarfdump where it prints the augmentation
+               string). 
+               A signal stack frame (in some OS's) can only be
+               unwound (backtraced) by knowing it is a signal stack frame 
+               (perhaps by noticing the name of the function for the stack frame
+               if the name can be found somehow) and figuring
+               out (or knowing) how the kernel and libc pushed a structure
+               onto the stack and loading registers from that structure.
+               Totally different from normal stack unwinding.
+               This flag gives an unwinder a big leg up by decoupling the
+               'hint: this is a stack frame' from knowledge like
+               the function name (the name might be unavailable at unwind time).
+            */
+            break;
+            
 	case 'L':
 	    if (cur_aug_p > end_aug_p) {
 		return DW_DLV_ERROR;

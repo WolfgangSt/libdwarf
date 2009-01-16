@@ -268,7 +268,7 @@ print_one_fde(Dwarf_Debug dbg, Dwarf_Fde fde,
 
 	res = dwarf_get_fde_instr_bytes(fde, &instrs, &ilen, &err);
 	offres =
-	    _dwarf_fde_section_offset(dbg, fde, &fde_off, &cie_off,
+	    dwarf_fde_section_offset(dbg, fde, &fde_off, &cie_off,
 				      &err);
 	if (offres == DW_DLV_OK) {
 	    printf("\tfde sec. offset %llu 0x%llx"
@@ -385,7 +385,7 @@ print_one_cie(Dwarf_Debug dbg, Dwarf_Cie cie,
     }
     {
 	printf("<%3lld>\tversion\t\t\t\t%d\n", cie_index, version);
-	cires = _dwarf_cie_section_offset(dbg, cie, &cie_off, &err);
+	cires = dwarf_cie_section_offset(dbg, cie, &cie_off, &err);
 	if (cires == DW_DLV_OK) {
 	    printf("\tcie sec. offset %llu 0x%llx\n",
 		   (unsigned long long) cie_off,

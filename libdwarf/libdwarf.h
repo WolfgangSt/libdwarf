@@ -1508,17 +1508,20 @@ struct Dwarf_Macro_Details_s {
                            */
 };
 
-/* _dwarf_print_lines is for use by dwarfdump: it prints
+/* dwarf_print_lines is for use by dwarfdump: it prints
    line info to stdout.
+   The _dwarf name is obsolete. Use dwarf_ instead.
 */
 int _dwarf_print_lines(Dwarf_Die cu_die,Dwarf_Error * /*error*/);
+int dwarf_print_lines(Dwarf_Die cu_die,Dwarf_Error * /*error*/);
 
-/* _dwarf_ld_sort_lines is for use solely by ld for
-   rearranging lines in .debug_line in a .o created with a text
+/* dwarf_ld_sort_lines helps SGI IRIX ld 
+   rearrange lines in .debug_line in a .o created with a text
    section per function.  
 		-OPT:procedure_reorder=ON
    where ld-cord (cord(1)ing by ld, 
    not by cord(1)) may have changed the function order.
+   The _dwarf name is obsolete. Use dwarf_ instead.
 */
 int _dwarf_ld_sort_lines(
         void * orig_buffer,
@@ -1526,17 +1529,31 @@ int _dwarf_ld_sort_lines(
         int is_64_bit,
         int *any_change,
         int * err_code);
+int dwarf_ld_sort_lines(
+        void * orig_buffer,
+        unsigned long   buffer_len,
+        int is_64_bit,
+        int *any_change,
+        int * err_code);
 
-/* Used by dwarfdump -v to print offsets, for debugging
-   dwarf info
+/* Used by dwarfdump -v to print fde offsets from debugging
+   info.
+   The _dwarf name is obsolete. Use dwarf_ instead.
 */
 int _dwarf_fde_section_offset(Dwarf_Debug dbg,Dwarf_Fde in_fde,
         Dwarf_Off *fde_off, Dwarf_Off *cie_off,
         Dwarf_Error *err);
+int dwarf_fde_section_offset(Dwarf_Debug dbg,Dwarf_Fde in_fde,
+        Dwarf_Off *fde_off, Dwarf_Off *cie_off,
+        Dwarf_Error *err);
 
-/* Used by dwarfdump -v to print offsets, for debugging
-   dwarf info
+/* Used by dwarfdump -v to print cie offsets from debugging
+   info.
+   The _dwarf name is obsolete. Use dwarf_ instead.
 */
+int dwarf_cie_section_offset(Dwarf_Debug dbg,Dwarf_Cie in_cie,
+        Dwarf_Off *cie_off,
+        Dwarf_Error *err);
 int _dwarf_cie_section_offset(Dwarf_Debug dbg,Dwarf_Cie in_cie,
         Dwarf_Off *cie_off,
         Dwarf_Error *err);

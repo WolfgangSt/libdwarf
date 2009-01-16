@@ -38,6 +38,14 @@ $Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/globals.h,v 1.25 2006/
 #define globals_INCLUDED
 
 #include "config.h"
+#if (!defined(HAVE_RAW_LIBELF_OK) && defined(HAVE_LIBELF_OFF64_OK) )
+/* At a certain point libelf.h requires _GNU_SOURCE.
+   here we assume the criteria in configure determine that
+   usefully.
+*/
+#define _GNU_SOURCE 1
+#endif
+
 
 /* We want __uint32_t and __uint64_t and __int32_t __int64_t
    properly defined but not duplicated, since duplicate typedefs

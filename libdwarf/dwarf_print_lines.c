@@ -622,8 +622,26 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
 }
 
 /*
+        This is support for dwarfdump: making it possible
+        for clients wanting line detail info on stdout
+        to get that detail without including internal libdwarf
+        header information.
 	Caller passes in compilation unit DIE.
+        The _dwarf version is obsolete (though supported for
+        compatibility.
+        The dwarf_ version is preferred.
 */
+int
+dwarf_print_lines(Dwarf_Die die, Dwarf_Error * error)
+{
+    int res;
+
+    res = _dwarf_internal_printlines(die, error);
+    if (res != DW_DLV_OK) {
+	return res;
+    }
+    return res;
+}
 int
 _dwarf_print_lines(Dwarf_Die die, Dwarf_Error * error)
 {

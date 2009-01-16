@@ -1,3 +1,20 @@
+2007-12-09 DavidAnderson <davea42@earthlink.net>
+     * dwarf_sort_line.c dwarf_print_lines.c darf_frame.c: Forgot 
+       to commit yesterday.
+       Today's commit includes renaming _dwarf_fde_section_offset
+       _dwarf_cie_section_offset, _dwarf_print_lines, _dwarf_ld_sort_lines
+       to dwarf_* name while retaining support for the now obsolete
+       _dwarf_* form.
+2007-12-08 DavidAnderson <davea42@earthlink.net>
+     * config.h.in, configure.in: Latest linux libelf.h requires
+       _GNU_SOURCE to get off64_t defined so dwarfdump compiles.
+       Only define _GNU_SOURCE  if libelf.h defines off64_t.
+       Regenerated configure.
+     * config.guess, config.sub: Updated to 2.61
+     * acconfig.h: Deleted, removing autoconf complaint.
+2007-11-14 David Anderson <davea42@earthlink.net>
+      * dwarf_frame2.c (gnu_aug_encodings): Now allows 'S' augmentation 
+        character in eh_frame.
 2007-10-16 David Anderson <davea42@earthlink.net>
       * dwarf_alloc.c: Reformat a comment.
       * dwarf_die_deliv.c (dwarf_siblingof): When there is no trailing

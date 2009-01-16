@@ -35,14 +35,29 @@ AC_TRY_COMPILE([#include <elf.h>],[  int p; p = R_IA_64_DIR32LSB;] ,
   AC_DEFINE(HAVE_R_IA_64_DIR32LSB,1,
 	[Define 1 if  R_IA_64_DIR32LSB is defined (might be enum value).]))
 
+AC_TRY_COMPILE([
+#include <libelf.h>
+],[  int p; p = 0; ] ,
+  AC_DEFINE(HAVE_RAW_LIBELF_OK,1,
+	[Define 1 if plain libelf builds.]))
+AC_TRY_COMPILE([
+#define _GNU_SOURCE
+#include <libelf.h>
+],[  off64_t  p; p = 0;] ,
+  AC_DEFINE(HAVE_LIBELF_OFF64_OK,1,
+	[Define 1 if  off64 is defined via libelf with GNU_SOURCE.]))
+
 dnl the existence of sgidefs.h does not prove it's truly SGI, nor
-dnl prove that __uint32_t or __uint64_t lis defined therein.
+dnl prove that __uint32_t or __uint64_t is defined therein.
 AC_TRY_COMPILE([#include <sgidefs.h>],[  __uint32_t p; p = 27;] ,
   AC_DEFINE(HAVE___UINT32_T_IN_SGIDEFS_H,1,
         [Define 1 if __uint32_t is in sgidefs.h.])) 
 AC_TRY_COMPILE([#include <sgidefs.h>],[  __uint64_t p; p = 27;] ,
   AC_DEFINE(HAVE___UINT64_T_IN_SGIDEFS_H,1,
         [Define 1 if __uint64_t is in sgidefs.h.])) 
+AC_TRY_COMPILE([#include <sgidefs.h>],[  __uint64_t p; p = 27;] ,
+  AC_DEFINE(HAVE___UINT64_T_IN_SGIDEFS_H,1,
+        [Define 1 if  is in sgidefs.h.])) 
 
 AC_SUBST(build_shared,[])
 AC_SUBST(build_nonshared,[libdwarf.a])

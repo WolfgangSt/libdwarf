@@ -1,3 +1,6 @@
+December 8, 2007
+  Had to add an ugly configure conditional as libelf has
+  unconditional use of off64_t in recent libelf.h
 July 3, 2007
   Now with -v dwarf expression blocks in frame operations
   are printed expanded out.

@@ -67,8 +67,8 @@ dwarfdump: $(OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $(OBJECTS) $(LDFLAGS) 
 
 
-at_list.i: at_list.awk $(DIRINC)/dwarf.h
-	awk -f $(srcdir)/at_list.awk $(DIRINC)/dwarf.h > $@
+#at_list.i: at_list.awk $(DIRINC)/dwarf.h
+#	awk -f $(srcdir)/at_list.awk $(DIRINC)/dwarf.h > $@
 #at_list.o: at_list.i
 #	 $(CC) $(CFLAGS) -c at_list.i -o $@
 

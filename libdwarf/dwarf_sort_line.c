@@ -81,9 +81,16 @@ struct a_line_area {
 };
 
 
+/*
+        Written to support the SGI IRIX static linker. 
+        It helps SGI IRIX ld 
+        rearrange lines in .debug_line in a .o created with a text
+        section per function.   The SGI IRIX linker option is: 
+                -OPT:procedure_reorder=ON
+        where ld-cord (cord(1)ing by ld, 
+        not by cord(1)) may have changed the function order.
 
-/* 
-	returns
+	Returns
 	DW_DLV_OK if nothing went wrong.
 	DW_DLV_ERROR if could not do anything due to
 		error.  the original buffer is unchanged.
@@ -102,10 +109,21 @@ struct a_line_area {
 		set 1 if some sorting (movement) done.
 	on all returns. On error return sets to 0.
 	
+        The _dwarf name form is now obsolete,
+        the dwarf_ name for is preferred.
+        Both names supported.
 
 */
 int
 _dwarf_ld_sort_lines(void *orig_buffer,
+		     unsigned long buffer_len,
+		     int is_64_bit, int *any_change, int *err_code)
+{
+    return dwarf_ld_sort_lines(orig_buffer,buffer_len,
+        is_64_bit,any_change,err_code);
+}
+int
+dwarf_ld_sort_lines(void *orig_buffer,
 		     unsigned long buffer_len,
 		     int is_64_bit, int *any_change, int *err_code)
 {

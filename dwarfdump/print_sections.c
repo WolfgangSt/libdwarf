@@ -131,7 +131,7 @@ print_line_numbers_this_cu(Dwarf_Debug dbg, Dwarf_Die cu_die)
 	print_one_die(dbg, cu_die, /* print_information= */ 1,
 		      /* srcfiles= */ 0, /* cnt= */ 0);
 
-	lres = _dwarf_print_lines(cu_die, &err);
+	lres = dwarf_print_lines(cu_die, &err);
 	if (lres == DW_DLV_ERROR) {
 	    print_error(dbg, "dwarf_srclines details", lres, err);
 	}

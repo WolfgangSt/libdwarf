@@ -1,3 +1,16 @@
+2007-12-09 DavidAnderson <davea42@earthlink.net>
+     * print_sections.c print_frames.c: Forgot to commit yesterday. 
+       yesterday's commit includes renaming _dwarf_fde_section_offset
+       _dwarf_cie_section_offset, _dwarf_print_lines, _dwarf_ld_sort_lines
+       to dwarf_* form while retaining support for the now obsolete
+       _dwarf_* form.
+2007-12-08 DavidAnderson <davea42@earthlink.net>
+     * config.h.in, configure.in: Latest linux libelf.h requires
+       _GNU_SOURCE to get off64_t defined so dwarfdump compiles.
+       Only define _GNU_SOURCE  if libelf.h defines off64_t.
+       Regenerated configure.
+     * config.guess, config.sub: Updated to 2.61
+     * acconfig.h: Deleted, removing autoconf complaint.
 2007-10-15 DavidAnderson <davea42@earthlink.net>
      * print_die.c (clean_up_die_esb): New function
        cleans up malloc space.

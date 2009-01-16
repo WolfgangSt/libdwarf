@@ -2061,11 +2061,22 @@ dwarf_expand_frame_instructions(Dwarf_Debug dbg,
 
 
 /* Used by dwarfdump -v to print offsets, for debugging
-   dwarf info
+   dwarf info.
+   The dwarf_ version is preferred over the obsolete _dwarf version.
+   _dwarf version kept for compatibility.
 */
 /* ARGSUSED 4 */
 int
 _dwarf_fde_section_offset(Dwarf_Debug dbg, Dwarf_Fde in_fde,
+			  Dwarf_Off * fde_off, Dwarf_Off * cie_off,
+			  Dwarf_Error * err) 
+{
+  return _dwarf_fde_section_offset(dbg,in_fde,fde_off,
+     cie_off,err);
+}
+/* ARGSUSED 4 */
+int
+dwarf_fde_section_offset(Dwarf_Debug dbg, Dwarf_Fde in_fde,
 			  Dwarf_Off * fde_off, Dwarf_Off * cie_off,
 			  Dwarf_Error * err)
 {
@@ -2083,11 +2094,20 @@ _dwarf_fde_section_offset(Dwarf_Debug dbg, Dwarf_Fde in_fde,
 }
 
 /* Used by dwarfdump -v to print offsets, for debugging
-   dwarf info
+   dwarf info.
+   The dwarf_ version is preferred over the obsolete _dwarf version.
+   _dwarf version kept for compatibility.
 */
 /* ARGSUSED 4 */
 int
 _dwarf_cie_section_offset(Dwarf_Debug dbg, Dwarf_Cie in_cie,
+			  Dwarf_Off * cie_off, Dwarf_Error * err)
+{
+    return dwarf_cie_section_offset(dbg,in_cie,cie_off,err);
+}
+/* ARGSUSED 4 */
+int
+dwarf_cie_section_offset(Dwarf_Debug dbg, Dwarf_Cie in_cie,
 			  Dwarf_Off * cie_off, Dwarf_Error * err)
 {
     char *start = 0;
