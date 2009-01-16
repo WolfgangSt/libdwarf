@@ -1,3 +1,7 @@
+Sep 30, 2008
+  Phil Mucci provided an a.out test chase which demonstrates a bug
+  in 64bit DWARF2 output by gcc.   Now libdwarf works around this
+  and with -v -v -v -v prints a warning.
 Sep 29, 2008
   Thanks to Phil Mucci for providing a little-endian 64bit
   test object file that exposed a problem when there are 'extra' bytes

@@ -1,3 +1,6 @@
+2008-10-12 David Anderson <davea42@earthlink.net>
+      * dwarfdump.conf: Adding power pc register names and table
+        size for use with -x abi=ppc  .
 2008-08-13 David Anderson <davea42@earthlink.net>
       * dwarfdump.1: When no options (just object files) present
         all sections print, now we say that.  Renamed fields

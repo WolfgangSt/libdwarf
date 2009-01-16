@@ -1553,7 +1553,7 @@ static unsigned char
    must be freed (see the Line_Table_Prefix_s struct which
    holds the pointers to space we allocate here).
 
-   wasted_bytes_ptr and wasted_bytes are output values which
+   bogus_bytes_ptr and bogus_bytes are output values which
    let a print-program notify the user of some surprising bytes
    after a line table header and before the line table instructions.
    These can be ignored unless one is printing.
@@ -1565,8 +1565,8 @@ dwarf_read_line_table_prefix(Dwarf_Debug dbg,
                              Dwarf_Unsigned data_length,
                              Dwarf_Small ** updated_data_start_out,
                              struct Line_Table_Prefix_s *prefix_out,
-                             Dwarf_Small ** wasted_bytes_ptr,
-                             Dwarf_Unsigned *wasted_bytes,
+                             Dwarf_Small ** bogus_bytes_ptr,
+                             Dwarf_Unsigned *bogus_bytes,
                              Dwarf_Error * err)
 {
     Dwarf_Small *line_ptr = data_start;
@@ -1581,8 +1581,8 @@ dwarf_read_line_table_prefix(Dwarf_Debug dbg,
     Dwarf_Unsigned files_malloc = 0;
     Dwarf_Small *line_ptr_end = 0;
     Dwarf_Small *lp_begin = 0;
-    if(wasted_bytes_ptr) *wasted_bytes_ptr = 0;
-    if(wasted_bytes) *wasted_bytes= 0;
+    if(bogus_bytes_ptr) *bogus_bytes_ptr = 0;
+    if(bogus_bytes) *bogus_bytes= 0;
 
     prefix_out->pf_line_ptr_start = line_ptr;
     /* READ_AREA_LENGTH updates line_ptr for consumed bytes */
@@ -1801,16 +1801,22 @@ dwarf_read_line_table_prefix(Dwarf_Debug dbg,
             _dwarf_error(dbg, err, DW_DLE_LINE_PROLOG_LENGTH_BAD);
             return (DW_DLV_ERROR);
         } else {
-            /* There are some 'wasted' bytes after the line prolog
-               before the line program.  It's not an error,
-               but it is wasteful. */
-            if(wasted_bytes_ptr) {
-               *wasted_bytes_ptr = line_ptr;
+            /* Bug in compiler. These
+            /* bytes are really part of the instruction
+             * stream.  The prefix_out->pf_prologue_length is
+             * wrong (12 too high).  */
+            if(bogus_bytes_ptr) {
+               *bogus_bytes_ptr = line_ptr;
             }
-            if(wasted_bytes) {
-               *wasted_bytes = (lp_begin - line_ptr);
+            if(bogus_bytes) {
+               // How far off things are. We expect the
+               // value 12 !
+               *bogus_bytes = (lp_begin - line_ptr);
             }
         }
+        // Ignore the lp_begin calc. Assume line_ptr right.
+        // Making up for compiler bug.
+        lp_begin = line_ptr; 
         
     }
 

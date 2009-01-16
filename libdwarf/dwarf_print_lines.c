@@ -153,10 +153,12 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
        opcode. */
     Dwarf_Half fixed_advance_pc=0;
 
-    /* In case there are 'wasted' bytes after the line table
-     * prologue this lets us print them. */
-    Dwarf_Small* wasted_bytes_ptr = 0;
-    Dwarf_Unsigned wasted_bytes_count = 0;
+    /* In case there are wierd bytes 'after' the line table
+     * prologue this lets us print something. This is a gcc
+     * compiler bug and we expect the bytes count to be 12.
+     */
+    Dwarf_Small* bogus_bytes_ptr = 0;
+    Dwarf_Unsigned bogus_bytes_count = 0;
 
 
     /* The Dwarf_Debug this die belongs to. */
@@ -231,8 +233,8 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
             line_ptr,dbg->de_debug_line_size - line_offset,
             &line_ptr_out,
             &prefix, 
-            &wasted_bytes_ptr,
-            &wasted_bytes_count,
+            &bogus_bytes_ptr,
+            &bogus_bytes_count,
             error);
         if (dres == DW_DLV_ERROR) {
             dwarf_free_line_table_prefix(&prefix);
@@ -303,11 +305,11 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
 
 
     {
-        if(wasted_bytes_count > 0) {
-            unsigned long long wcount = wasted_bytes_count;
-            unsigned long long boffset = wasted_bytes_ptr - orig_line_ptr;
-            printf("  Warning: %llu bytes following the  statement prologue"
-                " have unknown use and are ignored. "
+        if(bogus_bytes_count > 0) {
+            unsigned long long wcount = bogus_bytes_count;
+            unsigned long long boffset = bogus_bytes_ptr - orig_line_ptr;
+            printf("  Warning:  the line table prologue  header_length "
+                " is %llu too high, we pretend it is smaller."
                 "Section offset: %llu (0x%llx)\n",
                 wcount, boffset,boffset);
         }

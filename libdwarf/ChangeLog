@@ -1,3 +1,9 @@
+2008-09-30  DavidAnderson <davea42@earthlink.net>
+      * dwarf_print_lines.c: Print corrected warning
+        about bogus prologue length.
+      * dwarf_line.c: Work around bogus prologue length 
+        compiler bug.
+      * dwarf_line.h: Rename arguments.
 2008-09-29  DavidAnderson <davea42@earthlink.net>
       * libdwarf2.1.mm: Documented requirement that
         dwarf_get_fde_n() dwarf_get_fde_at_pc() pass a
