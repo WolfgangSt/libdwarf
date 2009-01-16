@@ -1,3 +1,6 @@
+2008-10-13  DavidAnderson <davea42@earthlink.net>
+      * dwarf_frame2.c: Removed last use of DW_FRAME_LAST_REG_NUM:
+        use dbg->de_frame_reg_rules_entry_count instead.
 2008-09-30  DavidAnderson <davea42@earthlink.net>
       * dwarf_print_lines.c: Print corrected warning
         about bogus prologue length.

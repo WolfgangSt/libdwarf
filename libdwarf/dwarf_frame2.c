@@ -520,7 +520,7 @@ dwarf_create_cie_from_after_start(Dwarf_Debug dbg,
 
         return_address_register =
             _dwarf_get_return_address_reg(frame_ptr, version, &size);
-        if (return_address_register > DW_FRAME_LAST_REG_NUM) {
+        if (return_address_register > dbg->de_frame_reg_rules_entry_count) {
             _dwarf_error(dbg, error, DW_DLE_CIE_RET_ADDR_REG_ERROR);
             return (DW_DLV_ERROR);
         }
