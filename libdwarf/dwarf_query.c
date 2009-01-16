@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000, 2002 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -255,6 +255,7 @@ dwarf_diename(Dwarf_Die die, char **ret_name, Dwarf_Error * error)
     Dwarf_Debug dbg;
     Dwarf_Byte_Ptr info_ptr;
     Dwarf_Unsigned string_offset;
+    int res;
 
     CHECK_DIE(die, DW_DLV_ERROR)
 
@@ -282,14 +283,18 @@ dwarf_diename(Dwarf_Die die, char **ret_name, Dwarf_Error * error)
     READ_UNALIGNED(dbg, string_offset, Dwarf_Unsigned,
 		   info_ptr, die->di_cu_context->cc_length_size);
 
-    if (dbg->de_debug_str == NULL) {
-	_dwarf_error(dbg, error, DW_DLE_DEBUG_STR_NULL);
-	return (DW_DLV_ERROR);
-    }
-
     if (string_offset >= dbg->de_debug_str_size) {
 	_dwarf_error(dbg, error, DW_DLE_STRING_OFFSET_BAD);
 	return (DW_DLV_ERROR);
+    }
+
+    res =
+       _dwarf_load_section(dbg,
+                           dbg->de_debug_str_index,
+                           &dbg->de_debug_str,
+                           error);
+    if (res != DW_DLV_OK) {
+        return res;
     }
 
     *ret_name = (char *) (dbg->de_debug_str + string_offset);

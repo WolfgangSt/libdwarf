@@ -1,3 +1,10 @@
+May 23, 2002
+  Libdwarf now asks for sections only when they are
+  used, so that unneeded sections aren't loaded.
+  Support for using SGI's ELF library as an alternative to
+  using AT&T libelf-style has been added (the SGI ELF
+  library is presently only available internally to SGI).
+
 Jan 10, 2002
   Fixed memory leak in dwarf_finish().
 

@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000, 2001 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000, 2001, 2002 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License
@@ -41,7 +41,7 @@ extern "C" {
 #endif
 /*
 	libdwarf.h  
-	$Revision: 1.71 $ $Date: 2001/05/23 23:34:52 $
+	$Revision: 1.74 $ $Date: 2002/06/11 17:49:06 $
 
 	For libdwarf producers and consumers
 
@@ -59,7 +59,13 @@ extern "C" {
 
 */
 
-struct Elf; /* So that Elf* below works with less header-order dependency */
+#ifdef __SGI_FAST_LIBELF
+struct elf_sgi;
+typedef struct elf_sgi* dwarf_elf_handle;
+#else
+struct Elf;
+typedef struct Elf* dwarf_elf_handle;
+#endif
 
 #if (_MIPS_SZLONG == 64)
 /* Special case for MIPS, so -64 (LP64) build gets simple -long-.
@@ -511,7 +517,7 @@ int dwarf_init(int 	/*fd*/,
     Dwarf_Error* 	/*error*/);
 
 /* elf intialization */
-int dwarf_elf_init(Elf* /*elf*/, 
+int dwarf_elf_init(dwarf_elf_handle /*elf*/,
     Dwarf_Unsigned 	/*access*/, 
     Dwarf_Handler 	/*errhand*/, 
     Dwarf_Ptr 		/*errarg*/, 
@@ -523,7 +529,7 @@ void dwarf_print_memory_stats(Dwarf_Debug  /*dbg*/);
 
 
 int dwarf_get_elf(Dwarf_Debug /*dbg*/,
-    Elf **              /*return_elfptr*/,
+    dwarf_elf_handle*   /*return_elfptr*/,
     Dwarf_Error*	/*error*/);
 
 int dwarf_finish(Dwarf_Debug /*dbg*/, Dwarf_Error* /*error*/);

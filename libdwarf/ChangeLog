@@ -1,4 +1,43 @@
 
+2002-10-21 David Anderson <davea@sgi.com>
+      * dwarf_form.c: the form_ref functions were failing to
+      add in cc_extension_size when checking for offset
+      legality. Thanks to Kelly O'Hair <kelly.ohair@sun.com>
+      for pointing out the 4 places this was wrong.
+      Used cu_context local pointer to avoid numerous
+      double indirections.
+
+2002-08-14 David Anderson <davea@sgi.com>
+      * dwarf_string.c (dwarf_get_str): Return
+      DW_DLV_NO_ENTRY when offset is just at the end of the
+      sections, making it possible to use dwarf_get_str
+      to print the section independently.
+      * libdwarf2.1.mm, libdwarf2.1.ps: Document the
+      revised dwarf_get_str interface (which was not
+      fully thought thru before).
+      * dwarf_line.c (dwarf_srcfiles): Avoid core dump
+      when DW_AT_comp_dir absent (it's not required).
+
+
+2002-07-31 David Anderson <davea@sgi.com>
+      * pro_types.c (_dwarf_transform_simplename_to_disk): correct
+      generation of .debug_info size field.
+      Thanks to Kelly O'Hair <kelly.ohair@sun.com> for pointing out
+      the bug.
+
+2002-05-23 Daniel Gohman <gohmandj@sgi.com>
+      * dwarf_init_finish.c: Add support for using SGI's
+      ELF library as an alternative to using AT&T-style
+      libelf.
+      Add a new function _dwarf_load_section to handle
+      loading of sections.
+      * dwarf_opaque.h: Add entries to Dwarf_Debug_s to
+      store section indicies.
+      * most consumer files: Load sections on demand so
+      that unneeded sections don't get loaded.
+      * dwarf_init_finish.c: Fixed an incorrect check for
+      duplicate .eh_frame sections.
+
 2002-04-25 Kelly O'Hair <kelly.ohair@sun.com>
       * pro_section.c (_dwarf_pro_generate_debuginfo): add
       required dwarf2 sec 7.5.3 trailing null byte 

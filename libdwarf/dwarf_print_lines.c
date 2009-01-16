@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000, 2002 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -165,13 +165,15 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
     Dwarf_Word instr_length;
     Dwarf_Small ext_opcode;
     int local_length_size;
+    /*REFERENCED*/ /* Not used in this instance of the macro */
     int local_extension_size;
-
 
     /* The Dwarf_Debug this die belongs to. */
     Dwarf_Debug dbg;
     int resattr;
     int lres;
+
+    int res;
 
     /* ***** BEGIN CODE ***** */
 
@@ -180,8 +182,14 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
 
     CHECK_DIE(die, DW_DLV_ERROR)
 	dbg = die->di_cu_context->cc_dbg;
-    if (dbg->de_debug_line == NULL) {
-	return (DW_DLV_NO_ENTRY);
+
+    res =
+       _dwarf_load_section(dbg,
+		           dbg->de_debug_line_index,
+			   &dbg->de_debug_line,
+		           error);
+    if (res != DW_DLV_OK) {
+	return res;
     }
 
     resattr = dwarf_attr(die, DW_AT_stmt_list, &stmt_list_attr, error);

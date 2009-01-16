@@ -126,12 +126,23 @@ _dwarf_add_simple_name_entry(Dwarf_P_Debug dbg,
 
 
 
+/*
+     _dwarf_transform_simplename_to_disk writes 
+     ".rel.debug_pubnames",
+     ".rel.debug_funcnames",       sgi extension
+     ".rel.debug_typenames",       sgi extension
+     ".rel.debug_varnames",        sgi extension
+     ".rel.debug_weaknames",       sgi extension 
+     to disk.
+	section_index indexes one of those sections.
+	entrykind is one of those 'kind's.
+
+*/
 int
-_dwarf_transform_simplename_to_disk(Dwarf_P_Debug dbg, enum dwarf_sn_kind entrykind, int section_index,	/* in 
-													   de_elf_sects 
-													   etc 
-													 */
-				    Dwarf_Error * error)
+_dwarf_transform_simplename_to_disk(Dwarf_P_Debug dbg, 
+		enum dwarf_sn_kind entrykind, 
+		int section_index,	/* in de_elf_sects etc */
+		Dwarf_Error * error)
 {
 
 
@@ -141,7 +152,7 @@ _dwarf_transform_simplename_to_disk(Dwarf_P_Debug dbg, enum dwarf_sn_kind entryk
     /* Used to scan the section data buffers. */
     Dwarf_P_Section_Data debug_sect;
 
-    Dwarf_Signed debug_names_size;
+    Dwarf_Signed debug_info_size;
 
     Dwarf_P_Simple_nameentry nameentry_original;
     Dwarf_P_Simple_nameentry nameentry;
@@ -160,13 +171,15 @@ _dwarf_transform_simplename_to_disk(Dwarf_P_Debug dbg, enum dwarf_sn_kind entryk
 
     /* ***** BEGIN CODE ***** */
 
-    /* Get the size of the .debug_*name section. */
-    debug_names_size = 0;
+    debug_info_size = 0;
     for (debug_sect = dbg->de_debug_sects; debug_sect != NULL;
 	 debug_sect = debug_sect->ds_next) {
+	/* We want the size of the .debug_info section for this CU
+	   because the dwarf spec requires us to output it below
+	   so we look for it specifically. */
 	if (debug_sect->ds_elf_sect_no ==
-	    dbg->de_elf_sects[section_index]) {
-	    debug_names_size += debug_sect->ds_nbytes;
+	    dbg->de_elf_sects[DEBUG_INFO]) {
+	    debug_info_size += debug_sect->ds_nbytes;
 	}
     }
 
@@ -180,8 +193,6 @@ _dwarf_transform_simplename_to_disk(Dwarf_P_Debug dbg, enum dwarf_sn_kind entryk
 	uword_size;		/* Size of .debug_names. */
 
 
-
-    /* Add the size of the names portion. */
 
     nameentry_original = hdr->sn_head;
     nameentry = nameentry_original;
@@ -234,12 +245,13 @@ _dwarf_transform_simplename_to_disk(Dwarf_P_Debug dbg, enum dwarf_sn_kind entryk
     /* now create the relocation for the compile_unit offset */
     {
 	int res = dbg->de_reloc_name(dbg,
-				     section_index,
-				     extension_size + uword_size + sizeof(Dwarf_Half)	/* r_offset 
-											 */ ,
-				     /* debug_info section name symbol */
-				     dbg->de_sect_name_idx[DEBUG_INFO],
-				     dwarf_drt_data_reloc, uword_size);
+		section_index,
+		extension_size + uword_size + sizeof(Dwarf_Half)
+				/* r_offset */ ,
+	        /* debug_info section name symbol */
+		     dbg->de_sect_name_idx[DEBUG_INFO],
+		dwarf_drt_data_reloc, 
+		uword_size);
 
 	if (res != DW_DLV_OK) {
 	    {
@@ -249,10 +261,10 @@ _dwarf_transform_simplename_to_disk(Dwarf_P_Debug dbg, enum dwarf_sn_kind entryk
 	}
     }
 
-    /* Write the size of .debug_*name this section. */
+    /* Write the size of .debug_info section. */
     WRITE_UNALIGNED(dbg, cur_stream_bytes_ptr,
-		    (const void *) &debug_names_size,
-		    sizeof(debug_names_size), uword_size);
+		    (const void *) &debug_info_size,
+		    sizeof(debug_info_size), uword_size);
     cur_stream_bytes_ptr += uword_size;
 
 

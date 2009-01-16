@@ -254,24 +254,24 @@ _dwarf_symbolic_relocs_to_disk(Dwarf_P_Debug dbg,
 	if (p_reloc->pr_block_count > 1) {
 	    struct Dwarf_P_Relocation_Block_s *new_blk;
 
-	    /* HACK , not normal interfaces */
+	    /* HACK , not normal interfaces, trashing p_reloc
+	       current contents! */
 	    _dwarf_reset_reloc_sect_info(p_reloc, ct);
+
+	    /* Creating new single block for all 'ct' entries */
 	    res = _dwarf_pro_pre_alloc_n_reloc_slots(dbg, (int) i, ct);
-	    /* creating new block, ASSERT p_reloc->pr_block_count == 1 
-	     */
+
+
 	    if (res != DW_DLV_OK) {
 		return res;
 	    }
-	    /* ASSERT: 1 and only on block, and big enough for all data 
-	     */
 	    new_blk = p_reloc->pr_first_block;
 
 	    data = (Dwarf_Small *) new_blk->rb_data;
 
-	    /* following loop executes at least once. Effects the
-	       consolidation to a single block And frees the input
-	       block. */
-	    while (p_blk) {
+	    /* The following loop does the consolidation to a 
+	       single block and frees the input block(s). */
+	    do {
 
 		unsigned long len =
 		    p_blk->rb_where_to_add_next - p_blk->rb_data;
@@ -283,7 +283,7 @@ _dwarf_symbolic_relocs_to_disk(Dwarf_P_Debug dbg,
 		p_blk = p_blk->rb_next;
 
 		_dwarf_p_dealloc(dbg, (Dwarf_Small *) p_blk_last);
-	    }
+	    } while (p_blk) ;
 	    /* ASSERT: sum of len copied == total_size */
 	    new_blk->rb_next_slot_to_use = ct;
 	    new_blk->rb_where_to_add_next = (char *) data;

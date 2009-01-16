@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000, 2002 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -98,6 +98,8 @@ dwarf_get_aranges(Dwarf_Debug dbg,
     /* Used to chain Dwarf_Aranges structs. */
     Dwarf_Chain curr_chain, prev_chain, head_chain = NULL;
 
+    int res;
+
     /* ***** BEGIN CODE ***** */
 
     if (dbg == NULL) {
@@ -105,13 +107,19 @@ dwarf_get_aranges(Dwarf_Debug dbg,
 	return (DW_DLV_ERROR);
     }
 
-    if (dbg->de_debug_aranges == NULL) {
-	return (DW_DLV_NO_ENTRY);
+    res =
+        _dwarf_load_section(dbg,
+			    dbg->de_debug_aranges_index,
+			    &dbg->de_debug_aranges,
+			    error);
+    if (res != DW_DLV_OK) {
+        return res;
     }
 
     arange_ptr = dbg->de_debug_aranges;
     do {
 	int local_length_size;
+	/*REFERENCED*/ /* Not used in this instance of the macro */
 	int local_extension_size;
 
 	header_ptr = arange_ptr;
@@ -305,6 +313,8 @@ _dwarf_get_aranges_addr_offsets(Dwarf_Debug dbg,
     Dwarf_Addr *arange_addrs;
     Dwarf_Off *arange_offsets;
 
+    int res;
+
     /* ***** BEGIN CODE ***** */
 
     if (error != NULL)
@@ -315,13 +325,19 @@ _dwarf_get_aranges_addr_offsets(Dwarf_Debug dbg,
 	return (DW_DLV_ERROR);
     }
 
-    if (dbg->de_debug_aranges == NULL) {
-	return (DW_DLV_NO_ENTRY);
+    res =
+        _dwarf_load_section(dbg,
+			    dbg->de_debug_aranges_index,
+			    &dbg->de_debug_aranges,
+			    error);
+    if (res != DW_DLV_OK) {
+        return res;
     }
 
     arange_ptr = dbg->de_debug_aranges;
     do {
 	int local_length_size;
+	/*REFERENCED*/ /* not used in this instance of the macro */
 	int local_extension_size;
 
 	header_ptr = arange_ptr;

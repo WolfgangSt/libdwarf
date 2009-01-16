@@ -84,31 +84,33 @@ dwarf_srcfiles(Dwarf_Die die,
     /* 
        Offset into .debug_line specified by a DW_AT_stmt_list
        attribute. */
-    Dwarf_Unsigned line_offset;
+    Dwarf_Unsigned line_offset = 0;
 
     /* Some of the fields of the statement program header. */
-    Dwarf_Unsigned total_length;
-    Dwarf_Half version;
-    Dwarf_Unsigned prologue_length;
-    Dwarf_Small special_opcode_base;
+    Dwarf_Unsigned total_length = 0;
+    Dwarf_Half version = 0;
+    Dwarf_Unsigned prologue_length = 0;
+    Dwarf_Small special_opcode_base= 0;
 
     /* File name excluding included directory. */
-    char *file_name;
+    char *file_name = 0;
 
     /* Name of directory that the file is in. */
-    char *dir_name;
+    char *dir_name = 0;
 
     /* Name concatenating both directory and file name. */
-    char *full_name;
+    char *full_name = 0;
 
     /* 
        This is the directory index for the file. The compilation
        directory is 0, and the first included directory is 1. */
-    Dwarf_Sword dir_index;
+    Dwarf_Sword dir_index = 0;
 
-    Dwarf_Small *include_directories;
+    Dwarf_Small *include_directories = 0;
 
-    Dwarf_Sword i, file_count, directories_count;
+    Dwarf_Sword i = 0; 
+    Dwarf_Sword file_count = 0; 
+    Dwarf_Sword directories_count = 0;
 
     /* 
        This is the current opcode read from the statement program. */
@@ -120,7 +122,7 @@ dwarf_srcfiles(Dwarf_Die die,
     /* 
        This points to a block of char *'s, each of which points to a
        file name. */
-    char **ret_files;
+    char **ret_files = 0;
 
     /* The Dwarf_Debug this die belongs to. */
     Dwarf_Debug dbg;
@@ -131,7 +133,10 @@ dwarf_srcfiles(Dwarf_Die die,
     int lres;
 
     int local_length_size = 0;
+    /*REFERENCED*/ /* Not used in this instance of the macro */
     int local_extension_size = 0;
+
+    int res;
 
     /* ***** BEGIN CODE ***** */
 
@@ -146,10 +151,19 @@ dwarf_srcfiles(Dwarf_Die die,
     if (resattr != DW_DLV_OK) {
 	return resattr;
     }
-
-    if (dbg->de_debug_line == NULL) {
+    
+    if (dbg->de_debug_line_index == 0) {
 	_dwarf_error(dbg, error, DW_DLE_DEBUG_LINE_NULL);
 	return (DW_DLV_ERROR);
+    }
+
+    res =
+       _dwarf_load_section(dbg,
+		           dbg->de_debug_line_index,
+			   &dbg->de_debug_line,
+			   error);
+    if (res != DW_DLV_OK) {
+	return res;
     }
 
     lres = dwarf_formudata(stmt_list_attr, &line_offset, error);
@@ -264,7 +278,8 @@ dwarf_srcfiles(Dwarf_Die die,
 		dir_name = dir_name + strlen(dir_name) + 1;
 	}
 
-	if ((*file_name) == '/')
+	/* dir_name can be NULL if there is no DW_AT_comp_dir */
+	if ((*file_name) == '/' || dir_name == 0)
 	    full_name = file_name;
 	else {
 	    full_name = (char *) _dwarf_get_alloc(dbg, DW_DLA_STRING,
@@ -465,7 +480,10 @@ _dwarf_internal_srclines(Dwarf_Die die,
     int resattr;
     int lres;
     int local_length_size = 0;
+    /*REFERENCED*/ /* Not used in this instance of the macro */
     int local_extension_size = 0;
+
+    int res;
 
     /* ***** BEGIN CODE ***** */
 
@@ -474,8 +492,14 @@ _dwarf_internal_srclines(Dwarf_Die die,
 
     CHECK_DIE(die, DW_DLV_ERROR)
 	dbg = die->di_cu_context->cc_dbg;
-    if (dbg->de_debug_line == NULL) {
-	return (DW_DLV_NO_ENTRY);
+
+    res =
+       _dwarf_load_section(dbg,
+		           dbg->de_debug_line_index,
+			   &dbg->de_debug_line,
+			   error);
+    if (res != DW_DLV_OK) {
+	return res;
     }
 
     resattr = dwarf_attr(die, DW_AT_stmt_list, &stmt_list_attr, error);

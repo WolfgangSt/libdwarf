@@ -1,7 +1,7 @@
 /*
    dwarf_addr_finder.h
-   $Source: /hosts/bonnie.engr/disks/xlv6/cmplrs.src/cmplrs.src_v7.4/include/cmplrs/RCS/dwarf_addr_finder.h,v $
-   $Date: 1994/06/09 02:09:04 $
+   $Source: /ptools/plroot/cmplrs.src/v7.4.1m/.RCS/PL/include/cmplrs/RCS/dwarf_addr_finder.h,v $
+   $Date: 2002/06/11 17:49:06 $
 
    Defines user interface.
 
@@ -49,7 +49,7 @@ typedef int (*Dwarf_addr_callback_func)   (int /*section*/,
 	so there were no addresses to be modified (and none
 	called back).
 */
-int _dwarf_addr_finder(Elf * elf_file_ptr,
+int _dwarf_addr_finder(dwarf_elf_handle elf_file_ptr,
                 Dwarf_addr_callback_func cb_func,
                 int *dwerr);
 

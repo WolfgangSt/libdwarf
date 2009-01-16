@@ -40,14 +40,6 @@
 #ifdef HAVE_ELF_H
 #include <elf.h>
 #endif
-#ifdef HAVE_LIBELF_H
-#include <libelf.h>
-#else
-#ifdef HAVE_LIBELF_LIBELF_H
-#include <libelf/libelf.h>
-#endif
-#endif
-
 #include <stdio.h>
 #include "dwarf_die_deliv.h"
 

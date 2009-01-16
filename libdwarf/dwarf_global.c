@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000, 2002 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -45,7 +45,16 @@ dwarf_get_globals(Dwarf_Debug dbg,
 		  Dwarf_Global ** globals,
 		  Dwarf_Signed * return_count, Dwarf_Error * error)
 {
+    int res;
 
+    res =
+       _dwarf_load_section(dbg, 
+			   dbg->de_debug_pubnames_index,
+			   &dbg->de_debug_pubnames,
+			   error);
+    if (res != DW_DLV_OK) {
+        return res;
+    }
 
     return _dwarf_internal_get_pubnames_like_data(dbg,
 						  dbg->

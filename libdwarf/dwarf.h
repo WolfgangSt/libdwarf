@@ -41,7 +41,7 @@ extern "C" {
 
 /*
 	dwarf.h   DWARF  debugging information values
-	$Revision: 1.24 $    $Date: 2001/05/23 23:34:51 $    
+	$Revision: 1.27 $    $Date: 2002/05/14 19:03:48 $    
 
 	The comment "DWARF3" appears where there are
 	new entries from DWARF3.
@@ -197,7 +197,7 @@ extern "C" {
 #define DW_AT_friend				0x41
 #define DW_AT_identifier_case			0x42
 #define DW_AT_macro_info			0x43
-#define DW_AT_namelist_items			0x44
+#define DW_AT_namelist_item 			0x44
 #define DW_AT_priority				0x45
 #define DW_AT_segment				0x46
 #define DW_AT_specification			0x47

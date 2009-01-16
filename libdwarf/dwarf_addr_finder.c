@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000, 2002 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -39,13 +39,6 @@
 #ifdef HAVE_ELF_H
 #include <elf.h>
 #endif
-#ifdef HAVE_LIBELF_H
-#include <libelf.h>
-#else
-#ifdef HAVE_LIBELF_LIBELF_H
-#include <libelf/libelf.h>
-#endif
-#endif
 #include <dwarf.h>
 #include <libdwarf.h>
 #include "dwarf_base_types.h"
@@ -76,7 +69,7 @@ static int
 static Dwarf_addr_callback_func send_addr_note;
 
 int
-_dwarf_addr_finder(Elf * elf_file_ptr,
+_dwarf_addr_finder(dwarf_elf_handle elf_file_ptr,
 		   Dwarf_addr_callback_func cb_func, int *dwerr)
 {
 

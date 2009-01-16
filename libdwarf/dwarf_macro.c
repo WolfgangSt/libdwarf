@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000, 2002 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -166,6 +166,8 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
     Dwarf_Unsigned endloc;
     unsigned char uc;
 
+    int res;
+
     /* count space used by strings */
     unsigned long str_space = 0;
     int done = 0;
@@ -189,6 +191,15 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
     if (max_count < 1) {
 	_dwarf_error(NULL, error, DW_DLE_DEBUG_MACRO_MAX_BAD);
 	return (DW_DLV_ERROR);
+    }
+
+    res =
+       _dwarf_load_section(dbg,
+		           dbg->de_debug_macinfo_index,
+			   &dbg->de_debug_macinfo,
+			   error);
+    if (res != DW_DLV_OK) {
+	return res;
     }
 
     macro_base = dbg->de_debug_macinfo;

@@ -30,7 +30,7 @@
   http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 
-$Header: /hosts/bonnie.engr/disks/xlv6/cmplrs.src/cmplrs.src_v7.4/dwarfdump/RCS/print_die.c,v 1.38 2001/01/16 17:47:55 davea Exp $ */
+$Header: /ptools/plroot/cmplrs.src/v7.4.1m/.RCS/PL/dwarfdump/RCS/print_die.c,v 1.38 2001/01/16 17:47:55 davea Exp $ */
 #include "globals.h"
 #include "dwarf_names.h"
 

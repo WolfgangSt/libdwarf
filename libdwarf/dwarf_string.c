@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000, 2002 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -44,17 +44,19 @@ dwarf_get_str(Dwarf_Debug dbg,
 	      char **string,
 	      Dwarf_Signed * returned_str_len, Dwarf_Error * error)
 {
+    int res;
 
     if (dbg == NULL) {
 	_dwarf_error(NULL, error, DW_DLE_DBG_NULL);
 	return (DW_DLV_ERROR);
     }
 
-    if (dbg->de_debug_str == NULL) {
-	return (DW_DLV_NO_ENTRY);
+    if (offset == dbg->de_debug_str_size) {
+	/* Normal (if we've iterated thru the set of strings
+	   using dwarf_get_str and are at the end). */
+	return DW_DLV_NO_ENTRY;
     }
-
-    if (offset >= dbg->de_debug_str_size) {
+    if (offset > dbg->de_debug_str_size) {
 	_dwarf_error(dbg, error, DW_DLE_DEBUG_STR_OFFSET_BAD);
 	return (DW_DLV_ERROR);
     }
@@ -63,6 +65,16 @@ dwarf_get_str(Dwarf_Debug dbg,
 	_dwarf_error(dbg, error, DW_DLE_STRING_PTR_NULL);
 	return (DW_DLV_ERROR);
     }
+
+    res =
+       _dwarf_load_section(dbg,
+                           dbg->de_debug_str_index,
+                           &dbg->de_debug_str,
+                           error);
+    if (res != DW_DLV_OK) {
+        return res;
+    }
+
     *string = (char *) dbg->de_debug_str + offset;
 
     *returned_str_len = (strlen(*string));

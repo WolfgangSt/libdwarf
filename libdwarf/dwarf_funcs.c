@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000, 2002 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -46,6 +46,17 @@ dwarf_get_funcs(Dwarf_Debug dbg,
 		Dwarf_Func ** funcs,
 		Dwarf_Signed * ret_func_count, Dwarf_Error * error)
 {
+    int res;
+
+    res =
+	_dwarf_load_section(dbg,
+			    dbg->de_debug_funcnames_index,
+			    &dbg->de_debug_funcnames,
+			    error);
+    if (res != DW_DLV_OK) {
+	return res;
+    }
+
     return _dwarf_internal_get_pubnames_like_data(dbg, dbg->de_debug_funcnames, dbg->de_debug_funcnames_size, (Dwarf_Global **) funcs,	/* type 
 																	   punning,
 																	   Dwarf_Type 

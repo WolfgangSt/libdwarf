@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000, 2002 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -773,6 +773,7 @@ get_augmentation_string(Dwarf_Debug dbg,
     Dwarf_Small version;
     int local_length_size;
     Dwarf_Unsigned length;
+    /*REFERENCED*/ /* Not used in this instance of the macro */
     int local_extension_size;
 
 
@@ -845,6 +846,16 @@ dwarf_get_fde_list_eh(Dwarf_Debug dbg,
     int res;
 
     res =
+        _dwarf_load_section(dbg,
+			    dbg->de_debug_frame_eh_gnu_index,
+			    &dbg->de_debug_frame_eh_gnu,
+			    error);
+
+    if (res != DW_DLV_OK) {
+      return res;
+    }
+
+    res =
 	__dwarf_get_fde_list_internal(dbg,
 				      cie_data,
 				      cie_element_count,
@@ -875,6 +886,16 @@ dwarf_get_fde_list(Dwarf_Debug dbg,
 		   Dwarf_Error * error)
 {
     int res;
+
+    res =
+        _dwarf_load_section(dbg,
+			    dbg->de_debug_frame_index,
+			    &dbg->de_debug_frame,
+			    error);
+
+    if (res != DW_DLV_OK) {
+      return res;
+    }
 
     res =
 	__dwarf_get_fde_list_internal(dbg, cie_data,
@@ -1089,6 +1110,7 @@ __dwarf_get_fde_list_internal(Dwarf_Debug dbg,
 		frame_ptr += length_of_augmented_fields;
 	    } else if (0 == strcmp((const char *) augmentation, "eh")) {
 
+    	    	/*REFERENCED*/ /* Not used in this instance of the macro */
 		Dwarf_Unsigned exception_table_addr;
 
 		/* this is per egcs-1.1.2 as on RH 6.0 */
@@ -1239,6 +1261,7 @@ __dwarf_get_fde_list_internal(Dwarf_Debug dbg,
 		    saved_frame_ptr + length_of_augmented_fields;
 	    } else if (strcmp((const char *) augmentation, "eh") == 0) {
 		/* gnu eh fde case. we do not need to do anything */
+    	    	/*REFERENCED*/ /* Not used in this instance of the macro */
 		Dwarf_Unsigned exception_table_addr;
 
 		READ_UNALIGNED(dbg, exception_table_addr,
@@ -1435,6 +1458,16 @@ dwarf_get_fde_for_die(Dwarf_Debug dbg,
     if (sdatares != DW_DLV_OK) {
 	return sdatares;
     }
+
+    res = 
+        _dwarf_load_section(dbg,
+			    dbg->de_debug_frame_index,
+			    &dbg->de_debug_frame,
+			    error);
+    if (res != DW_DLV_OK) {
+      return res;
+    }
+
     fde_offset = signdval;
     fde_ptr = (dbg->de_debug_frame + fde_offset);
 
@@ -1668,6 +1701,7 @@ dwarf_get_fde_range(Dwarf_Fde fde,
 		    Dwarf_Signed * cie_index,
 		    Dwarf_Off * fde_offset, Dwarf_Error * error)
 {
+    int res;
     Dwarf_Debug dbg;
 
     if (fde == NULL) {
@@ -1679,6 +1713,15 @@ dwarf_get_fde_range(Dwarf_Fde fde,
     if (dbg == NULL) {
 	_dwarf_error(NULL, error, DW_DLE_FDE_DBG_NULL);
 	return (DW_DLV_ERROR);
+    }
+
+    res =
+        _dwarf_load_section(dbg,
+			    dbg->de_debug_frame_index,
+			    &dbg->de_debug_frame,
+			    error);
+    if (res != DW_DLV_OK) {
+        return res;
     }
 
     if (low_pc != NULL)
@@ -2143,6 +2186,16 @@ _dwarf_frame_address_offsets(Dwarf_Debug dbg, Dwarf_Addr ** addrlist,
     if (res != DW_DLV_OK) {
 	return res;
     }
+
+    res =
+        _dwarf_load_section(dbg,
+			    dbg->de_debug_frame_index,
+			    &dbg->de_debug_frame,
+			    err);
+    if (res != DW_DLV_OK) {
+      return res;
+    }
+
     for (i = 0; i < cie_count; i++) {
 	Dwarf_Off instoff = 0;
 	Dwarf_Signed initial_instructions_length = 0;
@@ -2346,8 +2399,21 @@ _dwarf_fde_section_offset(Dwarf_Debug dbg, Dwarf_Fde in_fde,
 			  Dwarf_Off * fde_off, Dwarf_Off * cie_off,
 			  Dwarf_Error * err)
 {
-    char *start = (char *) dbg->de_debug_frame;
-    char *loc = (char *) in_fde->fd_fde_start;
+    int res;
+    char *start;
+    char *loc;
+
+    res =
+        _dwarf_load_section(dbg,
+			    dbg->de_debug_frame_index,
+			    &dbg->de_debug_frame,
+			    err);
+    if (res != DW_DLV_OK) {
+        return res;
+    }
+
+    start = (char *) dbg->de_debug_frame;
+    loc = (char *) in_fde->fd_fde_start;
 
     *fde_off = (loc - start);
     *cie_off = in_fde->fd_cie_offset;
@@ -2362,8 +2428,21 @@ int
 _dwarf_cie_section_offset(Dwarf_Debug dbg, Dwarf_Cie in_cie,
 			  Dwarf_Off * cie_off, Dwarf_Error * err)
 {
-    char *start = (char *) dbg->de_debug_frame;
-    char *loc = (char *) in_cie->ci_cie_start;
+    int res;
+    char *start;
+    char *loc;
+
+    res =
+        _dwarf_load_section(dbg,
+			    dbg->de_debug_frame_index,
+			    &dbg->de_debug_frame,
+			    err);
+    if (res != DW_DLV_OK) {
+        return res;
+    }
+
+    start = (char *) dbg->de_debug_frame;
+    loc = (char *) in_cie->ci_cie_start;
 
     *cie_off = (loc - start);
     return DW_DLV_OK;

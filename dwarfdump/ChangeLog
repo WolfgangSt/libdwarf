@@ -1,3 +1,10 @@
+2002-05-08  David Anderson <davea@sgi.com>
+      * tag_attr.list dwarf.h: DW_AT_namelist_items is
+	wrong, changed to DW_AT_namelist_item
+
+2002-04-29  Stephen Clarke <stephen.clarke@superh.com>
+      * dwarfdump.c (main): #ifdef for __CYGWIN__ on open().
+
 2001-06-14  David Anderson <davea@sgi.com>
 
       * print_sections.c: Calling the new libdwarf function

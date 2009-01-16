@@ -575,42 +575,50 @@ dwarf_dealloc(Dwarf_Debug dbg,
 		dbg->de_debug_info + dbg->de_debug_info_size)
 		return;
 
-	    if ((Dwarf_Small *) space >= dbg->de_debug_line &&
+	    if (dbg->de_debug_line != NULL &&
+		(Dwarf_Small *) space >= dbg->de_debug_line &&
 		(Dwarf_Small *) space <
 		dbg->de_debug_line + dbg->de_debug_line_size)
 		return;
 
-	    if ((Dwarf_Small *) space >= dbg->de_debug_pubnames &&
+	    if (dbg->de_debug_pubnames != NULL &&
+		(Dwarf_Small *) space >= dbg->de_debug_pubnames &&
 		(Dwarf_Small *) space <
 		dbg->de_debug_pubnames + dbg->de_debug_pubnames_size)
 		return;
 
-	    if ((Dwarf_Small *) space >= dbg->de_debug_frame &&
+	    if (dbg->de_debug_frame != NULL &&
+		(Dwarf_Small *) space >= dbg->de_debug_frame &&
 		(Dwarf_Small *) space <
 		dbg->de_debug_frame + dbg->de_debug_frame_size)
 		return;
 
-	    if ((Dwarf_Small *) space >= dbg->de_debug_str &&
+	    if (dbg->de_debug_str != NULL &&
+		(Dwarf_Small *) space >= dbg->de_debug_str &&
 		(Dwarf_Small *) space <
 		dbg->de_debug_str + dbg->de_debug_str_size)
 		return;
 
-	    if ((Dwarf_Small *) space >= dbg->de_debug_funcnames &&
+	    if (dbg->de_debug_funcnames != NULL &&
+		(Dwarf_Small *) space >= dbg->de_debug_funcnames &&
 		(Dwarf_Small *) space <
 		dbg->de_debug_funcnames + dbg->de_debug_funcnames_size)
 		return;
 
-	    if ((Dwarf_Small *) space >= dbg->de_debug_typenames &&
+	    if (dbg->de_debug_typenames != NULL &&
+		(Dwarf_Small *) space >= dbg->de_debug_typenames &&
 		(Dwarf_Small *) space <
 		dbg->de_debug_typenames + dbg->de_debug_typenames_size)
 		return;
 
-	    if ((Dwarf_Small *) space >= dbg->de_debug_varnames &&
+	    if (dbg->de_debug_varnames != NULL &&
+		(Dwarf_Small *) space >= dbg->de_debug_varnames &&
 		(Dwarf_Small *) space <
 		dbg->de_debug_varnames + dbg->de_debug_varnames_size)
 		return;
 
-	    if ((Dwarf_Small *) space >= dbg->de_debug_weaknames &&
+	    if (dbg->de_debug_weaknames != NULL &&
+		(Dwarf_Small *) space >= dbg->de_debug_weaknames &&
 		(Dwarf_Small *) space <
 		dbg->de_debug_weaknames + dbg->de_debug_weaknames_size)
 		return;

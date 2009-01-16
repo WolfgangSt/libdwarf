@@ -8,7 +8,7 @@
 .nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.48, 31 Mar 2002
+.ds vE rev 1.49, 14 Aug 2002
 \." ==============================================
 \." ==============================================
 .ds | |
@@ -3573,6 +3573,10 @@ section begins at the previous \f(CWoffset\fP + 1 + \f(CW*returned_str_len\fP.
 A zero-length string is NOT the end of the section.
 If there is no .debug_str section, \f(CWDW_DLV_NO_ENTRY\fP is returned.
 If there is an error, \f(CWDW_DLV_ERROR\fP is returned.
+If we are at the end of the section (that is, \f(CWoffset\fP
+is one past the end of the section) \f(CWDW_DLV_NO_ENTRY\fP is returned.
+If the \f(CWoffset\fP is some other too-large value then
+\f(CWDW_DLV_ERROR\fP is returned.
 
 .H 2 "Address Range Operations"
 These functions provide information about address ranges.  Address

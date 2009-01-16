@@ -49,8 +49,9 @@
   Supposed to be called before any relocs allocated.
   Ignored if after any allocated.
 
-  Purely an optimization. Used in few places. Never necessary
-  to call this.
+  Part of an optimization, so that for a known 'newslots' 
+  relocations count we can preallocate the right size block.
+  Called from just 2 places.
 
   returns DW_DLV_OK or  DW_DLV_ERROR
 */
@@ -93,6 +94,7 @@ _dwarf_pro_pre_alloc_n_reloc_slots(Dwarf_P_Debug dbg,
 
     prel->pr_first_block = data;
     prel->pr_last_block = data;
+    prel->pr_block_count = 1;
 
 
     return DW_DLV_OK;

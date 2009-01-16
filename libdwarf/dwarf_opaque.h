@@ -33,6 +33,7 @@
 
 */
 
+#include <stddef.h>
 
 
 struct Dwarf_Die_s {
@@ -91,7 +92,7 @@ struct Dwarf_CU_Context_s {
 
 
 struct Dwarf_Debug_s {
-    Elf *de_elf; /* see de_elf_must_close at end of struct */
+    dwarf_elf_handle de_elf; /* see de_elf_must_close at end of struct */
 
     Dwarf_Unsigned de_access;
     Dwarf_Handler de_errhand;
@@ -205,6 +206,27 @@ struct Dwarf_Debug_s {
 	it was dwarf_init (not dwarf_elf_init)
 	so must elf_end() */
 
+    /*
+       The following are used for storing section indicies.
+
+       After a Dwarf_Debug is initialized, a zero for any of
+       these indicies indicates an absent section.
+
+       If the ELF spec is ever changed to permit 32-bit section
+       indicies, these will need to be changed.
+     */
+    Dwarf_Half de_debug_aranges_index;
+    Dwarf_Half de_debug_line_index;
+    Dwarf_Half de_debug_loc_index;
+    Dwarf_Half de_debug_macinfo_index;
+    Dwarf_Half de_debug_pubnames_index;
+    Dwarf_Half de_debug_funcnames_index;
+    Dwarf_Half de_debug_typenames_index;
+    Dwarf_Half de_debug_varnames_index;
+    Dwarf_Half de_debug_weaknames_index;
+    Dwarf_Half de_debug_frame_index;
+    Dwarf_Half de_debug_frame_eh_gnu_index;
+    Dwarf_Half de_debug_str_index;
 };
 
 typedef struct Dwarf_Chain_s *Dwarf_Chain;
@@ -226,3 +248,12 @@ void *_dwarf_memcpy_swap_bytes(void *s1, const void *s2, size_t len);
 #define ORIGINAL_DWARF_OFFSET_SIZE  4
 #define DISTINGUISHED_VALUE  0xffffffff
 #define DISTINGUISHED_VALUE_OFFSET_SIZE 8
+
+/*
+    We don't load the sections until they are needed. This function is
+    used to load the section.
+ */
+int _dwarf_load_section(Dwarf_Debug,
+		        Dwarf_Half,
+			Dwarf_Small **,
+			Dwarf_Error *);

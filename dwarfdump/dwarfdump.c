@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000, 2002 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2 of the GNU General Public License as
@@ -30,7 +30,7 @@
   http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 
-$Header: /hosts/bonnie.engr/disks/xlv6/cmplrs.src/cmplrs.src_v7.4/dwarfdump/RCS/dwarfdump.c,v 1.32 2001/01/16 17:47:54 davea Exp $ */
+$Header: /ptools/plroot/cmplrs.src/v7.4.1m/.RCS/PL/dwarfdump/RCS/dwarfdump.c,v 1.33 2002/05/14 19:03:48 davea Exp $ */
 #include "globals.h"
 
 /* for 'open' */
@@ -130,7 +130,11 @@ main (int argc, char *argv[])
 	}
 
 	file_name = process_args (argc, argv);
+#ifdef __CYGWIN__
+        f = open(file_name, O_RDONLY|O_BINARY);
+#else
 	f = open(file_name, O_RDONLY);
+#endif
 	if (f == -1) {
 		fprintf(stderr, "%s ERROR:  can't open %s\n", program_name, 
 			file_name);
