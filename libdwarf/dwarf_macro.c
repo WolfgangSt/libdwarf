@@ -132,6 +132,7 @@ _dwarf_mac_push_index(Dwarf_Debug dbg, Dwarf_Signed indx)
     ++next_to_use;
     return DW_DLV_OK;
 }
+
 static Dwarf_Signed
 _dwarf_mac_pop_index(void)
 {
@@ -164,15 +165,16 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
     Dwarf_Small *pnext = 0;
     Dwarf_Unsigned endloc = 0;
     unsigned char uc = 0;
-    unsigned long depth = 0; /* By section 6.3.2 Dwarf3
-        draft 8/9, the base file should appear as DW_MACINFO_start_file.
-	See http://gcc.gnu.org/ml/gcc-bugs/2005-02/msg03442.html
-	on "[Bug debug/20253] New: [3.4/4.0 regression]: 
-        Macro debug info broken due to lexer change"
-	for how gcc is broken in some versions.
-	We no longer use depth as a stopping point, it's not
-	needed as a stopping point anyway.  */
-	
+    unsigned long depth = 0;	/* By section 6.3.2 Dwarf3 draft 8/9,
+				   the base file should appear as
+				   DW_MACINFO_start_file. See
+				   http://gcc.gnu.org/ml/gcc-bugs/2005-02/msg03442.html
+				   on "[Bug debug/20253] New: [3.4/4.0 regression]:
+				   Macro debug info broken due to lexer change" for how
+				   gcc is broken in some versions. We no longer use
+				   depth as a stopping point, it's not needed as a
+				   stopping point anyway.  */
+
 
     int res = 0;
 
@@ -197,10 +199,9 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
     }
 
     res =
-       _dwarf_load_section(dbg,
-		           dbg->de_debug_macinfo_index,
-			   &dbg->de_debug_macinfo,
-			   error);
+	_dwarf_load_section(dbg,
+			    dbg->de_debug_macinfo_index,
+			    &dbg->de_debug_macinfo, error);
     if (res != DW_DLV_OK) {
 	return res;
     }
@@ -280,9 +281,8 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
 
 	case DW_MACINFO_end_file:
 	    if (--depth == 0) {
-		/* done = 1; no, do not stop here, at least
-		one gcc had the wrong depth settings in
-		the gcc 3.4 timeframe. */
+		/* done = 1; no, do not stop here, at least one gcc had 
+		   the wrong depth settings in the gcc 3.4 timeframe. */
 	    }
 	    break;		/* no string or number here */
 	case 0:
@@ -294,7 +294,7 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
 	    return (DW_DLV_ERROR);
 	    /* bogus macinfo! */
 	}
-        
+
 	endloc = (pnext - macro_base);
 	if (endloc == dbg->de_debug_macinfo_size) {
 	    done = 1;
@@ -327,7 +327,7 @@ dwarf_get_macro_details(Dwarf_Debug dbg,
     done = 0;
 
     /* A series ends with a type code of 0. */
-    
+
     for (final_count = 0; !done && final_count < count; ++final_count) {
 	unsigned long slen;
 	Dwarf_Word len;

@@ -236,7 +236,8 @@ _dwarf_stream_relocs_to_disk(Dwarf_P_Debug dbg,
 				   /* flags */ 0,
 				   /* link to symtab, which we cannot
 				      know */ 0,
-				   /* info == link to sec rels apply to */
+				   /* info == link to sec rels apply to 
+				    */
 				   dbg->de_elf_sects[i],
 				   &name_idx, &err);
 	    } else {

@@ -305,8 +305,8 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
 	       offset, offset);
     }
 
-    /* Initialize the part of the state machine dependent
-       on the prefix.  */
+    /* Initialize the part of the state machine dependent on the
+       prefix.  */
     is_stmt = prefix.pf_default_is_stmt;
 
 
@@ -514,11 +514,11 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
 
 	} else if (type == LOP_EXTENDED) {
 	    Dwarf_Unsigned utmp3 = 0;
-            Dwarf_Word instr_length = 0;
-            Dwarf_Small ext_opcode = 0;
+	    Dwarf_Word instr_length = 0;
+	    Dwarf_Small ext_opcode = 0;
 
 	    DECODE_LEB128_UWORD(line_ptr, utmp3)
-	    instr_length = (Dwarf_Word) utmp3;
+		instr_length = (Dwarf_Word) utmp3;
 	    ext_opcode = *(Dwarf_Small *) line_ptr;
 	    line_ptr++;
 	    switch (ext_opcode) {

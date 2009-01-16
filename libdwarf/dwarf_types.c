@@ -49,18 +49,22 @@ dwarf_get_types(Dwarf_Debug dbg,
     int res;
 
     res =
-       _dwarf_load_section(dbg,
-		           dbg->de_debug_typenames_index,
-			   &dbg->de_debug_typenames,
-			   error);
+	_dwarf_load_section(dbg,
+			    dbg->de_debug_typenames_index,
+			    &dbg->de_debug_typenames, error);
     if (res != DW_DLV_OK) {
 	return res;
     }
 
-    return _dwarf_internal_get_pubnames_like_data(dbg, dbg->de_debug_typenames, dbg->de_debug_typenames_size, 
-	(Dwarf_Global **) types,	/* type punning, Dwarf_Type 
-	is never a completed type */
-
+    return _dwarf_internal_get_pubnames_like_data(dbg, dbg->de_debug_typenames, dbg->de_debug_typenames_size, (Dwarf_Global **) types,	/* type 
+																	   punning, 
+																	   Dwarf_Type 
+																	   is 
+																	   never 
+																	   a 
+																	   completed 
+																	   type 
+																	 */
 						  ret_type_count,
 						  error,
 						  DW_DLA_TYPENAME_CONTEXT,
@@ -76,14 +80,14 @@ dwarf_get_types(Dwarf_Debug dbg,
 */
 
 void
-dwarf_types_dealloc(Dwarf_Debug dbg, Dwarf_Type *dwgl, Dwarf_Signed count)
+dwarf_types_dealloc(Dwarf_Debug dbg, Dwarf_Type * dwgl,
+		    Dwarf_Signed count)
 {
-   _dwarf_internal_globals_dealloc(dbg, (Dwarf_Global *)dwgl,
-                count,
-        DW_DLA_TYPENAME_CONTEXT,
-        DW_DLA_TYPENAME,
-        DW_DLA_LIST);
-   return;
+    _dwarf_internal_globals_dealloc(dbg, (Dwarf_Global *) dwgl,
+				    count,
+				    DW_DLA_TYPENAME_CONTEXT,
+				    DW_DLA_TYPENAME, DW_DLA_LIST);
+    return;
 }
 
 

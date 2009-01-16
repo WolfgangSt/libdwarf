@@ -49,20 +49,20 @@
 #include <stdlib.h>
 #include "makename.h"
 
-char * 
-makename( char * s)
+char *
+makename(char *s)
 {
-	char *newstr;
+    char *newstr;
 
-	if(!s) {
-		return "";
-	}
+    if (!s) {
+	return "";
+    }
 
-	newstr = strdup(s);
-        if(newstr == 0) {
-		fprintf(stderr,"Out of memory mallocing %d bytes\n",
-			(int)strlen(s));
-		exit(1);
-	}
-	return newstr;
+    newstr = strdup(s);
+    if (newstr == 0) {
+	fprintf(stderr, "Out of memory mallocing %d bytes\n",
+		(int) strlen(s));
+	exit(1);
+    }
+    return newstr;
 }

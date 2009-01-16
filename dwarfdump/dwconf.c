@@ -127,13 +127,13 @@ find_conf_file_and_read_config(char *named_file,
     conf_stream = find_a_file(named_file, defaults, &name_used);
     if (!conf_stream) {
 	++errcount;
-	printf("dwarfdump found no file %s!\n", 
-		named_file?named_file:"readable for configuration. "
-		"(add options -v -v to see what file names tried)\n");
+	printf("dwarfdump found no file %s!\n",
+	       named_file ? named_file : "readable for configuration. "
+	       "(add options -v -v to see what file names tried)\n");
 	return errcount;
     }
-    if(verbose > 1) {
-	printf("dwarfdump using configuration file %s\n",name_used);
+    if (verbose > 1) {
+	printf("dwarfdump using configuration file %s\n", name_used);
     }
 
     res = find_abi_start(conf_stream, named_abi, &offset, &lineno);
@@ -151,6 +151,7 @@ find_conf_file_and_read_config(char *named_file,
 	return errcount;
     }
     parse_abi(conf_stream, name_used, named_abi, conf_out, lineno);
+    fclose(conf_stream);
     return errcount;
 }
 
@@ -161,93 +162,99 @@ find_conf_file_and_read_config(char *named_file,
     is to appear between the two 'input strings' when
     creating the output.
 */
-static char  *
+static char *
 canonical_append(char *target, unsigned int target_size,
-	char *first_string, char *second_string)
+		 char *first_string, char *second_string)
 {
-     size_t firstlen = strlen(first_string);
-     /* +1 +1: Leave room for added "/" and final NUL, though
-	 that is overkill, as we drop a NUL byte too. */
-     if((firstlen + strlen(second_string) +1+1) >=target_size  ) {
+    size_t firstlen = strlen(first_string);
+
+    /* +1 +1: Leave room for added "/" and final NUL, though that is
+       overkill, as we drop a NUL byte too. */
+    if ((firstlen + strlen(second_string) + 1 + 1) >= target_size) {
 	/* Not enough space. */
-	return NULL; 
-     }
-     for( ; *second_string == '/'; ++second_string ) { }
-     for( ; firstlen > 0 && first_string[firstlen-1] == '/' ; --firstlen) { }
-     target[0] = 0;
-     if(firstlen > 0) {
-       strncpy(target,first_string,firstlen);
-       target[firstlen+1] = 0;
-     }
-     target[firstlen] = '/';
-     firstlen++;
-     target[firstlen] = 0;
-     strcat(target,second_string);
-     return target;
+	return NULL;
+    }
+    for (; *second_string == '/'; ++second_string) {
+    }
+    for (; firstlen > 0 && first_string[firstlen - 1] == '/';
+	 --firstlen) {
+    }
+    target[0] = 0;
+    if (firstlen > 0) {
+	strncpy(target, first_string, firstlen);
+	target[firstlen + 1] = 0;
+    }
+    target[firstlen] = '/';
+    firstlen++;
+    target[firstlen] = 0;
+    strcat(target, second_string);
+    return target;
 }
+
 #ifdef BUILD_FOR_TEST
 #define CANBUF 25
 struct canap_s {
-	char *res_exp;
-	char *first;
-	char *second;
+    char *res_exp;
+    char *first;
+    char *second;
 } canap[] = {
-{"ab/c","ab","c" },
-{"ab/c","ab/","c" },
-{"ab/c","ab","/c" },
-{"ab/c","ab////","/////c" },
-{"ab/","ab","" },
-{"ab/","ab////","" },
-{"ab/","ab////","" },
-{"/a","","a" },
-{0,"/abcdefgbijkl","pqrstuvwxyzabcd" },
-
-{0,0,0}
+    {
+    "ab/c", "ab", "c"}, {
+    "ab/c", "ab/", "c"}, {
+    "ab/c", "ab", "/c"}, {
+    "ab/c", "ab////", "/////c"}, {
+    "ab/", "ab", ""}, {
+    "ab/", "ab////", ""}, {
+    "ab/", "ab////", ""}, {
+    "/a", "", "a"}, {
+    0, "/abcdefgbijkl", "pqrstuvwxyzabcd"}, {
+    0, 0, 0}
 };
 static void
 test_canonical_append(void)
 {
-   /* Make buf big, this is test code, so be safe. */
-   char lbuf[1000] ;
-   unsigned i; 
-   unsigned failcount = 0;
-   printf("Entry test_canonical_append\n");
-   for(i = 0;    ; ++i) {
+    /* Make buf big, this is test code, so be safe. */
+    char lbuf[1000];
+    unsigned i;
+    unsigned failcount = 0;
+
+    printf("Entry test_canonical_append\n");
+    for (i = 0;; ++i) {
 	char *res = 0;
 
-	if(canap[i].first == 0 && canap[i].second == 0 )
-		break;
+	if (canap[i].first == 0 && canap[i].second == 0)
+	    break;
 
-        res =  canonical_append(lbuf,CANBUF,canap[i].first,
-		canap[i].second);
-        if(res == 0 ) {
-	  if( canap[i].res_exp == 0) {
+	res = canonical_append(lbuf, CANBUF, canap[i].first,
+			       canap[i].second);
+	if (res == 0) {
+	    if (canap[i].res_exp == 0) {
 		/* GOOD */
-		printf("PASS %u\n",i);
-	  } else {
+		printf("PASS %u\n", i);
+	    } else {
 		++failcount;
-		printf("FAIL: entry %u wrong, expected %s, got NULL\n", i,
-			canap[i].res_exp);
-	  }
+		printf("FAIL: entry %u wrong, expected %s, got NULL\n",
+		       i, canap[i].res_exp);
+	    }
 	} else {
-	  if( canap[i].res_exp == 0) {
+	    if (canap[i].res_exp == 0) {
 		++failcount;
-		printf("FAIL: entry %u wrong, got %s expected NULL\n", i,
-			res);
-	  } else {
-	     if(strcmp( res, canap[i].res_exp) == 0) {
-		printf("PASS %u\n",i);
-		/* GOOD */
-	     } else {
-		++failcount;
-	         printf("FAIL: entry %u wrong, expected %s got %s\n", i,
-			canap[i].res_exp,res);
-	     }
-	  }
+		printf("FAIL: entry %u wrong, got %s expected NULL\n",
+		       i, res);
+	    } else {
+		if (strcmp(res, canap[i].res_exp) == 0) {
+		    printf("PASS %u\n", i);
+		    /* GOOD */
+		} else {
+		    ++failcount;
+		    printf("FAIL: entry %u wrong, expected %s got %s\n",
+			   i, canap[i].res_exp, res);
+		}
+	    }
 	}
-   }
-   printf("FAIL count %u\n",failcount);
-	
+    }
+    printf("FAIL count %u\n", failcount);
+
 }
 #endif /* BUILD_FOR_TEST */
 /* Try to find a file as named and open for read.
@@ -271,10 +278,10 @@ find_a_file(char *named_file, char **defaults, string * name_used)
 #endif /* BUILD_FOR_TEST */
 
     if (lname) {
-        /* Name given, just assume it is fully correct, try
-           no other. */
-	if(verbose > 1) {
-	  printf("dwarfdump looking for configuration as %s\n",lname);
+	/* Name given, just assume it is fully correct, try no other. */
+	if (verbose > 1) {
+	    printf("dwarfdump looking for configuration as %s\n",
+		   lname);
 	}
 	fin = fopen(lname, type);
 	if (fin) {
@@ -286,22 +293,25 @@ find_a_file(char *named_file, char **defaults, string * name_used)
     /* No name given, find a default, if we can. */
     for (i = 0; defaults[i]; ++i) {
 	lname = defaults[i];
-	if(strncmp(lname,"HOME/",5) == 0) {
-		/* arbitrary size */
-	     char buf[2000]; 
-	     char *homedir = getenv("HOME");
-	     if(homedir) {
-	       char *cp = canonical_append(buf,sizeof(buf),
-			homedir,lname+5);
-	       if(!cp) {
-		  /* OOps, ignore this one. */
-		  continue;
-               }
-	       lname = makename(buf);
-	     }
+	if (strncmp(lname, "HOME/", 5) == 0) {
+	    /* arbitrary size */
+	    char buf[2000];
+	    char *homedir = getenv("HOME");
+
+	    if (homedir) {
+		char *cp = canonical_append(buf, sizeof(buf),
+					    homedir, lname + 5);
+
+		if (!cp) {
+		    /* OOps, ignore this one. */
+		    continue;
+		}
+		lname = makename(buf);
+	    }
 	}
-	if(verbose > 1) {
-	  printf("dwarfdump looking for configuration as %s\n",lname);
+	if (verbose > 1) {
+	    printf("dwarfdump looking for configuration as %s\n",
+		   lname);
 	}
 	fin = fopen(lname, type);
 	if (fin) {
@@ -551,7 +561,7 @@ add_to_reg_table(struct dwconf_s *conf,
 	/* Zero out the new entries. */
 	memset((char *) newregs + (oldtabsize), 0,
 	       (newtabsize - oldtabsize));
-	conf->cf_regs_table_size = (unsigned long)newtablen;
+	conf->cf_regs_table_size = (unsigned long) newtablen;
 	conf->cf_regs = newregs;
 	conf->cf_regs_malloced = 1;
     }
@@ -677,7 +687,7 @@ parseframe_interface(char *cp, char *fname, unsigned long lineno,
 	return FALSE;
     }
 
-    conf->cf_interface_number = (int)val;
+    conf->cf_interface_number = (int) val;
     {
 	int res = ensure_has_no_more_tokens(cp, fname, lineno);
 
@@ -714,7 +724,7 @@ parsecfa_reg(char *cp, char *fname, unsigned long lineno,
 	++errcount;
 	return FALSE;
     }
-    conf->cf_cfa_reg = (int)val;
+    conf->cf_cfa_reg = (int) val;
     {
 	int res = ensure_has_no_more_tokens(cp, fname, lineno);
 
@@ -753,7 +763,7 @@ parseinitial_reg_value(char *cp, char *fname,
 	++errcount;
 	return FALSE;
     }
-    conf->cf_initial_rule_value = (int)val;
+    conf->cf_initial_rule_value = (int) val;
     {
 	int res = ensure_has_no_more_tokens(cp, fname, lineno);
 
@@ -790,7 +800,7 @@ parsereg_table_size(char *cp, char *fname, unsigned long lineno,
 	++errcount;
 	return FALSE;
     }
-    conf->cf_table_entry_count = (unsigned long)val;
+    conf->cf_table_entry_count = (unsigned long) val;
     {
 	int res = ensure_has_no_more_tokens(cp, fname, lineno);
 
@@ -891,8 +901,9 @@ parse_abi(FILE * stream, char *fname, char *abiname,
 	switch (comtype) {
 	case LT_ERROR:
 	    ++errcount;
-	    printf("dwarfdump: Unknown text in %s is \"%s\" at line %lu\n",
-		   fname, line, lineno);
+	    printf
+		("dwarfdump: Unknown text in %s is \"%s\" at line %lu\n",
+		 fname, line, lineno);
 	    break;
 	case LT_COMMENT:
 	    break;
@@ -901,9 +912,10 @@ parse_abi(FILE * stream, char *fname, char *abiname,
 	case LT_BEGINABI:
 	    if (beginabi_lineno > 0) {
 		++errcount;
-		printf("dwarfdump: Encountered beginabi: when not expected. "
-		       "%s line %lu previous beginabi line %lu\n",
-		       fname, lineno, beginabi_lineno);
+		printf
+		    ("dwarfdump: Encountered beginabi: when not expected. "
+		     "%s line %lu previous beginabi line %lu\n", fname,
+		     lineno, beginabi_lineno);
 	    }
 	    beginabi_lineno = lineno;
 	    parsebeginabi(line, fname, abiname, lineno, comtabp);
@@ -916,13 +928,14 @@ parse_abi(FILE * stream, char *fname, char *abiname,
 	case LT_FRAME_INTERFACE:
 	    if (frame_interface_lineno > 0) {
 		++errcount;
-		printf("dwarfdump: Encountered duplicate frame_interface: "
-		       "%s line %lu previous frame_interface: line %lu\n",
-		       fname, lineno, frame_interface_lineno);
+		printf
+		    ("dwarfdump: Encountered duplicate frame_interface: "
+		     "%s line %lu previous frame_interface: line %lu\n",
+		     fname, lineno, frame_interface_lineno);
 	    }
 	    frame_interface_lineno = lineno;
 	    parseframe_interface(line, fname,
-				       lineno, &localconf, comtabp);
+				 lineno, &localconf, comtabp);
 	    break;
 	case LT_CFA_REG:
 	    if (cfa_reg_lineno > 0) {
@@ -932,8 +945,7 @@ parse_abi(FILE * stream, char *fname, char *abiname,
 		++errcount;
 	    }
 	    cfa_reg_lineno = lineno;
-	    parsecfa_reg(line, fname,
-			       lineno, &localconf, comtabp);
+	    parsecfa_reg(line, fname, lineno, &localconf, comtabp);
 	    break;
 	case LT_INITIAL_REG_VALUE:
 	    if (initial_reg_value_lineno > 0) {
@@ -946,7 +958,7 @@ parse_abi(FILE * stream, char *fname, char *abiname,
 	    initial_reg_value_lineno = lineno;
 
 	    parseinitial_reg_value(line, fname,
-					 lineno, &localconf, comtabp);
+				   lineno, &localconf, comtabp);
 	    break;
 	case LT_REG_TABLE_SIZE:
 	    if (reg_table_size_lineno > 0) {
@@ -957,7 +969,7 @@ parse_abi(FILE * stream, char *fname, char *abiname,
 	    }
 	    reg_table_size_lineno = lineno;
 	    parsereg_table_size(line, fname,
-				      lineno, &localconf, comtabp);
+				lineno, &localconf, comtabp);
 	    break;
 	case LT_ENDABI:
 	    parseendabi(line, fname, abiname, lineno, comtabp);
@@ -1031,7 +1043,8 @@ static char *regnames[] = {
 void
 init_conf_file_data(struct dwconf_s *config_file_data)
 {
-    unsigned long base_table_count = sizeof(regnames) / sizeof(regnames[0]);
+    unsigned long base_table_count =
+	sizeof(regnames) / sizeof(regnames[0]);
 
     memset(config_file_data, 0, sizeof(*config_file_data));
     config_file_data->cf_interface_number = 2;
@@ -1070,9 +1083,8 @@ print_reg_from_config_data(char *intfmt, Dwarf_Signed reg,
 	return;
     }
     if (reg == DW_FRAME_CFA_COL3) {
-	/* This should not be necessary, but sometimes
-           one forgets to do the cfa_reg: command in 
-	   dwarfdump.conf */
+	/* This should not be necessary, but sometimes one forgets to
+	   do the cfa_reg: command in dwarfdump.conf */
 	printf("%s", "cfa");
 	return;
     }

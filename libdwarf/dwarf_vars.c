@@ -49,21 +49,19 @@ dwarf_get_vars(Dwarf_Debug dbg,
     int res;
 
     res =
-       _dwarf_load_section(dbg,
-		           dbg->de_debug_varnames_index,
-			   &dbg->de_debug_varnames,
-		           error);
+	_dwarf_load_section(dbg,
+			    dbg->de_debug_varnames_index,
+			    &dbg->de_debug_varnames, error);
     if (res != DW_DLV_OK) {
 	return res;
     }
 
     return _dwarf_internal_get_pubnames_like_data(dbg, dbg->de_debug_varnames, dbg->de_debug_varnames_size, (Dwarf_Global **) vars,	/* type
-							punning,
-						        Dwarf_Type
-						        is never
-						        a
-							completed 
-							type */
+																	   punning,
+																	   Dwarf_Type
+																	   is never a
+																	   completed
+																	   type */
 						  ret_var_count,
 						  error,
 						  DW_DLA_VAR_CONTEXT,
@@ -78,14 +76,14 @@ dwarf_get_vars(Dwarf_Debug dbg,
 */
 
 void
-dwarf_vars_dealloc(Dwarf_Debug dbg, Dwarf_Var *dwgl, Dwarf_Signed count)
+dwarf_vars_dealloc(Dwarf_Debug dbg, Dwarf_Var * dwgl,
+		   Dwarf_Signed count)
 {
-   _dwarf_internal_globals_dealloc(dbg, (Dwarf_Global *)dwgl,
-                count,
-        DW_DLA_VAR_CONTEXT,
-        DW_DLA_VAR,
-        DW_DLA_LIST);
-   return;
+    _dwarf_internal_globals_dealloc(dbg, (Dwarf_Global *) dwgl,
+				    count,
+				    DW_DLA_VAR_CONTEXT,
+				    DW_DLA_VAR, DW_DLA_LIST);
+    return;
 }
 
 

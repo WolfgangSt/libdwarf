@@ -151,12 +151,13 @@ dwarf_attrlist(Dwarf_Die die,
 	    new_attr->ar_attribute = attr;
 	    new_attr->ar_attribute_form_direct = attr_form;
 	    new_attr->ar_attribute_form = attr_form;
-	    if(attr_form == DW_FORM_indirect) {
+	    if (attr_form == DW_FORM_indirect) {
 		Dwarf_Unsigned utmp6;
+
 		/* DECODE_LEB128_UWORD does info_ptr update */
 		DECODE_LEB128_UWORD(info_ptr, utmp6)
-                attr_form = (Dwarf_Half) utmp6;
-	        new_attr->ar_attribute_form = attr_form;
+		    attr_form = (Dwarf_Half) utmp6;
+		new_attr->ar_attribute_form = attr_form;
 	    }
 	    new_attr->ar_cu_context = die->di_cu_context;
 	    new_attr->ar_debug_info_ptr = info_ptr;
@@ -232,20 +233,20 @@ _dwarf_get_value_ptr(Dwarf_Die die,
     info_ptr = die->di_debug_info_ptr;
     SKIP_LEB128_WORD(info_ptr)
 
-    do {
+	do {
 	Dwarf_Unsigned utmp3;
 
 	DECODE_LEB128_UWORD(abbrev_ptr, utmp3)
 	    curr_attr = (Dwarf_Half) utmp3;
 	DECODE_LEB128_UWORD(abbrev_ptr, utmp3)
 	    curr_attr_form = (Dwarf_Half) utmp3;
-	if(curr_attr_form == DW_FORM_indirect) {
-                Dwarf_Unsigned utmp6;
+	if (curr_attr_form == DW_FORM_indirect) {
+	    Dwarf_Unsigned utmp6;
 
-	        /* DECODE_LEB128_UWORD updates info_ptr */
-                DECODE_LEB128_UWORD(info_ptr, utmp6)
-                curr_attr_form = (Dwarf_Half) utmp6;
-        }
+	    /* DECODE_LEB128_UWORD updates info_ptr */
+	    DECODE_LEB128_UWORD(info_ptr, utmp6)
+		curr_attr_form = (Dwarf_Half) utmp6;
+	}
 
 	if (curr_attr == attr) {
 	    *attr_form = curr_attr_form;
@@ -304,12 +305,11 @@ dwarf_diename(Dwarf_Die die, char **ret_name, Dwarf_Error * error)
     }
 
     res =
-       _dwarf_load_section(dbg,
-                           dbg->de_debug_str_index,
-                           &dbg->de_debug_str,
-                           error);
+	_dwarf_load_section(dbg,
+			    dbg->de_debug_str_index,
+			    &dbg->de_debug_str, error);
     if (res != DW_DLV_OK) {
-        return res;
+	return res;
     }
 
     *ret_name = (char *) (dbg->de_debug_str + string_offset);
@@ -516,6 +516,7 @@ dwarf_bytesize(Dwarf_Die die,
     int res =
 	_dwarf_die_attr_unsigned_constant(die, DW_AT_byte_size, &luns,
 					  error);
+
     *ret_size = luns;
     return res;
 }

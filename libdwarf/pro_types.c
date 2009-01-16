@@ -139,10 +139,11 @@ _dwarf_add_simple_name_entry(Dwarf_P_Debug dbg,
 
 */
 int
-_dwarf_transform_simplename_to_disk(Dwarf_P_Debug dbg, 
-		enum dwarf_sn_kind entrykind, 
-		int section_index,	/* in de_elf_sects etc */
-		Dwarf_Error * error)
+_dwarf_transform_simplename_to_disk(Dwarf_P_Debug dbg, enum dwarf_sn_kind entrykind, int section_index,	/* in 
+													   de_elf_sects 
+													   etc 
+													 */
+				    Dwarf_Error * error)
 {
 
 
@@ -159,8 +160,8 @@ _dwarf_transform_simplename_to_disk(Dwarf_P_Debug dbg,
     Dwarf_Small *stream_bytes;
     Dwarf_Small *cur_stream_bytes_ptr;
     Dwarf_Unsigned stream_bytes_count;
-    Dwarf_Unsigned adjusted_length;	/* count excluding length
-					   field */
+    Dwarf_Unsigned adjusted_length;	/* count excluding length field 
+					 */
 
 
     int uword_size = dbg->de_offset_size;
@@ -175,10 +176,9 @@ _dwarf_transform_simplename_to_disk(Dwarf_P_Debug dbg,
     for (debug_sect = dbg->de_debug_sects; debug_sect != NULL;
 	 debug_sect = debug_sect->ds_next) {
 	/* We want the size of the .debug_info section for this CU
-	   because the dwarf spec requires us to output it below
-	   so we look for it specifically. */
-	if (debug_sect->ds_elf_sect_no ==
-	    dbg->de_elf_sects[DEBUG_INFO]) {
+	   because the dwarf spec requires us to output it below so we
+	   look for it specifically. */
+	if (debug_sect->ds_elf_sect_no == dbg->de_elf_sects[DEBUG_INFO]) {
 	    debug_info_size += debug_sect->ds_nbytes;
 	}
     }
@@ -245,13 +245,15 @@ _dwarf_transform_simplename_to_disk(Dwarf_P_Debug dbg,
     /* now create the relocation for the compile_unit offset */
     {
 	int res = dbg->de_reloc_name(dbg,
-		section_index,
-		extension_size + uword_size + sizeof(Dwarf_Half)
-				/* r_offset */ ,
-	        /* debug_info section name symbol */
-		     dbg->de_sect_name_idx[DEBUG_INFO],
-		dwarf_drt_data_reloc, 
-		uword_size);
+				     section_index,
+				     extension_size + uword_size +
+				     sizeof(Dwarf_Half)
+				     /* r_offset */
+				     ,
+				     /* debug_info section name symbol */
+				     dbg->de_sect_name_idx[DEBUG_INFO],
+				     dwarf_drt_data_reloc,
+				     uword_size);
 
 	if (res != DW_DLV_OK) {
 	    {

@@ -54,7 +54,7 @@ static struct esb_s esb_base;	/* static so gets initialized to zeros.
 static int indent_level = 0;
 static boolean local_symbols_already_began = FALSE;
 
-typedef string (*encoding_type_func) (Dwarf_Debug dbg, Dwarf_Half val);
+typedef string(*encoding_type_func) (Dwarf_Debug dbg, Dwarf_Half val);
 
 Dwarf_Off fde_offset_for_cu_low = DW_DLV_BADOFFSET;
 Dwarf_Off fde_offset_for_cu_high = DW_DLV_BADOFFSET;
@@ -176,8 +176,8 @@ print_die_and_children(Dwarf_Debug dbg, Dwarf_Die in_die_in,
 	if (cdres == DW_DLV_OK) {
 	    /* print_die_and_children(dbg, sibling, srcfiles, cnt); We
 	       loop around to actually print this, rather than
-	       recursing. Recursing is horribly wasteful of stack space. 
-	     */
+	       recursing. Recursing is horribly wasteful of stack
+	       space. */
 	} else if (cdres == DW_DLV_ERROR) {
 	    print_error(dbg, "dwarf_siblingof", cdres, err);
 	}
@@ -316,37 +316,39 @@ print_one_die(Dwarf_Debug dbg, Dwarf_Die die, boolean print_information,
    must also be non-NULL.
 
 */
-int  
+int
 get_small_encoding_integer_and_name(Dwarf_Debug dbg,
-	Dwarf_Attribute attrib,
-	Dwarf_Unsigned *uval_out,
-	char * attr_name,
-	string * string_out,
-	encoding_type_func val_as_string,
-	Dwarf_Error *err)
+				    Dwarf_Attribute attrib,
+				    Dwarf_Unsigned * uval_out,
+				    char *attr_name,
+				    string * string_out,
+				    encoding_type_func val_as_string,
+				    Dwarf_Error * err)
 {
-       Dwarf_Unsigned uval = 0;
-       char buf[100]; /* The strings are small. */
-       int vres = dwarf_formudata(attrib, &uval, err);
-       if (vres != DW_DLV_OK) {
-	  Dwarf_Signed sval = 0;
-          vres = dwarf_formsdata(attrib, &sval, err);
-	  if(vres != DW_DLV_OK ) {
-             if(string_out != 0) {
-		snprintf(buf,sizeof(buf),
-		   "%s has a bad form.", attr_name);
+    Dwarf_Unsigned uval = 0;
+    char buf[100];		/* The strings are small. */
+    int vres = dwarf_formudata(attrib, &uval, err);
+
+    if (vres != DW_DLV_OK) {
+	Dwarf_Signed sval = 0;
+
+	vres = dwarf_formsdata(attrib, &sval, err);
+	if (vres != DW_DLV_OK) {
+	    if (string_out != 0) {
+		snprintf(buf, sizeof(buf),
+			 "%s has a bad form.", attr_name);
 		*string_out = makename(buf);
-	     }
-	     return vres;
-	  }
-	  *uval_out = (Dwarf_Unsigned)sval;
-       } else { 
-          *uval_out = uval;
-       }
-       if(string_out)
-          *string_out =  val_as_string(dbg, (Dwarf_Half) uval);
-      
-       return DW_DLV_OK;
+	    }
+	    return vres;
+	}
+	*uval_out = (Dwarf_Unsigned) sval;
+    } else {
+	*uval_out = uval;
+    }
+    if (string_out)
+	*string_out = val_as_string(dbg, (Dwarf_Half) uval);
+
+    return DW_DLV_OK;
 
 }
 
@@ -409,45 +411,61 @@ print_attribute(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Half attr,
 
     switch (attr) {
     case DW_AT_language:
-	get_small_encoding_integer_and_name(dbg,attrib,&uval,
-		"DW_AT_language",&valname,get_LANG_name,&err);
+	get_small_encoding_integer_and_name(dbg, attrib, &uval,
+					    "DW_AT_language", &valname,
+					    get_LANG_name, &err);
 	break;
     case DW_AT_accessibility:
-	get_small_encoding_integer_and_name(dbg,attrib,&uval,
-		"DW_AT_accessibility",&valname,get_ACCESS_name,&err);
+	get_small_encoding_integer_and_name(dbg, attrib, &uval,
+					    "DW_AT_accessibility",
+					    &valname, get_ACCESS_name,
+					    &err);
 	break;
     case DW_AT_visibility:
-	get_small_encoding_integer_and_name(dbg,attrib,&uval,
-		"DW_AT_visibility",&valname,get_VIS_name,&err);
+	get_small_encoding_integer_and_name(dbg, attrib, &uval,
+					    "DW_AT_visibility",
+					    &valname, get_VIS_name,
+					    &err);
 	break;
     case DW_AT_virtuality:
-	get_small_encoding_integer_and_name(dbg,attrib,&uval,
-		"DW_AT_virtuality",&valname,get_VIRTUALITY_name,&err);
+	get_small_encoding_integer_and_name(dbg, attrib, &uval,
+					    "DW_AT_virtuality",
+					    &valname,
+					    get_VIRTUALITY_name, &err);
 	break;
     case DW_AT_identifier_case:
-	get_small_encoding_integer_and_name(dbg,attrib,&uval,
-		"DW_AT_identifier",&valname,get_ID_name,&err);
+	get_small_encoding_integer_and_name(dbg, attrib, &uval,
+					    "DW_AT_identifier",
+					    &valname, get_ID_name,
+					    &err);
 	break;
     case DW_AT_inline:
-	get_small_encoding_integer_and_name(dbg,attrib,&uval,
-		"DW_AT_inline",&valname,get_INL_name,&err);
+	get_small_encoding_integer_and_name(dbg, attrib, &uval,
+					    "DW_AT_inline", &valname,
+					    get_INL_name, &err);
 	break;
     case DW_AT_encoding:
-	get_small_encoding_integer_and_name(dbg,attrib,&uval,
-		"DW_AT_encoding",&valname,get_ATE_name,&err);
+	get_small_encoding_integer_and_name(dbg, attrib, &uval,
+					    "DW_AT_encoding", &valname,
+					    get_ATE_name, &err);
 	break;
     case DW_AT_ordering:
-	get_small_encoding_integer_and_name(dbg,attrib,&uval,
-		"DW_AT_ordering",&valname,get_ORD_name,&err);
+	get_small_encoding_integer_and_name(dbg, attrib, &uval,
+					    "DW_AT_ordering", &valname,
+					    get_ORD_name, &err);
 	break;
     case DW_AT_calling_convention:
-	get_small_encoding_integer_and_name(dbg,attrib,&uval,
-		"DW_AT_calling_convention",&valname,get_CC_name,&err);
+	get_small_encoding_integer_and_name(dbg, attrib, &uval,
+					    "DW_AT_calling_convention",
+					    &valname, get_CC_name,
+					    &err);
 	break;
-    case DW_AT_discr_list: /* DWARF3 */
-	get_small_encoding_integer_and_name(dbg,attrib,&uval,
-		"DW_AT_discr_list",&valname,get_DSC_name,&err);
-        break;
+    case DW_AT_discr_list:	/* DWARF3 */
+	get_small_encoding_integer_and_name(dbg, attrib, &uval,
+					    "DW_AT_discr_list",
+					    &valname, get_DSC_name,
+					    &err);
+	break;
     case DW_AT_location:
     case DW_AT_data_member_location:
     case DW_AT_vtable_elem_location:
@@ -840,7 +858,7 @@ get_attr_value(Dwarf_Debug dbg, Dwarf_Half tag, Dwarf_Attribute attrib,
 	    case DW_AT_accessibility:
 	    case DW_AT_address_class:
 	    case DW_AT_calling_convention:
-    	    case DW_AT_discr_list: /* DWARF3 */
+	    case DW_AT_discr_list:	/* DWARF3 */
 	    case DW_AT_encoding:
 	    case DW_AT_identifier_case:
 	    case DW_AT_MIPS_loop_unroll_factor:
@@ -854,12 +872,17 @@ get_attr_value(Dwarf_Debug dbg, Dwarf_Half tag, Dwarf_Attribute attrib,
 	    case DW_AT_count:
 	    case DW_AT_stmt_list:
 	    case DW_AT_MIPS_fde:
-                wres = get_small_encoding_integer_and_name(dbg,
-			attrib,&tempud,
-                	/* attrname */ (char *)NULL,
-                	/* err_string */(char **)NULL,
-			(encoding_type_func)0,
-			&err);
+		wres = get_small_encoding_integer_and_name(dbg,
+							   attrib,
+							   &tempud,
+							   /* attrname */
+		    (char *) NULL,
+							   /* err_string 
+							    */ 
+							   (char **)
+							   NULL,
+							   (encoding_type_func) 0,
+							   &err);
 
 		if (wres == DW_DLV_OK) {
 		    snprintf(small_buf, sizeof(small_buf), "%llu",
@@ -880,8 +903,8 @@ get_attr_value(Dwarf_Debug dbg, Dwarf_Half tag, Dwarf_Attribute attrib,
 			}
 		    }
 		} else {
-		    print_error(dbg, "Cannot get encoding attribute ..", wres,
-				err);
+		    print_error(dbg, "Cannot get encoding attribute ..",
+				wres, err);
 		}
 		break;
 	    case DW_AT_const_value:

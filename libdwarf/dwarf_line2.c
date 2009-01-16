@@ -70,8 +70,8 @@ _dwarf_line_address_offsets(Dwarf_Debug dbg,
     int res;
     Dwarf_Line *linebuf;
 
-    res = _dwarf_internal_srclines(die, &linebuf,
-				   &lcount, /* addrlist= */ true,
+    res = _dwarf_internal_srclines(die, &linebuf, &lcount,	/* addrlist= 
+								 */ true,
 				   /* linelist= */ false, err);
     if (res != DW_DLV_OK) {
 	return res;
@@ -79,18 +79,18 @@ _dwarf_line_address_offsets(Dwarf_Debug dbg,
     laddrs = (Dwarf_Addr *)
 	_dwarf_get_alloc(dbg, DW_DLA_ADDR, lcount);
     if (laddrs == NULL) {
-        dwarf_srclines_dealloc(dbg,linebuf,lcount); 
+	dwarf_srclines_dealloc(dbg, linebuf, lcount);
 	_dwarf_error(dbg, err, DW_DLE_ALLOC_FAIL);
 	return (DW_DLV_ERROR);
     }
     loffsets = (Dwarf_Off *)
 	_dwarf_get_alloc(dbg, DW_DLA_ADDR, lcount);
     if (loffsets == NULL) {
-        dwarf_srclines_dealloc(dbg,linebuf,lcount); 
-	/* We already  allocated what laddrs
-	   points at, so we'e better deallocate that space since
-	   we are not going to return the pointer to the caller. */
-	dwarf_dealloc(dbg,laddrs,DW_DLA_ADDR);
+	dwarf_srclines_dealloc(dbg, linebuf, lcount);
+	/* We already allocated what laddrs points at, so we'e better
+	   deallocate that space since we are not going to return the
+	   pointer to the caller. */
+	dwarf_dealloc(dbg, laddrs, DW_DLA_ADDR);
 	_dwarf_error(dbg, err, DW_DLE_ALLOC_FAIL);
 	return (DW_DLV_ERROR);
     }
@@ -99,7 +99,7 @@ _dwarf_line_address_offsets(Dwarf_Debug dbg,
 	laddrs[i] = linebuf[i]->li_address;
 	loffsets[i] = linebuf[i]->li_addr_line.li_offset;
     }
-    dwarf_srclines_dealloc(dbg,linebuf,lcount); 
+    dwarf_srclines_dealloc(dbg, linebuf, lcount);
     *returncount = lcount;
     *offs = loffsets;
     *addrs = laddrs;

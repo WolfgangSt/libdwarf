@@ -40,7 +40,7 @@
 #include "dwarf_incl.h"
 #include <stdio.h>
 #include "dwarf_arange.h"
-#include "dwarf_global.h" /* for _dwarf_fixup_* */
+#include "dwarf_global.h"	/* for _dwarf_fixup_* */
 
 
 /*
@@ -107,22 +107,23 @@ dwarf_get_aranges(Dwarf_Debug dbg,
     }
 
     res =
-        _dwarf_load_section(dbg,
+	_dwarf_load_section(dbg,
 			    dbg->de_debug_aranges_index,
-			    &dbg->de_debug_aranges,
-			    error);
+			    &dbg->de_debug_aranges, error);
     if (res != DW_DLV_OK) {
-        return res;
+	return res;
     }
 
     arange_ptr = dbg->de_debug_aranges;
     do {
-        /* Length of current set of aranges. */
-        Dwarf_Unsigned length;
+	/* Length of current set of aranges. */
+	Dwarf_Unsigned length;
 	Dwarf_Small *arange_ptr_past_end = 0;
 
 	int local_length_size;
-	/*REFERENCED*/ /* Not used in this instance of the macro */
+
+	 /*REFERENCED*/		/* Not used in this instance of the
+				   macro */
 	int local_extension_size;
 
 	header_ptr = arange_ptr;
@@ -148,11 +149,12 @@ dwarf_get_aranges(Dwarf_Debug dbg,
 	arange_ptr += local_length_size;
 	length = length - local_length_size;
 	if (info_offset >= dbg->de_debug_info_size) {
-	   FIX_UP_OFFSET_IRIX_BUG(dbg,info_offset,"arange info offset.a");
-	   if (info_offset >= dbg->de_debug_info_size) {
-	    _dwarf_error(dbg, error, DW_DLE_ARANGE_OFFSET_BAD);
-	    return (DW_DLV_ERROR);
-	   }
+	    FIX_UP_OFFSET_IRIX_BUG(dbg, info_offset,
+				   "arange info offset.a");
+	    if (info_offset >= dbg->de_debug_info_size) {
+		_dwarf_error(dbg, error, DW_DLE_ARANGE_OFFSET_BAD);
+		return (DW_DLV_ERROR);
+	    }
 	}
 
 	address_size = *(Dwarf_Small *) arange_ptr;
@@ -223,15 +225,15 @@ dwarf_get_aranges(Dwarf_Debug dbg,
 	    }
 	} while (range_address != 0 || range_length != 0);
 
-	/* A compiler could emit some padding bytes here.
-	   dwarf2/3 (dwarf3 draft8 sec 7.20) does not clearly make
-	   extra padding bytes illegal. */
-	if(arange_ptr_past_end < arange_ptr) {
+	/* A compiler could emit some padding bytes here. dwarf2/3
+	   (dwarf3 draft8 sec 7.20) does not clearly make extra padding 
+	   bytes illegal. */
+	if (arange_ptr_past_end < arange_ptr) {
 	    _dwarf_error(dbg, error, DW_DLE_ARANGE_LENGTH_BAD);
 	    return (DW_DLV_ERROR);
 	}
-	/* For most compilers, arange_ptr == arange_ptr_past_end
-	   at this point. But not if there were padding bytes */
+	/* For most compilers, arange_ptr == arange_ptr_past_end at
+	   this point. But not if there were padding bytes */
 	arange_ptr = arange_ptr_past_end;
 
     } while (arange_ptr <
@@ -339,18 +341,19 @@ _dwarf_get_aranges_addr_offsets(Dwarf_Debug dbg,
     }
 
     res =
-        _dwarf_load_section(dbg,
+	_dwarf_load_section(dbg,
 			    dbg->de_debug_aranges_index,
-			    &dbg->de_debug_aranges,
-			    error);
+			    &dbg->de_debug_aranges, error);
     if (res != DW_DLV_OK) {
-        return res;
+	return res;
     }
 
     arange_ptr = dbg->de_debug_aranges;
     do {
 	int local_length_size;
-	/*REFERENCED*/ /* not used in this instance of the macro */
+
+	 /*REFERENCED*/		/* not used in this instance of the
+				   macro */
 	int local_extension_size;
 
 	header_ptr = arange_ptr;
@@ -376,12 +379,13 @@ _dwarf_get_aranges_addr_offsets(Dwarf_Debug dbg,
 	arange_ptr += local_length_size;
 	length = length - local_length_size;
 	if (info_offset >= dbg->de_debug_info_size) {
-           FIX_UP_OFFSET_IRIX_BUG(dbg,info_offset,"arange info offset.b");
-           if (info_offset >= dbg->de_debug_info_size) {
+	    FIX_UP_OFFSET_IRIX_BUG(dbg, info_offset,
+				   "arange info offset.b");
+	    if (info_offset >= dbg->de_debug_info_size) {
 
-	    _dwarf_error(dbg, error, DW_DLE_ARANGE_OFFSET_BAD);
-	    return (DW_DLV_ERROR);
-	  }
+		_dwarf_error(dbg, error, DW_DLE_ARANGE_OFFSET_BAD);
+		return (DW_DLV_ERROR);
+	    }
 	}
 
 	address_size = *(Dwarf_Small *) arange_ptr;
@@ -556,11 +560,12 @@ dwarf_get_cu_die_offset(Dwarf_Arange arange,
 
 
     offset = arange->ar_info_offset;
-    if(!dbg->de_debug_info) {
-        int res = _dwarf_load_debug_info(dbg,error);
-        if(res != DW_DLV_OK) {
+    if (!dbg->de_debug_info) {
+	int res = _dwarf_load_debug_info(dbg, error);
+
+	if (res != DW_DLV_OK) {
 	    return res;
-        }
+	}
     }
 
     *returned_offset = offset + _dwarf_length_of_cu_header(dbg, offset);
@@ -617,12 +622,13 @@ dwarf_get_arange_info(Dwarf_Arange arange,
 	Dwarf_Debug dbg = arange->ar_dbg;
 	Dwarf_Off offset = arange->ar_info_offset;
 
-	if(!dbg->de_debug_info) {
-	   int res = _dwarf_load_debug_info(dbg,error);
-           if(res != DW_DLV_OK) {
-               return res;
-           }
-        }
+	if (!dbg->de_debug_info) {
+	    int res = _dwarf_load_debug_info(dbg, error);
+
+	    if (res != DW_DLV_OK) {
+		return res;
+	    }
+	}
 
 	*cu_die_offset =
 	    offset + _dwarf_length_of_cu_header(dbg, offset);

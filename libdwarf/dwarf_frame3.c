@@ -118,9 +118,9 @@ _dwarf_frame_address_offsets(Dwarf_Debug dbg, Dwarf_Addr ** addrlist,
 				      instr_end,
 				      /* Dwarf_frame= */ 0,
 				      /* cie= */ 0,
-				      dbg, 
-				DW_FRAME_CFA_COL,
-				&icount, &dw_err);
+				      dbg,
+				      DW_FRAME_CFA_COL,
+				      &icount, &dw_err);
 	if (res == DW_DLV_ERROR) {
 	    _dwarf_error(dbg, err, dw_err);
 	    return (res);
@@ -214,9 +214,9 @@ _dwarf_frame_address_offsets(Dwarf_Debug dbg, Dwarf_Addr ** addrlist,
 				      instr_end,
 				      /* Dwarf_frame= */ 0,
 				      /* cie= */ 0,
-				      dbg, 
-				DW_FRAME_CFA_COL,
-					&icount, &dw_err);
+				      dbg,
+				      DW_FRAME_CFA_COL,
+				      &icount, &dw_err);
 	if (res == DW_DLV_ERROR) {
 	    _dwarf_error(dbg, err, dw_err);
 	    return (res);

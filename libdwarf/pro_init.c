@@ -77,7 +77,7 @@ dwarf_producer_init_b(Dwarf_Unsigned flags,
 	DWARF_P_DBG_ERROR(dbg, DW_DLE_DBG_ALLOC,
 			  (Dwarf_P_Debug) DW_DLV_BADADDR);
     }
-    memset((void *) dbg,0, sizeof(struct Dwarf_P_Debug_s));
+    memset((void *) dbg, 0, sizeof(struct Dwarf_P_Debug_s));
     /* For the time being */
     if (func == NULL) {
 	DWARF_P_DBG_ERROR(dbg, DW_DLE_NO_CALLBACK_FUNC,
@@ -109,7 +109,7 @@ dwarf_producer_init(Dwarf_Unsigned flags,
 	DWARF_P_DBG_ERROR(dbg, DW_DLE_DBG_ALLOC,
 			  (Dwarf_P_Debug) DW_DLV_BADADDR);
     }
-    memset((void *) dbg,0, sizeof(struct Dwarf_P_Debug_s));
+    memset((void *) dbg, 0, sizeof(struct Dwarf_P_Debug_s));
     /* For the time being */
     if (func == NULL) {
 	DWARF_P_DBG_ERROR(dbg, DW_DLE_NO_CALLBACK_FUNC,
@@ -171,9 +171,8 @@ common_init(Dwarf_P_Debug dbg, Dwarf_Unsigned flags)
     dbg->de_offset_reloc = Get_REL32_isa(dbg);
 #else
     /* MIPS-SGI 32 or 64, where offsets and lengths are both 64 bit for 
-       64bit pointer objects and both 32 bit for 32bit pointer
-       objects. And a dwarf-reader must check elf info to tell which
-       applies. */
+       64bit pointer objects and both 32 bit for 32bit pointer objects. 
+       And a dwarf-reader must check elf info to tell which applies. */
     dbg->de_64bit_extension = 0;
     dbg->de_pointer_size = (IS_64BIT(dbg) ? 8 : 4);
     dbg->de_offset_size = (IS_64BIT(dbg) ? 8 : 4);

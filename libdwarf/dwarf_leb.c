@@ -86,9 +86,9 @@ _dwarf_decode_u_leb128(Dwarf_Small * leb128, Dwarf_Word * leb128_length)
 	return (word_number);
     }
 
-    /* The rest handles long numbers Because the 'number' may be
-       larger than the default int/unsigned, we must cast the 'byte'
-       before the shift for the shift to have a defined result. */
+    /* The rest handles long numbers Because the 'number' may be larger 
+       than the default int/unsigned, we must cast the 'byte' before
+       the shift for the shift to have a defined result. */
     number = 0;
     shift = 0;
     byte_length = 1;

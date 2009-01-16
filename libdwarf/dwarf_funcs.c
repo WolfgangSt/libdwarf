@@ -51,38 +51,43 @@ dwarf_get_funcs(Dwarf_Debug dbg,
     res =
 	_dwarf_load_section(dbg,
 			    dbg->de_debug_funcnames_index,
-			    &dbg->de_debug_funcnames,
-			    error);
+			    &dbg->de_debug_funcnames, error);
     if (res != DW_DLV_OK) {
 	return res;
     }
 
-    return _dwarf_internal_get_pubnames_like_data(dbg, 
-	dbg->de_debug_funcnames, 
-	dbg->de_debug_funcnames_size, (Dwarf_Global **) funcs,	/* type 
-		punning, Dwarf_Type is never a completed type */
-	ret_func_count,
-	error,
-	DW_DLA_FUNC_CONTEXT,
-	DW_DLA_FUNC,
-	DW_DLE_DEBUG_FUNCNAMES_LENGTH_BAD,
-	DW_DLE_DEBUG_FUNCNAMES_VERSION_ERROR);
+    return _dwarf_internal_get_pubnames_like_data(dbg, dbg->de_debug_funcnames, dbg->de_debug_funcnames_size, (Dwarf_Global **) funcs,	/* type 
+																	   punning, 
+																	   Dwarf_Type 
+																	   is 
+																	   never 
+																	   a 
+																	   completed 
+																	   type 
+																	 */
+						  ret_func_count,
+						  error,
+						  DW_DLA_FUNC_CONTEXT,
+						  DW_DLA_FUNC,
+						  DW_DLE_DEBUG_FUNCNAMES_LENGTH_BAD,
+						  DW_DLE_DEBUG_FUNCNAMES_VERSION_ERROR);
 
 }
+
 /* Deallocating fully requires deallocating the list
    and all entries.  But some internal data is
    not exposed, so we need a function with internal knowledge.
 */
 
 void
-dwarf_funcs_dealloc(Dwarf_Debug dbg, Dwarf_Func *dwgl, Dwarf_Signed count)
+dwarf_funcs_dealloc(Dwarf_Debug dbg, Dwarf_Func * dwgl,
+		    Dwarf_Signed count)
 {
-   _dwarf_internal_globals_dealloc(dbg, (Dwarf_Global *)dwgl,
-                count,
-        DW_DLA_FUNC_CONTEXT,
-        DW_DLA_FUNC,
-        DW_DLA_LIST);
-   return;
+    _dwarf_internal_globals_dealloc(dbg, (Dwarf_Global *) dwgl,
+				    count,
+				    DW_DLA_FUNC_CONTEXT,
+				    DW_DLA_FUNC, DW_DLA_LIST);
+    return;
 }
 
 

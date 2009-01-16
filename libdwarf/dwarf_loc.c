@@ -390,40 +390,40 @@ _dwarf_get_locdesc(Dwarf_Debug dbg,
 
 	case DW_OP_nop:
 	    break;
-        case DW_OP_push_object_address:  /* DWARF3 */
+	case DW_OP_push_object_address:	/* DWARF3 */
 	    break;
-	case DW_OP_call2: /* DWARF3 */
-            READ_UNALIGNED(dbg, operand1, Dwarf_Unsigned, loc_ptr, 2);
-            loc_ptr = loc_ptr + 2;
-            offset = offset + 2;
-            break;
+	case DW_OP_call2:	/* DWARF3 */
+	    READ_UNALIGNED(dbg, operand1, Dwarf_Unsigned, loc_ptr, 2);
+	    loc_ptr = loc_ptr + 2;
+	    offset = offset + 2;
+	    break;
 
-	case DW_OP_call4: /* DWARF3 */
-            READ_UNALIGNED(dbg, operand1, Dwarf_Unsigned, loc_ptr, 4);
-            loc_ptr = loc_ptr + 4;
-            offset = offset + 4;
-            break;
-	case DW_OP_call_ref:/* DWARF3 */
-            READ_UNALIGNED(dbg, operand1, Dwarf_Unsigned, loc_ptr, 
-			dbg->de_length_size);
+	case DW_OP_call4:	/* DWARF3 */
+	    READ_UNALIGNED(dbg, operand1, Dwarf_Unsigned, loc_ptr, 4);
+	    loc_ptr = loc_ptr + 4;
+	    offset = offset + 4;
+	    break;
+	case DW_OP_call_ref:	/* DWARF3 */
+	    READ_UNALIGNED(dbg, operand1, Dwarf_Unsigned, loc_ptr,
+			   dbg->de_length_size);
 	    loc_ptr = loc_ptr + dbg->de_length_size;
-	    offset = offset +  dbg->de_length_size;
-        	break;
+	    offset = offset + dbg->de_length_size;
+	    break;
 
-	case DW_OP_form_tls_address: /* DWARF3f */
-		break;
-	case DW_OP_call_frame_cfa: /* DWARF3f */
-		break;
-	case DW_OP_bit_piece:  /* DWARF3f */
-            /* uleb size in bits followed by uleb offset in bits */
-            operand1 = _dwarf_decode_u_leb128(loc_ptr, &leb128_length);
-            loc_ptr = loc_ptr + leb128_length;
-            offset = offset + leb128_length;
+	case DW_OP_form_tls_address:	/* DWARF3f */
+	    break;
+	case DW_OP_call_frame_cfa:	/* DWARF3f */
+	    break;
+	case DW_OP_bit_piece:	/* DWARF3f */
+	    /* uleb size in bits followed by uleb offset in bits */
+	    operand1 = _dwarf_decode_u_leb128(loc_ptr, &leb128_length);
+	    loc_ptr = loc_ptr + leb128_length;
+	    offset = offset + leb128_length;
 
-            operand2 = _dwarf_decode_u_leb128(loc_ptr, &leb128_length);
-            loc_ptr = loc_ptr + leb128_length;
-            offset = offset + leb128_length;
-            break;
+	    operand2 = _dwarf_decode_u_leb128(loc_ptr, &leb128_length);
+	    loc_ptr = loc_ptr + leb128_length;
+	    offset = offset + leb128_length;
+	    break;
 
 
 	default:

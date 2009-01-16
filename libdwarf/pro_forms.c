@@ -309,8 +309,7 @@ dwarf_add_AT_signed_const(Dwarf_P_Debug dbg,
     new_attr->ar_attribute = attr;
     new_attr->ar_attribute_form = attr_form;
     new_attr->ar_rel_type = R_MIPS_NONE;
-    new_attr->ar_reloc_len = 0;	/* irrelevant: unused with R_MIPS_NONE 
-				 */
+    new_attr->ar_reloc_len = 0;	/* irrelevant: unused with R_MIPS_NONE */
     new_attr->ar_nbytes = size;
     new_attr->ar_next = 0;
 

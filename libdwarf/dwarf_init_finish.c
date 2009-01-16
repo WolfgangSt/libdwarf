@@ -106,12 +106,18 @@ static int
 _dwarf_error_code_from_elf_sgi_error_code(enum elf_sgi_error_type val)
 {
     switch (val) {
-    case ELF_SGI_ERROR_OK:        return DW_DLE_NE;
-    case ELF_SGI_ERROR_BAD_ALLOC: return DW_DLE_MAF;
-    case ELF_SGI_ERROR_FORMAT:    return DW_DLE_MDE;
-    case ELF_SGI_ERROR_ERRNO:     return DW_DLE_IOF;
-    case ELF_SGI_ERROR_TOO_BIG:   return DW_DLE_MOF;
-    default:                      return DW_DLE_LEE;
+    case ELF_SGI_ERROR_OK:
+	return DW_DLE_NE;
+    case ELF_SGI_ERROR_BAD_ALLOC:
+	return DW_DLE_MAF;
+    case ELF_SGI_ERROR_FORMAT:
+	return DW_DLE_MDE;
+    case ELF_SGI_ERROR_ERRNO:
+	return DW_DLE_IOF;
+    case ELF_SGI_ERROR_TOO_BIG:
+	return DW_DLE_MOF;
+    default:
+	return DW_DLE_LEE;
     }
 }
 #endif
@@ -140,7 +146,7 @@ _dwarf_setup(Dwarf_Debug dbg, dwarf_elf_handle elf, Dwarf_Error * error)
     Elf64_Ehdr ehdr;
     Elf64_Shdr shdr;
     enum elf_sgi_error_type sres;
-    unsigned char const* ehdr_ident;
+    unsigned char const *ehdr_ident;
 #else
     Elf32_Ehdr *ehdr32;
 
@@ -172,7 +178,8 @@ _dwarf_setup(Dwarf_Debug dbg, dwarf_elf_handle elf, Dwarf_Error * error)
 #ifdef __SGI_FAST_LIBELF
     sres = elf_sgi_ehdr(elf, &ehdr);
     if (sres != ELF_SGI_ERROR_OK) {
-	DWARF_DBG_ERROR(dbg, _dwarf_error_code_from_elf_sgi_error_code(sres),
+	DWARF_DBG_ERROR(dbg,
+			_dwarf_error_code_from_elf_sgi_error_code(sres),
 			DW_DLV_ERROR);
     }
     ehdr_ident = ehdr.e_ident;
@@ -200,19 +207,20 @@ _dwarf_setup(Dwarf_Debug dbg, dwarf_elf_handle elf, Dwarf_Error * error)
     dbg->de_big_endian_object = 0;
     if (ehdr_ident[EI_DATA] == ELFDATA2MSB) {
 	dbg->de_same_endian = 0;
-        dbg->de_big_endian_object = 1;
+	dbg->de_big_endian_object = 1;
 	dbg->de_copy_word = _dwarf_memcpy_swap_bytes;
     }
 #endif /* !WORDS_BIGENDIAN */
 
-    /* The following de_length_size is Not Too Significant.
-	Only used one calculation, and an approximate one at that. */
+    /* The following de_length_size is Not Too Significant. Only used
+       one calculation, and an approximate one at that. */
     dbg->de_length_size = is_64bit ? 8 : 4;
     dbg->de_pointer_size = is_64bit ? 8 : 4;
 
 
 #ifdef __SGI_FAST_LIBELF
-    /* We've already loaded the ELF header, so there's nothing to do here */
+    /* We've already loaded the ELF header, so there's nothing to do
+       here */
 #else
 #ifdef HAVE_ELF64_GETEHDR
     if (is_64bit) {
@@ -221,8 +229,8 @@ _dwarf_setup(Dwarf_Debug dbg, dwarf_elf_handle elf, Dwarf_Error * error)
 	    DWARF_DBG_ERROR(dbg, DW_DLE_ELF_GETEHDR_ERROR,
 			    DW_DLV_ERROR);
 	}
-        section_count = ehdr64->e_shnum;
-        machine = ehdr64->e_machine;
+	section_count = ehdr64->e_shnum;
+	machine = ehdr64->e_machine;
     } else
 #endif
     {
@@ -231,43 +239,46 @@ _dwarf_setup(Dwarf_Debug dbg, dwarf_elf_handle elf, Dwarf_Error * error)
 	    DWARF_DBG_ERROR(dbg, DW_DLE_ELF_GETEHDR_ERROR,
 			    DW_DLV_ERROR);
 	}
-        section_count = ehdr32->e_shnum;
-        machine = ehdr32->e_machine;
+	section_count = ehdr32->e_shnum;
+	machine = ehdr32->e_machine;
     }
 #endif /* !defined(__SGI_FAST_LIBELF) */
 
     if (is_64bit && machine != EM_MIPS) {
-        /* MIPS/IRIX makes pointer size and length size 8 for -64.
-           Other platforms make length 4 always. */
-        /* 4 here supports 32bit-offset dwarf2, as emitted by
-           cygnus tools, and the dwarfv2.1 64bit extension setting. */
-        dbg->de_length_size = 4;
+	/* MIPS/IRIX makes pointer size and length size 8 for -64.
+	   Other platforms make length 4 always. */
+	/* 4 here supports 32bit-offset dwarf2, as emitted by cygnus
+	   tools, and the dwarfv2.1 64bit extension setting. */
+	dbg->de_length_size = 4;
     }
 
     /* We start at index 1 to skip the initial empty section. */
-    for (section_index = 1; section_index < section_count; ++section_index) {
+    for (section_index = 1; section_index < section_count;
+	 ++section_index) {
 
 #ifdef __SGI_FAST_LIBELF
 	sres = elf_sgi_shdr(elf, section_index, &shdr);
 	if (sres != ELF_SGI_ERROR_OK) {
-	    DWARF_DBG_ERROR(dbg, _dwarf_error_code_from_elf_sgi_error_code(sres),
-			    DW_DLV_ERROR);
+	    DWARF_DBG_ERROR(dbg,
+			    _dwarf_error_code_from_elf_sgi_error_code
+			    (sres), DW_DLV_ERROR);
 	}
 
 	section_size = shdr.sh_size;
 
-	sres = elf_sgi_string(elf, ehdr.e_shstrndx, shdr.sh_name, (char const** )&scn_name);
+	sres =
+	    elf_sgi_string(elf, ehdr.e_shstrndx, shdr.sh_name,
+			   (char const **) &scn_name);
 	if (sres != ELF_SGI_ERROR_OK) {
-	    DWARF_DBG_ERROR(dbg, _dwarf_error_code_from_elf_sgi_error_code(sres),
-			    DW_DLV_ERROR);
+	    DWARF_DBG_ERROR(dbg,
+			    _dwarf_error_code_from_elf_sgi_error_code
+			    (sres), DW_DLV_ERROR);
 	}
 #else /* !defined(__SGI_FAST_LIBELF) */
 	scn = elf_getscn(elf, section_index);
 	if (scn == NULL) {
-	    DWARF_DBG_ERROR(dbg, DW_DLE_MDE,
-			    DW_DLV_ERROR);
+	    DWARF_DBG_ERROR(dbg, DW_DLE_MDE, DW_DLV_ERROR);
 	}
-
 #ifdef HAVE_ELF64_GETSHDR
 	if (is_64bit) {
 	    shdr64 = elf64_getshdr(scn);
@@ -448,8 +459,8 @@ _dwarf_setup(Dwarf_Debug dbg, dwarf_elf_handle elf, Dwarf_Error * error)
 	}
 
 	else if (strcmp(scn_name, ".debug_typenames") == 0) {
-	    /* SGI IRIX-only, created years before DWARF3. 
-	       Content essentially identical to .debug_pubtypes.  */
+	    /* SGI IRIX-only, created years before DWARF3. Content
+	       essentially identical to .debug_pubtypes.  */
 	    if (dbg->de_debug_typenames_index != 0) {
 		DWARF_DBG_ERROR(dbg,
 				DW_DLE_DEBUG_TYPENAMES_DUPLICATE,
@@ -461,8 +472,7 @@ _dwarf_setup(Dwarf_Debug dbg, dwarf_elf_handle elf, Dwarf_Error * error)
 	    }
 	    dbg->de_debug_typenames_index = section_index;
 	    dbg->de_debug_typenames_size = section_size;
-	}
-	else if (strcmp(scn_name, ".debug_pubtypes") == 0) {
+	} else if (strcmp(scn_name, ".debug_pubtypes") == 0) {
 	    /* Section new in DWARF3.  */
 	    if (dbg->de_debug_pubtypes_index != 0) {
 		DWARF_DBG_ERROR(dbg,
@@ -539,6 +549,7 @@ dwarf_init(int fd,
     struct stat fstat_buf;
     dwarf_elf_handle elf;
     int res;
+
 #ifdef __SGI_FAST_LIBELF
     enum elf_sgi_error_type sres;
 #else
@@ -552,7 +563,7 @@ dwarf_init(int fd,
     dbg->de_errhand = errhand;
     dbg->de_errarg = errarg;
     dbg->de_frame_rule_initial_value = DW_FRAME_REG_INITIAL_VALUE;
-    dbg->de_frame_reg_rules_entry_count =  DW_FRAME_LAST_REG_NUM;
+    dbg->de_frame_reg_rules_entry_count = DW_FRAME_LAST_REG_NUM;
 
 
     if (fstat(fd, &fstat_buf) != 0) {
@@ -575,8 +586,9 @@ dwarf_init(int fd,
 
     sres = elf_sgi_begin_fd(elf, fd, 0);
     if (sres != ELF_SGI_ERROR_OK) {
-        elf_sgi_free(elf);
-	DWARF_DBG_ERROR(dbg, _dwarf_error_code_from_elf_sgi_error_code(sres),
+	elf_sgi_free(elf);
+	DWARF_DBG_ERROR(dbg,
+			_dwarf_error_code_from_elf_sgi_error_code(sres),
 			DW_DLV_ERROR);
     }
 #else /* ! __SGI_FAST_LIBELF */
@@ -588,7 +600,7 @@ dwarf_init(int fd,
     what_kind_of_elf_read = ELF_C_READ_MMAP;
 #else /* !HAVE_ELF_C_READ_MMAP */
     /* ELF_C_READ is a portable value */
-    what_kind_of_elf_read  = ELF_C_READ;
+    what_kind_of_elf_read = ELF_C_READ;
 #endif /* HAVE_ELF_C_READ_MMAP */
 
     if ((elf = elf_begin(fd, what_kind_of_elf_read, 0)) == NULL) {
@@ -599,9 +611,9 @@ dwarf_init(int fd,
     dbg->de_elf_must_close = 1;
     if ((res = _dwarf_setup(dbg, elf, error)) != DW_DLV_OK) {
 #ifdef __SGI_FAST_LIBELF
-        elf_sgi_free(elf);
+	elf_sgi_free(elf);
 #else
-        elf_end(elf);
+	elf_end(elf);
 #endif
 	free(dbg);
 	return (res);
@@ -635,7 +647,7 @@ dwarf_elf_init(dwarf_elf_handle elf_file_pointer,
     dbg->de_errhand = errhand;
     dbg->de_errarg = errarg;
     dbg->de_frame_rule_initial_value = DW_FRAME_REG_INITIAL_VALUE;
-    dbg->de_frame_reg_rules_entry_count =  DW_FRAME_LAST_REG_NUM;
+    dbg->de_frame_reg_rules_entry_count = DW_FRAME_LAST_REG_NUM;
 
     if (access != DW_DLC_READ) {
 	DWARF_DBG_ERROR(dbg, DW_DLE_INIT_ACCESS_WRONG, DW_DLV_ERROR);
@@ -665,10 +677,10 @@ int
 dwarf_finish(Dwarf_Debug dbg, Dwarf_Error * error)
 {
     int res = DW_DLV_OK;
-    if(dbg->de_elf_must_close) {
-	/* Must do this *before* _dwarf_free_all_of_one_debug()
-	   as that zeroes out dbg contents
-	*/
+
+    if (dbg->de_elf_must_close) {
+	/* Must do this *before* _dwarf_free_all_of_one_debug() as that 
+	   zeroes out dbg contents */
 #ifdef __SGI_FAST_LIBELF
 	elf_sgi_free(dbg->de_elf);
 #else
@@ -693,7 +705,8 @@ dwarf_finish(Dwarf_Debug dbg, Dwarf_Error * error)
     associated with a Dwarf_Debug.
 */
 int
-dwarf_get_elf(Dwarf_Debug dbg, dwarf_elf_handle* elf, Dwarf_Error * error)
+dwarf_get_elf(Dwarf_Debug dbg, dwarf_elf_handle * elf,
+	      Dwarf_Error * error)
 {
     if (dbg == NULL) {
 	_dwarf_error(NULL, error, DW_DLE_DBG_NULL);
@@ -713,8 +726,7 @@ dwarf_get_elf(Dwarf_Debug dbg, dwarf_elf_handle* elf, Dwarf_Error * error)
 int
 _dwarf_load_section(Dwarf_Debug dbg,
 		    Dwarf_Half section_index,
-		    Dwarf_Small ** section_data,
-		    Dwarf_Error * error)
+		    Dwarf_Small ** section_data, Dwarf_Error * error)
 {
     if (section_index == 0) {
 	return DW_DLV_NO_ENTRY;
@@ -727,39 +739,39 @@ _dwarf_load_section(Dwarf_Debug dbg,
 
     {
 #ifdef __SGI_FAST_LIBELF
-        enum elf_sgi_error_type sres;
+	enum elf_sgi_error_type sres;
 
-        sres = elf_sgi_section(dbg->de_elf,
-		               section_index,
-			       (void**) section_data);
-        if (sres != ELF_SGI_ERROR_OK) {
-	    DWARF_DBG_ERROR(dbg, _dwarf_error_code_from_elf_sgi_error_code(sres),
-			    DW_DLV_ERROR);
-        }
+	sres = elf_sgi_section(dbg->de_elf,
+			       section_index, (void **) section_data);
+	if (sres != ELF_SGI_ERROR_OK) {
+	    DWARF_DBG_ERROR(dbg,
+			    _dwarf_error_code_from_elf_sgi_error_code
+			    (sres), DW_DLV_ERROR);
+	}
 #else
-        Elf_Scn* scn;
-        Elf_Data* data;
+	Elf_Scn *scn;
+	Elf_Data *data;
 
-        scn = elf_getscn(dbg->de_elf, section_index);
-        if (scn == NULL) {
+	scn = elf_getscn(dbg->de_elf, section_index);
+	if (scn == NULL) {
 	    _dwarf_error(dbg, error, DW_DLE_MDE);
 	    return DW_DLV_ERROR;
-        }
+	}
 
 	/* 
-	    When using libelf as a producer, section data may be stored
-	    in multiple buffers. In libdwarf however, we only use libelf
-	    as a consumer (there is a dwarf producer API, but it doesn't
-	    use libelf). Because of this, this single call to elf_getdata
-	    will retrieve the entire section in a single contiguous buffer.
-	 */
-        data = elf_getdata(scn, NULL);
-        if (data == NULL) {
+	   When using libelf as a producer, section data may be stored
+	   in multiple buffers. In libdwarf however, we only use libelf
+	   as a consumer (there is a dwarf producer API, but it doesn't
+	   use libelf). Because of this, this single call to elf_getdata
+	   will retrieve the entire section in a single contiguous
+	   buffer. */
+	data = elf_getdata(scn, NULL);
+	if (data == NULL) {
 	    _dwarf_error(dbg, error, DW_DLE_MDE);
 	    return DW_DLV_ERROR;
-        }
+	}
 
-        *section_data = data->d_buf;
+	*section_data = data->d_buf;
 #endif /* !defined(__SGI_FAST_LIBELF) */
     }
 
@@ -774,32 +786,30 @@ _dwarf_load_section(Dwarf_Debug dbg,
 */
 int
 dwarf_get_section_max_offsets(Dwarf_Debug dbg,
-    Dwarf_Unsigned *debug_info_size,
-    Dwarf_Unsigned *debug_abbrev_size,
-    Dwarf_Unsigned *debug_line_size,
-    Dwarf_Unsigned *debug_loc_size,
-    Dwarf_Unsigned *debug_aranges_size,
-    Dwarf_Unsigned *debug_macinfo_size,
-    Dwarf_Unsigned *debug_pubnames_size,
-    Dwarf_Unsigned *debug_str_size,
-    Dwarf_Unsigned *debug_frame_size,
-	Dwarf_Unsigned *debug_ranges_size,
-	Dwarf_Unsigned *debug_typenames_size)
+			      Dwarf_Unsigned * debug_info_size,
+			      Dwarf_Unsigned * debug_abbrev_size,
+			      Dwarf_Unsigned * debug_line_size,
+			      Dwarf_Unsigned * debug_loc_size,
+			      Dwarf_Unsigned * debug_aranges_size,
+			      Dwarf_Unsigned * debug_macinfo_size,
+			      Dwarf_Unsigned * debug_pubnames_size,
+			      Dwarf_Unsigned * debug_str_size,
+			      Dwarf_Unsigned * debug_frame_size,
+			      Dwarf_Unsigned * debug_ranges_size,
+			      Dwarf_Unsigned * debug_typenames_size)
 {
     *debug_info_size = dbg->de_debug_info_size;
     *debug_abbrev_size = dbg->de_debug_abbrev_size;
     *debug_line_size = dbg->de_debug_line_size;
-    *debug_loc_size =dbg->de_debug_loc_size;
+    *debug_loc_size = dbg->de_debug_loc_size;
     *debug_aranges_size = dbg->de_debug_aranges_size;
-    *debug_macinfo_size  =dbg->de_debug_macinfo_size;
-    *debug_pubnames_size  = dbg->de_debug_pubnames_size;
+    *debug_macinfo_size = dbg->de_debug_macinfo_size;
+    *debug_pubnames_size = dbg->de_debug_pubnames_size;
     *debug_str_size = dbg->de_debug_str_size;
     *debug_frame_size = dbg->de_debug_frame_size;
-    *debug_ranges_size = 0; /* Not yet supported. */
+    *debug_ranges_size = 0;	/* Not yet supported. */
     *debug_typenames_size = dbg->de_debug_typenames_size;
 
-	
-   return DW_DLV_OK;
+
+    return DW_DLV_OK;
 }
-
-

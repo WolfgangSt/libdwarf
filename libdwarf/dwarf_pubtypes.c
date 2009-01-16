@@ -44,55 +44,60 @@
 
 int
 dwarf_get_pubtypes(Dwarf_Debug dbg,
-		Dwarf_Type ** types,
-		Dwarf_Signed * ret_type_count, Dwarf_Error * error)
+		   Dwarf_Type ** types,
+		   Dwarf_Signed * ret_type_count, Dwarf_Error * error)
 {
     int res;
 
     res =
-       _dwarf_load_section(dbg,
-		           dbg->de_debug_pubtypes_index,
-			   &dbg->de_debug_pubtypes,
-			   error);
+	_dwarf_load_section(dbg,
+			    dbg->de_debug_pubtypes_index,
+			    &dbg->de_debug_pubtypes, error);
     if (res != DW_DLV_OK) {
 	return res;
     }
 
-    return _dwarf_internal_get_pubnames_like_data(dbg, 
-	dbg->de_debug_pubtypes, 
-	dbg->de_debug_pubtypes_size, 
-	(Dwarf_Global **) types,	/* type punning,
-	Dwarf_Type is never a completed type */
-
-	ret_type_count,
-	error,
-	DW_DLA_PUBTYPES_CONTEXT,
-	DW_DLA_GLOBAL,  /* We don't have DW_DLA_PUBTYPES,
-		so use DW_DLA_GLOBAL. */
-	DW_DLE_DEBUG_PUBTYPES_LENGTH_BAD,
-	DW_DLE_DEBUG_PUBTYPES_VERSION_ERROR);
+    return _dwarf_internal_get_pubnames_like_data(dbg, dbg->de_debug_pubtypes, dbg->de_debug_pubtypes_size, (Dwarf_Global **) types,	/* type 
+																	   punning,
+																	   Dwarf_Type 
+																	   is never
+																	   a
+																	   completed 
+																	   type */
+						  ret_type_count, error, DW_DLA_PUBTYPES_CONTEXT, DW_DLA_GLOBAL,	/* We 
+															   don't 
+															   have 
+															   DW_DLA_PUBTYPES,
+															   so use
+															   DW_DLA_GLOBAL. */
+						  DW_DLE_DEBUG_PUBTYPES_LENGTH_BAD,
+						  DW_DLE_DEBUG_PUBTYPES_VERSION_ERROR);
 }
+
 /* Deallocating fully requires deallocating the list
    and all entries.  But some internal data is
    not exposed, so we need a function with internal knowledge.
 */
 
 void
-dwarf_pubtypes_dealloc(Dwarf_Debug dbg, Dwarf_Type *dwgl, Dwarf_Signed count)
+dwarf_pubtypes_dealloc(Dwarf_Debug dbg, Dwarf_Type * dwgl,
+		       Dwarf_Signed count)
 {
-   _dwarf_internal_globals_dealloc(dbg, (Dwarf_Global *)dwgl,
-                count,
-        DW_DLA_PUBTYPES_CONTEXT,
-        DW_DLA_GLOBAL,  /* We don't have DW_DLA_PUBTYPES,
-                so use DW_DLA_GLOBAL. */
-        DW_DLA_LIST);
-   return;
+    _dwarf_internal_globals_dealloc(dbg, (Dwarf_Global *) dwgl, count, DW_DLA_PUBTYPES_CONTEXT, DW_DLA_GLOBAL,	/* We 
+														   don't 
+														   have 
+														   DW_DLA_PUBTYPES,
+														   so use
+														   DW_DLA_GLOBAL. */
+				    DW_DLA_LIST);
+    return;
 }
 
 
 
 int
-dwarf_pubtypename(Dwarf_Type type_in, char **ret_name, Dwarf_Error * error)
+dwarf_pubtypename(Dwarf_Type type_in, char **ret_name,
+		  Dwarf_Error * error)
 {
     Dwarf_Global type = (Dwarf_Global) type_in;
 
@@ -108,7 +113,8 @@ dwarf_pubtypename(Dwarf_Type type_in, char **ret_name, Dwarf_Error * error)
 
 int
 dwarf_pubtype_type_die_offset(Dwarf_Type type_in,
-		      Dwarf_Off * ret_offset, Dwarf_Error * error)
+			      Dwarf_Off * ret_offset,
+			      Dwarf_Error * error)
 {
     Dwarf_Global type = (Dwarf_Global) type_in;
 
@@ -118,7 +124,7 @@ dwarf_pubtype_type_die_offset(Dwarf_Type type_in,
 
 int
 dwarf_pubtype_cu_offset(Dwarf_Type type_in,
-		     Dwarf_Off * ret_offset, Dwarf_Error * error)
+			Dwarf_Off * ret_offset, Dwarf_Error * error)
 {
     Dwarf_Global type = (Dwarf_Global) type_in;
 
@@ -129,9 +135,10 @@ dwarf_pubtype_cu_offset(Dwarf_Type type_in,
 
 int
 dwarf_pubtype_name_offsets(Dwarf_Type type_in,
-			char **returned_name,
-			Dwarf_Off * die_offset,
-			Dwarf_Off * cu_die_offset, Dwarf_Error * error)
+			   char **returned_name,
+			   Dwarf_Off * die_offset,
+			   Dwarf_Off * cu_die_offset,
+			   Dwarf_Error * error)
 {
     Dwarf_Global type = (Dwarf_Global) type_in;
 

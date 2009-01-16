@@ -246,7 +246,7 @@ static int
 get_proc_name(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Addr low_pc,
 	      char *proc_name_buf, int proc_name_buf_len)
 {
-    Dwarf_Signed atcnt = 0; 
+    Dwarf_Signed atcnt = 0;
     Dwarf_Signed i = 0;
     Dwarf_Attribute *atlist = NULL;
     Dwarf_Addr low_pc_die = 0;
@@ -286,11 +286,15 @@ get_proc_name(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Addr low_pc,
 		    print_error(dbg,
 				"formstring in get_proc_name failed",
 				sres, err);
-                    /* 50 is safe wrong length since is bigger than the actual string */ 
-		    safe_strcpy(proc_name_buf, proc_name_buf_len, "ERROR in dwarf_formstring!", 50	);
+		    /* 50 is safe wrong length since is bigger than the 
+		       actual string */
+		    safe_strcpy(proc_name_buf, proc_name_buf_len,
+				"ERROR in dwarf_formstring!", 50);
 		} else if (sres == DW_DLV_NO_ENTRY) {
-                    /* 50 is safe wrong length since is bigger than the actual string */ 
-		    safe_strcpy(proc_name_buf, proc_name_buf_len, "NO ENTRY on dwarf_formstring?!", 50	);
+		    /* 50 is safe wrong length since is bigger than the 
+		       actual string */
+		    safe_strcpy(proc_name_buf, proc_name_buf_len,
+				"NO ENTRY on dwarf_formstring?!", 50);
 		} else {
 		    long len = (long) strlen(temps);
 
@@ -602,7 +606,7 @@ get_fde_proc_name(Dwarf_Debug dbg, Dwarf_Addr low_pc)
 */
 extern void
 print_frames(Dwarf_Debug dbg, int print_debug_frame, int print_eh_frame,
-	struct dwconf_s *config_data)
+	     struct dwconf_s *config_data)
 {
     Dwarf_Cie *cie_data = NULL;
     Dwarf_Signed cie_element_count = 0;
@@ -650,8 +654,8 @@ print_frames(Dwarf_Debug dbg, int print_debug_frame, int print_eh_frame,
 	       difference between the fde address and the beginning of
 	       the cie it belongs to. This makes sense as this is
 	       intended to be referenced at run time, and is part of
-	       the running image. For more on augmentation strings,
-	       see libdwarf/dwarf_frame.c.  */
+	       the running image. For more on augmentation strings, see 
+	       libdwarf/dwarf_frame.c.  */
 
 	    /* 
 	     * Big question here is how to print all the info?
@@ -680,18 +684,18 @@ print_frames(Dwarf_Debug dbg, int print_debug_frame, int print_eh_frame,
 	    printf("\nfde:\n");
 
 	    for (i = 0; i < fde_element_count; i++) {
-		print_one_fde(dbg,fde_data[i],
-		    i, cie_data, cie_element_count,
-		    address_size,is_eh,config_data);
+		print_one_fde(dbg, fde_data[i],
+			      i, cie_data, cie_element_count,
+			      address_size, is_eh, config_data);
 	    }
 	    /* 
 	       Print the cie set. */
 	    if (verbose) {
 		printf("\ncie:\n");
 		for (i = 0; i < cie_element_count; i++) {
-	            print_one_cie(dbg, cie_data[i],i, address_size,
-			config_data);
-	        }
+		    print_one_cie(dbg, cie_data[i], i, address_size,
+				  config_data);
+		}
 	    }
 	    dwarf_fde_cie_list_dealloc(dbg, cie_data, cie_element_count,
 				       fde_data, fde_element_count);
@@ -708,23 +712,27 @@ print_frames(Dwarf_Debug dbg, int print_debug_frame, int print_eh_frame,
 
 int
   dwarf_get_section_max_offsets(Dwarf_Debug /* dbg */ ,
-				Dwarf_Unsigned * /* debug_info_size */ ,
-				Dwarf_Unsigned * /* debug_abbrev_size */
-				,
-				Dwarf_Unsigned * /* debug_line_size */ ,
-				Dwarf_Unsigned * /* debug_loc_size */ ,
+				Dwarf_Unsigned *	/* debug_info_size 
+							 */ ,
+				Dwarf_Unsigned *	/* debug_abbrev_size 
+							 */
+				, Dwarf_Unsigned *	/* debug_line_size 
+							 */ ,
+				Dwarf_Unsigned *	/* debug_loc_size 
+							 */ ,
 				Dwarf_Unsigned *
 				/* debug_aranges_size */ ,
 				Dwarf_Unsigned *
 				/* debug_macinfo_size */ ,
 				Dwarf_Unsigned *
 				/* debug_pubnames_size */ ,
-				Dwarf_Unsigned * /* debug_str_size */ ,
-				Dwarf_Unsigned * /* debug_frame_size */
-				,
-				Dwarf_Unsigned * /* debug_ranges_size */
-				,
-				Dwarf_Unsigned *
+				Dwarf_Unsigned *	/* debug_str_size 
+							 */ ,
+				Dwarf_Unsigned *	/* debug_frame_size 
+							 */
+				, Dwarf_Unsigned *	/* debug_ranges_size 
+							 */
+				, Dwarf_Unsigned *
 				/* debug_pubtypes_size */ );
 
 /* The new (April 2005) dwarf_get_section_max_offsets()
@@ -1579,8 +1587,8 @@ print_types(Dwarf_Debug dbg, enum type_type_e type_type)
 	Dwarf_Unsigned maxoff = get_info_max_offset(dbg);
 
 	/* Before July 2005, the section name was printed
-	   unconditionally, now only prints if non-empty section
-	   really exists. */
+	   unconditionally, now only prints if non-empty section really 
+	   exists. */
 	printf("\n%s\n", section_name);
 
 	for (i = 0; i < count; i++) {

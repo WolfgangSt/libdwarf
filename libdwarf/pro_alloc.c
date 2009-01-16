@@ -50,7 +50,7 @@
     void *sp;
 
     sp = malloc(size);
-    memset(sp,0, (int) size);
+    memset(sp, 0, (int) size);
     return sp;
 }
 

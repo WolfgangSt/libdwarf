@@ -81,8 +81,8 @@ _dwarf_pro_pre_alloc_n_reloc_slots(Dwarf_P_Debug dbg,
     data->rb_slots_in_block = slots_in_blk;	/* could use default
 						   here, as fallback in 
 						   case our origininal
-						   estimate wrong.
-						   When we call this we 
+						   estimate wrong. When 
+						   we call this we
 						   presumably know what 
 						   we are doing, so
 						   keep this count for

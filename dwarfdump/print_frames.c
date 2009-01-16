@@ -39,13 +39,12 @@ $Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/print_frames.c,v 1.3 2
 
 
 static void
-print_one_frame_reg_col( Dwarf_Unsigned rule_id,
-                        Dwarf_Small value_type,
-		Dwarf_Unsigned reg_used,
-                        struct dwconf_s *config_data,
-		        Dwarf_Signed offset_relevant,
-                        Dwarf_Signed offset, 
-			Dwarf_Ptr block_ptr);
+  print_one_frame_reg_col(Dwarf_Unsigned rule_id,
+			  Dwarf_Small value_type,
+			  Dwarf_Unsigned reg_used,
+			  struct dwconf_s *config_data,
+			  Dwarf_Signed offset_relevant,
+			  Dwarf_Signed offset, Dwarf_Ptr block_ptr);
 
 /*
     Gather the fde print logic here so the control logic
@@ -57,7 +56,7 @@ print_one_fde(Dwarf_Debug dbg, Dwarf_Fde fde,
 	      Dwarf_Cie * cie_data,
 	      Dwarf_Signed cie_element_count,
 	      Dwarf_Half address_size, int is_eh,
-		struct dwconf_s * config_data)
+	      struct dwconf_s *config_data)
 {
     Dwarf_Addr j = 0;
     Dwarf_Addr low_pc = 0;
@@ -134,84 +133,84 @@ print_one_fde(Dwarf_Debug dbg, Dwarf_Fde fde,
     /* call dwarf_get_fde_info_for_reg() to get whole matrix */
 
     for (j = low_pc; j < low_pc + func_length; j++) {
-        Dwarf_Half k;
+	Dwarf_Half k;
 
-	if( config_data->cf_interface_number == 3) {
- 	    Dwarf_Signed reg = 0;
-            Dwarf_Signed offset_relevant = 0;
-            Dwarf_Small value_type = 0;
-            Dwarf_Signed offset_or_block_len = 0;
-            Dwarf_Signed offset = 0;
-            Dwarf_Ptr block_ptr = 0;
-            Dwarf_Addr row_pc = 0;
+	if (config_data->cf_interface_number == 3) {
+	    Dwarf_Signed reg = 0;
+	    Dwarf_Signed offset_relevant = 0;
+	    Dwarf_Small value_type = 0;
+	    Dwarf_Signed offset_or_block_len = 0;
+	    Dwarf_Signed offset = 0;
+	    Dwarf_Ptr block_ptr = 0;
+	    Dwarf_Addr row_pc = 0;
 
-            int fires = dwarf_get_fde_info_for_cfa_reg3(fde,
-                            j,
-                            &value_type,
-                            &offset_relevant,
-                            &reg,
-                            &offset_or_block_len,
-                            &block_ptr,
-                            &row_pc,
-                            &err);
-		offset = offset_or_block_len;
-		if (fires == DW_DLV_ERROR) {
-                  print_error(dbg,
-                            "dwarf_get_fde_info_for_reg", fires, err);
-                }
-                if (fires == DW_DLV_NO_ENTRY) {
-                    continue;
-                }
- 		if (row_pc != j) {
-                /* duplicate row */
-                   continue;
-            }
-            if (!printed_intro_addr ) {
-                printf("    %08llx:\t", j);
-                printed_intro_addr = 1;
-            }
-            print_one_frame_reg_col(
-                config_data->cf_cfa_reg,
-                value_type, 
-		reg,
-		config_data,
-		offset_relevant,
-                offset,
-                block_ptr);
+	    int fires = dwarf_get_fde_info_for_cfa_reg3(fde,
+							j,
+							&value_type,
+							&offset_relevant,
+							&reg,
+							&offset_or_block_len,
+							&block_ptr,
+							&row_pc,
+							&err);
+
+	    offset = offset_or_block_len;
+	    if (fires == DW_DLV_ERROR) {
+		print_error(dbg,
+			    "dwarf_get_fde_info_for_reg", fires, err);
+	    }
+	    if (fires == DW_DLV_NO_ENTRY) {
+		continue;
+	    }
+	    if (row_pc != j) {
+		/* duplicate row */
+		continue;
+	    }
+	    if (!printed_intro_addr) {
+		printf("    %08llx:\t", j);
+		printed_intro_addr = 1;
+	    }
+	    print_one_frame_reg_col(config_data->cf_cfa_reg,
+				    value_type,
+				    reg,
+				    config_data,
+				    offset_relevant, offset, block_ptr);
 	}
-	for (k = 0; k < config_data->cf_table_entry_count ; k++) {
-            Dwarf_Signed reg = 0;
+	for (k = 0; k < config_data->cf_table_entry_count; k++) {
+	    Dwarf_Signed reg = 0;
 	    Dwarf_Signed offset_relevant = 0;
 	    int fires = 0;
 	    Dwarf_Small value_type = 0;
 	    Dwarf_Ptr block_ptr = 0;
 	    Dwarf_Signed offset_or_block_len = 0;
-            Dwarf_Signed offset = 0;
-            Dwarf_Addr row_pc = 0;
-	    
-	    if( config_data->cf_interface_number == 3) {
-	
-                fires = dwarf_get_fde_info_for_reg3(fde,
-                            k,
-                            j,
-                            &value_type,
-                            &offset_relevant,
-                            &reg,
-                            &offset_or_block_len,
-                            &block_ptr,
-                            &row_pc,
-                            &err);
+	    Dwarf_Signed offset = 0;
+	    Dwarf_Addr row_pc = 0;
+
+	    if (config_data->cf_interface_number == 3) {
+
+		fires = dwarf_get_fde_info_for_reg3(fde,
+						    k,
+						    j,
+						    &value_type,
+						    &offset_relevant,
+						    &reg,
+						    &offset_or_block_len,
+						    &block_ptr,
+						    &row_pc, &err);
 		offset = offset_or_block_len;
-	    } else { /* ASSERT: config_data->cf_interface_number == 2 */
+	    } else {		/* ASSERT:
+				   config_data->cf_interface_number ==
+				   2 */
 
 
-		  value_type = DW_EXPR_OFFSET ;
-	          fires = dwarf_get_fde_info_for_reg(fde, 
-			k, 
-			j,
-			&offset_relevant,
-			&reg,
-			&offset, &row_pc, &err);
+		value_type = DW_EXPR_OFFSET;
+		fires = dwarf_get_fde_info_for_reg(fde,
+						   k,
+						   j,
+						   &offset_relevant,
+						   &reg,
+						   &offset, &row_pc,
+						   &err);
 	    }
 	    if (fires == DW_DLV_ERROR) {
 		print_error(dbg,
@@ -224,23 +223,20 @@ print_one_fde(Dwarf_Debug dbg, Dwarf_Fde fde,
 		/* duplicate row */
 		break;
 	    }
-	    if (!printed_intro_addr ) {
+	    if (!printed_intro_addr) {
 		printf("    %08llx:\t", j);
 		printed_intro_addr = 1;
 	    }
-            print_one_frame_reg_col(
-                k,
-		value_type, 
-		reg,
-		config_data,
-		offset_relevant,
-                offset,
-                block_ptr);
+	    print_one_frame_reg_col(k,
+				    value_type,
+				    reg,
+				    config_data,
+				    offset_relevant, offset, block_ptr);
 
 	}
-        if( printed_intro_addr) {
-		printf("\n");
-		printed_intro_addr = 0;
+	if (printed_intro_addr) {
+	    printf("\n");
+	    printed_intro_addr = 0;
 	}
     }
     if (verbose > 1) {
@@ -307,12 +303,11 @@ print_one_fde(Dwarf_Debug dbg, Dwarf_Fde fde,
 		;		/* ? */
 	    } else {
 
-		print_frame_inst_bytes(dbg, instrs, 
-					(Dwarf_Signed)ilen,
+		print_frame_inst_bytes(dbg, instrs,
+				       (Dwarf_Signed) ilen,
 				       data_alignment_factor,
-				       (int)code_alignment_factor,
-				       address_size,
-				config_data);
+				       (int) code_alignment_factor,
+				       address_size, config_data);
 	    }
 	} else if (res == DW_DLV_NO_ENTRY) {
 	    printf
@@ -338,7 +333,7 @@ print_one_fde(Dwarf_Debug dbg, Dwarf_Fde fde,
 int
 print_one_cie(Dwarf_Debug dbg, Dwarf_Cie cie,
 	      Dwarf_Unsigned cie_index, Dwarf_Half address_size,
-		struct dwconf_s * config_data)
+	      struct dwconf_s *config_data)
 {
 
     int cires = 0;
@@ -383,11 +378,11 @@ print_one_cie(Dwarf_Debug dbg, Dwarf_Cie cie,
 
 	printf("\taugmentation\t\t\t%s\n", augmenter);
 	printf("\tcode_alignment_factor\t\t%llu\n",
-	       (unsigned long long)code_alignment_factor);
+	       (unsigned long long) code_alignment_factor);
 	printf("\tdata_alignment_factor\t\t%lld\n",
-	       (long long)data_alignment_factor);
+	       (long long) data_alignment_factor);
 	printf("\treturn_address_register\t\t%d\n",
-	       (int)return_address_register_rule);
+	       (int) return_address_register_rule);
 	{
 	    int ares = 0;
 	    Dwarf_Small *data = 0;
@@ -417,11 +412,11 @@ print_one_cie(Dwarf_Debug dbg, Dwarf_Cie cie,
 	printf("\tcie length :\t\t\t%lld\n", (long long) cie_length);
 	print_frame_inst_bytes(dbg,
 			       initial_instructions,
-			       (Dwarf_Signed)initial_instructions_length,
+			       (Dwarf_Signed)
+			       initial_instructions_length,
 			       data_alignment_factor,
-			       (int)code_alignment_factor, 
-				address_size,
-		config_data);
+			       (int) code_alignment_factor,
+			       address_size, config_data);
     }
     return DW_DLV_OK;
 }
@@ -434,7 +429,7 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		       Dwarf_Ptr cie_init_inst, Dwarf_Signed len,
 		       Dwarf_Signed data_alignment_factor,
 		       int code_alignment_factor, Dwarf_Half addr_size,
-			struct dwconf_s * config_data)
+		       struct dwconf_s *config_data)
 {
     unsigned char *instp = (unsigned char *) cie_init_inst;
     Dwarf_Unsigned uval;
@@ -472,7 +467,7 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 	    len -= uleblen;
 	    off += uleblen;
 	    printf("\t%2u DW_CFA_offset ", loff);
-	    printreg((Dwarf_Signed) reg,config_data);
+	    printreg((Dwarf_Signed) reg, config_data);
 	    printf(" %lld", (signed long long)
 		   (((Dwarf_Signed) uval) * data_alignment_factor));
 	    if (verbose) {
@@ -485,7 +480,7 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 	case DW_CFA_restore:
 	    reg = ibyte & 0x3f;
 	    printf("\t%2u DW_CFA_restore \n", off);
-	    printreg((Dwarf_Signed) reg,config_data);
+	    printreg((Dwarf_Signed) reg, config_data);
 	    printf("\n");
 	    break;
 
@@ -572,7 +567,7 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		len -= uleblen;
 		off += uleblen;
 		printf("\t%2u DW_CFA_offset_extended ", loff);
-		printreg((Dwarf_Signed) uval,config_data);
+		printreg((Dwarf_Signed) uval, config_data);
 		printf(" %lld", (signed long long)
 		       (((Dwarf_Signed) uval2) *
 			data_alignment_factor));
@@ -589,7 +584,7 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		len -= uleblen;
 		off += uleblen;
 		printf("\t%2u DW_CFA_restore_extended ", loff);
-		printreg((Dwarf_Signed) uval,config_data);
+		printreg((Dwarf_Signed) uval, config_data);
 		printf("\n");
 		break;
 	    case DW_CFA_undefined:
@@ -598,7 +593,7 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		len -= uleblen;
 		off += uleblen;
 		printf("\t%2u DW_CFA_undefined ", loff);
-		printreg((Dwarf_Signed) uval,config_data);
+		printreg((Dwarf_Signed) uval, config_data);
 		printf("\n");
 		break;
 	    case DW_CFA_same_value:
@@ -607,7 +602,7 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		len -= uleblen;
 		off += uleblen;
 		printf("\t%2u DW_CFA_same_value ", loff);
-		printreg((Dwarf_Signed) uval,config_data);
+		printreg((Dwarf_Signed) uval, config_data);
 		printf("\n");
 		break;
 	    case DW_CFA_register:
@@ -621,9 +616,9 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		len -= uleblen;
 		off += uleblen;
 		printf("\t%2u DW_CFA_register ", loff);
-		printreg((Dwarf_Signed) uval,config_data);
+		printreg((Dwarf_Signed) uval, config_data);
 		printf(" = ");
-		printreg((Dwarf_Signed) uval2,config_data);
+		printreg((Dwarf_Signed) uval2, config_data);
 		printf("\n");
 		break;
 	    case DW_CFA_remember_state:
@@ -643,7 +638,7 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		len -= uleblen;
 		off += uleblen;
 		printf("\t%2u DW_CFA_def_cfa ", loff);
-		printreg((Dwarf_Signed) uval,config_data);
+		printreg((Dwarf_Signed) uval, config_data);
 		printf(" %llu", (unsigned long long) uval2);
 		printf("\n");
 		break;
@@ -653,7 +648,7 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		len -= uleblen;
 		off += uleblen;
 		printf("\t%2u DW_CFA_def_cfa_register ", loff);
-		printreg((Dwarf_Signed) uval,config_data);
+		printreg((Dwarf_Signed) uval, config_data);
 		printf("\n");
 		break;
 	    case DW_CFA_def_cfa_offset:
@@ -674,6 +669,7 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		    Dwarf_Unsigned block_len =
 			local_dwarf_decode_u_leb128(instp + 1,
 						    &uleblen);
+
 		    instp += uleblen;
 		    len -= uleblen;
 		    off += uleblen;
@@ -681,7 +677,8 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 			("\t%2u DW_CFA_def_cfa_expression expr block len %lld\n",
 			 loff, (unsigned long long)
 			 block_len);
-		    dump_block("\t\t", (char *) instp, (Dwarf_Signed)block_len);
+		    dump_block("\t\t", (char *) instp,
+			       (Dwarf_Signed) block_len);
 		    instp += block_len;
 		    len -= block_len;
 		    off += block_len;
@@ -696,6 +693,7 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		    Dwarf_Unsigned block_len =
 			local_dwarf_decode_u_leb128(instp + 1,
 						    &uleblen);
+
 		    instp += uleblen;
 		    len -= uleblen;
 		    off += uleblen;
@@ -704,7 +702,8 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 			 loff, (unsigned long long) uval,
 			 (unsigned long long)
 			 block_len);
-		    dump_block("\t\t", (char *) instp, (Dwarf_Signed)block_len);
+		    dump_block("\t\t", (char *) instp,
+			       (Dwarf_Signed) block_len);
 		    instp += block_len;
 		    len -= block_len;
 		    off += block_len;
@@ -720,11 +719,12 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		    Dwarf_Signed sval2 =
 			local_dwarf_decode_s_leb128(instp + 1,
 						    &uleblen);
+
 		    instp += uleblen;
 		    len -= uleblen;
 		    off += uleblen;
 		    printf("\t%2u DW_CFA_offset_extended_sf ", loff);
-		    printreg((Dwarf_Signed) uval,config_data);
+		    printreg((Dwarf_Signed) uval, config_data);
 		    printf(" %lld", (signed long long)
 			   ((sval2) * data_alignment_factor));
 		    if (verbose) {
@@ -743,11 +743,12 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		    Dwarf_Signed sval2 =
 			local_dwarf_decode_s_leb128(instp + 1,
 						    &uleblen);
+
 		    instp += uleblen;
 		    len -= uleblen;
 		    off += uleblen;
 		    printf("\t%2u DW_CFA_def_cfa_sf ", loff);
-		    printreg((Dwarf_Signed)uval,config_data);
+		    printreg((Dwarf_Signed) uval, config_data);
 		    printf(" %lld", (long long) sval2);
 		}
 		printf("\n");
@@ -779,7 +780,7 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		    len -= uleblen;
 		    off += uleblen;
 		    printf("\t%2u DW_CFA_val_offset ", loff);
-		    printreg((Dwarf_Signed) uval,config_data);
+		    printreg((Dwarf_Signed) uval, config_data);
 		    printf(" %lld", (unsigned long long)
 			   (((Dwarf_Signed) uval2) *
 			    data_alignment_factor));
@@ -800,11 +801,12 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		    Dwarf_Signed sval2 =
 			local_dwarf_decode_s_leb128(instp + 1,
 						    &uleblen);
+
 		    instp += uleblen;
 		    len -= uleblen;
 		    off += uleblen;
 		    printf("\t%2u DW_CFA_val_offset_sf ", loff);
-		    printreg((Dwarf_Signed) uval,config_data);
+		    printreg((Dwarf_Signed) uval, config_data);
 		    printf(" %lld", (signed long long)
 			   ((sval2) * data_alignment_factor));
 		    if (verbose) {
@@ -824,6 +826,7 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		    Dwarf_Unsigned block_len =
 			local_dwarf_decode_u_leb128(instp + 1,
 						    &uleblen);
+
 		    instp += uleblen;
 		    len -= uleblen;
 		    off += uleblen;
@@ -832,7 +835,8 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 			 loff, (unsigned long long) uval,
 			 (unsigned long long)
 			 block_len);
-		    dump_block("\t\t", (char *) instp, (Dwarf_Signed)block_len);
+		    dump_block("\t\t", (char *) instp,
+			       (Dwarf_Signed) block_len);
 		    instp += block_len;
 		    len -= block_len;
 		    off += block_len;
@@ -898,7 +902,8 @@ void
 printreg(Dwarf_Signed reg, struct dwconf_s *config_data)
 {
     char *intfmt = "r%lld";
-    print_reg_from_config_data(intfmt,reg,config_data);
+
+    print_reg_from_config_data(intfmt, reg, config_data);
 }
 
 
@@ -908,73 +913,72 @@ printreg(Dwarf_Signed reg, struct dwconf_s *config_data)
 */
 
 static void
-print_one_frame_reg_col( Dwarf_Unsigned rule_id,
-			  Dwarf_Small value_type,
-		Dwarf_Unsigned reg_used,
-			  struct dwconf_s *config_data,
-			 Dwarf_Signed offset_relevant,
-			  Dwarf_Signed offset, 
-		Dwarf_Ptr block_ptr)
+print_one_frame_reg_col(Dwarf_Unsigned rule_id,
+			Dwarf_Small value_type,
+			Dwarf_Unsigned reg_used,
+			struct dwconf_s *config_data,
+			Dwarf_Signed offset_relevant,
+			Dwarf_Signed offset, Dwarf_Ptr block_ptr)
 {
-    char * type_title = "";
+    char *type_title = "";
     int print_type_title = 1;
 
     if (config_data->cf_interface_number == 2)
-		print_type_title = 0;
+	print_type_title = 0;
 
-	switch (value_type) {
-	case DW_EXPR_OFFSET:
-	    type_title = "off";
-	    goto preg2;
-	case DW_EXPR_VAL_OFFSET:
-	    type_title = "valoff";
-	  preg2:
-	    if (reg_used == config_data->cf_initial_rule_value) {
-		break;
-	    }
-	    if (print_type_title)
-		printf("<%s ", type_title);
-	    printreg((Dwarf_Signed) rule_id, config_data);
-	    printf("=");
-	    if (offset_relevant == 0) {
-		printreg((Dwarf_Signed) reg_used, config_data);
-		printf(" ");
-	    } else {
-		printf("%02lld", offset);
-		printf("(");
-		printreg((Dwarf_Signed) reg_used, config_data);
-		printf(") ");
-	    }
-	    if (print_type_title)
-		printf("%s","> ");
+    switch (value_type) {
+    case DW_EXPR_OFFSET:
+	type_title = "off";
+	goto preg2;
+    case DW_EXPR_VAL_OFFSET:
+	type_title = "valoff";
+      preg2:
+	if (reg_used == config_data->cf_initial_rule_value) {
 	    break;
-	case DW_EXPR_EXPRESSION:
-	    type_title = "expr";
-	    goto pexp2;
-	case DW_EXPR_VAL_EXPRESSION:
-	    type_title = "valexpr";
-	  pexp2:
-	    if (print_type_title)
-		printf("<%s ", type_title);
-	    printreg((Dwarf_Signed) rule_id, config_data);
-	    printf("=");
-	    printf("expr-block-len=%lld", (long long) offset);
-	    if (print_type_title)
-		printf("%s","> ");
-	    if (verbose) {
-		char pref[40];
-
-		strcpy(pref, "<");
-	        strcat(pref, type_title);
-	        strcat(pref, "bytes:");
-		dump_block(pref, block_ptr, offset);
-		printf("%s","> ");
-	    }
-	    break;
-	default:
-	    printf("Internal error in libdwarf, value type %d\n",
-		   value_type);
-		exit(1);
 	}
+	if (print_type_title)
+	    printf("<%s ", type_title);
+	printreg((Dwarf_Signed) rule_id, config_data);
+	printf("=");
+	if (offset_relevant == 0) {
+	    printreg((Dwarf_Signed) reg_used, config_data);
+	    printf(" ");
+	} else {
+	    printf("%02lld", offset);
+	    printf("(");
+	    printreg((Dwarf_Signed) reg_used, config_data);
+	    printf(") ");
+	}
+	if (print_type_title)
+	    printf("%s", "> ");
+	break;
+    case DW_EXPR_EXPRESSION:
+	type_title = "expr";
+	goto pexp2;
+    case DW_EXPR_VAL_EXPRESSION:
+	type_title = "valexpr";
+      pexp2:
+	if (print_type_title)
+	    printf("<%s ", type_title);
+	printreg((Dwarf_Signed) rule_id, config_data);
+	printf("=");
+	printf("expr-block-len=%lld", (long long) offset);
+	if (print_type_title)
+	    printf("%s", "> ");
+	if (verbose) {
+	    char pref[40];
+
+	    strcpy(pref, "<");
+	    strcat(pref, type_title);
+	    strcat(pref, "bytes:");
+	    dump_block(pref, block_ptr, offset);
+	    printf("%s", "> ");
+	}
+	break;
+    default:
+	printf("Internal error in libdwarf, value type %d\n",
+	       value_type);
+	exit(1);
+    }
     return;
 }

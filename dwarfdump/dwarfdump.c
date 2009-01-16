@@ -69,8 +69,8 @@ boolean use_old_dwarf_loclist = FALSE;	/* This so both dwarf_loclist()
 
 static boolean line_flag = FALSE;
 static boolean abbrev_flag = FALSE;
-static boolean frame_flag = FALSE;    /* .debug_frame section. */
-static boolean eh_frame_flag = FALSE; /* GNU .eh_frame section. */
+static boolean frame_flag = FALSE;	/* .debug_frame section. */
+static boolean eh_frame_flag = FALSE;	/* GNU .eh_frame section. */
 static boolean exceptions_flag = FALSE;
 static boolean pubnames_flag = FALSE;
 static boolean macinfo_flag = FALSE;
@@ -100,24 +100,24 @@ static boolean dwarf_check = FALSE;
 /* These configure items are for the 
    frame data.
 */
-static char * config_file_path = 0;
-static char * config_file_abi = 0;
-static char * config_file_defaults[] = {
-	"./dwarfdump.conf",
-	/* Note: HOME location uses .dwarfdump.  */
-	"HOME/.dwarfdump.conf",
+static char *config_file_path = 0;
+static char *config_file_abi = 0;
+static char *config_file_defaults[] = {
+    "./dwarfdump.conf",
+    /* Note: HOME location uses .dwarfdump.  */
+    "HOME/.dwarfdump.conf",
 #ifdef CONFPREFIX
 /* See Makefile.in  "libdir"  and CFLAGS  */
 /* We need 2 levels of macro to get the name turned into
    the string we want. */
 #define STR2(s) # s
 #define STR(s)  STR2(s)
-	STR(CONFPREFIX)
+    STR(CONFPREFIX)
 	"/dwarfdump.conf",
 #else
-	"/usr/lib/dwarfdump.conf",
+    "/usr/lib/dwarfdump.conf",
 #endif
-	0
+    0
 };
 static struct dwconf_s config_file_data;
 
@@ -139,12 +139,13 @@ Dwarf_Error err;
 }
 
 static int process_one_file(Elf * elf, string file_name, int archive,
-	struct dwconf_s *conf);
+			    struct dwconf_s *conf);
 
 static int
 open_a_file(string name)
 {
     int f = 0;
+
 #ifdef __CYGWIN__
     f = open(name, O_RDONLY | O_BINARY);
 #else
@@ -200,11 +201,13 @@ main(int argc, char *argv[])
 		/* not a 64-bit obj either! */
 		/* dwarfdump is quiet when not an object */
 	    } else {
-		process_one_file(elf, file_name, archive,&config_file_data);
+		process_one_file(elf, file_name, archive,
+				 &config_file_data);
 	    }
 #endif /* HAVE_ELF64_GETEHDR */
 	} else {
-	    process_one_file(elf, file_name, archive, &config_file_data);
+	    process_one_file(elf, file_name, archive,
+			     &config_file_data);
 	}
 	cmd = elf_next(elf);
 	elf_end(elf);
@@ -223,7 +226,7 @@ main(int argc, char *argv[])
 */
 static int
 process_one_file(Elf * elf, string file_name, int archive,
-	struct dwconf_s *config_file_data)
+		 struct dwconf_s *config_file_data)
 {
     Dwarf_Debug dbg;
     int dres;
@@ -244,9 +247,11 @@ process_one_file(Elf * elf, string file_name, int archive,
 	       mem_header ? mem_header->ar_name : "");
     }
     dwarf_set_frame_rule_inital_value(dbg,
-		config_file_data->cf_initial_rule_value);
+				      config_file_data->
+				      cf_initial_rule_value);
     dwarf_set_frame_rule_table_size(dbg,
-		config_file_data->cf_regs_table_size);
+				    config_file_data->
+				    cf_regs_table_size);
 
     if (info_flag || line_flag || cu_name_flag)
 	print_infos(dbg);
@@ -264,19 +269,19 @@ process_one_file(Elf * elf, string file_name, int archive,
 	print_aranges(dbg);
     if (frame_flag || eh_frame_flag) {
 	current_cu_die_for_print_frames = 0;
-	print_frames(dbg,frame_flag,eh_frame_flag,config_file_data);
+	print_frames(dbg, frame_flag, eh_frame_flag, config_file_data);
     }
     if (static_func_flag)
 	print_static_funcs(dbg);
     if (static_var_flag)
 	print_static_vars(dbg);
     /* DWARF_PUBTYPES is the standard typenames dwarf section.
-       SGI_TYPENAME is the same concept but is SGI specific ( it
-       was defined 10 years before dwarf pubtypes). */
+       SGI_TYPENAME is the same concept but is SGI specific ( it was
+       defined 10 years before dwarf pubtypes). */
 
     if (type_flag) {
-	print_types(dbg,DWARF_PUBTYPES);
-	print_types(dbg,SGI_TYPENAME);
+	print_types(dbg, DWARF_PUBTYPES);
+	print_types(dbg, SGI_TYPENAME);
     }
     if (weakname_flag)
 	print_weaknames(dbg);
@@ -315,40 +320,41 @@ process_args(int argc, char *argv[])
 
     program_name = argv[0];
 
-	/* j q unused */
+    /* j q unused */
     while ((c =
-	    getopt(argc, argv, "abcdefFghik:lmoprst:u:vwx:yz")) != EOF) {
+	    getopt(argc, argv,
+		   "abcdefFghik:lmoprst:u:vwx:yz")) != EOF) {
 	switch (c) {
-	case 'x': /* Select abi/path to use */
-	{
-	    char *path = 0;
-	    char * abi = 0;
-		/* -x name=<path> meaning name dwarfdump.conf file 
-		   -x abi=<abi>  meaning select abi from dwarfdump.conf file. 
-		    Must always select abi to use dwarfdump.conf
-		*/
-            if(strncmp(optarg,"name=",5) == 0) {
-		path = makename(&optarg[5]);
-	        if(strlen(path) < 1)
-		  goto badopt;
-		config_file_path = path;
-	    } else if (strncmp(optarg,"abi=",4) == 0) {
-		abi = makename(&optarg[4]);
-	        if(strlen(abi) < 1)
-		  goto badopt;
-		config_file_abi = abi;
-		break;
-	    } else {
-		badopt:
-	        fprintf(stderr,"-x name=<path-to-conf> \n");
-	        fprintf(stderr," and  \n");
-	        fprintf(stderr,"-x abi=<abi-in-conf> \n");
-	        fprintf(stderr,"are legal, not -x %s\n",optarg);
-		usage_error = TRUE;
-		break;
+	case 'x':		/* Select abi/path to use */
+	    {
+		char *path = 0;
+		char *abi = 0;
+
+		/* -x name=<path> meaning name dwarfdump.conf file -x
+		   abi=<abi> meaning select abi from dwarfdump.conf
+		   file. Must always select abi to use dwarfdump.conf */
+		if (strncmp(optarg, "name=", 5) == 0) {
+		    path = makename(&optarg[5]);
+		    if (strlen(path) < 1)
+			goto badopt;
+		    config_file_path = path;
+		} else if (strncmp(optarg, "abi=", 4) == 0) {
+		    abi = makename(&optarg[4]);
+		    if (strlen(abi) < 1)
+			goto badopt;
+		    config_file_abi = abi;
+		    break;
+		} else {
+		  badopt:
+		    fprintf(stderr, "-x name=<path-to-conf> \n");
+		    fprintf(stderr, " and  \n");
+		    fprintf(stderr, "-x abi=<abi-in-conf> \n");
+		    fprintf(stderr, "are legal, not -x %s\n", optarg);
+		    usage_error = TRUE;
+		    break;
+		}
 	    }
-	}
-	break;
+	    break;
 	case 'g':
 	    use_old_dwarf_loclist = TRUE;
 	    /* FALL THROUGH. */
@@ -472,19 +478,20 @@ process_args(int argc, char *argv[])
 	    break;
 	}
     }
-    
+
     init_conf_file_data(&config_file_data);
-    if(config_file_abi && (frame_flag || eh_frame_flag)) {
-      int res = find_conf_file_and_read_config( 
-		config_file_path,
-		config_file_abi,
-		config_file_defaults,
-		&config_file_data);
-      if(res > 0) {
-        printf("Frame not configured due to error(s). Giving up.\n");
-        eh_frame_flag = FALSE;
-        frame_flag =FALSE;
-      }
+    if (config_file_abi && (frame_flag || eh_frame_flag)) {
+	int res = find_conf_file_and_read_config(config_file_path,
+						 config_file_abi,
+						 config_file_defaults,
+						 &config_file_data);
+
+	if (res > 0) {
+	    printf
+		("Frame not configured due to error(s). Giving up.\n");
+	    eh_frame_flag = FALSE;
+	    frame_flag = FALSE;
+	}
     }
     if (usage_error || (optind != (argc - 1))) {
 	print_usage_message();
@@ -496,43 +503,43 @@ process_args(int argc, char *argv[])
 static void
 print_usage_message(void)
 {
-        fprintf(stderr, "Usage:  %s <options> <object file>\n",
-                program_name);
-        fprintf(stderr, "options:\t-a\tprint all .debug_* sections\n");
-        fprintf(stderr, "\t\t-b\tprint abbrev section\n");
-        fprintf(stderr, "\t\t-c\tprint loc section\n");
-        fprintf(stderr,
-                "\t\t-d\tdense: one line per entry (info section only)\n");
-        fprintf(stderr,
-                "\t\t-e\tellipsis: short names for tags, attrs etc.\n");
-        fprintf(stderr, "\t\t-f\tprint dwarf frame section\n");
-        fprintf(stderr, "\t\t-F\tprint gnu .eh_frame section\n");
-        fprintf(stderr, "\t\t-g\t(use incomplete loclist support)\n");
-        fprintf(stderr, "\t\t-h\tprint exception tables\n");
-        fprintf(stderr, "\t\t-i\tprint info section\n");
-        fprintf(stderr, "\t\t-k[aerty] check dwarf information\n");
-        fprintf(stderr, "\t\t   a\tdo all checks\n");
-        fprintf(stderr, "\t\t   e\texamine attributes of pubnames\n");
-        fprintf(stderr, "\t\t   r\texamine attr-tag relation\n");
-        fprintf(stderr, "\t\t   t\texamine tag trees\n");
-        fprintf(stderr, "\t\t   y\texamine type info\n");
-        fprintf(stderr, "\t\t-l\tprint line section\n");
-        fprintf(stderr, "\t\t-m\tprint macinfo section\n");
-        fprintf(stderr, "\t\t-o\tprint relocation info\n");
-        fprintf(stderr, "\t\t-p\tprint pubnames section\n");
-        fprintf(stderr, "\t\t-r\tprint aranges section\n");
-        fprintf(stderr, "\t\t-s\tprint string section\n");
-        fprintf(stderr, "\t\t-t[afv] static: \n");
-        fprintf(stderr, "\t\t   a\tprint both sections\n");
-        fprintf(stderr, "\t\t   f\tprint static func section\n");
-        fprintf(stderr, "\t\t   v\tprint static var section\n");
-        fprintf(stderr,
-                "\t\t-u<file> print sections only for specified file\n");
-        fprintf(stderr, "\t\t-v\tverbose: show more information\n");
-        fprintf(stderr, "\t\t-x name=<path>\tname dwarfdump.conf\n");
-        fprintf(stderr, "\t\t-x abi=<abi>\tname abi in dwarfdump.conf\n");
-        fprintf(stderr, "\t\t-w\tprint weakname section\n");
-        fprintf(stderr, "\t\t-y\tprint type section\n");
+    fprintf(stderr, "Usage:  %s <options> <object file>\n",
+	    program_name);
+    fprintf(stderr, "options:\t-a\tprint all .debug_* sections\n");
+    fprintf(stderr, "\t\t-b\tprint abbrev section\n");
+    fprintf(stderr, "\t\t-c\tprint loc section\n");
+    fprintf(stderr,
+	    "\t\t-d\tdense: one line per entry (info section only)\n");
+    fprintf(stderr,
+	    "\t\t-e\tellipsis: short names for tags, attrs etc.\n");
+    fprintf(stderr, "\t\t-f\tprint dwarf frame section\n");
+    fprintf(stderr, "\t\t-F\tprint gnu .eh_frame section\n");
+    fprintf(stderr, "\t\t-g\t(use incomplete loclist support)\n");
+    fprintf(stderr, "\t\t-h\tprint exception tables\n");
+    fprintf(stderr, "\t\t-i\tprint info section\n");
+    fprintf(stderr, "\t\t-k[aerty] check dwarf information\n");
+    fprintf(stderr, "\t\t   a\tdo all checks\n");
+    fprintf(stderr, "\t\t   e\texamine attributes of pubnames\n");
+    fprintf(stderr, "\t\t   r\texamine attr-tag relation\n");
+    fprintf(stderr, "\t\t   t\texamine tag trees\n");
+    fprintf(stderr, "\t\t   y\texamine type info\n");
+    fprintf(stderr, "\t\t-l\tprint line section\n");
+    fprintf(stderr, "\t\t-m\tprint macinfo section\n");
+    fprintf(stderr, "\t\t-o\tprint relocation info\n");
+    fprintf(stderr, "\t\t-p\tprint pubnames section\n");
+    fprintf(stderr, "\t\t-r\tprint aranges section\n");
+    fprintf(stderr, "\t\t-s\tprint string section\n");
+    fprintf(stderr, "\t\t-t[afv] static: \n");
+    fprintf(stderr, "\t\t   a\tprint both sections\n");
+    fprintf(stderr, "\t\t   f\tprint static func section\n");
+    fprintf(stderr, "\t\t   v\tprint static var section\n");
+    fprintf(stderr,
+	    "\t\t-u<file> print sections only for specified file\n");
+    fprintf(stderr, "\t\t-v\tverbose: show more information\n");
+    fprintf(stderr, "\t\t-x name=<path>\tname dwarfdump.conf\n");
+    fprintf(stderr, "\t\t-x abi=<abi>\tname abi in dwarfdump.conf\n");
+    fprintf(stderr, "\t\t-w\tprint weakname section\n");
+    fprintf(stderr, "\t\t-y\tprint type section\n");
 
 }
 
@@ -674,7 +681,7 @@ print_infos(Dwarf_Debug dbg)
 
 	fprintf(stderr, "%s ERROR:  %s:  %s (%lu)\n",
 		program_name, "attempting to print .debug_info",
-		errmsg, (unsigned long)myerr);
+		errmsg, (unsigned long) myerr);
 	fprintf(stderr, "attempting to continue.\n");
     }
 }
@@ -689,7 +696,7 @@ print_error(Dwarf_Debug dbg, string msg, int dwarf_code,
 	Dwarf_Unsigned myerr = dwarf_errno(err);
 
 	fprintf(stderr, "%s ERROR:  %s:  %s (%lu)\n",
-		program_name, msg, errmsg, (unsigned long)myerr);
+		program_name, msg, errmsg, (unsigned long) myerr);
     } else if (dwarf_code == DW_DLV_NO_ENTRY) {
 	fprintf(stderr, "%s NO ENTRY:  %s: \n", program_name, msg);
     } else if (dwarf_code == DW_DLV_OK) {

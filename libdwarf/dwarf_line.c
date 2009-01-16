@@ -313,11 +313,11 @@ _dwarf_internal_srclines(Dwarf_Die die,
     Dwarf_Word line = 1;
     Dwarf_Word column = 0;
 
-    /* phony init. See below for  true initialization. */
-    Dwarf_Bool is_stmt = false; 
+    /* phony init. See below for true initialization. */
+    Dwarf_Bool is_stmt = false;
 
     Dwarf_Bool basic_block = false;
-    Dwarf_Bool prologue_end =false;
+    Dwarf_Bool prologue_end = false;
     Dwarf_Bool epilogue_begin = false;
     Dwarf_Small isa = 0;
     Dwarf_Bool end_sequence = false;
@@ -328,7 +328,7 @@ _dwarf_internal_srclines(Dwarf_Die die,
        prev_file_entry to the previous one. */
     Dwarf_File_Entry cur_file_entry, prev_file_entry;
 
-    Dwarf_Sword i = 0; 
+    Dwarf_Sword i = 0;
     Dwarf_Sword file_entry_count = 0;
 
     /* 
@@ -506,8 +506,8 @@ _dwarf_internal_srclines(Dwarf_Die die,
     }
 
 
-    /* Initialize the one state machine variable that depends
-       on the prefix.  */
+    /* Initialize the one state machine variable that depends on the
+       prefix.  */
     is_stmt = prefix.pf_default_is_stmt;
 
 

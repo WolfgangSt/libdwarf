@@ -1,4 +1,7 @@
 2006-04-18 David Anderson <davea@sgi.com>
+     * *.c: Ran indent so all now follow a standard look.
+     * dwconf.c: Added fclose(conf_stream).
+2006-04-18 David Anderson <davea@sgi.com>
      * dwarfdump.c: Forgot to call key new functions for
        handling variable-size frame data and different 
        frame rule initialization value.

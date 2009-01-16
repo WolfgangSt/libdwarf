@@ -49,18 +49,23 @@ dwarf_get_weaks(Dwarf_Debug dbg,
     int res;
 
     res =
-       _dwarf_load_section(dbg,
-		           dbg->de_debug_weaknames_index,
-			   &dbg->de_debug_weaknames,
-		           error);
+	_dwarf_load_section(dbg,
+			    dbg->de_debug_weaknames_index,
+			    &dbg->de_debug_weaknames, error);
     if (res != DW_DLV_OK) {
 	return res;
     }
 
-    return _dwarf_internal_get_pubnames_like_data(dbg, dbg->de_debug_weaknames, dbg->de_debug_weaknames_size, 
-        (Dwarf_Global **) weaks,	/* type punning, Dwarf_Type 
-		is never a completed type */ 
-	ret_weak_count,
+    return _dwarf_internal_get_pubnames_like_data(dbg, dbg->de_debug_weaknames, dbg->de_debug_weaknames_size, (Dwarf_Global **) weaks,	/* type 
+																	   punning, 
+																	   Dwarf_Type 
+																	   is 
+																	   never 
+																	   a 
+																	   completed 
+																	   type 
+																	 */
+						  ret_weak_count,
 						  error,
 						  DW_DLA_WEAK_CONTEXT,
 						  DW_DLA_WEAK,
@@ -75,14 +80,14 @@ dwarf_get_weaks(Dwarf_Debug dbg,
 */
 
 void
-dwarf_weaks_dealloc(Dwarf_Debug dbg, Dwarf_Weak *dwgl, Dwarf_Signed count)
+dwarf_weaks_dealloc(Dwarf_Debug dbg, Dwarf_Weak * dwgl,
+		    Dwarf_Signed count)
 {
-   _dwarf_internal_globals_dealloc(dbg, (Dwarf_Global *)dwgl,
-                count,
-        DW_DLA_WEAK_CONTEXT,
-        DW_DLA_WEAK,
-        DW_DLA_LIST);
-   return;
+    _dwarf_internal_globals_dealloc(dbg, (Dwarf_Global *) dwgl,
+				    count,
+				    DW_DLA_WEAK_CONTEXT,
+				    DW_DLA_WEAK, DW_DLA_LIST);
+    return;
 }
 
 
