@@ -1,6 +1,7 @@
 /*
 
   Copyright (C) 2000,2002,2003,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright (C) 2007  David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -164,7 +165,6 @@ struct Dwarf_Debug_s {
     struct Dwarf_Alloc_Hdr_s de_alloc_hdr[ALLOC_AREA_REAL_TABLE_MAX];
 #ifdef DWARF_SIMPLE_MALLOC
     struct simple_malloc_record_s *  de_simple_malloc_base;
-    struct simple_malloc_record_s *  de_simple_malloc_current;
 #endif
     
 

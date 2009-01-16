@@ -42,6 +42,7 @@ $Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/dwarfdump.c,v 1.48 200
 */
 
 
+
 #include "globals.h"
 
 /* for 'open' */
@@ -224,6 +225,10 @@ main(int argc, char *argv[])
 	elf_end(elf);
     }
     elf_end(arf);
+    /* Trivial malloc space cleanup. */
+    clean_up_die_esb();
+    clean_up_syms_malloc_data();
+
     if (check_error)
 	return FAILED;
     else

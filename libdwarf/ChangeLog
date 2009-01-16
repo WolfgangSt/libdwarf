@@ -1,3 +1,11 @@
+2007-10-15 David Anderson <davea42@earthlink.net>
+      * dwarf_alloc.c: The code supporting the special build
+        flag DWARF_SIMPLE_MALLOC
+        was broken and could coredump libdwarf
+        (which did not affect normal use of libdwarf).
+      * dwarf_opaque.h: Remove the field de_simple_malloc_current
+        as it is no longer used.
+
 2007-09-04 David Anderson <davea42@earthlink.net>
       * pro_forms.c: Add commentary relating to the
         recent DWARF4 DW_AT_high_pc change.

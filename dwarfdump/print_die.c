@@ -32,7 +32,8 @@
   http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 
-$Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/print_die.c,v 1.51 2006/04/01 16:20:21 davea Exp $ */
+$ Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/print_die.c,v 1.51 2006/04/01 16:20:21 davea Exp $ */
+
 #include "globals.h"
 #include "dwarf_names.h"
 #include "esb.h"		/* For flexible string buffer. */
@@ -56,6 +57,8 @@ static int _dwarf_print_one_expr_op(Dwarf_Debug dbg,Dwarf_Loc* expr,int index, s
    It is not thread-safe or
    safe for multiple open producer instances for
    but that does not matter here in dwarfdump.
+
+   The memory used by esb_base is never freed.
 */
 static struct esb_s esb_base;	
 
@@ -1283,6 +1286,15 @@ get_attr_value(Dwarf_Debug dbg, Dwarf_Half tag, Dwarf_Attribute attrib,
 
 	esb_append(esbp, form_indir);
     }
+}
+
+/* A cleanup so that when using a memory checker
+   we don't show irrelevant leftovers.
+*/
+void
+clean_up_die_esb()
+{
+   esb_destructor(&esb_base);
 }
 
 #include "_tag_attr_table.c"

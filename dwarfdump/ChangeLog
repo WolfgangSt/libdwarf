@@ -1,3 +1,11 @@
+2007-10-15 DavidAnderson <davea42@earthlink.net>
+     * print_die.c (clean_up_die_esb): New function
+       cleans up malloc space.
+     * print_reloc.c (clean_up_syms_malloc_data): New function
+       cleans up malloc space.
+     * dwarfdump.c (main): Call new cleanup functions at end.
+     * globals.h: Declare new cleanup functions.
+
 2007-09-04 DavidAnderson <davea42@earthlink.net>
      * print_die.c (print_attribute): For DWARF4: DW_AT_high_pc:
        add qualifier to value when the value is an offset from

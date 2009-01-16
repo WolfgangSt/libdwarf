@@ -725,6 +725,9 @@ dwarf_dealloc(Dwarf_Debug dbg,
 		dbg->de_debug_weaknames + dbg->de_debug_weaknames_size)
 		return;
 
+#ifdef DWARF_SIMPLE_MALLOC
+            _dwarf_simple_malloc_delete_from_list(dbg, space, type);
+#endif
 	    free(space);
 	    return;
 	}
@@ -733,6 +736,9 @@ dwarf_dealloc(Dwarf_Debug dbg,
 	    type == DW_DLA_FRAME_BLOCK ||
 	    type == DW_DLA_LOC_BLOCK || type == DW_DLA_ADDR) {
 
+#ifdef DWARF_SIMPLE_MALLOC
+            _dwarf_simple_malloc_delete_from_list(dbg, space, type);
+#endif
 	    free(space);
 	    return;
 	}
@@ -1070,7 +1076,6 @@ _dwarf_free_all_of_one_debug(Dwarf_Debug dbg)
 	    free(prev_smp);
 	}
 	dbg->de_simple_malloc_base = 0;
-	dbg->de_simple_malloc_current = 0;
     }
 #else
     for (i = 1; i < ALLOC_AREA_REAL_TABLE_MAX; i++) {
@@ -1139,6 +1144,7 @@ _dwarf_free_special_error(Dwarf_Ptr space)
 void
 _dwarf_simple_malloc_botch(int err)
 {
+       fprintf(stderr,"simple malloc botch %d\n",err);
 }
 static void
 _dwarf_simple_malloc_add_to_list(Dwarf_Debug dbg,
@@ -1148,18 +1154,18 @@ _dwarf_simple_malloc_add_to_list(Dwarf_Debug dbg,
     struct simple_malloc_record_s *cur;
     struct simple_malloc_entry_s *newentry;
 
-    if (!dbg->de_simple_malloc_current) {
+    if (!dbg->de_simple_malloc_base) {
 	/* First entry to this routine. */
-	dbg->de_simple_malloc_current =
+	dbg->de_simple_malloc_base =
 	    malloc(sizeof(struct simple_malloc_record_s));
-	if (!dbg->de_simple_malloc_current) {
+	if (!dbg->de_simple_malloc_base) {
+	    _dwarf_simple_malloc_botch(7);
 	    return;		/* no memory, give up */
 	}
-	memset(dbg->de_simple_malloc_current,
+	memset(dbg->de_simple_malloc_base,
 	       0, sizeof(struct simple_malloc_record_s));
-	dbg->de_simple_malloc_base = dbg->de_simple_malloc_current;
     }
-    cur = dbg->de_simple_malloc_current;
+    cur = dbg->de_simple_malloc_base;
 
     if (cur->sr_used >= DSM_BLOCK_COUNT) {
 	/* better not be > than as that means chaos */
@@ -1169,12 +1175,13 @@ _dwarf_simple_malloc_add_to_list(Dwarf_Debug dbg,
 	struct simple_malloc_record_s *newblock =
 	    malloc(sizeof(struct simple_malloc_record_s));
 	if (!newblock) {
+	    _dwarf_simple_malloc_botch(8);
 	    return;		/* Can do nothing, out of memory */
 	}
 	memset(newblock, 0, sizeof(struct simple_malloc_record_s));
 	/* Link the new block at the head of the chain, and make it
 	   'current' */
-	dbg->de_simple_malloc_current = newblock;
+	dbg->de_simple_malloc_base = newblock;
 	newblock->sr_next = cur;
 	cur = newblock;
     }
@@ -1186,8 +1193,8 @@ _dwarf_simple_malloc_add_to_list(Dwarf_Debug dbg,
 }
 
 /*
-   DWARF_SIMPLE_MALLOC is for testing the hypothesis that the existing
-   complex malloc scheme in libdwarf is pointless complexity.
+   DWARF_SIMPLE_MALLOC: testing the hypothesis that the existing
+   malloc scheme here (see _dwarf_get_alloc()) is pointless complexity.
 
    DWARF_SIMPLE_MALLOC also makes it easy for a malloc-tracing
    tool to verify libdwarf malloc has no botches (though of course

@@ -1,5 +1,6 @@
 /* 
   Copyright (C) 2000,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright (C) 2007 David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2 of the GNU General Public License as
@@ -32,6 +33,7 @@
 
 
 $Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/globals.h,v 1.25 2006/04/17 00:09:56 davea Exp $ */
+
 #ifndef globals_INCLUDED
 #define globals_INCLUDED
 
@@ -212,6 +214,10 @@ dwarfdump_print_one_locdesc(Dwarf_Debug dbg,
                          Dwarf_Locdesc * llbuf,
 			 int skip_locdesc_header,
                          struct esb_s *string_out);
+void clean_up_die_esb();
+void clean_up_syms_malloc_data();
+
+
 
 
 #endif /* globals_INCLUDED */

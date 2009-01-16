@@ -42,6 +42,7 @@ $Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/print_reloc.c,v 1.11 2
 
 
 
+
 #include "globals.h"
 
 
@@ -201,8 +202,6 @@ static void *get_scndata(Elf_Scn * fd_scn, size_t * scn_size);
 static void print_relocinfo_64(Dwarf_Debug dbg, Elf * elf);
 static void print_relocinfo_32(Dwarf_Debug dbg, Elf * elf);
 
-static Elf32_Sym *sym;
-static Elf64_Sym *sym_64;
 static SYM *sym_data;
 static SYM64 *sym_data_64;
 
@@ -214,6 +213,7 @@ print_relocinfo(Dwarf_Debug dbg)
     int is_64bit;
     int res;
     int i;
+    Elf32_Sym *sym = 0;
 
     for (i = 0; i < DW_SECTION_REL_DEBUG_NUM; i++) {
 	sect_data[i].buf = 0;
@@ -244,6 +244,7 @@ print_relocinfo_64(Dwarf_Debug dbg, Elf * elf)
     Elf64_Shdr *shdr64;
     char *scn_name;
     int i;
+    Elf64_Sym *sym_64 = 0;
 
     if ((ehdr64 = elf64_getehdr(elf)) == NULL) {
 	print_error(dbg, "DW_ELF_GETEHDR_ERROR", DW_DLV_OK, err);
@@ -270,8 +271,9 @@ print_relocinfo_64(Dwarf_Debug dbg, Elf * elf)
 	    }
 	    count = sym_size / sizeof(Elf64_Sym);
 	    sym_64++;
-	    if ((sym_data_64 = read_64_syms(sym_64, count, elf,
-					    shdr64->sh_link)) == NULL) {
+            free(sym_data_64);
+	    sym_data_64 = read_64_syms(sym_64, count, elf, shdr64->sh_link);
+	    if (sym_data_64  == NULL) {
 		print_error(dbg, "problem reading symbol table data",
 			    DW_DLV_OK, err);
 	    }
@@ -310,6 +312,7 @@ print_relocinfo_32(Dwarf_Debug dbg, Elf * elf)
     Elf32_Shdr *shdr32;
     char *scn_name;
     int i;
+    Elf32_Sym  *sym = 0;
 
     if ((ehdr32 = elf32_getehdr(elf)) == NULL) {
 	print_error(dbg, "DW_ELF_GETEHDR_ERROR", DW_DLV_OK, err);
@@ -335,8 +338,9 @@ print_relocinfo_32(Dwarf_Debug dbg, Elf * elf)
 	    sym = (Elf32_Sym *) get_scndata(scn, &sym_size);
 	    count = sym_size / sizeof(Elf32_Sym);
 	    sym++;
-	    if ((sym_data = readsyms(sym, count, elf,
-				     shdr32->sh_link)) == NULL) {
+            free(sym_data);
+	    sym_data = readsyms(sym, count, elf, shdr32->sh_link);
+	    if (sym_data  == NULL) {
 		print_error(dbg, "problem reading symbol table data",
 			    DW_DLV_OK, err);
 	    }
@@ -495,4 +499,14 @@ get_scndata(Elf_Scn * fd_scn, size_t * scn_size)
     }
     *scn_size = p_data->d_size;
     return (p_data->d_buf);
+}
+
+/* Cleanup of malloc space (some of the pointers will be 0 here)
+   so dwarfdump looks 'clean' to a malloc checker.
+*/
+void
+clean_up_syms_malloc_data()
+{
+    free(sym_data);
+    free(sym_data_64);
 }
