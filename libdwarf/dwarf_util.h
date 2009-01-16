@@ -36,11 +36,11 @@
 
 
 /*
-    Decodes unsigned leb128 encoded numbers that 
-    are assumed to be less than 4 bytes long.  
+    Decodes unsigned leb128 encoded numbers.
     Make sure ptr is a pointer to a 1-byte type.  
-    Returns UINT_MAX on error.
-
+    In 2003 and earlier this was a hand-inlined
+    version of _dwarf_decode_u_leb128() which did
+    not work correctly if Dwarf_Word was 64 bits.
 */
 #define DECODE_LEB128_UWORD(ptr, value) \
     { \
@@ -52,6 +52,9 @@
 /*
     Decodes signed leb128 encoded numbers.
     Make sure ptr is a pointer to a 1-byte type.
+    In 2003 and earlier this was a hand-inlined
+    version of _dwarf_decode_s_leb128() which did
+    not work correctly if Dwarf_Word was 64 bits.
 
 */
 #define DECODE_LEB128_SWORD(ptr, value) \

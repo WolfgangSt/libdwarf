@@ -1,8 +1,8 @@
 2004-02-03 David Anderson <davea@sgi.com>
       * dwarf_util.h:  DECODE_LEB128_UWORD DECODE_LEB128_SWORD
         were simply wrong if  Dwarf_Word or
-        Dwarf_Sword longer than 4 bytes. Upper bits left random and
-        large values not extracted correcty.
+        Dwarf_Sword longer than 4 bytes. Upper bits left random. 
+        Large values not extracted correctly.
 
 2004-01-15 David Anderson <davea@sgi.com>
       * dwarf_alloc.c pro_alloc.c pro_init.c: changing BSD-ish bzero()
