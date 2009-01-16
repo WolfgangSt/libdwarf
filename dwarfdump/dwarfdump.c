@@ -30,7 +30,7 @@
   http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 
-$Header: /ptools/plroot/cmplrs.src/v7.4.1m/.RCS/PL/dwarfdump/RCS/dwarfdump.c,v 1.33 2002/05/14 19:03:48 davea Exp $ */
+$Header: /plroot/cmplrs.src/v7.4.2m/.RCS/PL/dwarfdump/RCS/dwarfdump.c,v 1.35 2003/05/20 18:06:24 davea Exp $ */
 #include "globals.h"
 
 /* for 'open' */
@@ -63,6 +63,9 @@ extern Dwarf_Die current_cu_die_for_print_frames;
 
 
 boolean info_flag = FALSE;
+boolean use_old_dwarf_loclist = FALSE; /* This so
+	both dwarf_loclist() and dwarf_loclist_n() can be
+	tested. Defaults to new dwarf_loclist_n() */
 
 static boolean line_flag = FALSE;
 static boolean abbrev_flag = FALSE;
@@ -275,8 +278,10 @@ process_args (int argc, char *argv[])
 
 	program_name = argv[0];
 
-	while ((c = getopt(argc, argv, "ailfhbprmcsvdeok:u:t:ywz")) != EOF) {
+	while ((c = getopt(argc, argv, "ailfghbprmcsvdeokg:u:t:ywz")) != EOF) {
 		switch (c) {
+		case 'g':
+			use_old_dwarf_loclist = TRUE;
 		case 'i':
 			info_flag = TRUE;
 			break;
@@ -402,6 +407,7 @@ process_args (int argc, char *argv[])
 		fprintf(stderr, "\t\t-d\tdense: one line per entry (info section only)\n");
 		fprintf(stderr, "\t\t-e\tellipsis: short names for tags, attrs etc.\n");
 		fprintf(stderr, "\t\t-f\tprint frame section\n");
+		fprintf(stderr, "\t\t-g\t(use incomplete loclist support)\n");
 		fprintf(stderr, "\t\t-h\tprint exception tables\n");
 		fprintf(stderr, "\t\t-i\tprint info section\n");
 		fprintf(stderr, "\t\t-k[aerty] check dwarf information\n");
@@ -441,7 +447,7 @@ print_infos (Dwarf_Debug dbg)
 	Dwarf_Unsigned next_cu_offset;
         int nres;
 
-	if (! dst_format && (info_flag || line_flag)) 
+	if (info_flag) 
 	    printf("\n.debug_info\n");
 
 	/* loop until it returns 0 */
@@ -536,12 +542,28 @@ print_infos (Dwarf_Debug dbg)
 		/* process a single compilation unit in .debug_info. */
 		sres = dwarf_siblingof(dbg, NULL,&cu_die, &err);
 		if(sres == DW_DLV_OK) {
-		  if (info_flag || cu_name_flag) {
-		    print_die_and_children(dbg, cu_die);
-		  }
-		  if (line_flag)
+		    if (info_flag || cu_name_flag) {
+		        Dwarf_Signed cnt = 0;
+		        char **srcfiles =  0;
+		        int srcf = dwarf_srcfiles(cu_die,
+				&srcfiles,&cnt,&err);
+		        if(srcf != DW_DLV_OK) {
+			    srcfiles = 0;
+			    cnt = 0;
+		        }
+				
+		        print_die_and_children(dbg, cu_die,srcfiles,cnt);
+		        if(srcf == DW_DLV_OK) {
+		          int si;
+		          for (si = 0; si < cnt; ++si) {
+                	      dwarf_dealloc(dbg, srcfiles[si], DW_DLA_STRING);
+        	          }
+                          dwarf_dealloc(dbg, srcfiles, DW_DLA_LIST);
+		        }
+		    }
+		    if (line_flag)
 			print_line_numbers_this_cu(dbg, cu_die);
-		  dwarf_dealloc(dbg, cu_die, DW_DLA_DIE);
+		    dwarf_dealloc(dbg, cu_die, DW_DLA_DIE);
 		} else if(sres == DW_DLV_NO_ENTRY) {
 			/* do nothing I guess.*/
 		} else {
@@ -559,6 +581,7 @@ print_infos (Dwarf_Debug dbg)
 	}
 }
 
+/* ARGSUSED */
 void
 print_error(Dwarf_Debug dbg, string msg,int dwarf_code, Dwarf_Error err)
 {

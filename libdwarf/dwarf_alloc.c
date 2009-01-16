@@ -65,6 +65,19 @@
 #include "dwarf_weaks.h"
 
 static void _dwarf_free_special_error(Dwarf_Ptr space);
+#ifdef DWARF_SIMPLE_MALLOC
+static void _dwarf_simple_malloc_add_to_list(Dwarf_Debug dbg,
+		Dwarf_Ptr addr, 
+		unsigned long size,
+        	short alloc_type);
+static void _dwarf_simple_malloc_delete_from_list(Dwarf_Debug dbg, 
+		Dwarf_Ptr space, 
+		short alloc_type);
+void _dwarf_simple_malloc_botch(int err);
+
+#endif /* DWARF_SIMPLE_MALLOC */
+
+
 
 
 /*
@@ -222,7 +235,7 @@ struct ial_s index_into_allocated[ALLOC_AREA_INDEX_TABLE_MAX] = {
     /* 41 DW_DLA_WEAK_CONTEXT */
 };
 
-
+#ifndef DWARF_SIMPLE_MALLOC
 
 /*
     This function is given a pointer to the header
@@ -398,6 +411,7 @@ _dwarf_find_memory(Dwarf_Alloc_Hdr alloc_hdr)
     return (ret_mem);
 }
 
+#endif /* ndef DWARF_SIMPLE_MALLOC */
 
 /*
     This function returns a pointer to a region
@@ -471,7 +485,12 @@ _dwarf_get_alloc(Dwarf_Debug dbg,
     } else {
 	alloc_hdr = &dbg->de_alloc_hdr[index];
 	if (alloc_hdr->ah_bytes_one_struct > 0) {
+#ifdef DWARF_SIMPLE_MALLOC
+	    size = alloc_hdr->ah_bytes_one_struct;
+#else
 	    return (_dwarf_find_memory(alloc_hdr));
+#endif
+
 	} else {
 	    /* Special case: should not really happen at all. */
 	    if (type == DW_DLA_ERROR) {
@@ -481,6 +500,9 @@ _dwarf_get_alloc(Dwarf_Debug dbg,
 	    } else {
 		/* If we get here, there is a disastrous programming
 		   error somewhere. */
+#ifdef DWARF_SIMPLE_MALLOC
+		_dwarf_simple_malloc_botch(3);
+#endif
 #ifdef DEBUG
 		fprintf(stderr,
 			"libdwarf Internal error: Type %d  unexpected\n",
@@ -491,6 +513,10 @@ _dwarf_get_alloc(Dwarf_Debug dbg,
     }
 
     ret_mem = malloc(size);
+#ifdef DWARF_SIMPLE_MALLOC
+    _dwarf_simple_malloc_add_to_list(dbg,ret_mem,(unsigned long)size,
+		alloc_type);
+#endif
     if (ret_mem != NULL)
 	bzero(ret_mem, size);
 
@@ -637,23 +663,27 @@ dwarf_dealloc(Dwarf_Debug dbg,
 	}
 	/* else is an alloc type that is not used */
 	/* app or internal error */
+#ifdef DWARF_SIMPLE_MALLOC
+        _dwarf_simple_malloc_botch(4);
+#endif
 	return;
 
     }
 
+#ifdef DWARF_SIMPLE_MALLOC
+    _dwarf_simple_malloc_delete_from_list(dbg, space, alloc_type);
+    free(space);
+#else  /* !DWARF_SIMPLE_MALLOC */
     alloc_hdr = &dbg->de_alloc_hdr[index];
 
     /* Get pointer to Dwarf_Alloc_Area this struct came from. See
        dwarf_alloc.h ROUND_SIZE_WITH_POINTER stuff */
     alloc_area = *(Dwarf_Alloc_Area *) ((char *) space - _DW_RESERVE);
 
-#if 0
-    if (alloc_area == 0) {
-	/* ERROR! This should not be null! We can either abort, or let
-	   it coredump below. Or return, pretending all is well. We go
-	   on, letting program crash. Is caller error. */
-    }
-#endif
+    /* ASSERT: alloc_area != NULL
+       If NULL we could abort, let it coredump below, 
+       or return, pretending all is well. We go
+       on, letting program crash. Is caller error. */
 
     /* 
        Check that the alloc_hdr field of the alloc_area we have is
@@ -703,6 +733,7 @@ dwarf_dealloc(Dwarf_Debug dbg,
 	((Dwarf_Free_List) space)->fl_next = alloc_area->aa_free_list;
 	alloc_area->aa_free_list = space;
     }
+#endif /* !DWARF_SIMPLE_MALLOC */
 }
 
 
@@ -872,6 +903,7 @@ dwarf_print_memory_stats(Dwarf_Debug dbg)
 }
 
 
+#ifndef DWARF_SIMPLE_MALLOC
 /*
     This function is used to recursively
     free the chunks still allocated, and
@@ -889,7 +921,7 @@ _dwarf_recursive_free(Dwarf_Alloc_Area alloc_area)
     alloc_area->aa_prev = 0;
     free(alloc_area);
 }
-
+#endif
 
 /*
     Used to free all space allocated for this Dwarf_Debug.
@@ -907,6 +939,30 @@ _dwarf_free_all_of_one_debug(Dwarf_Debug dbg)
     if (dbg == NULL)
 	return (DW_DLV_ERROR);
 
+#ifdef DWARF_SIMPLE_MALLOC
+    if(dbg->de_simple_malloc_base) {
+	struct simple_malloc_record_s *smp = dbg->de_simple_malloc_base;
+	while( smp)
+	{
+	    int i;
+	    struct simple_malloc_record_s *prev_smp = 0;
+
+	    for(i = 0; i < smp->sr_used; ++i) {
+	        struct simple_malloc_entry_s *cur;
+		cur = &smp->sr_entry[i];
+		if(cur->se_addr != 0) {
+		     free(cur->se_addr);
+		     cur->se_addr = 0;
+	        }
+	    }
+	    prev_smp = smp;
+	    smp = smp->sr_next;
+	    free(prev_smp);
+	}
+	dbg->de_simple_malloc_base = 0;
+	dbg->de_simple_malloc_current = 0;
+    }
+#else
     for (i = 1; i < ALLOC_AREA_REAL_TABLE_MAX; i++) {
 	int indx = i;
 
@@ -915,6 +971,8 @@ _dwarf_free_all_of_one_debug(Dwarf_Debug dbg)
 	    _dwarf_recursive_free(alloc_hdr->ah_alloc_area_head);
 	}
     }
+
+#endif
 
     bzero(dbg, sizeof(*dbg));	/* prevent accidental use later */
     free(dbg);
@@ -962,3 +1020,105 @@ _dwarf_free_special_error(Dwarf_Ptr space)
     mem -= _DW_RESERVE;
     free(mem);
 }
+
+
+#ifdef DWARF_SIMPLE_MALLOC
+/* here solely for planting a breakpoint. */
+/* ARGSUSED */
+void
+_dwarf_simple_malloc_botch(int err)
+{
+}
+static void   
+_dwarf_simple_malloc_add_to_list(Dwarf_Debug dbg,
+	Dwarf_Ptr addr, 
+	unsigned long size,
+	short alloc_type)
+{
+	struct simple_malloc_record_s *cur;
+	struct simple_malloc_entry_s *newentry;
+	if (!dbg->de_simple_malloc_current) {
+	  /* First entry to this routine. */
+	  dbg->de_simple_malloc_current = 
+		malloc(sizeof(struct simple_malloc_record_s));
+	  if(!dbg->de_simple_malloc_current) {
+		return; /* no memory, give up */
+	  }
+	  bzero(dbg->de_simple_malloc_current, 
+		sizeof(struct simple_malloc_record_s));
+	  dbg->de_simple_malloc_base = dbg->de_simple_malloc_current;
+	}
+	cur = dbg->de_simple_malloc_current;
+
+	if(cur->sr_used >= DSM_BLOCK_COUNT) {
+	    /* better not be > than as that means chaos */
+
+	    /* Create a new block to link at the head. */
+
+	    struct simple_malloc_record_s *newblock =
+	        malloc(sizeof(struct simple_malloc_record_s));
+	    if(!newblock) {
+		return; /* Can do nothing, out of memory */
+	    }
+	    bzero(newblock, sizeof(struct simple_malloc_record_s));
+	    /* Link the new block at the head of the chain,
+	       and make it 'current'
+	    */
+	    dbg->de_simple_malloc_current = newblock;
+	    newblock->sr_next = cur;
+	    cur = newblock;
+	}
+	newentry = &cur->sr_entry[cur->sr_used];
+	newentry->se_addr = addr;
+	newentry->se_size = size;
+	newentry->se_type = alloc_type;
+	++cur->sr_used;
+}
+/*
+   DWARF_SIMPLE_MALLOC is for testing the hypothesis that the existing
+   complex malloc scheme in libdwarf is pointless complexity.
+
+   DWARF_SIMPLE_MALLOC also makes it easy for a malloc-tracing
+   tool to verify libdwarf malloc has no botches (though of course
+   such does not test the complicated standard-libdwarf-alloc code).
+
+   To properly answer the question, the simple-malloc allocate
+   and delete should be something other than a simple list.
+   Perhaps a heap, or perhaps a red-black tree.
+
+*/
+static void
+_dwarf_simple_malloc_delete_from_list(Dwarf_Debug dbg, 
+	Dwarf_Ptr space, 
+	short alloc_type)
+{
+    if(space == 0) {
+	_dwarf_simple_malloc_botch(6);
+    }
+    if(dbg->de_simple_malloc_base) {
+        struct simple_malloc_record_s *smp = dbg->de_simple_malloc_base;
+        while( smp)
+        {
+            int i;
+
+            for(i = 0; i < smp->sr_used; ++i) {
+                struct simple_malloc_entry_s *cur;
+                cur = &smp->sr_entry[i];
+                if(cur->se_addr == space) {
+		     if(cur->se_type != alloc_type ) {
+			 _dwarf_simple_malloc_botch(0);
+		     }
+                     cur->se_addr = 0;
+		     return;
+                }
+            }
+            smp = smp->sr_next;
+        }
+    }
+    /* Never found the space */
+    _dwarf_simple_malloc_botch(1);
+    return;
+
+}
+#endif
+

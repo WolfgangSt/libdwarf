@@ -1,3 +1,31 @@
+2003-10-02   David Anderson <davea@sgi.com>
+     * dwarfdump.c: Add -g to indicate use of older 
+       location entry code in libdwarf.  So dwarf_loclist 
+       and dwarf_loclist_n are testable.
+     * globals.h: Added use_old_dwarf_loclist flag so one
+       can choose the old dwarf_loclist() interface.
+       For testing.
+     * print_die.c: Rearranged to avoid code duplication.
+       Now supports .debug_loc fully.
+     * print_sections.c: Prints .debug_loc now.
+
+2003-09-29   David Anderson <davea@sgi.com>
+
+      * print_die.c: with -v, print 'loclist' start and
+	end addr and also a hint that DW_FORM_indirect is used.
+        No change for normal output (for now).
+
+2003-05-19   David Anderson <davea@sgi.com>
+      * dwarfdump.c call dwarf_srcfiles() to get file names
+        per cu and pass down to die print routines.
+	Removed incorrect tests for when to print ".debug_info",
+	leaving simpler test.
+      * print_die.c globals.h: print file name (from line info)
+	with DW_AT_decl_file, adding data from dwarf_srcfiles
+	to argument list of a few routines to make that possible. 
+      * print_sections.c: moved "line number info" string print so
+	it prints for -v as well as normal  line ouput.
+
 2002-10-23   Amaury Le Leyzour amaury@sgi.com
       * print_sections.c (print_weaknames): Changed
         DW_DLA_TYPENAME to DW_DLA_WEAK at dwarf_dealloc().

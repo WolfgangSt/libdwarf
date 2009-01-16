@@ -31,7 +31,7 @@
 
 
 
-$Header: /ptools/plroot/cmplrs.src/v7.4.1m/.RCS/PL/dwarfdump/RCS/print_sections.c,v 1.50 2001/06/18 23:26:00 davea Exp $ */
+$Header: /plroot/cmplrs.src/v7.4.2m/.RCS/PL/dwarfdump/RCS/print_sections.c,v 1.53 2003/05/20 18:06:24 davea Exp $ */
 #include "globals.h"
 #include "dwarf_names.h"
 
@@ -101,6 +101,7 @@ print_line_numbers_this_cu (Dwarf_Debug dbg, Dwarf_Die cu_die)
 	int lires;
 	int cores;
 
+	printf("\nline number info\n");
 	if (verbose > 1) {
 	  lres = _dwarf_print_lines(cu_die,&err);
 	  if (lres == DW_DLV_ERROR) {
@@ -108,7 +109,6 @@ print_line_numbers_this_cu (Dwarf_Debug dbg, Dwarf_Die cu_die)
 	  }
 	  return;
 	}
-	printf("\nline number info\n");
 	lres = dwarf_srclines(cu_die,&linebuf,&linecount,&err);
 	if (lres == DW_DLV_ERROR) {
 	    print_error (dbg, "dwarf_srclines",lres, err);
@@ -1263,16 +1263,19 @@ print_locs (Dwarf_Debug dbg)
 	Dwarf_Unsigned next_entry;
 	int lres;
 
-	printf("\n.debug_loc\n");
+	printf("\n.debug_loc format <o b e l> means "
+		"section-offset begin-addr end-addr length-of-block-entry\n");
 	while ((lres = dwarf_get_loclist_entry (dbg, offset,
 		&hipc_offset, &lopc_offset, &data, &entry_len, 
 		&next_entry, &err)) == DW_DLV_OK) 
 	{
-		if (hipc_offset == 0 && lopc_offset == 0) {
-			break;
-		}
-		printf("\tlocation_list entry at %lld for %#llx to %#llx\n",
-			offset, lopc_offset, hipc_offset);
+		printf("\t <obel> 0x%08llx 0x%09llx "
+			"0x%08llx "
+			"%8lld\n",
+			(long long)offset, 
+			(long long)lopc_offset, 
+			(long long)hipc_offset, 
+			(long long)entry_len);
 		offset = next_entry;
 	}
 	if (lres == DW_DLV_ERROR) {
@@ -1520,7 +1523,9 @@ print_aranges (Dwarf_Debug dbg)
 		     	        printf(" cuhdr %llu",off);
                    	    }
 			    printf("\n");
-			    print_one_die(dbg, cu_die, (boolean)TRUE);
+			    print_one_die(dbg, cu_die, (boolean)TRUE,
+				/*srcfiles= */0,
+				/* cnt= */0);
 
 			    dwarf_dealloc(dbg, cu_die, DW_DLA_DIE);
 			}

@@ -1,5 +1,5 @@
 '\"#ident	"%W%"
-'\" $Source: /ptools/plroot/cmplrs.src/v7.4.1m/.RCS/PL/libdwarf/RCS/dwarf.v2.mm,v $
+'\" $Source: /plroot/cmplrs.src/v7.4.2m/.RCS/PL/libdwarf/RCS/dwarf.v2.mm,v $
 '\"
 '\" $Revision: 1.2 $
 '\"
@@ -48,10 +48,7 @@
 '\"	specification being made available from UNIX System Laboratories or 
 '\"	UNIX International members.
 '\"
-'\" $Log: dwarf.v2.mm,v $
-'\" Revision 1.2  2001/01/16 17:08:36  davea
-'\" Bringing in latest from osprey tree
-'\"
+'\" $Log$
 '\" Revision 1.1  1994/05/18 18:50:42  davea
 '\" Initial revision
 '\"

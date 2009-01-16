@@ -8,7 +8,7 @@
 .nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.49, 14 Aug 2002
+.ds vE rev 1.52, 02 Oct 2003
 \." ==============================================
 \." ==============================================
 .ds | |
@@ -1596,6 +1596,30 @@ to the attribute form code of
 the attribute represented by the \f(CWDwarf_Attribute\fP descriptor 
 \f(CWattr\fP.  
 It returns  \f(CWDW_DLV_ERROR\fP  on error.
+An attribute using DW_FORM_indirect effectively has two forms.
+This function returns the 'final' form for \f(CWDW_FORM_indirect\fP,
+not the \f(CWDW_FORM_indirect\fP itself. This function is
+what most applications will want to call.
+
+.H 3 "dwarf_whatform_direct()"
+.DS
+\f(CWint dwarf_whatform_direct(
+        Dwarf_Attribute attr,
+        Dwarf_Half     *return_form,
+        Dwarf_Error *error)\fP
+.DE
+When it succeeds,
+\f(CWdwarf_whatform_direct()\fP returns 
+\f(CWDW_DLV_OK\fP and sets \f(CW*return_form\fP
+to the attribute form code of 
+the attribute represented by the \f(CWDwarf_Attribute\fP descriptor 
+\f(CWattr\fP.  
+It returns  \f(CWDW_DLV_ERROR\fP  on error.
+An attribute using \f(CWDW_FORM_indirect\fP effectively has two forms.
+This returns the form 'directly' in the initial form field.
+So when the form field is \f(CWDW_FORM_indirect\fP
+this call returns the \f(CWDW_FORM_indirect\fP form, 
+which is sometimes useful for dump utilities.
 
 .H 3 "dwarf_whatattr()"
 .DS
@@ -1768,6 +1792,64 @@ be free'd using the allocation type \f(CWDW_DLA_STRING\fP when
 no longer of interest (see \f(CWdwarf_dealloc()\fP).  
 It returns \f(CWDW_DLV_ERROR\fP on error.
 
+.H 4 "dwarf_loclist_n()"
+.DS
+\f(CWint dwarf_loclist_n(
+        Dwarf_Attribute attr, 
+        Dwarf_Locdesc ***llbuf,
+        Dwarf_Signed  *listlen,
+        Dwarf_Error *error)\fP
+.DE
+The function \f(CWdwarf_loclist_n()\fP sets \f(CW*llbuf\fP to point to 
+an array of \f(CWDwarf_Locdesc\fP pointers corresponding to each of
+the location expressions in a location list, and sets
+\f(CW*listlen\fP to the number 
+of elements in the array and 
+returns \f(CWDW_DLV_OK\fP if the attribute is
+appropriate.
+.P
+This is the preferred function for Dwarf_Locdesc as
+it is the interface allowing access to an entire
+loclist. (use of \f(CWdwarf_loclist_n()\fP is
+suggested as the better interface, though 
+\f(CWdwarf_loclist()\fP is still
+supported.)
+.P
+It returns \f(CWDW_DLV_ERROR\fP on error. 
+\f(CWdwarf_loclist_n()\fP works on \f(CWDW_AT_location\fP, 
+\f(CWDW_AT_data_member_location\fP, \f(CWDW_AT_vtable_elem_location\fP,
+\f(CWDW_AT_string_length\fP, \f(CWDW_AT_use_location\fP, and 
+\f(CWDW_AT_return_addr\fP attributes.  
+.P
+Storage allocated by a successful call of \f(CWdwarf_loclist_n()\fP should 
+be deallocated when no longer of interest (see \f(CWdwarf_dealloc()\fP).
+The block of \f(CWDwarf_Loc\fP structs pointed to by the \f(CWld_s\fP 
+field of each \f(CWDwarf_Locdesc\fP structure 
+should be deallocated with the allocation type 
+\f(CWDW_DLA_LOC_BLOCK\fP. 
+and  the \f(CWllbuf[]\fP space pointed to should be deallocated with
+allocation type \f(CWDW_DLA_LOCDESC\fP.
+This should be followed by deallocation of the \f(CWllbuf\fP
+using the allocation type \f(CWDW_DLA_LIST\fP.
+.in +2
+.DS
+\f(CWDwarf_Signed lcnt;
+Dwarf_Locdesc **llbuf;
+int lres;
+
+if ((lres = dwarf_loclist_n(someattr, &llbuf,&lcnt &error)) == DW_DLV_OK) {
+        for (i = 0; i < lcnt; ++i) {
+            /* use llbuf[i] */
+
+            dwarf_dealloc(dbg, llbuf[i]->ld_s, DW_DLA_LOC_BLOCK);
+	    dwarf_dealloc(dbg,llbuf[i], DW_DLA_LOCDESC);
+        }
+        dwarf_dealloc(dbg, llbuf, DW_DLA_LIST);
+}\fP
+.DE
+.in -2
+.P
+
 .H 4 "dwarf_loclist()"
 .DS
 \f(CWint dwarf_loclist(
@@ -1777,17 +1859,27 @@ It returns \f(CWDW_DLV_ERROR\fP on error.
         Dwarf_Error *error)\fP
 .DE
 The function \f(CWdwarf_loclist()\fP sets \f(CW*llbuf\fP to point to 
-an array of \f(CWDwarf_Locdesc\fP pointers corresponding to each of
-the location expressions in a location list, and sets
-\f(CW*listlen\fP to the number 
-of elements in the array and returns \f(CWDW_DLV_OK\fP if the attribute is
+a \f(CWDwarf_Locdesc\fP pointer for the single location expression
+it can return.
+It sets
+\f(CW*listlen\fP to 1.
+and returns \f(CWDW_DLV_OK\fP 
+if the attribute is
 appropriate.
+.P
+It is less flexible than \f(CWdwarf_loclist_n()\fP in that
+\f(CWdwarf_loclist()\fP can handle a maximum of one
+location expression, not a full location list.
+If a location-list is present it returns only
+the first location-list entry location description.
+Use \f(CWdwarf_loclist_n()\fP instead.
+.P
 It returns \f(CWDW_DLV_ERROR\fP on error. 
 \f(CWdwarf_loclist()\fP works on \f(CWDW_AT_location\fP, 
 \f(CWDW_AT_data_member_location\fP, \f(CWDW_AT_vtable_elem_location\fP,
 \f(CWDW_AT_string_length\fP, \f(CWDW_AT_use_location\fP, and 
 \f(CWDW_AT_return_addr\fP attributes.  
-
+.P
 Storage allocated by a successful call of \f(CWdwarf_loclist()\fP should 
 be deallocated when no longer of interest (see \f(CWdwarf_dealloc()\fP).
 The block of \f(CWDwarf_Loc\fP structs pointed to by the \f(CWld_s\fP 
@@ -1802,14 +1894,21 @@ Dwarf_Locdesc *llbuf;
 int lres;
 
 if ((lres = dwarf_loclist(someattr, &llbuf,&lcnt &error)) == DW_DLV_OK) {
-        for (i = 0; i < lcnt; ++i) {
-            /* use llbuf[i] */
+	/* lcnt is always 1, (and has always been 1) */ */
+	/* use llbuf */
 
-            /* Deallocate Dwarf_Loc block of llbuf[i] */
-            dwarf_dealloc(dbg, llbuf[i].ld_s, DW_DLA_LOC_BLOCK);
-
-        }
+        dwarf_dealloc(dbg, llbuf->ld_s, DW_DLA_LOC_BLOCK);
         dwarf_dealloc(dbg, llbuf, DW_DLA_LOCDESC);
+/*      Earlier version. It works because lcnt is always 1.
+*         for (i = 0; i < lcnt; ++i) {
+*             /* use llbuf[i] */
+* 
+*             /* Deallocate Dwarf_Loc block of llbuf[i] */
+*             dwarf_dealloc(dbg, llbuf[i].ld_s, DW_DLA_LOC_BLOCK);
+*         }
+*         dwarf_dealloc(dbg, llbuf, DW_DLA_LOCDESC);
+*/
+
 }\fP
 .DE
 .in -2
@@ -3429,6 +3528,9 @@ It would be desirable to specify an interface.
 .DE
 \f(CWdwarf_dwarf_get_loclist_entry()\fP returns 
 \f(CWDW_DLV_OK\fP if successful.
+\f(CWDW_DLV_NO_ENTRY\fP is returned when the offset passed
+in is beyond the end of the .debug_loc section (expected if
+you start at offset zero and proceed thru all the entries). 
 \f(CWDW_DLV_ERROR\fP is returned on error. 
 The function reads 
 a location list entry starting at \f(CWoffset\fP and returns 
@@ -3438,9 +3540,6 @@ the high pc \f(CWhipc_offset\fP, low pc
 \f(CWdata\fP, the length of the location description data 
 \f(CWentry_len\fP, and the offset of the next location description 
 entry \f(CWnext_entry\fP.  
-When \f(CWhipc\fP and \f(CWlopc\fP are 
-zero, this is the end of a particular location list.  
-
 .P
 The \f(CWhipc_offset\fP,
 low pc \f(CWlopc_offset\fP are offsets from the beginning of the

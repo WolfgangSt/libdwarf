@@ -1,3 +1,6 @@
+Oct 02, 2003
+  Now fully supports .debug_loc section.
+
 June 14, 2001
   Now calling a new function dwarf_get_arange_cu_header_offset()
   in libdwarf and printing the returned cu header offset for 

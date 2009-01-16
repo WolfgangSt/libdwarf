@@ -135,3 +135,33 @@ struct Dwarf_Alloc_Area_s {
 };
 
 struct Dwarf_Error_s *_dwarf_special_no_dbg_error_malloc(void);
+
+#ifdef DWARF_SIMPLE_MALLOC
+/*
+   DWARF_SIMPLE_MALLOC is for testing the hypothesis that the existing
+   complex malloc scheme in libdwarf is pointless complexity.
+
+   DWARF_SIMPLE_MALLOC also makes it easy for a malloc-tracing
+   tool to verify libdwarf malloc has no botches (though of course
+   such does not test the complicated standard-libdwarf-alloc code).
+
+*/
+
+struct simple_malloc_entry_s {
+    Dwarf_Small   *se_addr;
+    unsigned long  se_size;
+    short          se_type;
+};
+#define DSM_BLOCK_COUNT (1000)
+#define DSM_BLOCK_SIZE (sizeof(struct simple_malloc_entry_s)*DSM_BLOCK_COUNT)
+
+/* we do this so dwarf_dealloc can really free everything */
+struct simple_malloc_record_s {
+	struct simple_malloc_record_s *sr_next;
+	int 			       sr_used;
+	struct simple_malloc_entry_s   sr_entry[DSM_BLOCK_COUNT];
+};
+
+
+
+#endif /* DWARF_SIMPLE_MALLOC */

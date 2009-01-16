@@ -54,10 +54,10 @@ _dwarf_get_size_of_val(Dwarf_Debug dbg,
 		       Dwarf_Unsigned form,
 		       Dwarf_Small * val_ptr, int v_length_size)
 {
-    Dwarf_Unsigned length;
-    Dwarf_Word leb128_length;
-    Dwarf_Unsigned form_indirect;
-    Dwarf_Unsigned ret_value;
+    Dwarf_Unsigned length = 0;
+    Dwarf_Word leb128_length = 0;
+    Dwarf_Unsigned form_indirect = 0;
+    Dwarf_Unsigned ret_value = 0;
 
     switch (form) {
 
@@ -106,15 +106,25 @@ _dwarf_get_size_of_val(Dwarf_Debug dbg,
     case DW_FORM_flag:
 	return (1);
 
+    case DW_FORM_ref_udata:
+	_dwarf_decode_u_leb128(val_ptr, &leb128_length);
+	return (leb128_length);
+
     case DW_FORM_indirect:
-	form_indirect = _dwarf_decode_u_leb128(val_ptr, &leb128_length);
-	if (form_indirect == DW_FORM_indirect)
-	    return (0);
-	return (leb128_length + _dwarf_get_size_of_val(dbg,
+	{
+	Dwarf_Word indir_len = 0;
+	form_indirect = _dwarf_decode_u_leb128(val_ptr, &indir_len);
+	if (form_indirect == DW_FORM_indirect) {
+	    return (0); /* We are in big trouble: The true
+		form of DW_FORM_indirect is DW_FORM_indirect? 
+		Nonsense. Should never happen. */
+	}
+	return (indir_len + _dwarf_get_size_of_val(dbg,
 						       form_indirect,
 						       val_ptr +
-						       leb128_length,
+						       indir_len,
 						       v_length_size));
+	}
 
     case DW_FORM_ref1:
 	return (1);

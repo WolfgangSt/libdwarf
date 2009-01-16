@@ -60,6 +60,14 @@ dwarf_get_abbrev(Dwarf_Debug dbg,
 	_dwarf_error(NULL, error, DW_DLE_DBG_NULL);
 	return (DW_DLV_ERROR);
     }
+    if(dbg->de_debug_abbrev == 0) {
+	/* Loads abbrev section (and .debug_info as we do those
+	   together). */
+	int res = _dwarf_load_debug_info(dbg,error);
+	if(res != DW_DLV_OK) {
+	    return res;
+	}
+    }
 
     if (offset >= dbg->de_debug_abbrev_size) {
 	return (DW_DLV_NO_ENTRY);

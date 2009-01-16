@@ -65,6 +65,21 @@ dwarf_hasform(Dwarf_Attribute attr,
     return DW_DLV_OK;
 }
 
+/* Not often called, we do not worry about efficiency here.
+   The dwarf_whatform() call does the sanity checks for us.
+*/
+int
+dwarf_whatform_direct(Dwarf_Attribute attr,
+	       Dwarf_Half * return_form, Dwarf_Error * error)
+{
+    int res = dwarf_whatform(attr, return_form, error);
+    if(res != DW_DLV_OK) {
+	return res;
+    }
+
+    *return_form = attr->ar_attribute_form_direct;
+    return (DW_DLV_OK);
+}
 
 int
 dwarf_whatform(Dwarf_Attribute attr,
@@ -600,6 +615,9 @@ dwarf_formblock(Dwarf_Attribute attr,
 
     ret_block->bl_len = length;
     ret_block->bl_data = (Dwarf_Ptr) data;
+    ret_block->bl_from_loclist = 0;
+    ret_block->bl_section_offset  = data - dbg->de_debug_info;
+    
 
     *return_block = ret_block;
     return (DW_DLV_OK);

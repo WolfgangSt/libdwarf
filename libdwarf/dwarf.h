@@ -41,7 +41,7 @@ extern "C" {
 
 /*
 	dwarf.h   DWARF  debugging information values
-	$Revision: 1.27 $    $Date: 2002/05/14 19:03:48 $    
+	$Revision: 1.29 $    $Date: 2003/02/05 22:57:01 $    
 
 	The comment "DWARF3" appears where there are
 	new entries from DWARF3.

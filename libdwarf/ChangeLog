@@ -1,3 +1,36 @@
+2003-10-02 David Anderson <davea@sgi.com>
+      * dwarf_loc.c: Implemented dwarf_get_loclist_entry(),
+        implemented new dwarf_loclist_n() fully implementing
+        loclist support.
+      * dwarf_stubs.c: removed dwarf_get_loclist_entry stub.
+      * libdwarf2.1.mm: Documented dwarf_loclist_n() and
+        updated documentation on dwarf_loclist().
+
+2003-09-29 David Anderson <davea@sgi.com>
+      * dwarf_abbrev.c: Ensure the .debug_abbrev section is loaded.
+      * dwarf_arange.c dwarf_global.c: Recent dwarf committee 
+    	discussions have revealed we were wrong in not allowing 
+	padding in aranges.
+      * dwarf_die_deliv.c dwarf_query.c: handle DW_FORM_indirect.
+      * dwarf_form.c: Add dwarf_whatform_direct() so folks
+	can report on DW_FORM_indirect use.
+	Fill in new Dwarf_Locdesc fields.
+      * dwarf_loc.c: Handle .debug_loc  partially.
+	Fill in new Dwarf_Locdesc fields.
+	Load .debug_loc if not present and if it's needed.
+      * dwarf_opaque.h: Added ar_attribute_form_direct field
+  	so we can report DW_FORM_indirect
+	in libdwarf-using code (where such wants to).
+      * dwarf_util.c: Don't confuse DW_FORM_indirect uleb length 
+	with other lengths.
+      * libdwarf2.1.mm: Document new function dwarf_whatform_direct()
+	Not needed by ordinary clients, just for clients
+	wanting to print certain debug info.
+
+2003-04-15 Brian Ford <ford@vss.fsi.com>
+      * configure.in (AC_C_BIGENDIAN): Move after AC_PROG_CC so a proper
+        working compiler is used for the test.
+
 2003-01-21 David Anderson <davea@sgi.com>
       * dwarf_die_deliv.c (dwarf_next_cu_header, dwarf_offdie):
 	Add calls to dwarf_load_object() to load .debug_info, 

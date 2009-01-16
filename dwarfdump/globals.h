@@ -31,7 +31,7 @@
 
 
 
-$Header: /ptools/plroot/cmplrs.src/v7.4.1m/.RCS/PL/dwarfdump/RCS/globals.h,v 1.16 2001/01/16 17:47:54 davea Exp $ */
+$Header: /plroot/cmplrs.src/v7.4.2m/.RCS/PL/dwarfdump/RCS/globals.h,v 1.17 2003/05/20 18:06:24 davea Exp $ */
 #ifndef globals_INCLUDED
 #define globals_INCLUDED
 
@@ -127,6 +127,7 @@ extern Dwarf_Check_Result tag_tree_result;
 extern Dwarf_Check_Result type_offset_result;
 
 extern boolean info_flag;
+extern boolean use_old_dwarf_loclist;
 
 extern char cu_name[ ];
 extern boolean cu_name_flag;
@@ -154,10 +155,17 @@ extern void print_types(Dwarf_Debug dbg);
 extern void print_weaknames(Dwarf_Debug dbg);
 extern void print_exception_tables(Dwarf_Debug dbg);
 extern string get_fde_proc_name(Dwarf_Debug dbg, Dwarf_Addr low_pc);
-extern void print_die_and_children(Dwarf_Debug dbg, Dwarf_Die in_die);
-extern void print_one_die(Dwarf_Debug dbg, Dwarf_Die die, boolean print_information);
-
-
+extern void print_die_and_children(
+	Dwarf_Debug dbg, 
+	Dwarf_Die in_die,
+	char **srcfiles,
+	Dwarf_Signed cnt);
+extern void print_one_die(
+	Dwarf_Debug dbg, 
+	Dwarf_Die die, 
+	boolean print_information,
+	char **srcfiles,
+	Dwarf_Signed cnt);
 
 #define DWARF_CHECK_ERROR(str) {\
 	printf("*** DWARF CHECK: %s ***\n", str);\

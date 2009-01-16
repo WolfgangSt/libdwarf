@@ -1,3 +1,14 @@
+
+Oct 02, 2003
+  Support .debug_loc section fully.
+
+Sept 29, 2003
+  Support DW_FORM_indirect properly.
+  Supports loclists in part (but not multiple loclist entries yet).
+  Support 'padding bytes' at end of .debug_arange and
+  .debug_pubnames and .debug_pubtypes per CU
+  (recent dwarf committee email made it clear this is appropriate).
+
 May 23, 2002
   Libdwarf now asks for sections only when they are
   used, so that unneeded sections aren't loaded.

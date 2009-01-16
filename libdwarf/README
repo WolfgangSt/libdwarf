@@ -59,6 +59,6 @@ there is no way to regenerate this).
 To use dwarf or libdwarf, you may want to install dwarf.h and
 libdwarf.h somewhere convenient.
 
-$Source: /ptools/plroot/cmplrs.src/v7.4.1m/.RCS/PL/libdwarf/RCS/README,v $
+$Source: /plroot/cmplrs.src/v7.4.2m/.RCS/PL/libdwarf/RCS/README,v $
 $Revision: 1.7 $
 $Date: 2001/01/16 17:08:36 $

@@ -145,6 +145,17 @@ _dwarf_internal_get_pubnames_like_data(Dwarf_Debug dbg,
 	int local_extension_size;
 	int local_length_size;
 
+	/* Some compilers emit padding at the end of each cu's
+	   area. pubnames_ptr_past_end_cu records the true
+           area end for this cu's data.  Essentially the
+	   length in the header and the  0 terminator of the
+           data are redundant information. The dwarf2/3
+	   spec does not mention what to do if the length
+           is past the 0 terminator. So we take any bytes
+	   left after the 0 as padding and ignore them. */
+        Dwarf_Small *pubnames_ptr_past_end_cu = 0;
+	
+
 	pubnames_context = (Dwarf_Global_Context)
 	    _dwarf_get_alloc(dbg, allocation_code, 1);
 	if (pubnames_context == NULL) {
@@ -160,6 +171,7 @@ _dwarf_internal_get_pubnames_like_data(Dwarf_Debug dbg,
 	pubnames_context->pu_extension_size = local_extension_size;
 	pubnames_context->pu_dbg = dbg;
 
+        pubnames_ptr_past_end_cu  = pubnames_like_ptr + length;
 
 	READ_UNALIGNED(dbg, version, Dwarf_Half,
 		       pubnames_like_ptr, sizeof(Dwarf_Half));
@@ -245,6 +257,22 @@ _dwarf_internal_get_pubnames_like_data(Dwarf_Debug dbg,
 		return (DW_DLV_ERROR);
 	    }
 	}
+	/* ASSERT: die_offset_in_cu == 0 */
+	if(pubnames_like_ptr > pubnames_ptr_past_end_cu) {
+	   /* This is some kind of error. This simply cannot happen.
+	      The encoding is wrong or the length in the header 
+	      for this cu's contribution is wrong. */
+	   _dwarf_error(dbg, error, length_err_num);
+	   return (DW_DLV_ERROR);
+	
+        }
+	/* If there is some kind of padding at the end of
+           the section, as emitted by some compilers,
+	   skip over that padding and simply ignore the bytes
+	   thus passed-over.   With most compilers,
+	     pubnames_like_ptr == pubnames_ptr_past_end_cu
+	   at this point */
+	pubnames_like_ptr =  pubnames_ptr_past_end_cu;
 
     } while (pubnames_like_ptr < (section_data_ptr + section_length));
 

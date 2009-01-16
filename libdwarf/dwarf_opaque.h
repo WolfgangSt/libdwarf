@@ -51,6 +51,12 @@ struct Dwarf_Die_s {
 struct Dwarf_Attribute_s {
     Dwarf_Half ar_attribute;	/* Attribute Value. */
     Dwarf_Half ar_attribute_form;	/* Attribute Form. */
+    Dwarf_Half ar_attribute_form_direct;
+	        /* Identical to ar_attribute_form except that if
+		the original form uleb was DW_FORM_indirect,
+		ar_attribute_form_direct contains DW_FORM_indirect
+		but ar_attribute_form contains the true form. */
+
     Dwarf_CU_Context ar_cu_context;
     Dwarf_Small *ar_debug_info_ptr;
     Dwarf_Attribute ar_next;
@@ -142,6 +148,11 @@ struct Dwarf_Debug_s {
        Dwarf_Alloc_Hdr_s structs used to manage chunks that are
        malloc'ed for each allocation type for structs. */
     struct Dwarf_Alloc_Hdr_s de_alloc_hdr[ALLOC_AREA_REAL_TABLE_MAX];
+#ifdef DWARF_SIMPLE_MALLOC
+    struct simple_malloc_record_s *  de_simple_malloc_base;
+    struct simple_malloc_record_s *  de_simple_malloc_current;
+#endif
+    
 
     /* 
        These fields are used to process debug_frame section.  **Updated 

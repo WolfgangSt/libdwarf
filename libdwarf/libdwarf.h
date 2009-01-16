@@ -93,11 +93,14 @@ typedef unsigned long long  Dwarf_Addr;     /* target memory address */
 #endif
 typedef void*		Dwarf_Ptr;          /* host machine pointer */
 
-/* uninterpreted block of data
+/* Contains info on an uninterpreted block of data
 */
 typedef struct {
         Dwarf_Unsigned  bl_len;         /* length of block */
         Dwarf_Ptr       bl_data;        /* uninterpreted data */
+	Dwarf_Small     bl_from_loclist; /*non-0 if loclist, else debug_info*/
+	Dwarf_Unsigned  bl_section_offset; /* Section (not CU) offset
+                                        which 'data' comes from. */
 } Dwarf_Block;
 
 
@@ -118,6 +121,11 @@ typedef struct {
         Dwarf_Addr      ld_hipc;        /* end of active range */
         Dwarf_Half      ld_cents;       /* count of location records */
         Dwarf_Loc*      ld_s;           /* pointer to list of same */
+	Dwarf_Small     ld_from_loclist; 
+				      /* non-0 if loclist, else debug_info*/
+
+	Dwarf_Unsigned  ld_section_offset; /* Section (not CU) offset
+					where loc-expr begins*/
 } Dwarf_Locdesc;
 
 /* Frame description instructions expanded.
@@ -459,9 +467,10 @@ typedef void  (*Dwarf_Handler)(Dwarf_Error /*error*/, Dwarf_Ptr /*errarg*/);
 #define DW_DLE_DF_POP_EMPTY_STACK              	191
 #define DW_DLE_DF_ALLOC_FAIL                   	192
 #define DW_DLE_DF_FRAME_DECODING_ERROR         	193
+#define DW_DLE_DEBUG_LOC_SECTION_SHORT         	194
 
     /* DW_DLE_LAST MUST EQUAL LAST ERROR NUMBER */
-#define DW_DLE_LAST        			193
+#define DW_DLE_LAST        			194
 #define DW_DLE_LO_USER     0x10000
 
         /* taken as meaning 'undefined value', this is not
@@ -605,7 +614,13 @@ int dwarf_hasattr(Dwarf_Die /*die*/,
     Dwarf_Bool     *    /*returned_bool*/,
     Dwarf_Error* 	/*error*/);
 
-int dwarf_loclist(Dwarf_Attribute /*attr*/, 
+/* dwarf_loclist_n preferred over dwarf_loclist */
+int dwarf_loclist_n(Dwarf_Attribute /*attr*/,  
+    Dwarf_Locdesc***	/*llbuf*/, 
+    Dwarf_Signed *      /*locCount*/,
+    Dwarf_Error* 	/*error*/);
+
+int dwarf_loclist(Dwarf_Attribute /*attr*/,  /* inflexible! */
     Dwarf_Locdesc** 	/*llbuf*/, 
     Dwarf_Signed *      /*locCount*/,
     Dwarf_Error* 	/*error*/);
@@ -674,6 +689,10 @@ int dwarf_hasform(Dwarf_Attribute /*attr*/,
     Dwarf_Error* 	/*error*/);
 
 int dwarf_whatform(Dwarf_Attribute /*attr*/, 
+    Dwarf_Half *        /*returned_form*/,
+    Dwarf_Error* 	/*error*/);
+
+int dwarf_whatform_direct(Dwarf_Attribute /*attr*/, 
     Dwarf_Half *        /*returned_form*/,
     Dwarf_Error* 	/*error*/);
 

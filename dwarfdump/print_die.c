@@ -30,15 +30,18 @@
   http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 
-$Header: /ptools/plroot/cmplrs.src/v7.4.1m/.RCS/PL/dwarfdump/RCS/print_die.c,v 1.38 2001/01/16 17:47:55 davea Exp $ */
+$Header: /plroot/cmplrs.src/v7.4.2m/.RCS/PL/dwarfdump/RCS/print_die.c,v 1.39 2003/05/20 18:06:24 davea Exp $ */
 #include "globals.h"
 #include "dwarf_names.h"
 
 static void get_attr_value(Dwarf_Debug dbg, Dwarf_Half tag,
-		 Dwarf_Attribute attrib);
+		 Dwarf_Attribute attrib,char **srcfiles,
+		 Dwarf_Signed cnt);
 static void print_attribute(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Half attr, 
-		Dwarf_Attribute actual_addr,
-			     boolean print_information);
+		 Dwarf_Attribute actual_addr,
+		 boolean print_information,
+		 char **srcfiles,
+                 Dwarf_Signed cnt);
 static void get_location_list(Dwarf_Debug dbg, Dwarf_Die die,Dwarf_Attribute attr);
 static int tag_attr_combination(Dwarf_Half tag, Dwarf_Half attr);
 
@@ -84,7 +87,8 @@ tag_tree_combination(Dwarf_Half tag_parent, Dwarf_Half tag_child)
 
 /* recursively follow the die tree */
 extern void
-print_die_and_children(Dwarf_Debug dbg, Dwarf_Die in_die)
+print_die_and_children(Dwarf_Debug dbg, Dwarf_Die in_die,
+		char **srcfiles,Dwarf_Signed cnt)
 {
 	Dwarf_Die child;
 	Dwarf_Die sibling;
@@ -147,13 +151,14 @@ print_die_and_children(Dwarf_Debug dbg, Dwarf_Die in_die)
 	}
 
 	/* here to pre-descent processing of the die */
-	print_one_die (dbg, in_die, info_flag);
+	print_one_die (dbg, in_die, info_flag,srcfiles,cnt);
 
 	cdres = dwarf_child(in_die,&child,&err);
 	/* child first: we are doing depth-first walk */
 	if (cdres == DW_DLV_OK) {
 	        indent_level ++;
-		(void) print_die_and_children(dbg,child);
+		(void) print_die_and_children(dbg,child,
+			srcfiles,cnt);
 		indent_level --;
 		if (indent_level == 0)
 		    local_symbols_already_began = FALSE;
@@ -164,7 +169,8 @@ print_die_and_children(Dwarf_Debug dbg, Dwarf_Die in_die)
 
 	cdres = dwarf_siblingof(dbg,in_die,&sibling,&err);
 	if (cdres == DW_DLV_OK) {
-		(void) print_die_and_children(dbg,sibling);
+		(void) print_die_and_children(dbg,sibling,
+			srcfiles,cnt);
 		dwarf_dealloc(dbg, sibling, DW_DLA_DIE);
 	} else if (cdres == DW_DLV_ERROR) {
 		print_error (dbg, "dwarf_siblingof",cdres, err);
@@ -182,7 +188,8 @@ print_die_and_children(Dwarf_Debug dbg, Dwarf_Die in_die)
 
 /* print info about die */
 void
-print_one_die(Dwarf_Debug dbg, Dwarf_Die die, boolean print_information)
+print_one_die(Dwarf_Debug dbg, Dwarf_Die die, boolean print_information,
+		char **srcfiles, Dwarf_Signed cnt)
 {
 	Dwarf_Signed i;
 	Dwarf_Off offset, overall_offset;
@@ -257,7 +264,8 @@ print_one_die(Dwarf_Debug dbg, Dwarf_Die die, boolean print_information)
 		if(ares == DW_DLV_OK) {
 		   print_attribute(dbg, die, attr, 
 			atlist[i],
-			print_information);
+			print_information,
+				srcfiles,cnt);
 		} else {
 	          print_error(dbg, "dwarf_whatattr entry missing",ares, err);
 		}
@@ -280,7 +288,8 @@ print_one_die(Dwarf_Debug dbg, Dwarf_Die die, boolean print_information)
 static void
 print_attribute (Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Half attr, 
 		Dwarf_Attribute attr_in,
-		 boolean print_information)
+		 boolean print_information,
+		char **srcfiles, Dwarf_Signed cnt)
 {
 	Dwarf_Attribute attrib;
 	Dwarf_Signed sval;
@@ -404,7 +413,8 @@ print_attribute (Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Half attr,
 		valname = attrib_buf;
 		break;
 	default:
-		get_attr_value(dbg, tag,attrib);
+		get_attr_value(dbg, tag,attrib,
+			srcfiles,cnt);
 		valname = attrib_buf;
 		break;
 	}
@@ -416,107 +426,183 @@ print_attribute (Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Half attr,
 	}
 }
 
-/* fill buffer with location lists */
+
+
+static int 
+_dwarf_print_one_locdesc(Dwarf_Debug dbg, 
+	Dwarf_Locdesc *llbuf,
+	char *start_buf, 
+	char **out_buf)
+{
+       char *p = start_buf;
+       Dwarf_Locdesc *locd;
+       Dwarf_Half no_of_ops = 0;
+       string op_name;
+       int i;
+
+       if(verbose || llbuf->ld_from_loclist) {
+          sprintf(p,"<lowpc=0x%llx>",(unsigned long long)llbuf->ld_lopc);
+          p += strlen(p);
+          sprintf(p,"<highpc=0x%llx>",(unsigned long long)llbuf->ld_hipc);
+          p += strlen(p);
+          if(verbose) {
+            sprintf(p,"<from %s offset 0x%llx>",
+	      llbuf->ld_from_loclist?".debug_loc":".debug_info",
+	      (unsigned long long)llbuf->ld_section_offset);
+            p += strlen(p);
+          }
+       }
+       
+   
+       locd = llbuf;
+       no_of_ops = llbuf->ld_cents; 
+       for (i = 0 ; i < no_of_ops; i ++) {
+	   Dwarf_Small op;
+	   Dwarf_Unsigned opd1, opd2;
+   	
+	   if (i > 0)
+	       *p ++ = ' ';
+   
+	   op = locd->ld_s[i].lr_atom;
+	   if (op > DW_OP_nop) {
+	       print_error(dbg, "dwarf_op unexpected value",DW_DLV_OK, err);
+	       return DW_DLV_ERROR;
+	   }
+	   op_name = get_OP_name(dbg, op);
+	   strcpy(p, op_name);
+	   p += strlen(op_name);
+	   opd1 = locd->ld_s[i].lr_number;
+	   if (op >= DW_OP_breg0 && op <= DW_OP_breg31) {
+	       sprintf(p, "%+lld", (Dwarf_Signed) opd1);
+	       p += strlen(p);
+	   }
+	   else {
+	       switch (op) {
+	       case DW_OP_addr:
+		   sprintf(p, " %#llx", opd1);
+		   p += strlen(p);
+		   break;
+	       case DW_OP_const1s:
+	       case DW_OP_const2s:
+	       case DW_OP_const4s:
+	       case DW_OP_const8s:
+	       case DW_OP_consts:
+	       case DW_OP_skip:
+	       case DW_OP_bra:
+	       case DW_OP_fbreg:
+		   sprintf(p, " %lld", (Dwarf_Signed) opd1);
+		   p += strlen(p);
+		   break;
+	       case DW_OP_const1u:
+	       case DW_OP_const2u:
+	       case DW_OP_const4u:
+	       case DW_OP_const8u:
+	       case DW_OP_constu:
+	       case DW_OP_pick:
+	       case DW_OP_plus_uconst:
+	       case DW_OP_regx:
+	       case DW_OP_piece:
+	       case DW_OP_deref_size:
+	       case DW_OP_xderef_size:
+		   sprintf(p, " %llu", opd1);
+		   p += strlen(p);
+		   break;
+	       case DW_OP_bregx:
+		   sprintf(p, "%llu", opd1);
+		   p += strlen(p);
+		   opd2 = locd->ld_s[i].lr_number2;
+		   sprintf(p, "%+lld",(Dwarf_Signed)opd2);
+		   p += strlen(p);
+		   break;
+	       default:
+		   break;
+	       }
+	   }
+       }
+
+       *out_buf = p;
+       return DW_DLV_OK;
+}
+
+/* Fill buffer with location lists 
+   This is not very sensible with potentially long expressions
+   or many loclist entries! Buffer overrun is possible :-( and
+   not checked.  */
 /*ARGSUSED*/
 static void
 get_location_list(Dwarf_Debug dbg, Dwarf_Die die,Dwarf_Attribute attr)
 {
-    Dwarf_Locdesc *llbuf;
+    Dwarf_Locdesc *llbuf = 0;
+    Dwarf_Locdesc **llbufarray = 0;
     Dwarf_Signed no_of_elements;
-    Dwarf_Half no_of_ops;
+    Dwarf_Error err;
     int i;
     string p;
-    string op_name;
-    Dwarf_Locdesc *locd;
-    Dwarf_Signed indx;
     int lres;
+    int llent = 0;
 
-    lres = dwarf_loclist(attr, &llbuf,&no_of_elements, &err);
-    if (lres == DW_DLV_ERROR)
-	print_error (dbg, "dwarf_loclist",lres, err);
-    if(lres == DW_DLV_NO_ENTRY)
-	return;
+    if(use_old_dwarf_loclist) {
+      char *buf_out;
+      lres = dwarf_loclist(attr, &llbuf,&no_of_elements, &err);
+      if (lres == DW_DLV_ERROR)
+	  print_error (dbg, "dwarf_loclist",lres, err);
+      if(lres == DW_DLV_NO_ENTRY)
+	  return;
+      
+      _dwarf_print_one_locdesc(dbg,llbuf,attrib_buf, &buf_out);
+      dwarf_dealloc(dbg, llbuf->ld_s, DW_DLA_LOC_BLOCK);
+      dwarf_dealloc(dbg, llbuf, DW_DLA_LOCDESC);
+      return;
+    }
+
     /* FIX: need to deal with location list here, not just 1 element
 	For now we just do element 0, since there should be just
 	1. Temporarily. Till we do loclists for real (.debug_loc).
     */
-    locd = llbuf + 0;
-    no_of_ops = llbuf->ld_cents; 
-    for (i = 0, p = attrib_buf; i < no_of_ops; i ++) {
-	Dwarf_Small op;
-	Dwarf_Unsigned opd1, opd2;
-	
-	if (i > 0)
-	    *p ++ = ' ';
+    lres = dwarf_loclist_n(attr,&llbufarray, &no_of_elements,&err);
+    if (lres == DW_DLV_ERROR)
+	  print_error (dbg, "dwarf_loclist",lres, err);
+    if(lres == DW_DLV_NO_ENTRY)
+	  return;
+    p = attrib_buf;
 
-	op = locd->ld_s[i].lr_atom;
-	if (op > DW_OP_nop) {
-	    print_error(dbg, "dwarf_op unexpected value",DW_DLV_OK, err);
-	    break;
+    for(llent = 0; llent < no_of_elements ; ++llent) {
+	char * buf_out;
+	llbuf = llbufarray[llent];
+	if(!dense && llbuf->ld_from_loclist) {
+	   sprintf(p,"[%2d]",llent);
+           p += strlen(p);
 	}
-	op_name = get_OP_name(dbg, op);
-	strcpy(p, op_name);
-	p += strlen(op_name);
-	opd1 = locd->ld_s[i].lr_number;
-	if (op >= DW_OP_breg0 && op <= DW_OP_breg31) {
-	    sprintf(p, "%+lld", (Dwarf_Signed) opd1);
-	    p += strlen(p);
+        lres =_dwarf_print_one_locdesc(dbg,llbuf,p, &buf_out);
+	if(lres ==DW_DLV_ERROR) {
+		return;
 	}
-	else {
-	    switch (op) {
-	    case DW_OP_addr:
-		sprintf(p, " %#llx", opd1);
-		p += strlen(p);
-		break;
-	    case DW_OP_const1s:
-	    case DW_OP_const2s:
-	    case DW_OP_const4s:
-	    case DW_OP_const8s:
-	    case DW_OP_consts:
-	    case DW_OP_skip:
-	    case DW_OP_bra:
-	    case DW_OP_fbreg:
-		sprintf(p, " %lld", (Dwarf_Signed) opd1);
-		p += strlen(p);
-		break;
-	    case DW_OP_const1u:
-	    case DW_OP_const2u:
-	    case DW_OP_const4u:
-	    case DW_OP_const8u:
-	    case DW_OP_constu:
-	    case DW_OP_pick:
-	    case DW_OP_plus_uconst:
-	    case DW_OP_regx:
-	    case DW_OP_piece:
-	    case DW_OP_deref_size:
-	    case DW_OP_xderef_size:
-		sprintf(p, " %llu", opd1);
-		p += strlen(p);
-		break;
-	    case DW_OP_bregx:
-		sprintf(p, "%llu", opd1);
-		p += strlen(p);
-		opd2 = locd->ld_s[i].lr_number2;
-		sprintf(p, "%+lld",(Dwarf_Signed)opd2);
-		p += strlen(p);
-		break;
-	    default:
-		break;
-	    }
+	if(lres == DW_DLV_OK) {
+           p = buf_out;  /* So we add follow-on at end, else 
+		 is NO_ENTRY and nothing meaningful to add. */ 
+        }
+	if((llent+1) < no_of_elements) {
+	       /* Only add newline if sparse and there are more
+		  to print. Final newline added by our caller. */
+               if (!dense) {
+                   sprintf(p,"\n\t\t\t\t\t");
+		   p += strlen(p);
+	       }
 	}
     }
-    for(indx = 0; indx < no_of_elements; indx++) {
-      dwarf_dealloc(dbg, llbuf[indx].ld_s, DW_DLA_LOC_BLOCK);
+    for (i = 0; i < no_of_elements; ++i) {
+            dwarf_dealloc(dbg, llbufarray[i]->ld_s, DW_DLA_LOC_BLOCK);
+            dwarf_dealloc(dbg,llbufarray[i], DW_DLA_LOCDESC);
     }
-    dwarf_dealloc(dbg, llbuf, DW_DLA_LOCDESC);
+    dwarf_dealloc(dbg, llbufarray, DW_DLA_LIST);
 }
 
 /* fill buffer with attribute value 
    We pass in tag so we can try to do the right thing with
-   broken compiler DW_TAG_enumerator
-*/
+   broken compiler DW_TAG_enumerator */ 
 static void 
-get_attr_value(Dwarf_Debug dbg, Dwarf_Half tag, Dwarf_Attribute attrib) 
+get_attr_value(Dwarf_Debug dbg, Dwarf_Half tag, Dwarf_Attribute attrib,
+		char **srcfiles, Dwarf_Signed cnt) 
 {
 	Dwarf_Half theform;
 	string temps;
@@ -535,6 +621,7 @@ get_attr_value(Dwarf_Debug dbg, Dwarf_Half tag, Dwarf_Attribute attrib)
 	int bres;
 	int wres;
 	int dres;
+	Dwarf_Half direct_form = 0;
 
 	fres = dwarf_whatform(attrib,&theform,&err);
 	/* depending on the form and the attribute, process the form */
@@ -543,6 +630,11 @@ get_attr_value(Dwarf_Debug dbg, Dwarf_Half tag, Dwarf_Attribute attrib)
 	} else if (fres == DW_DLV_NO_ENTRY) {
 		return;
 	}
+
+	dwarf_whatform_direct(attrib, &direct_form,&err);
+	/* ignore errors  in dwarf_whatform_direct()*/
+	
+
 	switch (theform) {
 	case DW_FORM_addr:
 		bres = dwarf_formaddr(attrib,&addr,&err);
@@ -693,7 +785,51 @@ get_attr_value(Dwarf_Debug dbg, Dwarf_Half tag, Dwarf_Attribute attrib)
 		case DW_AT_MIPS_fde:
 		    wres = dwarf_formudata(attrib,&tempud, &err);
 		    if(wres == DW_DLV_OK) {
+			/* attrib_buf is large compared to %llu output,
+			   so sprintf is safe */
 		        sprintf(attrib_buf, "%llu", tempud);
+			if(attr == DW_AT_decl_file) {
+			   if (srcfiles && tempud > 0 && tempud <= cnt) {
+				/* added by user request */
+			        /* srcfiles is indexed starting at 0,
+				   but DW_AT_decl_file defines that  0 
+				   means no file, so tempud 1 means 
+				   the 0th entry in srcfiles, thus 
+				   tempud-1 is the correct
+				   index into srcfiles.  */
+                                char *fname = srcfiles[tempud-1];
+				size_t used_so_far = strlen(attrib_buf);
+                                char *targ = attrib_buf + used_so_far;
+                                size_t bytes_left = attrib_bufsiz -
+                                        (used_so_far
+                                         +1 /* for NUL byte of string */
+                                         +1 /* for the blank 
+                                                we want to add */);
+                                size_t namelen = strlen(fname) + 1;
+
+                                if(namelen  > bytes_left) {
+                                    /*  Trim off front of fname.
+                                        Prefix with ...
+                                        10 is arbitrary. Small
+                                        compared to size of attrib_buf.
+                                        Prevents overruning attrib_buf
+                                        3 would be enough, for ...
+                                    */
+                                        
+                                    fname += (namelen - bytes_left)+10;
+                                    strcpy(targ," ");
+                                    ++targ;
+                                    strcat(targ,"...");
+                                    strcat(targ,fname);
+                                        
+                                } else {
+                                    /* ok, fits as is */
+                                   strcpy(targ," ");
+                                   ++targ;
+                                   strcpy(targ,fname);
+                                }
+			   }
+			}
 		    } else if (wres == DW_DLV_NO_ENTRY) {
 			/* nothing?*/
 		    } else {
@@ -828,10 +964,16 @@ get_attr_value(Dwarf_Debug dbg, Dwarf_Half tag, Dwarf_Attribute attrib)
                  }
 		break;
 	case DW_FORM_indirect:
+		/* We should not ever get here, since the
+	  	   true form was determied and direct_form has
+		   the DW_FORM_indirect if it is used here in this attr. */
 		sprintf(attrib_buf, get_FORM_name(dbg, theform));
 		break;
 	default:
 		print_error(dbg, "dwarf_whatform unexpected value",DW_DLV_OK,err);
+	}
+	if(verbose && direct_form && direct_form == DW_FORM_indirect) {
+		strcat(attrib_buf," (used DW_FORM_indirect) ");
 	}
 }
 

@@ -393,6 +393,13 @@ _dwarf_next_die_info_ptr(Dwarf_Byte_Ptr die_info_ptr,
 	    attr = (Dwarf_Half) utmp2;
 	DECODE_LEB128_UWORD(abbrev_ptr, utmp2)
 	    attr_form = (Dwarf_Half) utmp2;
+	if(attr_form == DW_FORM_indirect) {
+		Dwarf_Unsigned utmp6;
+		/* READ_UNALIGNED does update info_ptr */
+	        DECODE_LEB128_UWORD(info_ptr, utmp6)
+		attr_form = (Dwarf_Half)utmp6;
+
+	}
 
 	if (want_AT_sibling && attr == DW_AT_sibling) {
 	    switch (attr_form) {

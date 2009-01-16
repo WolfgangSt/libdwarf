@@ -3,8 +3,8 @@ AC_INIT(libdwarf.h)
 AC_CONFIG_HEADER(config.h)
 
 dnl the endian one is temporary till endianness issues fixed
-AC_C_BIGENDIAN
 AC_PROG_CC
+AC_C_BIGENDIAN
 AC_GCC_TRADITIONAL
 AC_PROG_INSTALL
 AC_CHECK_TOOL(RANLIB, ranlib, :)
