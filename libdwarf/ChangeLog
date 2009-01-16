@@ -1,3 +1,16 @@
+2006-09-26 David Anderson <davea@sgi.com>
+      * dwarf_die_deliv.c (dwarf_offdie): Now returns the
+        correct die (worked before, almost always, but worked by accident).
+        Thanks to Mattias Lindblad for supplying a test case.
+2006-09-01 David Anderson <davea@sgi.com>
+      * libdwarf2.1.mm (dwarf_loclist_n): Minor refinement
+        of the description.
+      * libdwarf2.1.ps: regenerated
+2006-08-31 David Anderson <davea@sgi.com>
+      * libdwarf2.1.mm (dwarf_loclist_n): A location expression
+        sets ld_lopc to 0, ld_hipc to all-bits-on, and this
+        is now documented.
+      * libdwarf2.1.ps: regenerated
 2006-06-14 David Anderson <davea@sgi.com>
       * dwarf_opaque.h dwarf_frame.h dwarf_frame.c
         dwarf_init_finish.c dwarf_frame2.c: Corrected handling

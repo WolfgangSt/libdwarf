@@ -8,7 +8,7 @@
 .nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.61, 3 Apr 2006
+.ds vE rev 1.63, 01 Sep 2006
 \." ==============================================
 \." ==============================================
 .ds | |
@@ -2069,6 +2069,18 @@ loclist. (use of \f(CWdwarf_loclist_n()\fP is
 suggested as the better interface, though 
 \f(CWdwarf_loclist()\fP is still
 supported.)
+.P
+If the attribute is a reference to a location list
+(DW_FORM_data4 or DW_FORM_data8)
+the location list entries are used to fill
+in all the fields of the \f(CWDwarf_Locdesc\fP(s) returned.
+.P
+If the attribute is a location description
+(DW_FORM_block2 or DW_FORM_block4)
+then some of the \f(CWDwarf_Locdesc\fP values of the single
+\f(CWDwarf_Locdesc\fP record are set to 'sensible'
+but arbitrary values.  Specifically, ld_lopc is set to 0 and
+ld_hipc is set to all-bits-on. And \f(CW*listlen\fP is set to 1.
 .P
 It returns \f(CWDW_DLV_ERROR\fP on error. 
 \f(CWdwarf_loclist_n()\fP works on \f(CWDW_AT_location\fP, 

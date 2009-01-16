@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000,2001,2002,2003,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2001,2002,2003,2004,2005,2006 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -727,12 +727,16 @@ dwarf_offdie(Dwarf_Debug dbg,
 	    return res;
 	}
 
-	if (dbg->de_cu_context_list_end != NULL)
-	    new_cu_offset =
-		dbg->de_cu_context_list_end->cc_debug_info_offset +
-		dbg->de_cu_context_list_end->cc_length +
-		dbg->de_cu_context_list_end->cc_length_size +
-		dbg->de_cu_context_list_end->cc_extension_size;
+        if (dbg->de_offdie_cu_context_end != NULL) {
+            Dwarf_CU_Context lcu_context =
+                        dbg->de_offdie_cu_context_end;
+            new_cu_offset =
+                lcu_context->cc_debug_info_offset +
+                lcu_context->cc_length +
+                lcu_context->cc_length_size +
+                lcu_context->cc_extension_size;
+        }
+
 
 	do {
 	    if ((new_cu_offset +
