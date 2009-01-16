@@ -1,6 +1,7 @@
 /*
   Copyright (C) 2000,2001,2003,2004,2005,2006 Silicon Graphics, Inc.  All Rights Reserved.
   Portions Copyright 2002,2007 Sun Microsystems, Inc. All rights reserved.
+  Portions Copyright 2007 David Anderson. All rights reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License
@@ -17,9 +18,9 @@
   any, provided herein do not apply to combinations of this program with
   other software, or any other product whatsoever.
 
-  You should have received a copy of the GNU Lesser General Public
-  License along with this program; if not, write the Free Software
-  Foundation, Inc., 59 Temple Place - Suite 330, Boston MA 02111-1307,
+  You should have received a copy of the GNU Lesser General Public 
+  License along with this program; if not, write the Free Software 
+  Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston MA 02110-1301, 
   USA.
 
   Contact information:  Silicon Graphics, Inc., 1500 Crittenden Lane,
@@ -49,6 +50,8 @@ extern "C" {
         where there are new entries as of the November 2005
         public review document and other comments apply
         where extension entries appear.
+
+        Extensions part of DWARF4 are marked DWARF4.
 
         A few extension names have omitted the 'vendor id'
         (See chapter 7, "Vendor Extensibility"). Please

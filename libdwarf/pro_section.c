@@ -21,7 +21,7 @@
 
   You should have received a copy of the GNU Lesser General Public 
   License along with this program; if not, write the Free Software 
-  Foundation, Inc., 59 Temple Place - Suite 330, Boston MA 02111-1307, 
+  Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston MA 02110-1301,
   USA.
 
   Contact information:  Silicon Graphics, Inc., 1500 Crittenden Lane,
@@ -34,9 +34,7 @@
   http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 */
-/* The address of the Free Software Foundation is
-   Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, 
-   Boston, MA 02110-1301, USA.
+/* 
    SGI has moved from the Crittenden Lane address.
 */
 

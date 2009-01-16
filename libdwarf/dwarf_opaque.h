@@ -19,7 +19,7 @@
 
   You should have received a copy of the GNU Lesser General Public 
   License along with this program; if not, write the Free Software 
-  Foundation, Inc., 59 Temple Place - Suite 330, Boston MA 02111-1307, 
+  Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston MA 02110-1301, 
   USA.
 
   Contact information:  Silicon Graphics, Inc., 1500 Crittenden Lane,
@@ -33,18 +33,18 @@
 
 */
 /* The versions applicable by section are:
-                       DWARF2    DWARF3
- .debug_info             2         3
- .debug_abbrev           -         -
- .debug_frame            1         3
- .debug_str              -         -
- .debug_loc              -         -
- .debug_line             2         3
- .debug_aranges          2         2
- .debug_ranges           x         -
- .debug_pubtypes         x         2
- .debug_pubnames         2         2
- .debug_macinfo          -         -
+                       DWARF2    DWARF3 DWARF4
+ .debug_info             2         3     4
+ .debug_abbrev           -         -     -
+ .debug_frame            1         3     3
+ .debug_str              -         -     -
+ .debug_loc              -         -     -
+ .debug_line             2         3     3
+ .debug_aranges          2         2     2
+ .debug_ranges           x         -     -
+ .debug_pubtypes         x         2     2
+ .debug_pubnames         2         2     2
+ .debug_macinfo          -         -     -
 */
 
 #include <stddef.h>
@@ -277,6 +277,7 @@ struct Dwarf_Chain_s {
 
 #define CURRENT_VERSION_STAMP		2 /* DWARF2 */
 #define CURRENT_VERSION_STAMP3		3 /* DWARF3 */
+#define CURRENT_VERSION_STAMP4		3 /* DWARF4 */
 
     /* Size of cu header version stamp field. */
 #define CU_VERSION_STAMP_SIZE   sizeof(Dwarf_Half)

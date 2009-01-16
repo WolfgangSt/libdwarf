@@ -2,6 +2,7 @@
 
   Copyright (C) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
   Portions Copyright 2002 Sun Microsystems, Inc. All rights reserved.
+  Portions Copyright 2007 David Anderson. All rights reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -20,7 +21,7 @@
 
   You should have received a copy of the GNU Lesser General Public 
   License along with this program; if not, write the Free Software 
-  Foundation, Inc., 59 Temple Place - Suite 330, Boston MA 02111-1307, 
+  Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston MA 02110-1301,
   USA.
 
   Contact information:  Silicon Graphics, Inc., 1500 Crittenden Lane,
@@ -89,7 +90,10 @@ dwarf_add_AT_targ_address(Dwarf_P_Debug dbg,
 				    (Dwarf_Unsigned) sym_index, error);
 }
 
-/* new interface */
+/* New interface, replacing dwarf_add_AT_targ_address. 
+   Essentially just makes sym_index a Dwarf_Unsigned
+   so for symbolic relocations it can be a full address.
+*/
 Dwarf_P_Attribute
 dwarf_add_AT_targ_address_b(Dwarf_P_Debug dbg,
 			    Dwarf_P_Die ownerdie,
@@ -153,7 +157,7 @@ dwarf_add_AT_ref_address(Dwarf_P_Debug dbg,
 }
 
 
-/* make sure attribute types are checked before entering here */
+/* Make sure attribute types are checked before entering here. */
 static Dwarf_P_Attribute
 local_add_AT_address(Dwarf_P_Debug dbg,
 		     Dwarf_P_Die ownerdie,
@@ -325,6 +329,19 @@ dwarf_dealloc_compressed_block(Dwarf_P_Debug dbg, void * space)
 }
 
 /* This is very similar to targ_address but results in a different FORM */
+/* dbg->de_ar_data_attribute_form is data4 or data8
+   and dwarf4 changes the definition for such on DW_AT_high_pc.
+   DWARF 3: the FORM here has no defined meaning for dwarf3.
+   DWARF 4: the FORM here means that for DW_AT_high_pc the value
+            is not a high address but is instead an offset
+            from a (separate) DW_AT_low_pc. 
+   The intent for DWARF4 is that this is not a relocated
+   address at all.  Instead a simple offset.
+   But this should NOT be called for a simple non-relocated offset.
+   So do not call this with an attr of DW_AT_high_pc.
+   Use dwarf_add_AT_unsigned_const() (for example) instead of
+   dwarf_add_AT_dataref when the value is a simple offset .
+*/
 Dwarf_P_Attribute
 dwarf_add_AT_dataref(
     Dwarf_P_Debug dbg,

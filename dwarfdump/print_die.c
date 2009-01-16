@@ -1,6 +1,7 @@
 /* 
   Copyright (C) 2000,2004,2005,2006 Silicon Graphics, Inc.  All Rights Reserved.
   Portions Copyright 2007 Sun Microsystems, Inc. All rights reserved.
+  Portions Copyright 2007 David Anderson. All rights reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2 of the GNU General Public License as
@@ -18,8 +19,8 @@
   other software, or any other product whatsoever.
 
   You should have received a copy of the GNU General Public License along
-  with this program; if not, write the Free Software Foundation, Inc., 59
-  Temple Place - Suite 330, Boston MA 02111-1307, USA.
+  with this program; if not, write the Free Software Foundation, Inc., 51
+  Franklin Street - Fifth Floor, Boston MA 02110-1301, USA.
 
   Contact information:  Silicon Graphics, Inc., 1500 Crittenden Lane,
   Mountain View, CA 94043, or:
@@ -38,7 +39,8 @@ $Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/print_die.c,v 1.51 200
 #include "makename.h"		/* Non-duplicating string table. */
 
 static void get_attr_value(Dwarf_Debug dbg, Dwarf_Half tag,
-			   Dwarf_Attribute attrib, char **srcfiles,
+			   Dwarf_Attribute attrib, 
+                           char **srcfiles,
 			   Dwarf_Signed cnt, struct esb_s *esbp);
 static void print_attribute(Dwarf_Debug dbg, Dwarf_Die die,
 			    Dwarf_Half attr,
@@ -632,6 +634,32 @@ print_attribute(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Half attr,
 	    }
 	    break;
 	}
+    case DW_AT_high_pc:
+        {
+	    Dwarf_Half theform;
+	    int rv;
+	    rv = dwarf_whatform(attrib,&theform,&err);
+	    /* depending on the form and the attribute, process the form */
+	    if(rv == DW_DLV_ERROR) {
+		print_error(dbg, "dwarf_whatform cannot find attr form",
+			    rv, err);
+	    } else if (rv == DW_DLV_NO_ENTRY) {
+		break;
+	    }
+	    esb_empty_string(&esb_base);
+	    get_attr_value(dbg, tag, attrib, srcfiles, cnt, &esb_base);
+            if( theform != DW_FORM_addr) {
+              /* New in DWARF4: other forms are not an address
+                 but are instead offset from pc.
+                 One could test for DWARF4 here before adding
+                 this string, but that seems unnecessary as this
+                 could not happen with DWARF3 or earlier. 
+                 A normal consumer would have to add this value to
+                 DW_AT_low_pc to get a grue pc. */
+              esb_append(&esb_base,"<offset-from-lowpc>");
+            }
+	    valname = esb_get_string(&esb_base);
+        }
     default:
 	esb_empty_string(&esb_base);
 	get_attr_value(dbg, tag, attrib, srcfiles, cnt, &esb_base);

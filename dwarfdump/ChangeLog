@@ -1,3 +1,14 @@
+2007-09-04 DavidAnderson <davea42@earthlink.net>
+     * print_die.c (print_attribute): For DWARF4: DW_AT_high_pc:
+       add qualifier to value when the value is an offset from
+       DW_AT_low_pc (thus not itself a address).
+       Update the address of the FSF.
+     * print_frames.h DWARFDUMPCOPYRIGHT print_sections.c
+       print_reloc.c dwarfdump.c tag_tree.c tag_attr.c
+       esb.c esb.h makename.c acconfig.h dwconf.c makename.h
+       dwconf.h globals.h print_frames.c:
+       Update the address of the FSF.
+
 2007-07-03 DavidAnderson <davea42@earthlink.net>
      * print_sections.c (dump_block): Removed superfluous return byte from
        printed characters. Removed unused variables.

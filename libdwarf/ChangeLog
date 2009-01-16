@@ -1,3 +1,51 @@
+2007-09-04 David Anderson <davea42@earthlink.net>
+      * pro_forms.c: Add commentary relating to the
+        recent DWARF4 DW_AT_high_pc change.
+        Correct FSF address.
+      * libdwarf2p.1.mm: Document dwarf_add_AT_dataref()
+        and dwarf_add_AT_ref_address().
+      * libdwarf2p.1.pdf: Regenerate.
+      * dwarf.h: Update FSF address.
+      * dwarf_opaque.h: Add DWARF4 entry (version stamp).
+        Update FSF address.
+      * dwarf_die_deliv.c: Add check for .debug_info version 4 
+        (version stamp). Update FSF address.
+      * libdwarf.h pro_macinfo.h pro_line.h dwarf_incl.h
+        pro_alloc.h pro_section.h libdwarfdefs.h pro_util.h
+        dwarf_vars.h dwarf_funcs.h pro_error.h dwarf_alloc.h pro_arange.h
+        dwarf_arange.h pro_die.h dwarf_global.h pro_expr.h
+        pro_reloc_stream.h pro_incl.h pro_encode_nm.h
+        dwarf_line.h pro_frame.h pro_opaque.h dwarf_error.h
+        dwarf_base_types.h dwarf_abbrev.h pro_types.h pro_reloc_symbolic.h
+        dwarf_weaks.h dwarf_util.h dwarf_loc.h malloc_check.h
+        dwarf_die_deliv.h acconfig.h dwarf_frame.h dwarf_macro.h
+        pro_reloc.h dwarf_types.h
+        pro_funcs.c Makefile.in pro_forms.c pro_line.c
+        dwarf_print_lines.c pro_alloc.c pro_init.c dwarf_addr_finder.c
+        pro_section.c dwarf_form.c dwarf_query.c dwarf_vars.c
+        dwarf_pubtypes.c dwarf_frame3.c dwarf_funcs.c pro_error.c
+        pro_arange.c dwarf_alloc.c dwarf_arange.c pro_die.c
+        dwarf_sort_line.c dwarf_global.c dwarf_init_finish.c pro_weaks.c
+        pro_pubnames.c pro_expr.c pro_reloc_stream.c pro_finish.c
+        pro_encode_nm.c dwarf_line.c pro_frame.c dwarf_error.c
+        dwarf_abbrev.c pro_types.c dwarf_leb.c pro_reloc_symbolic.c
+        dwarf_string.c pro_vars.c dwarf_line2.c dwarf_weaks.c
+        dwarf_frame2.c dwarf_util.c dwarf_loc.c LIBDWARFCOPYRIGHT
+        malloc_check.c dwarf_die_deliv.c dwarf_frame.c dwarf_stubs.c
+        dwarf_macro.c pro_reloc.c dwarf_types.c pro_macinfo.c:
+        Update FSF address.
+2007-07-26 David Anderson <davea42@earthlink.net>
+      * pro_frame.c: Added commentary about some missing DWARF3 support.
+      * dwarf_srclines_dealloc.c: File unused, now deleted.
+2007-07-04 David Anderson <davea42@earthlink.net>
+      * libdwarf.h: dwarf_get_loclist_entry() is implemented,
+        removed the erroneous 'unimplemented' comment.
+      * libdwarf2.1.mm: Improved the dwarf_get_loclist_entry()
+        documentation.
+      * libdwarf2.1.pdf: regenerated
+      * dwarf_loclist_entry.c: Removed from distribution, the
+        source has nothing of interest.
+
 2007-07-03 David Anderson <davea42@earthlink.net>
       * libdwarf.h: Add declaration of dwarf_loclist_from_expr();
       * dwarf_loc.c: Implement dwarf_loclist_from_expr() and add 

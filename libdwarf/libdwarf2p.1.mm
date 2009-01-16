@@ -11,7 +11,7 @@
 .nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.20, 7 May 2007
+.ds vE rev 1.20, 4 Sep 2007
 \." ==============================================
 \." ==============================================
 .ds | |
@@ -1311,6 +1311,82 @@ The \f(CWpc_value\fP
 is put into the section stream output and
 the \f(CWsym_index\fP is applied to the relocation
 information.
+
+Do not use this function for attr \f(CWDW_AT_high_pc\fP
+if the value to be recorded is an offset (not a pc)
+[ use \f(CWdwarf_add_AT_unsigned_const()\fP  (for example)
+instead].
+
+.H 3 "dwarf_add_AT_dataref()"
+.DS
+\f(CWDwarf_P_Attribute dwarf_add_AT_dataref(
+        Dwarf_P_Debug dbg,
+        Dwarf_P_Die ownerdie,
+        Dwarf_Half attr,
+        Dwarf_Unsigned pc_value,
+        Dwarf_Unsigned sym_index,
+        Dwarf_Error *error) \fP
+.DE
+This is very similar to \f(CWdwarf_add_AT_targ_address_b() \fP
+but results in a different FORM (results in DW_FORM_data4
+or DW_FORM_data8).
+
+Useful for adding relocatable addresses in location lists.
+
+\f(CWsym_index() \fP is guaranteed to
+be large enough that it can contain a pointer to
+arbitrary data (so the caller can pass in a real elf
+symbol index, an arbitrary number, or a pointer
+to arbitrary data).
+The ability to pass in a pointer thru \f(CWsym_index() \fP
+is only usable with
+\f(CWDW_DLC_SYMBOLIC_RELOCATIONS\fP.
+
+The \f(CWpc_value\fP
+is put into the section stream output and
+the \f(CWsym_index\fP is applied to the relocation
+information.
+
+Do not use this function for \f(CWDW_AT_high_pc\fP, use
+\f(CWdwarf_add_AT_unsigned_const()\fP  [ (for example)
+if the value to be recorded is
+an offset of \f(CWDW_AT_low_pc\fP]
+or \f(CWdwarf_add_AT_targ_address_b()\fP [ if the value
+to be recorded is an address].
+
+.H 3 "dwarf_add_AT_ref_address()"
+.DS
+\f(CWDwarf_P_Attribute dwarf_add_AT_ref_address(
+        Dwarf_P_Debug dbg,
+        Dwarf_P_Die ownerdie,
+        Dwarf_Half attr,
+        Dwarf_Unsigned pc_value,
+        Dwarf_Unsigned sym_index,
+        Dwarf_Error *error) \fP
+.DE
+
+This is very similar to \f(CWdwarf_add_AT_targ_address_b() \fP
+but results in a different FORM (results in \f(CWDW_FORM_ref_addr\fP
+being generated).
+
+Useful for  \f(CWDW_AT_type\fP and \f(CWDW_AT_import\fP attributes.
+
+\f(CWsym_index() \fP is guaranteed to
+be large enough that it can contain a pointer to
+arbitrary data (so the caller can pass in a real elf
+symbol index, an arbitrary number, or a pointer
+to arbitrary data).
+The ability to pass in a pointer thru \f(CWsym_index() \fP
+is only usable with
+\f(CWDW_DLC_SYMBOLIC_RELOCATIONS\fP.
+
+The \f(CWpc_value\fP
+is put into the section stream output and
+the \f(CWsym_index\fP is applied to the relocation
+information.
+
+Do not use this function for \f(CWDW_AT_high_pc\fP.
+
 
 .H 3 "dwarf_add_AT_unsigned_const()"
 .DS

@@ -8,7 +8,7 @@
 .nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.65, 03 July 2007
+.ds vE rev 1.66, 04 July 2007
 \." ==============================================
 \." ==============================================
 .ds | |
@@ -4610,12 +4610,6 @@ It would be desirable to specify an interface.
         Dwarf_Unsigned *next_entry,
         Dwarf_Error *error)\fP
 .DE
-\f(CWdwarf_dwarf_get_loclist_entry()\fP returns 
-\f(CWDW_DLV_OK\fP if successful.
-\f(CWDW_DLV_NO_ENTRY\fP is returned when the offset passed
-in is beyond the end of the .debug_loc section (expected if
-you start at offset zero and proceed thru all the entries). 
-\f(CWDW_DLV_ERROR\fP is returned on error. 
 The function reads 
 a location list entry starting at \f(CWoffset\fP and returns 
 through pointers (when successful)
@@ -4624,10 +4618,52 @@ the high pc \f(CWhipc_offset\fP, low pc
 \f(CWdata\fP, the length of the location description data 
 \f(CWentry_len\fP, and the offset of the next location description 
 entry \f(CWnext_entry\fP.  
+\f(CWdwarf_dwarf_get_loclist_entry()\fP returns 
+\f(CWDW_DLV_OK\fP if successful.
+\f(CWDW_DLV_NO_ENTRY\fP is returned when the offset passed
+in is beyond the end of the .debug_loc section (expected if
+you start at offset zero and proceed thru all the entries). 
+\f(CWDW_DLV_ERROR\fP is returned on error. 
 .P
 The \f(CWhipc_offset\fP,
 low pc \f(CWlopc_offset\fP are offsets from the beginning of the
 current procedure, not genuine pc values.
+.in +2
+.DS
+\f(CW
+/* Looping thru the dwarf_loc section finding loclists:
+   an example.  */
+int res;
+Dwarf_Unsigned next_entry;
+Dwarf_unsigned offset=0;
+Dwarf_Addr hipc_off;
+Dwarf_Addr lopc_off;
+Dwarf_Ptr data;
+Dwarf_Unsigned entry_len;
+Dwarf_Unsigned next_entry;
+Dwarf_Error err;
+
+    for(;;) {      
+        res = dwarf_get_loclist_entry(dbg,newoffset,&hipc_off,
+            &lowpc_off, &data, &entry_len,&next_entry,&err);
+        if (res == DW_DLV_OK) {
+            /* A valid entry. */
+            newoffset = next_entry;
+            continue;
+        } else if (res ==DW_DLV_NO_ENTRY) {
+            /* Done! */
+            break;
+        } else {
+            /* Error! */
+            break;
+        }
+         
+
+    }
+}\fP
+.DE
+.in -2
+
 
 .H 2 "Abbreviations access"
 These are Internal-level Interface functions.  

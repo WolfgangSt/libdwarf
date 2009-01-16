@@ -19,7 +19,7 @@
 
   You should have received a copy of the GNU Lesser General Public 
   License along with this program; if not, write the Free Software 
-  Foundation, Inc., 59 Temple Place - Suite 330, Boston MA 02111-1307, 
+  Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston MA 02110-1301,
   USA.
 
   Contact information:  Silicon Graphics, Inc., 1500 Crittenden Lane,
@@ -331,6 +331,9 @@ dwarf_fde_cfa_offset(Dwarf_P_Fde fde,
     represented with relocations and symbol indices for
     DW_DLC_SYMBOLIC_RELOCATIONS.
 
+    This does not treat all DW_CFA instructions and
+    currently excludes DWARF3 additions.
+
 */
 Dwarf_P_Fde
 dwarf_add_fde_inst(Dwarf_P_Fde fde,
@@ -519,6 +522,8 @@ dwarf_add_fde_inst(Dwarf_P_Fde fde,
 	break;
 
     default:
+	/* This is wrong. We are just ignoring
+           instructions we don't yet handle. FIXME. */
 	break;
     }
 

@@ -20,7 +20,7 @@
 
   You should have received a copy of the GNU Lesser General Public
   License along with this program; if not, write the Free Software
-  Foundation, Inc., 59 Temple Place - Suite 330, Boston MA 02111-1307,
+  Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston MA 02110-1301,
   USA.
 
   Contact information:  Silicon Graphics, Inc., 1500 Crittenden Lane,
@@ -1259,7 +1259,6 @@ int dwarf_weak_name_offsets(Dwarf_Weak	/*weak*/,
     Dwarf_Error*	/*error*/);
 
 /* location list section operation.  (.debug_loc access) */
-/* Unimplemented. */
 int dwarf_get_loclist_entry(Dwarf_Debug /*dbg*/, 
     Dwarf_Unsigned 	/*offset*/, 
     Dwarf_Addr* 	/*hipc*/, 

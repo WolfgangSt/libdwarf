@@ -20,7 +20,7 @@
 
   You should have received a copy of the GNU Lesser General Public 
   License along with this program; if not, write the Free Software 
-  Foundation, Inc., 59 Temple Place - Suite 330, Boston MA 02111-1307, 
+  Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston MA 02110-1301,
   USA.
 
   Contact information:  Silicon Graphics, Inc., 1500 Crittenden Lane,
@@ -207,7 +207,8 @@ _dwarf_make_CU_Context(Dwarf_Debug dbg,
     }
 
     if (cu_context->cc_version_stamp != CURRENT_VERSION_STAMP
-	&& cu_context->cc_version_stamp != CURRENT_VERSION_STAMP3) {
+        && cu_context->cc_version_stamp != CURRENT_VERSION_STAMP3
+        && cu_context->cc_version_stamp != CURRENT_VERSION_STAMP4) {
 	dwarf_dealloc(dbg, cu_context, DW_DLA_CU_CONTEXT);
 	_dwarf_error(dbg, error, DW_DLE_VERSION_STAMP_ERROR);
 	return (NULL);
