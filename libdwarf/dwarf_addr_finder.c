@@ -32,7 +32,9 @@
   http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 */
-
+/* This code used by SGI-IRIX rqs processing, not needed by
+   any other system or application.
+*/
 
 #include "config.h"
 #include "libdwarfdefs.h"

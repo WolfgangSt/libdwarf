@@ -66,6 +66,7 @@
  * Handling of cie augmentation strings is necessarly a heuristic.
  * See dwarf_frame.c for the currently known augmentation strings.
 
+
    ---START SGI-ONLY COMMENT:
  * SGI-IRIX versions of cie or fde  were intended to use "z1", "z2" as the
  * augmenter strings if required for new augmentation.
@@ -80,9 +81,12 @@
    ---END SGI-ONLY COMMENT
  
 
- * AMD 64 .eh_frame has an augmentation string of zR (gcc 3.4)
+ * GNU .eh_frame has an augmentation string of z[RLP]* (gcc 3.4)
  * The similarity to IRIX 'z' (and proposed but never
  * implemented IRIX z1, z2 etc) was confusing things.
+ * If the section is .eh_frame then 'z' means GNU exception
+ * information 'Augmentation Data' not IRIX 'z'.
+ * See The Linux Standard Base Core Specification version 3.0
  */
 
 #define DW_DEBUG_FRAME_VERSION                 	1 /* DWARF2 */
@@ -205,9 +209,17 @@ struct Dwarf_Cie_s {
     Dwarf_Small ci_length_size;
     Dwarf_Small ci_extension_size;
     Dwarf_Half ci_cie_version_number;
-    enum Dwarf_augmentation_type ci_augmentation_type;	 /* On 
-	reading FDEs one does  not normally have a CIE pointer 
-	at the right time to use this. Yet. */
+    enum Dwarf_augmentation_type ci_augmentation_type;	 
+
+    /* The following 2 for GNU .eh_frame exception handling
+       Augmentation Data. Set if ci_augmentation_type
+       is aug_gcc_eh_z. Zero if unused. */
+    Dwarf_Unsigned ci_gnu_eh_augmentation_len;
+    Dwarf_Ptr      ci_gnu_eh_augmentation_bytes;
+
+    /* In creating list of cie's (which will become an array)
+       record the position so fde can get it on fde creation. */
+    Dwarf_Unsigned ci_index;
 };
 
 /*
@@ -223,7 +235,7 @@ struct Dwarf_Cie_s {
 struct Dwarf_Fde_s {
     Dwarf_Word fd_length;
     Dwarf_Addr fd_cie_offset;
-    Dwarf_Sword fd_cie_index;
+    Dwarf_Unsigned fd_cie_index;
     Dwarf_Cie fd_cie;
     Dwarf_Addr fd_initial_location;
     Dwarf_Small *fd_initial_loc_pos;
@@ -231,10 +243,19 @@ struct Dwarf_Fde_s {
     Dwarf_Small *fd_fde_start;
     Dwarf_Small *fd_fde_instr_start;
     Dwarf_Debug fd_dbg;
+
+	/* fd_offset_into_exception_tables is SGI/IRIX exception table
+	   offset. Unused and zero if not IRIX .debug_frame. */
     Dwarf_Signed fd_offset_into_exception_tables;
+
     Dwarf_Fde fd_next;
     Dwarf_Small fd_length_size;
     Dwarf_Small fd_extension_size;
+    /* The following 2 for GNU .eh_frame exception handling
+       Augmentation Data. Set if CIE ci_augmentation_type
+       is aug_gcc_eh_z. Zero if unused. */
+    Dwarf_Unsigned fd_gnu_eh_augmentation_len;
+    Dwarf_Ptr fd_gnu_eh_augmentation_bytes;
 
     /* The following 3 are about the Elf section the FDEs come from. */
     Dwarf_Small * fd_section_ptr;
@@ -249,3 +270,85 @@ int
 			       Dwarf_Off ** offsetlist,
 			       Dwarf_Signed * returncount,
 			       Dwarf_Error * err);
+
+int
+_dwarf_get_fde_list_internal(Dwarf_Debug dbg,
+                              Dwarf_Cie ** cie_data,
+                              Dwarf_Signed * cie_element_count,
+                              Dwarf_Fde ** fde_data,
+                              Dwarf_Signed * fde_element_count,
+                              Dwarf_Small * section_ptr,
+                              Dwarf_Unsigned section_index,
+                              Dwarf_Unsigned section_length,
+                              Dwarf_Unsigned cie_id_value,
+                              int use_gnu_cie_calc,  /* If non-zero,
+                                this is gcc eh_frame. */
+                              Dwarf_Error * error);
+
+enum Dwarf_augmentation_type
+_dwarf_get_augmentation_type(Dwarf_Debug dbg,
+        Dwarf_Small *augmentation_string,
+        int is_gcc_eh_frame);
+
+Dwarf_Unsigned _dwarf_get_return_address_reg(Dwarf_Small *frame_ptr,
+                        int version,
+                        unsigned long *size);
+
+/* Temporary recording of crucial cie/fde prefix data.
+ * Vastly simplifies some argument lists.
+ */
+struct cie_fde_prefix_s {
+   Dwarf_Small *  cf_start_addr;
+   Dwarf_Small *  cf_addr_after_prefix;
+   Dwarf_Word     cf_length;
+   int            cf_local_length_size;
+   int            cf_local_extension_size;
+   Dwarf_Unsigned cf_cie_id;
+   Dwarf_Small *  cf_cie_id_addr; /* used for eh_frame calculations. */
+
+   /* Simplifies passing around these values to create fde having
+      these here. */
+   Dwarf_Small *  cf_section_ptr;
+   Dwarf_Unsigned cf_section_index; 
+   Dwarf_Unsigned cf_section_length; 
+};
+
+int
+_dwarf_exec_frame_instr(Dwarf_Bool make_instr,
+                        Dwarf_Frame_Op ** ret_frame_instr,
+                        Dwarf_Bool search_pc,
+                        Dwarf_Addr search_pc_val,
+                        Dwarf_Addr initial_loc,
+                        Dwarf_Small * start_instr_ptr,
+                        Dwarf_Small * final_instr_ptr,
+                        Dwarf_Frame table,
+                        Dwarf_Cie cie,
+                        Dwarf_Debug dbg,
+                        Dwarf_Sword * returned_count,
+                        int *returned_error);
+
+
+int dwarf_read_cie_fde_prefix(Dwarf_Debug dbg,
+        Dwarf_Small *frame_ptr_in,
+        Dwarf_Small *section_ptr_in,
+        Dwarf_Unsigned section_index_in,
+	Dwarf_Unsigned section_length_in,
+        struct cie_fde_prefix_s *prefix_out,
+        Dwarf_Error *error);
+
+int dwarf_create_fde_from_after_start(Dwarf_Debug dbg,
+        struct cie_fde_prefix_s *  prefix,
+        Dwarf_Small *frame_ptr,
+        int use_gnu_cie_calc,
+        Dwarf_Cie  cie_ptr_in,
+        Dwarf_Fde *fde_ptr_out,
+        Dwarf_Error *error);
+
+int dwarf_create_cie_from_after_start(Dwarf_Debug dbg,
+        struct cie_fde_prefix_s *prefix,
+        Dwarf_Small* frame_ptr,
+        Dwarf_Unsigned cie_count,
+        int use_gnu_cie_calc,
+        Dwarf_Cie *cie_ptr_out,
+        Dwarf_Error *error);
+

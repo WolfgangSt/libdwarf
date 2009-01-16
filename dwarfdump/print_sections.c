@@ -708,6 +708,7 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 			memcpy(&v64, instp + 1, addr_size);
 			uval = v64;
 		    }
+		    break;
 		default:
 		    printf
 			("Error: Unexpected address size %d in DW_CFA_set_loc!\n",

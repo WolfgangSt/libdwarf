@@ -473,6 +473,7 @@ typedef void  (*Dwarf_Handler)(Dwarf_Error /*error*/, Dwarf_Ptr /*errarg*/);
 #define DW_DLE_DEBUG_PUBTYPES_LENGTH_BAD        197
 #define DW_DLE_DEBUG_PUBTYPES_VERSION_ERROR     198
 #define DW_DLE_DEBUG_PUBTYPES_DUPLICATE         199
+#define DW_DLE_FRAME_CIE_DECODE_ERROR           200
 
 
 
@@ -1075,9 +1076,12 @@ int dwarf_get_fde_range(Dwarf_Fde /*fde*/,
     Dwarf_Off*   	/*fde_offset*/, 
     Dwarf_Error* 	/*error*/);
 
+/*  Useful for IRIX only:  see dwarf_get_cie_augmentation_data()
+       dwarf_get_fde_augmentation_data() for GNU .eh_frame. */
 int dwarf_get_fde_exception_info(Dwarf_Fde /*fde*/,
     Dwarf_Signed*	/* offset_into_exception_tables */,
     Dwarf_Error*        /*error*/);
+
 
 int dwarf_get_cie_of_fde(Dwarf_Fde /*fde*/,
     Dwarf_Cie *         /*cie_returned*/,
@@ -1129,6 +1133,19 @@ int dwarf_get_fde_at_pc(Dwarf_Fde* /*fde_data*/,
     Dwarf_Addr* 	/*lopc*/, 
     Dwarf_Addr* 	/*hipc*/, 
     Dwarf_Error* 	/*error*/);
+
+/* GNU .eh_frame augmentation information, raw form, see
+   Linux Standard Base Core Specification version 3.0 . */
+int dwarf_get_cie_augmentation_data(Dwarf_Cie /* cie*/,
+    Dwarf_Ptr *         /* augdata */,
+    Dwarf_Unsigned *    /* augdata_len */,
+    Dwarf_Error*        /*error*/);
+/* GNU .eh_frame augmentation information, raw form, see
+   Linux Standard Base Core Specification version 3.0 . */
+int dwarf_get_fde_augmentation_data(Dwarf_Fde /* fde*/,
+    Dwarf_Ptr *         /* augdata */,
+    Dwarf_Unsigned *    /* augdata_len */,
+    Dwarf_Error*        /*error*/);
 
 int dwarf_expand_frame_instructions(Dwarf_Debug /*dbg*/, 
     Dwarf_Ptr 		/*instruction*/, 

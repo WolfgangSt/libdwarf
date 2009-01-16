@@ -150,13 +150,18 @@ struct Dwarf_Line_s {
 };
 
 
-int
-  _dwarf_line_address_offsets(Dwarf_Debug dbg,
+int _dwarf_line_address_offsets(Dwarf_Debug dbg,
 			      Dwarf_Die die,
 			      Dwarf_Addr ** addrs,
 			      Dwarf_Off ** offs,
 			      Dwarf_Unsigned * returncount,
 			      Dwarf_Error * err);
+int _dwarf_internal_srclines(Dwarf_Die die,
+                         Dwarf_Line ** linebuf,
+                         Dwarf_Signed * count,
+                         Dwarf_Bool doaddrs,
+                         Dwarf_Bool dolines, Dwarf_Error * error);
+
 
 
 /* The LOP, WHAT_IS_OPCODE stuff is here so it can

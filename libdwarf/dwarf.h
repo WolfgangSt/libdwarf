@@ -699,10 +699,34 @@ extern "C" {
 
 /* GNU extensions. */
 #define DW_CFA_GNU_window_save   0x2d  /* GNU */
-#define DW_CFA_GNU_args_size     0x2e /* GNU */
+#define DW_CFA_GNU_args_size     0x2e /* GNU  */
 #define DW_CFA_GNU_negative_offset_extended  0x2f /* GNU */
 
 #define DW_CFA_high_user         0x3f
+
+/* GNU exception header encoding.  See the Generic
+   Elf Specification of the Linux Standard Base (LSB). 
+   http://refspecs.freestandards.org/LSB_3.0.0/LSB-Core-generic/LSB-Core-generic/dwarfext.html
+   The upper 4 bits indicate how the value is to be applied. 
+   The lower 4 bits indicate the format of the data.
+*/
+#define DW_EH_PE_absptr	  0x00  /* GNU */
+#define DW_EH_PE_uleb128  0x01  /* GNU */
+#define DW_EH_PE_udata2	  0x02  /* GNU */
+#define DW_EH_PE_udata4	  0x03  /* GNU */
+#define DW_EH_PE_udata8	  0x04  /* GNU */
+#define DW_EH_PE_sleb128  0x09  /* GNU */
+#define DW_EH_PE_sdata2   0x0A  /* GNU */
+#define DW_EH_PE_sdata4	  0x0B  /* GNU */
+#define DW_EH_PE_sdata8	  0x0C  /* GNU */
+
+#define DW_EH_PE_pcrel	  0x10  /* GNU */
+#define DW_EH_PE_textrel  0x20  /* GNU */
+#define DW_EH_PE_datarel  0x30  /* GNU */
+#define DW_EH_PE_funcrel  0x40  /* GNU */
+#define DW_EH_PE_aligned  0x50  /* GNU */
+
+#define DW_EH_PE_omit     0xff  /* GNU.  Means  no value present. */
 
 
 /* Mapping from machine registers and pseudo-regs into the .debug_frame table.

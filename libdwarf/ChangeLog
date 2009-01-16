@@ -1,3 +1,37 @@
+2006-03-08 David Anderson <davea@sgi.com>
+      * dwarf_frame2.c: ensure local variables  initialized
+        to avoid coredump.
+2006-03-08 David Anderson <davea@sgi.com>
+      * dwarf_die_deliv.c: Remove Richard Stukey's -1 and
+        replace with a simpler more complete fix.
+2006-03-07 David Anderson <davea@sgi.com>
+      * Makefile.in: Add dwarf_line2.c dwarf_frame3.c to files to build.
+      * dwarf_addr_finder.c: Add comments about file purpose.
+      * dwarf_frame.c: Move IRIX specific function out of this file.
+      * dwarf_frame3.c: Move IRIX specific function to this new file.
+      * dwarf_frame.h: Add interface declaration.
+      * dwarf_line.c: Move IRIX specific function out of this file.
+      * dwarf_line2.c: Move IRIX specific function to this new file.
+      * dwarf_line.h: Add interface declaration.
+      * dwarf_frame2.c: Altered comments so indent handles them better,
+        ran indent.
+
+2006-03-07 David Anderson <davea@sgi.com>
+      * dwarf_die_deliv.c (dwarf_siblingof): -1 to point to end of cu,
+        not one-past-end.  With thanks to Richard Stuckey.
+      * libdwarf2.1.mm: document existing function dwarf_get_fde_exception_info()
+      * dwarf_frame.h: Add new internal interfaces.
+      * dwarf_frame.c: Remove cie/fde reader to dwarf_frame2.c.
+      * dwarf_frame2.c: Contains heavily refactored cie/fde reader,
+        preparing for eh_frame support and avoids some searching
+        in fde creation.  Removes duplicated code into new 
+        internal functions.
+      * Makefile.in: Adding comment about flag for malloc_checking
+        code. Add dwarf_frame2.c to source list.
+      * libdwarf.h: added declarations for eh_frame information, though
+        these are not yet supported.
+      * dwarf.h: Added defines for eh_frame information, though these
+        are not yet used.
 2006-02-23 David Anderson <davea@sgi.com>
       * dwarf_line.h dwarf_line.c: added dwarf_line_srcfileno()
         to complement dwarf_lineno.

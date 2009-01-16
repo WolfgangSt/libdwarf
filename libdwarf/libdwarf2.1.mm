@@ -8,7 +8,7 @@
 .nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.58, 23 February 2006
+.ds vE rev 1.60, 27 February 2006
 \." ==============================================
 \." ==============================================
 .ds | |
@@ -1072,7 +1072,7 @@ descriptor, an app should use \f(CWdwarf_get_elf\fP
 and should call \f(CWelf_end\fP with the pointer returned
 thru the \f(CWElf**\fP handle created by \f(CWint dwarf_init()\fP.
 
-This function is not meaningful for a system that does not used the
+This function is not meaningful for a system that does not use the
 Elf format for objects.
 
 .H 3 "dwarf_finish()"
@@ -3985,7 +3985,25 @@ if (res == DW_DLV_OK) {
 }\fP
 .DE
 .in -2
-
+.H 4 "dwarf_get_fde_exception_info()"
+.DS
+\f(CWint dwarf_get_fde_exception_info(
+    Dwarf_Fde fde,
+    Dwarf_Signed * offset_into_exception_tables,
+    Dwarf_Error * error);
+.DE
+\f(CWdwarf_get_fde_exception_info()\fP is an IRIX specific
+function which returns an exception table signed offset
+thru \f(CWoffset_into_exception_tables\fP.
+The function never returns \f(CWDW_DLV_NO_ENTRY\fP.
+If \f(CWDW_DLV_NO_ENTRY\fP is NULL the function returns 
+\f(CWDW_DLV_ERROR\fP.
+For non-IRIX objects the offset returned will always be zero.
+For non-C++ objects the offset returned will always be zero.
+The meaning of the offset and the content of the tables
+is not defined in this document.
+The applicable CIE augmentation string (see above)
+determines whether the value returned has meaning.
 
 .H 2 "Location Expression Evaluation"
 

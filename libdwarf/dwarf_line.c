@@ -1581,63 +1581,6 @@ dwarf_pclines(Dwarf_Debug dbg,
 #endif
 
 
-/*
-	Return DW_DLV_OK or, if error,
-	DW_DLV_ERROR.
-
-	Thru pointers, return 2 arrays and a count
-	for rqs.
-*/
-int
-_dwarf_line_address_offsets(Dwarf_Debug dbg,
-			    Dwarf_Die die,
-			    Dwarf_Addr ** addrs,
-			    Dwarf_Off ** offs,
-			    Dwarf_Unsigned * returncount,
-			    Dwarf_Error * err)
-{
-    Dwarf_Addr *laddrs;
-    Dwarf_Off *loffsets;
-    Dwarf_Signed lcount;
-    Dwarf_Signed i;
-    int res;
-    Dwarf_Line *linebuf;
-
-    res = _dwarf_internal_srclines(die, &linebuf,
-				   &lcount, /* addrlist= */ true,
-				   /* linelist= */ false, err);
-    if (res != DW_DLV_OK) {
-	return res;
-    }
-    laddrs = (Dwarf_Addr *)
-	_dwarf_get_alloc(dbg, DW_DLA_ADDR, lcount);
-    if (laddrs == NULL) {
-        dwarf_srclines_dealloc(dbg,linebuf,lcount); 
-	_dwarf_error(dbg, err, DW_DLE_ALLOC_FAIL);
-	return (DW_DLV_ERROR);
-    }
-    loffsets = (Dwarf_Off *)
-	_dwarf_get_alloc(dbg, DW_DLA_ADDR, lcount);
-    if (loffsets == NULL) {
-        dwarf_srclines_dealloc(dbg,linebuf,lcount); 
-	/* We already  allocated what laddrs
-	   points at, so we'e better deallocate that space since
-	   we are not going to return the pointer to the caller. */
-	dwarf_dealloc(dbg,laddrs,DW_DLA_ADDR);
-	_dwarf_error(dbg, err, DW_DLE_ALLOC_FAIL);
-	return (DW_DLV_ERROR);
-    }
-
-    for (i = 0; i < lcount; i++) {
-	laddrs[i] = linebuf[i]->li_address;
-	loffsets[i] = linebuf[i]->li_addr_line.li_offset;
-    }
-    dwarf_srclines_dealloc(dbg,linebuf,lcount); 
-    *returncount = lcount;
-    *offs = loffsets;
-    *addrs = laddrs;
-    return DW_DLV_OK;
-}
 
 /*
    It's impossible for callers of dwarf_srclines() to get to and

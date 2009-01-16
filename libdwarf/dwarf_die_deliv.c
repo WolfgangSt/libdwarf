@@ -356,6 +356,9 @@ dwarf_next_cu_header(Dwarf_Debug dbg,
     However, in case want_AT_child is true and the die 
     has a DW_AT_sibling attribute *has_die_child is set 
     false to indicate that the children are being skipped.
+
+    die_info_end  points to the last byte+1 of the cu.
+    
 */
 static Dwarf_Byte_Ptr
 _dwarf_next_die_info_ptr(Dwarf_Byte_Ptr die_info_ptr,
@@ -436,11 +439,17 @@ _dwarf_next_die_info_ptr(Dwarf_Byte_Ptr die_info_ptr,
 	    /* Reset *has_die_child to indicate children skipped.  */
 	    *has_die_child = false;
 
+	    /* A value beyond die_info_end indicates an error.
+		Exactly at die_info_end means 1-past-cu-end
+	        and simply means we are at the end, do not
+		return NULL. Higher level code will detect
+		that we are at the end. */
 	    if (cu_info_start + offset > die_info_end) {
+		/* Error case, bad DWARF. */
 		return (NULL);
-	    } else {
-		return (cu_info_start + offset);
 	    }
+	    /* At or before end-of-cu */
+	    return (cu_info_start + offset);
 	}
 
 	if (attr_form != 0) {
@@ -448,7 +457,11 @@ _dwarf_next_die_info_ptr(Dwarf_Byte_Ptr die_info_ptr,
 					       attr_form, info_ptr,
 					       cu_context->
 					       cc_length_size);
-	    if (info_ptr > die_info_end) {
+	    /* It is ok for info_ptr == die_info_end, as
+	       we will test later before using a too-large info_ptr */
+	    if (info_ptr > die_info_end ) {
+	        /* More than one-past-end indicates a bug somewhere,
+	           likely bad dwarf generation. */
 		return (NULL);
 	    }
 	}
@@ -488,6 +501,8 @@ dwarf_siblingof(Dwarf_Debug dbg,
     Dwarf_Die ret_die;
     Dwarf_Byte_Ptr die_info_ptr;
     Dwarf_Byte_Ptr cu_info_start = 0;
+
+    /* die_info_end points 1-past end of die (once set) */
     Dwarf_Byte_Ptr die_info_end = 0;
     Dwarf_Half abbrev_code;
     Dwarf_Unsigned utmp;
@@ -517,7 +532,7 @@ dwarf_siblingof(Dwarf_Debug dbg,
 	    off2 + _dwarf_length_of_cu_header(dbg, off2);
     } else {
 	/* Find sibling die. */
-	Dwarf_Bool has_child;
+	Dwarf_Bool has_child = false;
 	Dwarf_Sword child_depth;
 
 	/* We cannot have a legal die unless debug_info was loaded, so
@@ -553,16 +568,23 @@ dwarf_siblingof(Dwarf_Debug dbg,
 		die_info_ptr++;
 		has_child = false;
 	    }
-
-	    if ((*die_info_ptr) == 0)
+            /* die_info_ptr can be one-past-end. */
+            if((die_info_ptr == die_info_end) || 
+		((*die_info_ptr) == 0)) {
 		for (; child_depth > 0 && *die_info_ptr == 0;
 		     child_depth--, die_info_ptr++);
-	    else
+	    } else {
 		child_depth = has_child ? child_depth + 1 : child_depth;
+	    }
 
 	} while (child_depth != 0);
     }
 
+    /* die_info_ptr > die_info_end is really a bug (possibly
+       in dwarf generation)(but we are past end, no
+       more DIEs here), whereas
+       die_info_ptr == die_info_end means 'one past end, no more
+       DIEs here'. */
     if (die != NULL && die_info_ptr >= die_info_end) {
 	return (DW_DLV_NO_ENTRY);
     }
@@ -608,13 +630,15 @@ int
 dwarf_child(Dwarf_Die die,
 	    Dwarf_Die * caller_ret_die, Dwarf_Error * error)
 {
-    Dwarf_Byte_Ptr die_info_ptr;
-    Dwarf_Byte_Ptr die_info_end;
-    Dwarf_Die ret_die;
-    Dwarf_Bool has_die_child;
+    Dwarf_Byte_Ptr die_info_ptr = 0;
+
+    /* die_info_end points one-past-end of die area. */
+    Dwarf_Byte_Ptr die_info_end = 0;
+    Dwarf_Die ret_die = 0;
+    Dwarf_Bool has_die_child = 0;
     Dwarf_Debug dbg;
-    Dwarf_Half abbrev_code;
-    Dwarf_Unsigned utmp;
+    Dwarf_Half abbrev_code = 0;
+    Dwarf_Unsigned utmp = 0;
 
 
     CHECK_DIE(die, DW_DLV_ERROR)
@@ -684,10 +708,10 @@ dwarf_offdie(Dwarf_Debug dbg,
 {
     Dwarf_CU_Context cu_context;
     Dwarf_Off new_cu_offset = 0;
-    Dwarf_Die die;
-    Dwarf_Byte_Ptr info_ptr;
-    Dwarf_Half abbrev_code;
-    Dwarf_Unsigned utmp;
+    Dwarf_Die die = 0;
+    Dwarf_Byte_Ptr info_ptr = 0;
+    Dwarf_Half abbrev_code = 0;
+    Dwarf_Unsigned utmp = 0;
 
     if (dbg == NULL) {
 	_dwarf_error(NULL, error, DW_DLE_DBG_NULL);
