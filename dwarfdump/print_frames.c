@@ -123,8 +123,11 @@ print_one_fde(Dwarf_Debug dbg, Dwarf_Fde fde,
 	} else if (ares == DW_DLV_OK) {
 	    int k2;
 
-	    printf("<eh aug data len 0x%llx bytes 0x", (long long) len);
+	    printf("<eh aug data len 0x%llx", (long long) len);
 	    for (k2 = 0; k2 < len; ++k2) {
+		if (k2 == 0) {
+		    printf(" bytes 0x");
+		}
 		printf("%02x ", (unsigned char) data[k2]);
 	    }
 	    printf(">");
@@ -395,10 +398,11 @@ print_one_cie(Dwarf_Debug dbg, Dwarf_Cie cie,
 	    } else if (ares == DW_DLV_OK && len > 0) {
 		int k2;
 
-		printf
-		    ("\teh aug data len 0x%llx bytes 0x",
-		     (long long) len);
+		printf("\teh aug data len 0x%llx", (long long) len);
 		for (k2 = 0; data && k2 < len; ++k2) {
+		    if (k2 == 0) {
+			printf(" bytes 0x");
+		    }
 		    printf("%02x ", (unsigned char) data[k2]);
 		}
 		printf("\n");
@@ -410,9 +414,7 @@ print_one_cie(Dwarf_Debug dbg, Dwarf_Cie cie,
 	    ("\tbytes of initial instructions:\t%lld\n",
 	     (long long) initial_instructions_length);
 	printf("\tcie length :\t\t\t%lld\n", (long long) cie_length);
-	print_frame_inst_bytes(dbg,
-			       initial_instructions,
-			       (Dwarf_Signed)
+	print_frame_inst_bytes(dbg, initial_instructions, (Dwarf_Signed)
 			       initial_instructions_length,
 			       data_alignment_factor,
 			       (int) code_alignment_factor,

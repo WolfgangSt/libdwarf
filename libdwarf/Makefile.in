@@ -171,6 +171,7 @@ mips_extensions.ps: mips_extensions.mm
 
 clean:
 		rm -f *.o libdwarf.a 
+		rm -f libdwarf.so
 
 distclean:	clean
 		rm -f config.status config.log config.cache config.h

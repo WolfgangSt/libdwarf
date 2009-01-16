@@ -1,3 +1,10 @@
+2006-06-14 David Anderson <davea@sgi.com>
+      * dwarf_opaque.h dwarf_frame.h dwarf_frame.c
+        dwarf_init_finish.c dwarf_frame2.c: Corrected handling
+        of eh_frame zP encoding.  
+        Thanks to Cristi Vlasceanu for noticing it was broken.
+      * Makefile.in: remove libdwarf.so in 'clean' rule.
+        Thanks to Cristi Vlasceanu for noticing it was missing.
 2006-04-28 David Anderson <davea@sgi.com>
       * dwarf_frame.c: Changed local variable type to
         avoid compiler warning. 

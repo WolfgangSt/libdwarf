@@ -1,3 +1,6 @@
+2006-06-14 David Anderson <davea@sgi.com>
+     * print_frames.c: Clean up printing of augmentation data  by
+       eliminating dangling 0x (for eh_frame).
 2006-04-28 David Anderson <davea@sgi.com>
      * dwarfdump.conf: Now has x86_64 register names.
        x86_64 with help from Tom Hughes (verified

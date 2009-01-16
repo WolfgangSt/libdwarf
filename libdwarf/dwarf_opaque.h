@@ -194,6 +194,10 @@ struct Dwarf_Debug_s {
     Dwarf_Small *de_debug_pubtypes; /* DWARF3 .debug_pubtypes */
     Dwarf_Small *de_debug_frame_eh_gnu;	/* gnu for the g++ eh_frame
 					   section */
+    Dwarf_Addr   de_debug_frame_eh_addr; /* gnu for the g++ eh_frame
+                                           section. Section address
+		                           from Elf. Purpose: to handle
+					DW_EH_PE_pcrel encoding. */
 
     Dwarf_Small *de_debug_funcnames;
     Dwarf_Small *de_debug_typenames; /* SGI IRIX extension essentially

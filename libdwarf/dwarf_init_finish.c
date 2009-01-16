@@ -146,29 +146,30 @@ _dwarf_setup(Dwarf_Debug dbg, dwarf_elf_handle elf, Dwarf_Error * error)
     Elf64_Ehdr ehdr;
     Elf64_Shdr shdr;
     enum elf_sgi_error_type sres;
-    unsigned char const *ehdr_ident;
+    unsigned char const *ehdr_ident = 0;
 #else
-    Elf32_Ehdr *ehdr32;
+    Elf32_Ehdr *ehdr32 = 0;
 
 #ifdef HAVE_ELF64_GETEHDR
-    Elf64_Ehdr *ehdr64;
+    Elf64_Ehdr *ehdr64 = 0;
 #endif
-    Elf32_Shdr *shdr32;
+    Elf32_Shdr *shdr32 = 0;
 
 #ifdef HAVE_ELF64_GETSHDR
-    Elf64_Shdr *shdr64;
+    Elf64_Shdr *shdr64 = 0;
 #endif
-    Elf_Scn *scn;
-    char *ehdr_ident;
+    Elf_Scn *scn = 0;
+    char *ehdr_ident = 0;
 #endif /* !defined(__SGI_FAST_LIBELF) */
-    Dwarf_Half machine;
-    char *scn_name;
-    int is_64bit;
-    int foundDwarf;
+    Dwarf_Half machine = 0;
+    char *scn_name = 0;
+    int is_64bit = 0;
+    int foundDwarf = 0;
 
-    Dwarf_Unsigned section_size;
-    Dwarf_Unsigned section_count;
-    Dwarf_Half section_index;
+    Dwarf_Unsigned section_size = 0;
+    Dwarf_Unsigned section_count = 0;
+    Dwarf_Half section_index = 0;
+    Dwarf_Addr section_addr = 0;
 
     foundDwarf = FALSE;
     dbg->de_elf = elf;
@@ -265,6 +266,7 @@ _dwarf_setup(Dwarf_Debug dbg, dwarf_elf_handle elf, Dwarf_Error * error)
 	}
 
 	section_size = shdr.sh_size;
+	section_addr = shdr.sh_addr;
 
 	sres =
 	    elf_sgi_string(elf, ehdr.e_shstrndx, shdr.sh_name,
@@ -288,6 +290,7 @@ _dwarf_setup(Dwarf_Debug dbg, dwarf_elf_handle elf, Dwarf_Error * error)
 	    }
 
 	    section_size = shdr64->sh_size;
+	    section_addr = shdr64->sh_addr;
 
 	    if ((scn_name = elf_strptr(elf, ehdr64->e_shstrndx,
 				       shdr64->sh_name))
@@ -303,6 +306,7 @@ _dwarf_setup(Dwarf_Debug dbg, dwarf_elf_handle elf, Dwarf_Error * error)
 	    }
 
 	    section_size = shdr32->sh_size;
+	    section_addr = shdr32->sh_addr;
 
 	    if ((scn_name = elf_strptr(elf, ehdr32->e_shstrndx,
 				       shdr32->sh_name)) == NULL) {
@@ -400,6 +404,7 @@ _dwarf_setup(Dwarf_Debug dbg, dwarf_elf_handle elf, Dwarf_Error * error)
 	    }
 	    dbg->de_debug_frame_eh_gnu_index = section_index;
 	    dbg->de_debug_frame_size_eh_gnu = section_size;
+	    dbg->de_debug_frame_eh_addr = section_addr;
 	    foundDwarf = TRUE;
 	}
 

@@ -90,6 +90,7 @@ static int
 
 
 static int read_encoded_ptr(Dwarf_Debug dbg,
+			    Dwarf_Small * section_pointer,
 			    Dwarf_Small * input_field,
 			    int gnu_encoding,
 			    Dwarf_Unsigned * addr,
@@ -252,6 +253,7 @@ _dwarf_get_fde_list_internal(Dwarf_Debug dbg, Dwarf_Cie ** cie_data,
 		/* CIE before its FDE in this case. */
 		res = dwarf_create_cie_from_after_start(dbg,
 							&prefix,
+							section_ptr,
 							frame_ptr,
 							cie_count,
 							use_gnu_cie_calc,
@@ -330,6 +332,7 @@ _dwarf_get_fde_list_internal(Dwarf_Debug dbg, Dwarf_Cie ** cie_data,
 
 	    res = dwarf_create_fde_from_after_start(dbg,
 						    &prefix,
+						    section_ptr,
 						    frame_ptr,
 						    use_gnu_cie_calc,
 						    cie_ptr_to_use,
@@ -428,6 +431,7 @@ _dwarf_get_fde_list_internal(Dwarf_Debug dbg, Dwarf_Cie ** cie_data,
 int
 dwarf_create_cie_from_after_start(Dwarf_Debug dbg,
 				  struct cie_fde_prefix_s *prefix,
+				  Dwarf_Small * section_pointer,
 				  Dwarf_Small * frame_ptr,
 				  Dwarf_Unsigned cie_count,
 				  int use_gnu_cie_calc,
@@ -635,6 +639,7 @@ dwarf_create_cie_from_after_start(Dwarf_Debug dbg,
 int
 dwarf_create_fde_from_after_start(Dwarf_Debug dbg,
 				  struct cie_fde_prefix_s *prefix,
+				  Dwarf_Small * section_pointer,
 				  Dwarf_Small * frame_ptr,
 				  int use_gnu_cie_calc,
 				  Dwarf_Cie cie_ptr_in,
@@ -666,7 +671,9 @@ dwarf_create_fde_from_after_start(Dwarf_Debug dbg,
 
 	{
 	    Dwarf_Small *fp_updated = 0;
-	    int res = res = read_encoded_ptr(dbg, frame_ptr,
+	    int res = res = read_encoded_ptr(dbg,
+					     section_pointer,
+					     frame_ptr,
 					     cieptr->
 					     ci_gnu_fde_begin_encoding,
 					     &initial_location,
@@ -678,7 +685,13 @@ dwarf_create_fde_from_after_start(Dwarf_Debug dbg,
 		return DW_DLV_ERROR;
 	    }
 	    frame_ptr = fp_updated;
-	    res = read_encoded_ptr(dbg, frame_ptr,
+	    /* For the address-range it makes no sense to be
+	       pc-relative, so we turn it off with a section_pointer of 
+	       NULL. Masking off DW_EH_PE_pcrel from the
+	       ci_gnu_fde_begin_encoding in this call would also work
+	       to turn off DW_EH_PE_pcrel. */
+	    res = read_encoded_ptr(dbg, (Dwarf_Small *) NULL,
+				   frame_ptr,
 				   cieptr->ci_gnu_fde_begin_encoding,
 				   &address_range, &fp_updated);
 	    if (res != DW_DLV_OK) {
@@ -974,6 +987,7 @@ dwarf_create_cie_from_start(Dwarf_Debug dbg,
     frame_ptr = prefix.cf_addr_after_prefix;
     res = dwarf_create_cie_from_after_start(dbg,
 					    &prefix,
+					    section_ptr,
 					    frame_ptr,
 					    cie_count,
 					    use_gnu_cie_calc,
@@ -1057,7 +1071,10 @@ gnu_aug_encodings(Dwarf_Debug dbg, char *augmentation,
 		if (cur_aug_p > end_aug_p) {
 		    return DW_DLV_ERROR;
 		}
+		/* DW_EH_PE_pcrel makes no sense here, so we turn it
+		   off via a section pointer of NULL. */
 		res = read_encoded_ptr(dbg,
+				       (Dwarf_Small *) NULL,
 				       cur_aug_p,
 				       encoding,
 				       gnu_pers_addr_out,
@@ -1089,6 +1106,7 @@ See LSB (Linux Standar Base)  exception handling documents.
 */
 static int
 read_encoded_ptr(Dwarf_Debug dbg,
+		 Dwarf_Small * section_pointer,
 		 Dwarf_Small * input_field,
 		 int gnu_encoding,
 		 Dwarf_Unsigned * addr,
@@ -1096,6 +1114,7 @@ read_encoded_ptr(Dwarf_Debug dbg,
 {
     Dwarf_Word length = 0;
     int value_type = gnu_encoding & 0xf;
+    Dwarf_Small *input_field_original = input_field;
 
     if (gnu_encoding == 0xff) {
 	/* There is no data here. */
@@ -1203,6 +1222,22 @@ read_encoded_ptr(Dwarf_Debug dbg,
 	return DW_DLV_ERROR;
 
     };
+    /* The ELF ABI for gnu does not document the meaning of
+       DW_EH_PE_pcrel, which is awkward.  It apparently means the value 
+       we got above is pc-relative (meaning section-relative), so we
+       adjust the value. Section_pointer may be
+       null if it is known DW_EH_PE_pcrel cannot apply, such as for
+       .debug_frame or for an address-range value. */
+    if (section_pointer && ((gnu_encoding & 0x70) == DW_EH_PE_pcrel)) {
+	/* Address (*addr) above is pc relative with respect to a
+	   section. Add to the offset the base address (from elf) of
+	   section and the distance of the field we are reading from
+	   the section-beginning to get the actual address. */
+	/* ASSERT: input_field_original >= section_pointer */
+	Dwarf_Unsigned distance =
+	    input_field_original - section_pointer;
+	*addr += dbg->de_debug_frame_eh_addr + distance;
+    }
 
     return DW_DLV_OK;
 }
