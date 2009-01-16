@@ -1,3 +1,35 @@
+2007-04-10 David Anderson <davea42@earthlink.net
+      * dwarf_print_lines.c pro_section.c dwarf_query.c
+        dwarf_alloc.c dwarf_arange.c dwarf_sort_line.c
+        dwarf_global.c dwarf_line.c dwarf_abbrev.c
+        dwarf_frame2.c dwarf_util.c dwarf_loc.c dwarf_util.h 
+        dwarf_die_deliv.c dwarf_frame.c dwarf_macro.c: Additions
+        to source for year 2007 now fit in with pre-existing 
+        copyright wording.  Effectively no change.
+      * dwarf_srclines_dealloc.c: Now has the (always-intended) SGI
+        LGPL copyright wording.
+2007-04-09 David Anderson <davea42@earthlink.net
+      * dwarf_error.h: Add DW_DLE_LINK_LOOP error code (Sun).
+      * libdwarf.h: Add DW_DLE_LINK_LOOP error code (Sun).
+      * dwarf.h: Incorporate Sun extensions. Thanks to
+        Chris Quenelle at Sun Microsystems.
+2007-04-06 David Anderson <davea42@earthlink.net
+      * dwarf_sort_line.c (_dwarf_update_line_sec): initialize
+        Dwarf_Debug_s struct. Thanks to Chris Quenelle of Sun Microsystems.
+        Also initialize other local variables.
+2007-04-02 David Anderson <davea42@earthlink.net
+      * dwarf_form.c (dwarf_formsdata, dwarf_formudata): Use
+        Dwarf_sfixed in dwarf_formsdata, document need for casts,
+        Use Dwarf_Signed as type for READ_UNALIGNED macro use.
+        The only real correction here is for a 64bit long compiled 
+        libdwarf reading 32bit dwarf_formsdata FORM_data4.
+      * dwarf_base_types.h: Now Dwarf_sfixed64 and Dwarf_ufixed64
+        are properly declared (so they are usable).
+2007-03-11 David Anderson <davea42@earthlink.net
+      * Makefile.in: use groff to produce postscript.
+      * libdwarf2.1.mm libdwarf2.1.ps  libdwarf2p.1.mm
+        libdwarf2p.1.ps: Clean up the introduction and history.
+        Add a non-restrictive copyright notice.
 2007-02-23 David Anderson <davea42@earthlink.net
       * dwarf_util.h: now the macros use do{} while(0)
       * pro_forms.c dwarf_print_lines.c pro_section.c dwarf_query.c 

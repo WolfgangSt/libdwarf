@@ -1,5 +1,6 @@
 /*
   Copyright (C) 2000,2001,2003,2004,2005,2006 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright 2002,2007 Sun Microsystems, Inc. All rights reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License
@@ -158,6 +159,22 @@ extern "C" {
 /* PGI (STMicroelectronics) extensions. */
 #define DW_TAG_PGI_kanji_type           0xa000 /* PGI */
 #define DW_TAG_PGI_interface_block      0xa020 /* PGI */
+/* The following are SUN extensions */
+#define DW_TAG_SUN_function_template	0x4201 /* SUN */
+#define DW_TAG_SUN_class_template	0x4202 /* SUN */
+#define DW_TAG_SUN_struct_template	0x4203 /* SUN */
+#define DW_TAG_SUN_union_template	0x4204 /* SUN */
+#define DW_TAG_SUN_indirect_inheritance	0x4205 /* SUN */
+#define DW_TAG_SUN_codeflags            0x4206 /* SUN */
+#define DW_TAG_SUN_memop_info           0x4207 /* SUN */
+#define DW_TAG_SUN_omp_child_func       0x4208 /* SUN */
+#define DW_TAG_SUN_rtti_descriptor	0x4209 /* SUN */
+#define	DW_TAG_SUN_dtor_info		0x420a /* SUN */
+#define	DW_TAG_SUN_dtor			0x420b /* SUN */
+#define	DW_TAG_SUN_f90_interface	0x420c /* SUN */
+#define DW_TAG_SUN_fortran_vax_structure 0x420d /* SUN */
+#define	DW_TAG_SUN_hi	        	0x42ff /* SUN */
+    
 
 #define DW_TAG_hi_user                  0xffff
 
@@ -330,8 +347,6 @@ extern "C" {
 #define DW_AT_body_end                          0x2106 /* GNU */
 #define DW_AT_GNU_vector                        0x2107 /* GNU */
 
-/* VMS extensions. */
-#define DW_AT_VMS_rtnbeg_pd_address             0x2201 /* VMS */
 
 /* ALTIUM extension: ALTIUM Compliant location lists (flag) */
 #define DW_AT_ALTIUM_loclist    0x2300          /* ALTIUM  */
@@ -344,6 +359,55 @@ extern "C" {
 
 /* UPC extension */
 #define DW_AT_upc_threads_scaled                0x3210 /* UPC */
+
+/* Sun extensions */
+#define DW_AT_SUN_template			0x2201 /* SUN */
+#define DW_AT_VMS_rtnbeg_pd_address             0x2201 /* VMS */
+#define DW_AT_SUN_alignment			0x2202 /* SUN */
+#define DW_AT_SUN_vtable			0x2203 /* SUN */
+#define DW_AT_SUN_count_guarantee		0x2204 /* SUN */
+#define DW_AT_SUN_command_line			0x2205 /* SUN */
+#define DW_AT_SUN_vbase				0x2206 /* SUN */
+#define DW_AT_SUN_compile_options		0x2207 /* SUN */
+#define DW_AT_SUN_language			0x2208 /* SUN */
+#define DW_AT_SUN_browser_file			0x2209 /* SUN */
+#define DW_AT_SUN_vtable_abi                    0x2210 /* SUN */
+#define DW_AT_SUN_func_offsets                  0x2211 /* SUN */
+#define DW_AT_SUN_cf_kind                       0x2212 /* SUN */
+#define DW_AT_SUN_vtable_index                  0x2213 /* SUN */
+#define DW_AT_SUN_omp_tpriv_addr                0x2214 /* SUN */
+#define DW_AT_SUN_omp_child_func                0x2215 /* SUN */
+#define DW_AT_SUN_func_offset                   0x2216 /* SUN */
+#define DW_AT_SUN_memop_type_ref                0x2217 /* SUN */
+#define DW_AT_SUN_profile_id                    0x2218 /* SUN */
+#define DW_AT_SUN_memop_signature               0x2219 /* SUN */
+#define DW_AT_SUN_obj_dir                       0x2220 /* SUN */
+#define DW_AT_SUN_obj_file                      0x2221 /* SUN */
+#define DW_AT_SUN_original_name                 0x2222 /* SUN */
+#define DW_AT_SUN_hwcprof_signature             0x2223 /* SUN */
+#define DW_AT_SUN_amd64_parmdump                0x2224 /* SUN */
+#define DW_AT_SUN_part_link_name                0x2225 /* SUN */
+#define DW_AT_SUN_link_name                     0x2226 /* SUN */
+#define DW_AT_SUN_pass_with_const		0x2227 /* SUN */
+#define	DW_AT_SUN_return_with_const		0x2228 /* SUN */
+#define DW_AT_SUN_import_by_name                0x2229 /* SUN */
+#define DW_AT_SUN_f90_pointer                   0x222a /* SUN */
+#define DW_AT_SUN_pass_by_ref                   0x222b /* SUN */
+#define DW_AT_SUN_f90_allocatable               0x222c /* SUN */
+#define DW_AT_SUN_f90_assumed_shape_array       0x222d /* SUN */
+#define DW_AT_SUN_c_vla                         0x222e /* SUN */
+#define DW_AT_SUN_return_value_ptr		0x2230 /* SUN */
+#define	DW_AT_SUN_dtor_start          		0x2231 /* SUN */
+#define	DW_AT_SUN_dtor_length          		0x2232 /* SUN */
+#define	DW_AT_SUN_dtor_state_initial  		0x2233 /* SUN */
+#define	DW_AT_SUN_dtor_state_final    		0x2234 /* SUN */
+#define	DW_AT_SUN_dtor_state_deltas   		0x2235 /* SUN */
+#define	DW_AT_SUN_import_by_lname               0x2236 /* SUN */
+#define	DW_AT_SUN_f90_use_only                  0x2237 /* SUN */
+#define DW_AT_SUN_namelist_spec			0x2238 /* SUN */
+#define DW_AT_SUN_is_omp_child_func		0x2239 /* SUN */
+#define DW_AT_SUN_fortran_main_alias		0x223a /* SUN */
+#define DW_AT_SUN_fortran_based                 0x223b /* SUN */
 
 
 #define DW_AT_hi_user                           0x3fff
@@ -556,6 +620,10 @@ extern "C" {
 #define DW_ATE_HP_imaginary_float80   0x85 /* HP */
 #define DW_ATE_HP_imaginary_float128  0x86 /* HP */
 
+/* Sun extensions */
+#define DW_ATE_SUN_interval_float       0x91
+#define DW_ATE_SUN_imaginary_float      0x92 /* Obsolete: See DW_ATE_imaginary_float */
+
 #define DW_ATE_hi_user                  0xff
 
 
@@ -575,6 +643,20 @@ extern "C" {
 #define DW_END_lo_user                  0x40 /* DWARF3f */
 #define DW_END_hi_user                  0xff /* DWARF3f */
 
+/* for use with DW_TAG_SUN_codeflags
+ * If DW_TAG_SUN_codeflags is accepted as a dwarf standard, then
+ * standard dwarf ATCF entries start at 0x01
+ */
+#define DW_ATCF_lo_user                 0x40 /* SUN */
+#define DW_ATCF_SUN_mop_bitfield        0x41 /* SUN */
+#define DW_ATCF_SUN_mop_spill           0x42 /* SUN */
+#define DW_ATCF_SUN_mop_scopy           0x43 /* SUN */
+#define DW_ATCF_SUN_func_start          0x44 /* SUN */
+#define DW_ATCF_SUN_end_ctors           0x45 /* SUN */
+#define DW_ATCF_SUN_branch_target       0x46 /* SUN */
+#define DW_ATCF_SUN_mop_stack_probe     0x47 /* SUN */
+#define DW_ATCF_SUN_func_epilog         0x48 /* SUN */
+#define DW_ATCF_hi_user                 0xff /* SUN */   
 
 /* Accessibility code name. */
 #define DW_ACCESS_public                0x01
@@ -616,6 +698,9 @@ extern "C" {
                                         DW_LANG_UPC instead. */
 /* ALTIUM extension */
 #define DW_LANG_ALTIUM_Assembler        0x9101  /* ALTIUM */
+
+/* Sun extensions */
+#define DW_LANG_SUN_Assembler           0x9001 /* SUN */
 
 #define DW_LANG_hi_user                 0xffff
 

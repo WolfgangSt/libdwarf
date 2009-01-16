@@ -1,5 +1,7 @@
 /* 
   Copyright (C) 2000,2002,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright (C) 2007 David Anderson. All Rights Reserved.
+  
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2 of the GNU General Public License as
@@ -32,12 +34,12 @@
 
 $Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/dwarfdump.c,v 1.48 2006/04/18 18:05:57 davea Exp $ */
 
-/* Copyright (C) 2007 David Anderson
-   Same terms as the SGI copyright.
-   The address of the Free Software Foundation is 
+/* The address of the Free Software Foundation is
    Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, 
    Boston, MA 02110-1301, USA.
+   SGI has moved from the Crittenden Lane address.
 */
+
 
 #include "globals.h"
 

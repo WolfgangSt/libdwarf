@@ -1,3 +1,11 @@
+2007-04-10 David Anderson <davea42@earthlink.net>
+     * print_reloc.c dwarfdump.c print_frames.c: Unified
+       copyright to the SGI form.  No copyright change.
+
+2007-04-06 David Anderson <davea42@earthlink.net>
+     * print_die.c (print_die_and_children): Increase static
+       depth of die stack.  Notice if it overflows and
+       print error.
 2007-02-23 David Anderson <davea42@earthlink.net>
      * print_reloc.c: 2 lines added (long) cast in printf
        and made %3ld instead of %3d to fix compiler warning.

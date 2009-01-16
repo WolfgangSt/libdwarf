@@ -1,3 +1,7 @@
+March 20, 2007
+  nroff/troff and the AT&T -mm package are not widely available,
+  so now the Makefile refers to groff, which works quite nicely.
+
 February 20, 2007
   Documented libdwarf thread safety in README.
   Fixed memory leak in  dwarf macro reading code.

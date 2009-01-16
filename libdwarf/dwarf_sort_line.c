@@ -1,6 +1,6 @@
 /*
-
   Copyright (C) 2000,2002,2004,2006 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright (C) 2007 David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -32,6 +32,13 @@
   http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 */
+/* The address of the Free Software Foundation is
+   Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, 
+   Boston, MA 02110-1301, USA.
+   SGI has moved from the Crittenden Lane address.
+*/
+
+
 
 
 
@@ -42,6 +49,9 @@
 #include "dwarf_line.h"
 #ifdef HAVE_ALLOCA_H
 #include <alloca.h>
+#endif
+#ifdef HAVE_STRING_H
+#include <string.h>
 #endif
 
 #define MINIMUM_POSSIBLE_PROLOG_LEN 10	/* 10 is based on */
@@ -268,7 +278,7 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
        current cu, and serves to check that the prologue was correctly
        decoded. */
 
-    Dwarf_Small *orig_line_ptr;
+    Dwarf_Small *orig_line_ptr = 0;
 
     /* These are the fields of the statement program header. */
     struct Dwarf_Debug_s dbg_data;
@@ -280,7 +290,7 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
     Dwarf_Bool is_stmt = false;
 
     /* Dwarf_Bool prologue_end; Dwarf_Bool epilogue_begin; */
-    Dwarf_Small isa;
+    Dwarf_Small isa = 0;
 
 
     struct a_line_area *area_base = 0;
@@ -292,28 +302,29 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 
     /* 
        This is the current opcode read from the statement program. */
-    Dwarf_Small opcode;
+    Dwarf_Small opcode = 0;
 
 
     /* 
        These variables are used to decode leb128 numbers. Leb128_num
        holds the decoded number, and leb128_length is its length in
        bytes. */
-    Dwarf_Word leb128_num;
-    Dwarf_Sword advance_line;
+    Dwarf_Word leb128_num = 0;
+    Dwarf_Sword advance_line = 0;
 
     /* 
        This is the operand of the latest fixed_advance_pc extended
        opcode. */
-    Dwarf_Half fixed_advance_pc;
+    Dwarf_Half fixed_advance_pc = 0;
 
     /* This is the length of an extended opcode instr.  */
-    Dwarf_Word instr_length;
-    Dwarf_Small ext_opcode;
+    Dwarf_Word instr_length = 0;
+    Dwarf_Small ext_opcode = 0;
     struct Line_Table_Prefix_s prefix;
 
 
 
+    memset(dbg, 0, sizeof(struct Dwarf_Debug_s));
     dbg->de_copy_word = memcpy;
     /* 
        Following is a straightforward decoding of the statement program 

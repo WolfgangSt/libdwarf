@@ -1,5 +1,6 @@
 /* 
   Copyright (C) 2000,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright (C) 2007 David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2 of the GNU General Public License as
@@ -32,6 +33,14 @@
 
 
 $Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/print_reloc.c,v 1.11 2005/08/04 05:09:37 davea Exp $ */
+
+/* The address of the Free Software Foundation is
+   Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, 
+   Boston, MA 02110-1301, USA.
+   SGI has moved from the Crittenden Lane address.
+*/
+
+
 
 #include "globals.h"
 

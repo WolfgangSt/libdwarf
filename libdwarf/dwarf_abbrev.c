@@ -1,6 +1,7 @@
 /*
 
   Copyright (C) 2000,2001,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright (C) David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -32,6 +33,12 @@
   http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 */
+/* The address of the Free Software Foundation is 
+   Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, 
+   Boston, MA 02110-1301, USA.
+   SGI has moved from the above address.
+*/
+
 
 
 

@@ -96,8 +96,8 @@ typedef __int32_t Dwarf_sfixed;
 	This is not a very portable assumption.
         The following should be used instead for 64 bit integers.
 */
-typedef __uint32_t Dwarf_ufixed64;
-typedef __int32_t Dwarf_sfixed64;
+typedef __uint64_t Dwarf_ufixed64;
+typedef __int64_t Dwarf_sfixed64;
 
 
 typedef struct Dwarf_Abbrev_List_s *Dwarf_Abbrev_List;

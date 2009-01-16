@@ -62,7 +62,7 @@ Dwarf_Off fde_offset_for_cu_high = DW_DLV_BADOFFSET;
 /* Dwarf_Half list_of_attrs[] */
 /*#include "at_list.i" unreferenced */
 
-#define DIE_STACK_SIZE 50
+#define DIE_STACK_SIZE 300
 static Dwarf_Die die_stack[DIE_STACK_SIZE];
 
 #define PUSH_DIE_STACK(x) { die_stack[indent_level] = x; }
@@ -163,6 +163,11 @@ print_die_and_children(Dwarf_Debug dbg, Dwarf_Die in_die_in,
 	/* child first: we are doing depth-first walk */
 	if (cdres == DW_DLV_OK) {
 	    indent_level++;
+	    if(indent_level >= DIE_STACK_SIZE ) {
+	        print_error(dbg,
+                  "compiled in DIE_STACK_SIZE limit exceeded",
+                  DW_DLV_OK,err);
+	    }
 	    print_die_and_children(dbg, child, srcfiles, cnt);
 	    indent_level--;
 	    if (indent_level == 0)

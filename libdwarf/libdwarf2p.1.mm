@@ -11,7 +11,7 @@
 .nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.18, 10 Jan 2002
+.ds vE rev 1.19, 11 Mar 2007
 \." ==============================================
 \." ==============================================
 .ds | |
@@ -36,26 +36,18 @@
 .TL
 A Producer Library Interface to DWARF
 .AF ""
-.AU "UNIX International Programming Languages Special Interest Group" 
+.AU "David Anderson"
 .PF "'\*(vE '- \\\\nP -''"
-.PM ""
 .AS 1
 This document describes an interface to a library of functions
-.FS \(rg
-UNIX is a registered trademark of UNIX System Laboratories, Inc.
-in the United States and other countries.
-.FE
 to create DWARF debugging information entries and DWARF line number
 information. It does not make recommendations as to how the functions
 described in this document should be implemented nor does it
 suggest possible optimizations. 
 .P
 The document is oriented to creating DWARF version 2.
-It was intended be proposed to the PLSIG DWARF committee
-but that committee is now dormant.
-.P
-The library interfaces documented 
-in this document are subject to change.
+Support for creating DWARF3 is intended but such support
+is not yet present.
 .P
 \*(vE 
 .AE
@@ -67,6 +59,21 @@ records, DWARF line number information, DWARF address range and
 pubnames information, weak names information, and DWARF frame description 
 information.
 
+
+.H 2 "Copyright"
+Copyright 1993-2006 Silicon Graphics, Inc.
+
+Copyright 2007 David Anderson.
+
+Permission is hereby granted to
+copy or republish or use any or all of this document without
+restriction except that when publishing more than a small amount
+of the document
+please acknowledge Silicon Graphics, Inc and David Anderson.
+
+This document is distributed in the hope that it would be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 .H 2 "Purpose and Scope"
 The purpose of this document is to propose a library of functions to 
 create DWARF debugging information.  Reading (consuming) of such records 
@@ -84,6 +91,35 @@ intentionally ignored.
 Error handling, error codes, and certain \f(CWLibdwarf\fP codes are discussed
 in the "\fIProposed Interface to DWARF Consumer Library\fP", which should 
 be read (or at least skimmed) before reading this document.
+.P
+The general style of functions here is rather C-traditional
+with various types as return values.   The style
+generally follows the style of the original DWARF1 reader
+proposed as an interface to DWARF.
+When the style of the reader interfaces was changed (1994) in the
+dwarf reader ( See the "Document History"
+section of "A Consumer Library Interface to DWARF")
+the interfaces here were not changed as it seemed like
+too much of a change for the two applications then using
+the interface!  So this interface remains in the traditional C style
+of returning various data types with various
+means of indicating failure.
+
+.H 2 "Document History"
+This document originally prominently referenced
+"UNIX International Programming Languages Special Interest Group " 
+(PLSIG).
+Both  UNIX International and the
+affiliated  Programming Languages Special Interest Group
+are defunct
+(UNIX is a registered trademark of UNIX System Laboratories, Inc.
+in the United States and other countries).
+Nothing except the general interface style is actually
+related to anything shown to the PLSIG
+(this document was open sourced with libdwarf in the mid 1990's).
+.P
+See "http://www.dwarfstd.org" for information on current
+DWARF standards and committee activities.
 
 .H 2 "Definitions"
 DWARF debugging information entries (DIEs) are the segments of information 

@@ -288,6 +288,8 @@ const char *_dwarf_errmsgs[] = {
     "DW_DLE_FRAME_CIE_DECODE_ERROR(200)",
     "DW_DLE_FRAME_REGISTER_UNREPRESENTABLE(201)",
     "DW_DLE_FRAME_REGISTER_COUNT_MISMATCH(202)",
+    "DW_DLE_LINK_LOOP(203)",
+     
 
 
 };

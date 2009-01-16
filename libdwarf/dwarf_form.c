@@ -434,6 +434,9 @@ dwarf_formudata(Dwarf_Attribute attr,
 	*return_uval = ret_value;
 	return DW_DLV_OK;
 
+    /* READ_UNALIGNED does the right thing as it reads
+       the right number bits and generates host order. 
+       So we can just assign to *return_uval. */
     case DW_FORM_data2:{
 	    READ_UNALIGNED(dbg, ret_value, Dwarf_Unsigned,
 			   attr->ar_debug_info_ptr, sizeof(Dwarf_Half));
@@ -507,8 +510,11 @@ dwarf_formsdata(Dwarf_Attribute attr,
 	*return_sval = (*(Dwarf_Sbyte *) attr->ar_debug_info_ptr);
 	return DW_DLV_OK;
 
+    /* READ_UNALIGNED does not sign extend. 
+       So we have to use a cast to get the
+       value sign extended in the right way for each case. */
     case DW_FORM_data2:{
-	    READ_UNALIGNED(dbg, ret_value, Dwarf_Unsigned,
+	    READ_UNALIGNED(dbg, ret_value, Dwarf_Signed,
 			   attr->ar_debug_info_ptr,
 			   sizeof(Dwarf_Shalf));
 	    *return_sval = (Dwarf_Shalf) ret_value;
@@ -517,15 +523,15 @@ dwarf_formsdata(Dwarf_Attribute attr,
 	}
 
     case DW_FORM_data4:{
-	    READ_UNALIGNED(dbg, ret_value, Dwarf_Unsigned,
+	    READ_UNALIGNED(dbg, ret_value, Dwarf_Signed,
 			   attr->ar_debug_info_ptr,
 			   sizeof(Dwarf_sfixed));
-	    *return_sval = (Dwarf_Sword) ret_value;
+	    *return_sval = (Dwarf_sfixed) ret_value;
 	    return DW_DLV_OK;
 	}
 
     case DW_FORM_data8:{
-	    READ_UNALIGNED(dbg, ret_value, Dwarf_Unsigned,
+	    READ_UNALIGNED(dbg, ret_value, Dwarf_Signed,
 			   attr->ar_debug_info_ptr,
 			   sizeof(Dwarf_Signed));
 	    *return_sval = (Dwarf_Signed) ret_value;
