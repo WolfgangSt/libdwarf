@@ -1,3 +1,8 @@
+2007-07-01 DavidAnderson <davea42@earthlink.net>
+     * print_frames.c: For DW_CFA_def_cfa_sf & DW_CFA_def_cfa_offset_sf 
+       print a computed data alignment factor.
+2007-06-29 DavidAnderson <davea42@earthlink.net>
+     * dwarfdump.1: Corrected spelling error.
 2007-05-25 DavidAnderson <davea42@earthlink.net>
      * dwconf.h dwconf.c: Changed field name to 
        cf_named_regs_table_size as old name was less than clear.

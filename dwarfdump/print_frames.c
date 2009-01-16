@@ -772,7 +772,9 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		    off += uleblen;
 		    printf("\t%2u DW_CFA_def_cfa_sf ", loff);
 		    printreg((Dwarf_Signed) uval, config_data);
-		    printf(" %lld", (long long) sval2);
+		    printf(" %lld", (long long) sval2); 
+                    printf(" (*data alignment factor=>lld)", (long long) sval2,
+                     (long long)(sval2*data_alignment_factor));
 		}
 		printf("\n");
 		break;
@@ -788,8 +790,9 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		    instp += uleblen;
 		    len -= uleblen;
 		    off += uleblen;
-		    printf("\t%2u DW_CFA_def_cfa_offset_sf %lld\n",
-			   loff, (long long) sval);
+		    printf("\t%2u DW_CFA_def_cfa_offset_sf %lld (*data alignment factor=> %lld)\n",
+			   loff, (long long) sval,
+                           (long long)(data_alignment_factor*sval));
 
 		}
 		break;
@@ -952,11 +955,12 @@ printreg(Dwarf_Signed reg, struct dwconf_s *config_data)
 
 static void
 print_one_frame_reg_col(Dwarf_Unsigned rule_id,
-			Dwarf_Small value_type,
-			Dwarf_Unsigned reg_used,
-			struct dwconf_s *config_data,
-			Dwarf_Signed offset_relevant,
-			Dwarf_Signed offset, Dwarf_Ptr block_ptr)
+                        Dwarf_Small value_type,
+                        Dwarf_Unsigned reg_used,
+                        struct dwconf_s *config_data,
+                        Dwarf_Signed offset_relevant,
+                        Dwarf_Signed offset, 
+                        Dwarf_Ptr block_ptr)
 {
     char *type_title = "";
     int print_type_title = 1;

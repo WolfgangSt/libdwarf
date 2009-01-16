@@ -1,3 +1,12 @@
+2007-07-01 David Anderson <davea42@earthlink.net>
+      * dwarf_frame2.c: Add commentary.
+      * dwarf_frame.c: Add in block_len for DW_CFA_val_expression
+        so libdwarf does not get confused by this frame expression
+        operator.  Thanks to Cristian Vlasceanu for providing
+        a test case.
+2007-06-29 David Anderson <davea42@earthlink.net>
+      * README: added a note that a few warnings about conversions
+        from pointer to integer are normal at libdwarf compile time.
 2007-05-25 David Anderson <davea42@earthlink.net>
       * dwarf_frame2.c (_dwarf_get_fde_list_internal): 
         Correct cie-list-creation so it adds to the tail of the list.  

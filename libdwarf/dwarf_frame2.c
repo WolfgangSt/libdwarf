@@ -1031,7 +1031,7 @@ dwarf_create_cie_from_start(Dwarf_Debug dbg,
 */
 #if 0
 /* For debugging only. */
-static void
+void
 dump_bytes(Dwarf_Small * start, long len)
 {
     Dwarf_Small *end = start + len;
@@ -1060,6 +1060,7 @@ gnu_aug_encodings(Dwarf_Debug dbg, char *augmentation,
 
 	switch (c) {
 	case 'z':
+            /* Means that the augmentation data is present. */
 	    continue;
 
 	case 'L':
@@ -1070,6 +1071,8 @@ gnu_aug_encodings(Dwarf_Debug dbg, char *augmentation,
 	    ++cur_aug_p;
 	    break;
 	case 'R':
+            /* Followed by a one byte argument giving the
+               pointer encoding for the address pointers in the fde. */
 	    if (cur_aug_p >= end_aug_p) {
 		return DW_DLV_ERROR;
 	    }

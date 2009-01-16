@@ -15,6 +15,10 @@ Multi Threading, or using threads with libdwarf (Thread Safety):
   It is therefore sufficient to ensure than any one Dwarf_Debug
   is only accessed from a single thread.
 
+Warnings like
+ "warning: cast from pointer to integer of different size"
+at compile time are to be expected in dwarf_frame.c and
+dwarf_frame2.c.   Do not be alarmed.
 
 If your headers are not in the expected places,
 use the configure script to access them (and to add other ld

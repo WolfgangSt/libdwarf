@@ -161,7 +161,7 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,
 {
 #define ERROR_IF_REG_NUM_TOO_HIGH(macreg,machigh_reg)               \
      do {                                             \
-       if ((macreg) >= (machigh_reg)) {            \
+       if ((macreg) >= (machigh_reg) || (macreg) < 0) {            \
 	SIMPLE_ERROR_RETURN(DW_DLE_DF_REG_NUM_TOO_HIGH); \
        }                                              \
      } /*CONSTCOND */ while(0)
@@ -173,12 +173,9 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,
     /* Sweeps the frame instructions. */
     Dwarf_Small *instr_ptr;
 
-    Dwarf_Small instr, opcode;
-
     /* Register numbers not limited to just 255, thus not using
        Dwarf_Small. */
     typedef int reg_num_type;
-    reg_num_type reg_no;
 
     Dwarf_Unsigned factored_N_value;
     Dwarf_Signed signed_factored_N_value;
@@ -314,11 +311,15 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,
     if (cie != NULL && cie->ci_augmentation != NULL) {
 	code_alignment_factor = cie->ci_code_alignment_factor;
 	data_alignment_factor = cie->ci_data_alignment_factor;
-    } else
+    } else {
 	need_augmentation = !make_instr;
+    }
 
     instr_ptr = start_instr_ptr;
     while ((instr_ptr < final_instr_ptr) && (!search_over)) {
+        Dwarf_Small instr = 0;
+        Dwarf_Small opcode = 0;
+        reg_num_type reg_no = 0;
 
 
 	fp_instr_offset = instr_ptr - start_instr_ptr;
@@ -337,7 +338,6 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,
 	fp_register = 0;
 	fp_offset = 0;
 	switch (opcode) {
-
 	case DW_CFA_advance_loc:
 	    {
 		/* base op */
@@ -896,6 +896,8 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,
 		reg[lreg].ru_offset_or_block_len = block_len;
 		reg[lreg].ru_block = instr_ptr;
 		fp_offset = (Dwarf_Unsigned) instr_ptr;
+
+                instr_ptr += block_len;
 		fp_register = reg_no;
 
 	    }
@@ -2070,17 +2072,6 @@ _dwarf_fde_section_offset(Dwarf_Debug dbg, Dwarf_Fde in_fde,
     char *loc = 0;
 
 
-#if 0
-    /* de_debug_frame for .debug_frame, de_debug_frame_eh_gnu for
-       eh_frame. */
-    res =
-	_dwarf_load_section(dbg,
-			    dbg->de_debug_frame_index,
-			    &dbg->de_debug_frame, err);
-    if (res != DW_DLV_OK) {
-	return res;
-    }
-#endif
 
     start = (char *) in_fde->fd_section_ptr;
     loc = (char *) in_fde->fd_fde_start;
@@ -2101,17 +2092,6 @@ _dwarf_cie_section_offset(Dwarf_Debug dbg, Dwarf_Cie in_cie,
     char *start = 0;
     char *loc = 0;
 
-#if 0
-    /* de_debug_frame for .debug_frame, de_debug_frame_eh_gnu for
-       eh_frame. */
-    res =
-	_dwarf_load_section(dbg,
-			    dbg->de_debug_frame_index,
-			    &dbg->de_debug_frame, err);
-    if (res != DW_DLV_OK) {
-	return res;
-    }
-#endif
     start = (char *) in_cie->ci_section_ptr;
     loc = (char *) in_cie->ci_cie_start;
 
