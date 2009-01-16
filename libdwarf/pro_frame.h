@@ -123,4 +123,5 @@ struct Dwarf_P_Fde_s {
     Dwarf_Unsigned fde_end_symbol;
 
     int fde_uwordb_size;
+    Dwarf_P_Debug fde_dbg;
 };

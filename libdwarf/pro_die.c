@@ -1,6 +1,7 @@
 /*
 
   Copyright (C) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright 2002 Sun Microsystems, Inc. All rights reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -75,8 +76,10 @@ dwarf_new_die(Dwarf_P_Debug dbg,
     new_die->di_right = NULL;
     new_die->di_child = NULL;
     new_die->di_tag = tag;
-    ret_die =
-	dwarf_die_link(new_die, parent, child, left, right, error);
+    new_die->di_dbg = dbg;
+    new_die->di_marker = 0;
+    ret_die = 
+        dwarf_die_link(new_die, parent, child, left, right, error);
     return ret_die;
 }
 
@@ -92,31 +95,43 @@ dwarf_die_link(Dwarf_P_Die new_die,
 	       Dwarf_P_Die left, Dwarf_P_Die right, Dwarf_Error * error)
 {
     int n_nulls;		/* to count # of non null neighbors */
+    Dwarf_P_Die orig;
 
     n_nulls = 0;
     if (parent != NULL) {
-	n_nulls++;
-	new_die->di_parent = parent;
-	if (parent->di_child) {	/* got to traverse the child's siblings 
+        n_nulls++;
+        if (new_die->di_parent != NULL) {
+              DWARF_P_DBG_ERROR(NULL, DW_DLE_LINK_LOOP,
+                    (Dwarf_P_Die) DW_DLV_BADADDR);
+        }
+        new_die->di_parent = parent;
+        if (parent->di_child) {	/* got to traverse the child's siblings 
 				 */
-	    Dwarf_P_Die curdie;
+            Dwarf_P_Die curdie;
 
-	    curdie = parent->di_child;
-	    while (curdie->di_right)
-		curdie = curdie->di_right;
-	    curdie->di_right = new_die;	/* attach to sibling list */
-	    new_die->di_left = curdie;	/* back pointer */
+            curdie = parent->di_child;
+            orig = curdie;
+            while (curdie->di_right) {
+                curdie = curdie->di_right;
+                if (curdie == orig || curdie == curdie->di_right) {
+                    DWARF_P_DBG_ERROR(NULL, DW_DLE_LINK_LOOP,
+                       (Dwarf_P_Die) DW_DLV_BADADDR);
+                }
+            }
+            curdie->di_right = new_die;	/* attach to sibling list */
+            new_die->di_left = curdie;	/* back pointer */
 	} else
 	    parent->di_child = new_die;
     }
     if (child != NULL) {
-	n_nulls++;
-	new_die->di_child = child;
-	if (child->di_parent) {
+        n_nulls++;
+        new_die->di_child = child;
+        if (child->di_parent) {
 	    DWARF_P_DBG_ERROR(NULL, DW_DLE_PARENT_EXISTS,
 			      (Dwarf_P_Die) DW_DLV_BADADDR);
-	} else
+        } else {
 	    child->di_parent = new_die;
+        }
     }
     if (left != NULL) {
 	n_nulls++;
@@ -152,6 +167,36 @@ dwarf_die_link(Dwarf_P_Die new_die,
 
 }
 
+Dwarf_Unsigned
+dwarf_add_die_marker(Dwarf_P_Debug dbg,
+		     Dwarf_P_Die die,
+		     Dwarf_Unsigned marker,
+		     Dwarf_Error * error)
+{
+    if (die == NULL) {
+	DWARF_P_DBG_ERROR(dbg, DW_DLE_DIE_NULL, DW_DLV_NOCOUNT);
+    }
+    die->di_marker = marker;
+    return 0;
+}
+
+		     
+Dwarf_Unsigned
+dwarf_get_die_marker(Dwarf_P_Debug dbg,
+		     Dwarf_P_Die die,
+		     Dwarf_Unsigned * marker,
+		     Dwarf_Error * error)
+{
+    if (die == NULL) {
+	DWARF_P_DBG_ERROR(dbg, DW_DLE_DIE_NULL, DW_DLV_NOCOUNT);
+    }
+    *marker = die->di_marker;
+    return 0;
+}
+
+		     
+		     
+
 /*----------------------------------------------------------------------------
 	This function adds a die to dbg struct. It should be called using 
 	the root of all the dies.
@@ -179,7 +224,7 @@ _dwarf_pro_add_AT_stmt_list(Dwarf_P_Debug dbg,
 
     /* Add AT_stmt_list attribute */
     new_attr = (Dwarf_P_Attribute)
-	_dwarf_p_get_alloc(NULL, sizeof(struct Dwarf_P_Attribute_s));
+	_dwarf_p_get_alloc(dbg, sizeof(struct Dwarf_P_Attribute_s));
     if (new_attr == NULL) {
 	DWARF_P_DBG_ERROR(NULL, DW_DLE_ATTR_ALLOC, DW_DLV_NOCOUNT);
     }
@@ -192,7 +237,7 @@ _dwarf_pro_add_AT_stmt_list(Dwarf_P_Debug dbg,
     new_attr->ar_next = NULL;
     new_attr->ar_reloc_len = uwordb_size;
     new_attr->ar_data = (char *)
-	_dwarf_p_get_alloc(NULL, uwordb_size);
+	_dwarf_p_get_alloc(dbg, uwordb_size);
     if (new_attr->ar_data == NULL) {
 	DWARF_P_DBG_ERROR(NULL, DW_DLE_ADDR_ALLOC, DW_DLV_NOCOUNT);
     }
@@ -220,7 +265,7 @@ dwarf_add_AT_name(Dwarf_P_Die die, char *name, Dwarf_Error * error)
 			  (Dwarf_P_Attribute) DW_DLV_BADADDR);
     }
     new_attr = (Dwarf_P_Attribute)
-	_dwarf_p_get_alloc(NULL, sizeof(struct Dwarf_P_Attribute_s));
+	_dwarf_p_get_alloc(die->di_dbg,sizeof(struct Dwarf_P_Attribute_s));
     if (new_attr == NULL) {
 	DWARF_P_DBG_ERROR(NULL, DW_DLE_ATTR_ALLOC,
 			  (Dwarf_P_Attribute) DW_DLV_BADADDR);
@@ -234,7 +279,7 @@ dwarf_add_AT_name(Dwarf_P_Die die, char *name, Dwarf_Error * error)
     new_attr->ar_next = NULL;
     new_attr->ar_reloc_len = 0;
     new_attr->ar_data = (char *)
-	_dwarf_p_get_alloc(NULL, strlen(name) + 1);
+	_dwarf_p_get_alloc(die->di_dbg, strlen(name)+1);
     if (new_attr->ar_data == NULL) {
 	DWARF_P_DBG_ERROR(NULL, DW_DLE_STRING_ALLOC,
 			  (Dwarf_P_Attribute) DW_DLV_BADADDR);
@@ -264,7 +309,7 @@ dwarf_add_AT_comp_dir(Dwarf_P_Die ownerdie,
 			  (Dwarf_P_Attribute) DW_DLV_BADADDR);
     }
     new_attr = (Dwarf_P_Attribute)
-	_dwarf_p_get_alloc(NULL, sizeof(struct Dwarf_P_Attribute_s));
+	_dwarf_p_get_alloc(ownerdie->di_dbg,sizeof(struct Dwarf_P_Attribute_s));
     if (new_attr == NULL) {
 	DWARF_P_DBG_ERROR(NULL, DW_DLE_ATTR_ALLOC,
 			  (Dwarf_P_Attribute) DW_DLV_BADADDR);
@@ -278,7 +323,7 @@ dwarf_add_AT_comp_dir(Dwarf_P_Die ownerdie,
     new_attr->ar_next = NULL;
     new_attr->ar_reloc_len = 0;
     new_attr->ar_data = (char *)
-	_dwarf_p_get_alloc(NULL, strlen(current_working_directory) + 1);
+	_dwarf_p_get_alloc(ownerdie->di_dbg, strlen(current_working_directory)+1);
     if (new_attr->ar_data == NULL) {
 	DWARF_P_DBG_ERROR(NULL, DW_DLE_STRING_ALLOC,
 			  (Dwarf_P_Attribute) DW_DLV_BADADDR);
@@ -304,7 +349,7 @@ _dwarf_pro_add_AT_fde(Dwarf_P_Debug dbg,
 	DWARF_P_DBG_ERROR(NULL, DW_DLE_DIE_NULL, -1);
     }
     new_attr = (Dwarf_P_Attribute)
-	_dwarf_p_get_alloc(NULL, sizeof(struct Dwarf_P_Attribute_s));
+	_dwarf_p_get_alloc(dbg,sizeof(struct Dwarf_P_Attribute_s));
     if (new_attr == NULL) {
 	DWARF_P_DBG_ERROR(NULL, DW_DLE_ATTR_ALLOC, -1);
     }
@@ -317,7 +362,7 @@ _dwarf_pro_add_AT_fde(Dwarf_P_Debug dbg,
     new_attr->ar_next = NULL;
     new_attr->ar_reloc_len = uwordb_size;
     new_attr->ar_data = (char *)
-	_dwarf_p_get_alloc(NULL, uwordb_size);
+	_dwarf_p_get_alloc(dbg, uwordb_size);
     if (new_attr->ar_data == NULL) {
 	DWARF_P_DBG_ERROR(NULL, DW_DLE_ADDR_ALLOC, DW_DLV_NOCOUNT);
     }
@@ -345,7 +390,7 @@ _dwarf_pro_add_AT_macro_info(Dwarf_P_Debug dbg,
 	DWARF_P_DBG_ERROR(NULL, DW_DLE_DIE_NULL, -1);
     }
     new_attr = (Dwarf_P_Attribute)
-	_dwarf_p_get_alloc(NULL, sizeof(struct Dwarf_P_Attribute_s));
+        _dwarf_p_get_alloc(dbg,sizeof(struct Dwarf_P_Attribute_s));
     if (new_attr == NULL) {
 	DWARF_P_DBG_ERROR(NULL, DW_DLE_ATTR_ALLOC, -1);
     }
@@ -359,7 +404,7 @@ _dwarf_pro_add_AT_macro_info(Dwarf_P_Debug dbg,
     new_attr->ar_next = NULL;
     new_attr->ar_reloc_len = uwordb_size;
     new_attr->ar_data = (char *)
-	_dwarf_p_get_alloc(NULL, uwordb_size);
+        _dwarf_p_get_alloc(dbg, uwordb_size);
     if (new_attr->ar_data == NULL) {
 	DWARF_P_DBG_ERROR(NULL, DW_DLE_ADDR_ALLOC, DW_DLV_NOCOUNT);
     }

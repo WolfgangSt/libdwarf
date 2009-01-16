@@ -1,5 +1,6 @@
 /* 
   Copyright (C) 2000,2003,2004,2005,2006 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright 2007 Sun Microsystems, Inc. All rights reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2 of the GNU General Public License as
@@ -838,8 +839,8 @@ print_pubname_style_entry(Dwarf_Debug dbg,
 	dwarf_dealloc(dbg, die, DW_DLA_DIE);
 	print_error(dbg, "dwarf_offdie", cudres, err);
     }
-    printf("%s %-15s die %lld, cu-die %lld,"
-	   " off-in-cu %lld, cu %lld",
+    printf("%s %-15s die-in-sect %lld, cu-in-sect %lld,"
+	   " die-in-cu %lld, cu-header-in-sect %lld",
 	   line_title, name, (long long) die_off, (long long) cu_off,
 	   /* the cu die offset */
 	   (long long) die_CU_off,
@@ -1265,8 +1266,11 @@ print_strings(Dwarf_Debug dbg)
 	       offset, length, name);
 	offset += length + 1;
     }
-    if (sres == DW_DLV_ERROR) {
-	print_error(dbg, "get_str failure", sres, err);
+    /* An inability to find the section is not necessarily
+       a real error, so do not report error unless we've
+       seen a real record. */
+    if(sres == DW_DLV_ERROR && offset != 0) {
+       print_error(dbg, "dwarf_get_str failure", sres, err);
     }
 }
 

@@ -423,10 +423,10 @@ process_this_die_attrs(Dwarf_Debug dbg, Dwarf_Die newdie, int *errval)
 	return tres;
     }
     if (DW_TAG_compile_unit == ltag) {
-	/* because of the way the dwarf_line code works, we ** do lines 
-	   only per compile unit. ** This may turn out to be wrong if
-	   we have lines ** left unconnected to a CU. ** of course such 
-	   lines will not, at present, be ** used by gnome ** This is
+	/* because of the way the dwarf_line code works, we do lines 
+	   only per compile unit. This may turn out to be wrong if
+	   we have lines left unconnected to a CU. of course such 
+	   lines will not, at present, be used by gnome. This is
 	   not ideal as coded due to the dwarf_line.c issue. */
 	int lres;
 

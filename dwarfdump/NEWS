@@ -1,3 +1,7 @@
+May 7, 2007
+  Sun Microsystems contributes new dwarf.h extensions and a new -G option
+  to dwarfdump -i (so one can see the 'global' offset to DIEs).
+  Thanks to Chris Quenelle of Sun.
 April 17, 2006
   New -x name=<conf file> -x abi=<abiname> and configuration file
   enable sensible printing of a wide range of .debug_frame eh_frame

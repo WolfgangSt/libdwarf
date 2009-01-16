@@ -1,6 +1,7 @@
 /*
 
   Copyright (C) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright 2007 Sun Microsystems, Inc. All rights reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -36,7 +37,11 @@
 
 
 #define VERSION				2
+#ifdef __i386
+#define MIN_INST_LENGTH			1
+#else
 #define MIN_INST_LENGTH			4
+#endif
 #define DEFAULT_IS_STMT			false
 			/* line base and range are temporarily defines.
 			   They need to be calculated later */

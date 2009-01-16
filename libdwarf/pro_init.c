@@ -1,6 +1,7 @@
 /*
 
   Copyright (C) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright 2002 Sun Microsystems, Inc. All rights reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -189,12 +190,14 @@ common_init(Dwarf_P_Debug dbg, Dwarf_Unsigned flags)
 	dbg->de_relocation_record_size =
 	    sizeof(struct Dwarf_Relocation_Data_s);
     } else {
+	
 #if HAVE_ELF64_GETEHDR
 	dbg->de_relocation_record_size =
-	    IS_64BIT(dbg) ? sizeof(Elf64_Rel) : sizeof(Elf32_Rel);
+	    IS_64BIT(dbg)? sizeof(REL64) : sizeof(REL32);
 #else
-	dbg->de_relocation_record_size = sizeof(Elf32_Rel);
+	dbg->de_relocation_record_size = sizeof(REL32);
 #endif
+
     }
 
     if (dbg->de_offset_size == 8) {

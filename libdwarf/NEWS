@@ -1,3 +1,10 @@
+May 7, 2007
+  Incorporates Sun Microsystems  extensions to dwarf.h and
+  to the consumer and producer libraries.   The changes
+  include corrections so the producer library  cleans up it's memory
+  use on a call to dwarf_producer_finish(dbg).
+  Thanks to Chris Quenelle of Sun for these contributions.
+
 March 20, 2007
   nroff/troff and the AT&T -mm package are not widely available,
   so now the Makefile refers to groff, which works quite nicely.

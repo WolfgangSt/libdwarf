@@ -5,7 +5,8 @@ The files:
 	dwarf.h
 	and all the .h and .c files in this implementation of
 	libdwarf are copyrighted according to the file
-	LIBDWARFCOPYRIGHT.   
+	LIBDWARFCOPYRIGHT (which mentions the LGPL version 2.1).   
+        The full text of the LGPL 2.1 is provided in LGPL.txt
 
 
 The dwarf documentation:
@@ -17,14 +18,19 @@ The dwarf documentation:
 
 The libdwarf documentation:
 	libdwarf2.1.mm
-	libdwarf2p.1.mm
-	are based on material submitted to the UI PLSIG as proposed
-	interfaces for dwarf.  Copyright ownership is unclear, but
-	it seems clear that the intent was there was to be free
+	is based on material submitted to the UI PLSIG as proposed
+	interfaces for dwarf, but completely rewritten.  
+        Copyright ownership is therefore SGI (but see the document for details)  
+        and it seems clear that the intent was there was to be free
 	copying with no fees.
 
-	These documents are substantial revisions, done at SGI, of
-	previous libdwarf work.  
+        libdwarf2p.1.mm
+        is documentation of a set of interfaces 
+        (not part of the UI PLSIG proposals)
+        and the document was written from scratch at SGI.
+        Copyright ownership is therefore SGI (but see the document for details)  
+        and it seems clear that the intent was there was to be free
+	copying with no fees.
 
 $Source: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/libdwarf/RCS/COPYING,v $
 $Revision: 1.2 $

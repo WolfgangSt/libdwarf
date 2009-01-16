@@ -1,5 +1,6 @@
 /* 
   Copyright (C) 2000,2004,2005,2006 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright 2007 Sun Microsystems, Inc. All rights reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2 of the GNU General Public License as
@@ -48,8 +49,12 @@ static void get_location_list(Dwarf_Debug dbg, Dwarf_Die die,
 			      Dwarf_Attribute attr, struct esb_s *esbp);
 static int tag_attr_combination(Dwarf_Half tag, Dwarf_Half attr);
 
-static struct esb_s esb_base;	/* static so gets initialized to zeros. 
-				 */
+/* esb_base is static so gets initialized to zeros.  
+   It is not thread-safe or
+   safe for multiple open producer instances for
+   but that does not matter here in dwarfdump.
+*/
+static struct esb_s esb_base;	
 
 static int indent_level = 0;
 static boolean local_symbols_already_began = FALSE;
@@ -256,15 +261,30 @@ print_one_die(Dwarf_Debug dbg, Dwarf_Die die, boolean print_information,
 	    local_symbols_already_began = TRUE;
 	}
 	if (dense) {
-	    SPACE(2 * indent_level);
-	    if (indent_level == 0) {
-		printf("<%d><%llu+%llu><%s>", indent_level,
+            if (show_global_offsets) {
+	        if (indent_level == 0) {
+		    printf("<%d><%llu+%llu GOFF=%llu><%s>", indent_level,
+		       overall_offset - offset, offset,
+                       overall_offset, tagname);
+	        } else {
+		    printf("<%d><%llu GOFF=%llu><%s>", indent_level, 
+                       offset, overall_offset, tagname);
+	        }
+            } else {
+	        if (indent_level == 0) {
+		    printf("<%d><%llu+%llu><%s>", indent_level,
 		       overall_offset - offset, offset, tagname);
-	    } else {
-		printf("<%d><%llu><%s>", indent_level, offset, tagname);
+	        } else {
+		    printf("<%d><%llu><%s>", indent_level, offset, tagname);
+	        }
 	    }
 	} else {
-	    printf("<%d><%5llu>\t%s\n", indent_level, offset, tagname);
+            if (show_global_offsets) {
+	        printf("<%d><%5llu GOFF=%llu>\t%s\n", indent_level, offset,
+                    overall_offset, tagname);
+            } else {
+	        printf("<%d><%5llu>\t%s\n", indent_level, offset, tagname);
+	    }
 	}
     }
 
@@ -358,6 +378,89 @@ get_small_encoding_integer_and_name(Dwarf_Debug dbg,
 }
 
 
+
+
+/*
+ * We need a 32-bit signed number here, but there's no portable
+ * way of getting that.  So use __uint32_t instead.  It's supplied
+ * in a reliable way by the autoconf infrastructure.
+ */
+
+static void
+get_FLAG_BLOCK_string(Dwarf_Debug dbg, Dwarf_Attribute attrib)
+{
+    int fres = 0;
+    Dwarf_Block *tempb = 0;
+    int i = 0;
+    char * p = 0;
+    __uint32_t * array = 0;
+    Dwarf_Unsigned array_len = 0;
+    int output_lines = 0;
+    int output_chars = 0;
+    __uint32_t * array_ptr;
+    Dwarf_Unsigned array_remain = 0;
+    char linebuf[100];
+
+    esb_empty_string(&esb_base);
+    esb_append(&esb_base, "\n");
+
+    /* first get compressed block data */
+    fres = dwarf_formblock (attrib,&tempb, &err);
+    if (fres != DW_DLV_OK) {
+	print_error(dbg,"DW_FORM_blockn cannot get block\n",fres,err);
+	return;
+    }
+
+    /* uncompress block into int array */
+    array = dwarf_uncompress_integer_block(dbg,
+			   1, /* 'true' (meaning signed ints)*/
+			   32, /* bits per unit */
+			   tempb->bl_data,
+			   tempb->bl_len,
+			   &array_len, /* len of out array */
+			   &err);
+    if (array == (void*) DW_DLV_BADOFFSET) {
+	print_error(dbg,"DW_AT_SUN_func_offsets cannot uncompress data\n",0,err);
+	return;
+    }
+    if (array_len == 0) {
+	print_error(dbg,"DW_AT_SUN_func_offsets has no data\n",0,err);
+	return;
+    }
+    
+    /* fill in string buffer */
+    array_remain = array_len;
+    array_ptr = array;
+    while (array_remain > 8) {
+	/* print a full line */
+	/* if you touch this string, update the magic number 78 below! */
+	snprintf(linebuf, sizeof(linebuf), 
+		"\n  %8x %8x %8x %8x %8x %8x %8x %8x",
+		array_ptr[0],		array_ptr[1],
+		array_ptr[2],		array_ptr[3],
+		array_ptr[4],		array_ptr[5],
+		array_ptr[6],		array_ptr[7]);
+	array_ptr += 8;
+	array_remain -= 8;
+	esb_append(&esb_base, linebuf);
+    }
+
+    /* now do the last line */
+    if (array_remain > 0) {
+	esb_append(&esb_base, "\n ");
+	while (array_remain > 0) {
+	    snprintf(linebuf, sizeof(linebuf), " %8x", *array_ptr);
+	    array_remain--;
+	    array_ptr++;
+	    esb_append(&esb_base, linebuf);
+	}
+    }
+    
+    /* free array buffer */
+    dwarf_dealloc_uncompressed_block(dbg, array);
+
+}
+
 static void
 print_attribute(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Half attr,
 		Dwarf_Attribute attr_in,
@@ -373,12 +476,12 @@ print_attribute(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Half attr,
 
     atname = get_AT_name(dbg, attr);
 
-    /* the following gets the real attribute, even in the ** face of an 
+    /* the following gets the real attribute, even in the face of an 
        incorrect doubling, or worse, of attributes */
     attrib = attr_in;
-    /* do not get attr via dwarf_attr: if there are (erroneously) **
-       multiple of an attr in a DIE, dwarf_attr will ** not get the
-       second, erroneous one and dwarfdump ** will print the first one
+    /* do not get attr via dwarf_attr: if there are (erroneously) 
+       multiple of an attr in a DIE, dwarf_attr will not get the
+       second, erroneous one and dwarfdump will print the first one
        multiple times. Oops. */
 
     tres = dwarf_tag(die, &tag, &err);
@@ -484,6 +587,54 @@ print_attribute(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Half attr,
 	get_location_list(dbg, die, attrib, &esb_base);
 	valname = esb_get_string(&esb_base);
 	break;
+    case DW_AT_SUN_func_offsets:
+	get_FLAG_BLOCK_string(dbg, attrib);
+	valname = esb_get_string(&esb_base);
+	break;
+    case DW_AT_SUN_cf_kind:
+	{
+	    Dwarf_Half kind;
+	    Dwarf_Unsigned tempud;
+	    Dwarf_Error err;
+	    int wres;
+	    wres = dwarf_formudata (attrib,&tempud, &err);
+	    if(wres == DW_DLV_OK) {
+		kind = tempud;
+		valname = get_ATCF_name(dbg, kind);
+	    } else if (wres == DW_DLV_NO_ENTRY) {
+		valname = "?";
+	    } else {
+		print_error(dbg,"Cannot get formudata....",wres,err);
+		valname = "??";
+	    }
+	}
+	break;
+    case DW_AT_upper_bound:
+	{
+	    Dwarf_Half theform;
+	    int rv;
+	    rv = dwarf_whatform(attrib,&theform,&err);
+	    /* depending on the form and the attribute, process the form */
+	    if(rv == DW_DLV_ERROR) {
+		print_error(dbg, "dwarf_whatform cannot find attr form",
+			    rv, err);
+	    } else if (rv == DW_DLV_NO_ENTRY) {
+		break;
+	    }
+
+	    switch (theform) {
+	    case DW_FORM_block1:
+		get_location_list(dbg, die, attrib, &esb_base);
+		valname = esb_get_string(&esb_base);
+		break;
+	    default:
+		esb_empty_string(&esb_base);
+		get_attr_value(dbg, tag, attrib, srcfiles, cnt, &esb_base);
+		valname = esb_get_string(&esb_base);
+		break;
+	    }
+	    break;
+	}
     default:
 	esb_empty_string(&esb_base);
 	get_attr_value(dbg, tag, attrib, srcfiles, cnt, &esb_base);

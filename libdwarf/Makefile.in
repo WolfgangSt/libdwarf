@@ -139,6 +139,7 @@ psbld:		libdwarf2.1.ps libdwarf2p.1.ps dwarf.v2.ps index.v2.ps mips_extensions.p
 #Oriented to using gsroff now.
 TROFF=/usr/bin/groff
 TROFFDEV="-T ps"
+TROFFDEV=
 # pr expands tabs to spaces: this avoids problems with tab
 # interpretation
 

@@ -145,6 +145,7 @@ dwarf_add_frame_fde_b(Dwarf_P_Debug dbg,
     fde->fde_exception_table_symbol = 0;
     fde->fde_end_symbol_offset = offset_from_end_sym;
     fde->fde_end_symbol = symidx_of_end;
+    fde->fde_dbg = dbg;
 
     curfde = dbg->de_last_fde;
     if (curfde == NULL) {
@@ -229,7 +230,7 @@ dwarf_add_frame_info_b(Dwarf_P_Debug dbg,
     fde->fde_exception_table_symbol = exception_table_symbol;
     fde->fde_end_symbol_offset = offset_from_end_symbol;
     fde->fde_end_symbol = end_symidx;
-
+    fde->fde_dbg = dbg;
 
     curfde = dbg->de_last_fde;
     if (curfde == NULL) {
@@ -282,17 +283,18 @@ dwarf_fde_cfa_offset(Dwarf_P_Fde fde,
     int nbytes;
     int res;
     char buff1[ENCODE_SPACE_NEEDED];
+    Dwarf_P_Debug dbg = fde->fde_dbg;
 
     curinst = (Dwarf_P_Frame_Pgm)
-	_dwarf_p_get_alloc(NULL, sizeof(struct Dwarf_P_Frame_Pgm_s));
+	_dwarf_p_get_alloc(dbg, sizeof(struct Dwarf_P_Frame_Pgm_s));
     if (curinst == NULL) {
-	DWARF_P_DBG_ERROR(NULL, DW_DLE_FPGM_ALLOC,
+	DWARF_P_DBG_ERROR(dbg, DW_DLE_FPGM_ALLOC,
 			  (Dwarf_P_Fde) DW_DLV_BADADDR);
     }
     opc = DW_CFA_offset;
     regno = reg;
     if (regno & 0xc0) {
-	DWARF_P_DBG_ERROR(NULL, DW_DLE_REGNO_OVFL,
+	DWARF_P_DBG_ERROR(dbg, DW_DLE_REGNO_OVFL,
 			  (Dwarf_P_Fde) DW_DLV_BADADDR);
     }
     opc = opc | regno;		/* lower 6 bits are register number */
@@ -300,12 +302,12 @@ dwarf_fde_cfa_offset(Dwarf_P_Fde fde,
     res = _dwarf_pro_encode_leb128_nm(offset, &nbytes,
 				      buff1, sizeof(buff1));
     if (res != DW_DLV_OK) {
-	_dwarf_p_error(NULL, error, DW_DLE_STRING_ALLOC);
+	_dwarf_p_error(dbg, error, DW_DLE_STRING_ALLOC);
 	return ((Dwarf_P_Fde) DW_DLV_BADADDR);
     }
-    ptr = (char *) _dwarf_p_get_alloc(NULL, nbytes);
+    ptr = (char *) _dwarf_p_get_alloc(dbg, nbytes);
     if (ptr == NULL) {
-	_dwarf_p_error(NULL, error, DW_DLE_STRING_ALLOC);
+	_dwarf_p_error(dbg, error, DW_DLE_STRING_ALLOC);
 	return ((Dwarf_P_Fde) DW_DLV_BADADDR);
     }
     memcpy(ptr, buff1, nbytes);
@@ -346,14 +348,15 @@ dwarf_add_fde_inst(Dwarf_P_Fde fde,
     int res;
     char buff1[ENCODE_SPACE_NEEDED];
     char buff2[ENCODE_SPACE_NEEDED];
+    Dwarf_P_Debug dbg = fde->fde_dbg;
 
 
     nbytes = 0;
     ptr = NULL;
     curinst = (Dwarf_P_Frame_Pgm)
-	_dwarf_p_get_alloc(NULL, sizeof(struct Dwarf_P_Frame_Pgm_s));
+	_dwarf_p_get_alloc(dbg, sizeof(struct Dwarf_P_Frame_Pgm_s));
     if (curinst == NULL) {
-	_dwarf_p_error(NULL, error, DW_DLE_FPGM_ALLOC);
+	_dwarf_p_error(dbg, error, DW_DLE_FPGM_ALLOC);
 	return ((Dwarf_P_Fde) DW_DLV_BADADDR);
     }
 
@@ -368,9 +371,9 @@ dwarf_add_fde_inst(Dwarf_P_Fde fde,
 	else if (val1 <= UCHAR_MAX) {
 	    op = DW_CFA_advance_loc1;
 	    db = val1;
-	    ptr = (char *) _dwarf_p_get_alloc(NULL, 1);
+	    ptr = (char *) _dwarf_p_get_alloc(dbg, 1);
 	    if (ptr == NULL) {
-		_dwarf_p_error(NULL, error, DW_DLE_STRING_ALLOC);
+		_dwarf_p_error(dbg, error, DW_DLE_STRING_ALLOC);
 		return ((Dwarf_P_Fde) DW_DLV_BADADDR);
 	    }
 	    memcpy((void *) ptr, (const void *) &db, 1);
@@ -380,9 +383,9 @@ dwarf_add_fde_inst(Dwarf_P_Fde fde,
 	else if (val1 <= USHRT_MAX) {
 	    op = DW_CFA_advance_loc2;
 	    dh = val1;
-	    ptr = (char *) _dwarf_p_get_alloc(NULL, 2);
+	    ptr = (char *) _dwarf_p_get_alloc(dbg, 2);
 	    if (ptr == NULL) {
-		_dwarf_p_error(NULL, error, DW_DLE_STRING_ALLOC);
+		_dwarf_p_error(dbg, error, DW_DLE_STRING_ALLOC);
 		return ((Dwarf_P_Fde) DW_DLV_BADADDR);
 	    }
 	    memcpy((void *) ptr, (const void *) &dh, 2);
@@ -392,9 +395,9 @@ dwarf_add_fde_inst(Dwarf_P_Fde fde,
 	else if (val1 <= ULONG_MAX) {
 	    op = DW_CFA_advance_loc4;
 	    dw = (Dwarf_Word) val1;
-	    ptr = (char *) _dwarf_p_get_alloc(NULL, 4);
+	    ptr = (char *) _dwarf_p_get_alloc(dbg, 4);
 	    if (ptr == NULL) {
-		_dwarf_p_error(NULL, error, DW_DLE_STRING_ALLOC);
+		_dwarf_p_error(dbg, error, DW_DLE_STRING_ALLOC);
 		return ((Dwarf_P_Fde) DW_DLV_BADADDR);
 	    }
 	    memcpy((void *) ptr, (const void *) &dw, 4);
@@ -403,10 +406,10 @@ dwarf_add_fde_inst(Dwarf_P_Fde fde,
 	    op = DW_CFA_MIPS_advance_loc8;
 	    du = val1;
 	    ptr =
-		(char *) _dwarf_p_get_alloc(NULL,
+		(char *) _dwarf_p_get_alloc(dbg,
 					    sizeof(Dwarf_Unsigned));
 	    if (ptr == NULL) {
-		_dwarf_p_error(NULL, error, DW_DLE_STRING_ALLOC);
+		_dwarf_p_error(dbg, error, DW_DLE_STRING_ALLOC);
 		return ((Dwarf_P_Fde) DW_DLV_BADADDR);
 	    }
 	    memcpy((void *) ptr, (const void *) &du, 8);
@@ -421,12 +424,12 @@ dwarf_add_fde_inst(Dwarf_P_Fde fde,
 	    res = _dwarf_pro_encode_leb128_nm(val2, &nbytes,
 					      buff1, sizeof(buff1));
 	    if (res != DW_DLV_OK) {
-		_dwarf_p_error(NULL, error, DW_DLE_STRING_ALLOC);
+		_dwarf_p_error(dbg, error, DW_DLE_STRING_ALLOC);
 		return ((Dwarf_P_Fde) DW_DLV_BADADDR);
 	    }
-	    ptr = (char *) _dwarf_p_get_alloc(NULL, nbytes);
+	    ptr = (char *) _dwarf_p_get_alloc(dbg, nbytes);
 	    if (ptr == NULL) {
-		_dwarf_p_error(NULL, error, DW_DLE_STRING_ALLOC);
+		_dwarf_p_error(dbg, error, DW_DLE_STRING_ALLOC);
 		return ((Dwarf_P_Fde) DW_DLV_BADADDR);
 	    }
 	    memcpy(ptr, buff1, nbytes);
@@ -437,18 +440,18 @@ dwarf_add_fde_inst(Dwarf_P_Fde fde,
 	    res = _dwarf_pro_encode_leb128_nm(val1, &nbytes1,
 					      buff1, sizeof(buff1));
 	    if (res != DW_DLV_OK) {
-		_dwarf_p_error(NULL, error, DW_DLE_STRING_ALLOC);
+		_dwarf_p_error(dbg, error, DW_DLE_STRING_ALLOC);
 		return ((Dwarf_P_Fde) DW_DLV_BADADDR);
 	    }
 	    res = _dwarf_pro_encode_leb128_nm(val2, &nbytes2,
 					      buff2, sizeof(buff2));
 	    if (res != DW_DLV_OK) {
-		_dwarf_p_error(NULL, error, DW_DLE_STRING_ALLOC);
+		_dwarf_p_error(dbg, error, DW_DLE_STRING_ALLOC);
 		return ((Dwarf_P_Fde) DW_DLV_BADADDR);
 	    }
-	    ptr = (char *) _dwarf_p_get_alloc(NULL, nbytes1 + nbytes2);
+	    ptr = (char *) _dwarf_p_get_alloc(dbg, nbytes1 + nbytes2);
 	    if (ptr == NULL) {
-		_dwarf_p_error(NULL, error, DW_DLE_STRING_ALLOC);
+		_dwarf_p_error(dbg, error, DW_DLE_STRING_ALLOC);
 		return ((Dwarf_P_Fde) DW_DLV_BADADDR);
 	    }
 	    memcpy(ptr, buff1, nbytes1);
@@ -462,12 +465,12 @@ dwarf_add_fde_inst(Dwarf_P_Fde fde,
 	res = _dwarf_pro_encode_leb128_nm(val1, &nbytes,
 					  buff1, sizeof(buff1));
 	if (res != DW_DLV_OK) {
-	    _dwarf_p_error(NULL, error, DW_DLE_STRING_ALLOC);
+	    _dwarf_p_error(dbg, error, DW_DLE_STRING_ALLOC);
 	    return ((Dwarf_P_Fde) DW_DLV_BADADDR);
 	}
-	ptr = (char *) _dwarf_p_get_alloc(NULL, nbytes);
+	ptr = (char *) _dwarf_p_get_alloc(dbg, nbytes);
 	if (ptr == NULL) {
-	    _dwarf_p_error(NULL, error, DW_DLE_STRING_ALLOC);
+	    _dwarf_p_error(dbg, error, DW_DLE_STRING_ALLOC);
 	    return ((Dwarf_P_Fde) DW_DLV_BADADDR);
 	}
 	memcpy(ptr, buff1, nbytes);
@@ -478,20 +481,20 @@ dwarf_add_fde_inst(Dwarf_P_Fde fde,
 	res = _dwarf_pro_encode_leb128_nm(val1, &nbytes1,
 					  buff1, sizeof(buff1));
 	if (res != DW_DLV_OK) {
-	    _dwarf_p_error(NULL, error, DW_DLE_STRING_ALLOC);
+	    _dwarf_p_error(dbg, error, DW_DLE_STRING_ALLOC);
 	    return ((Dwarf_P_Fde) DW_DLV_BADADDR);
 	}
 
 	res = _dwarf_pro_encode_leb128_nm(val2, &nbytes2,
 					  buff2, sizeof(buff2));
 	if (res != DW_DLV_OK) {
-	    _dwarf_p_error(NULL, error, DW_DLE_STRING_ALLOC);
+	    _dwarf_p_error(dbg, error, DW_DLE_STRING_ALLOC);
 	    return ((Dwarf_P_Fde) DW_DLV_BADADDR);
 	}
 
-	ptr = (char *) _dwarf_p_get_alloc(NULL, nbytes1 + nbytes2);
+	ptr = (char *) _dwarf_p_get_alloc(dbg, nbytes1 + nbytes2);
 	if (ptr == NULL) {
-	    _dwarf_p_error(NULL, error, DW_DLE_STRING_ALLOC);
+	    _dwarf_p_error(dbg, error, DW_DLE_STRING_ALLOC);
 	    return ((Dwarf_P_Fde) DW_DLV_BADADDR);
 	}
 	memcpy(ptr, buff1, nbytes1);
@@ -504,12 +507,12 @@ dwarf_add_fde_inst(Dwarf_P_Fde fde,
 	res = _dwarf_pro_encode_leb128_nm(val1, &nbytes,
 					  buff1, sizeof(buff1));
 	if (res != DW_DLV_OK) {
-	    _dwarf_p_error(NULL, error, DW_DLE_STRING_ALLOC);
+	    _dwarf_p_error(dbg, error, DW_DLE_STRING_ALLOC);
 	    return ((Dwarf_P_Fde) DW_DLV_BADADDR);
 	}
-	ptr = (char *) _dwarf_p_get_alloc(NULL, nbytes);
+	ptr = (char *) _dwarf_p_get_alloc(dbg, nbytes);
 	if (ptr == NULL) {
-	    _dwarf_p_error(NULL, error, DW_DLE_STRING_ALLOC);
+	    _dwarf_p_error(dbg, error, DW_DLE_STRING_ALLOC);
 	    return ((Dwarf_P_Fde) DW_DLV_BADADDR);
 	}
 	memcpy(ptr, buff1, nbytes);

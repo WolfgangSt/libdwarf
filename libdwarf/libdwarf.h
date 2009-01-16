@@ -1,6 +1,7 @@
 /*
 
   Copyright (C) 2000,2001,2002,2005,2006 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright 2007 Sun Microsystems, Inc. All rights reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License
@@ -383,6 +384,13 @@ enum Dwarf_Rel_Type {
 			 	case */
                 dwarf_drt_second_of_length_pair
 };
+
+typedef struct Dwarf_P_Marker_s * Dwarf_P_Marker;
+struct Dwarf_P_Marker_s {
+    Dwarf_Unsigned ma_marker;
+    Dwarf_Unsigned ma_offset;
+};
+
 typedef struct Dwarf_Relocation_Data_s  * Dwarf_Relocation_Data;
 struct Dwarf_Relocation_Data_s {
         unsigned char drd_type; /* cast to/from Dwarf_Rel_Type
@@ -393,6 +401,13 @@ struct Dwarf_Relocation_Data_s {
         Dwarf_Unsigned       drd_offset; /* where the data to reloc is */
         Dwarf_Unsigned       drd_symbol_index;
 };
+
+typedef struct Dwarf_P_String_Attr_s  * Dwarf_P_String_Attr;
+struct Dwarf_P_String_Attr_s {
+    Dwarf_Unsigned        sa_offset;  /* Offset of string attribute data */
+    Dwarf_Unsigned        sa_nbytes;  
+};
+    
 
 /* Opaque types for Consumer Library. */
 typedef struct Dwarf_Debug_s*      Dwarf_Debug;
@@ -479,6 +494,19 @@ typedef void  (*Dwarf_Handler)(Dwarf_Error /*error*/, Dwarf_Ptr /*errarg*/);
 #define DW_DLC_SYMBOLIC_RELOCATIONS 0x04000000 /* usable with assem output */
 #define DW_DLC_TARGET_BIGENDIAN     0x08000000 /* big    endian target */
 #define DW_DLC_TARGET_LITTLEENDIAN  0x00100000 /* little endian target */
+
+#if 0
+  /*
+   The libdwarf producer interfaces jumble these two semantics together in
+   confusing ways.  We *should* have flags like these...
+   But changing the code means a lot of diffs.  So for now,
+   we leave things as they are 
+  */
+  #define DW_DLC_SUN_OFFSET32	    0x00010000 /* use 32-bit sec offsets */
+  #define DW_DLC_SUN_OFFSET64	    0x00020000 /* use 64-bit sec offsets */
+  #define DW_DLC_SUN_POINTER32	    0x00040000 /* use 4 for address_size */
+  #define DW_DLC_SUN_POINTER64	    0x00080000 /* use 8 for address_size */
+#endif
 
 /* dwarf_pcline() slide arguments
 */
@@ -1619,6 +1647,23 @@ int dwarf_get_relocation_info(
 /* v2:  has the drd_length field, enum value in uchar member */
 #define DWARF_DRD_BUFFER_VERSION 2
 
+Dwarf_Signed dwarf_get_die_markers(
+    Dwarf_P_Debug     /*dbg*/,
+    Dwarf_P_Marker *  /*marker_list*/,
+    Dwarf_Unsigned *  /*marker_count*/,
+    Dwarf_Error *     /*error*/);
+
+int dwarf_get_string_attributes_count(Dwarf_P_Debug,
+                                      Dwarf_Unsigned *,
+                                      int *,
+                                      Dwarf_Error *);
+
+int dwarf_get_string_attributes_info(Dwarf_P_Debug, 
+                                     Dwarf_Signed *,
+                                     Dwarf_Unsigned *,
+                                     Dwarf_P_String_Attr *,
+                                     Dwarf_Error *);
+
 void dwarf_reset_section_bytes(Dwarf_P_Debug /*dbg*/);
 
 Dwarf_Unsigned dwarf_producer_finish(Dwarf_P_Debug /*dbg*/, 
@@ -1632,7 +1677,21 @@ Dwarf_P_Attribute dwarf_add_AT_targ_address(Dwarf_P_Debug /*dbg*/,
     Dwarf_Signed 	/*sym_index*/, 
     Dwarf_Error* 	/*error*/);
 
+Dwarf_P_Attribute dwarf_add_AT_block(Dwarf_P_Debug /*dbg*/, 
+    Dwarf_P_Die         /*ownerdie*/, 
+    Dwarf_Half          /*attr*/, 
+    Dwarf_Small*        /*block_data*/,
+    Dwarf_Unsigned      /*block_len*/,
+    Dwarf_Error*        /*error*/);
+
 Dwarf_P_Attribute dwarf_add_AT_targ_address_b(Dwarf_P_Debug /*dbg*/, 
+    Dwarf_P_Die 	/*ownerdie*/, 
+    Dwarf_Half 		/*attr*/, 
+    Dwarf_Unsigned 	/*pc_value*/, 
+    Dwarf_Unsigned 	/*sym_index*/, 
+    Dwarf_Error* 	/*error*/);
+
+Dwarf_P_Attribute dwarf_add_AT_ref_address(Dwarf_P_Debug /*dbg*/, 
     Dwarf_P_Die 	/*ownerdie*/, 
     Dwarf_Half 		/*attr*/, 
     Dwarf_Unsigned 	/*pc_value*/, 
@@ -1656,6 +1715,14 @@ Dwarf_P_Attribute dwarf_add_AT_reference(Dwarf_P_Debug /*dbg*/,
     Dwarf_Half 		/*attr*/, 
     Dwarf_P_Die 	/*otherdie*/, 
     Dwarf_Error* 	/*error*/);
+
+Dwarf_P_Attribute dwarf_add_AT_dataref(
+    Dwarf_P_Debug /* dbg*/,
+    Dwarf_P_Die /*ownerdie*/, 
+    Dwarf_Half 	   /*attr*/,
+    Dwarf_Unsigned /*pcvalue*/,
+    Dwarf_Unsigned  /*sym_index*/,
+    Dwarf_Error*    /*error*/);
 
 Dwarf_P_Attribute dwarf_add_AT_const_value_string(Dwarf_P_Die /*ownerdie*/, 
     char* 		/*string_value*/, 
@@ -1818,6 +1885,18 @@ Dwarf_Unsigned dwarf_add_die_to_debug(
     Dwarf_P_Die		/*die*/,
     Dwarf_Error*	/*error*/);
 
+Dwarf_Unsigned dwarf_add_die_marker(
+    Dwarf_P_Debug     /*dbg*/,
+    Dwarf_P_Die       /*die*/,
+    Dwarf_Unsigned    /*marker*/,
+    Dwarf_Error *     /*error*/);
+
+Dwarf_Unsigned dwarf_get_die_marker(
+    Dwarf_P_Debug     /*dbg*/,
+    Dwarf_P_Die       /*die*/,
+    Dwarf_Unsigned *  /*marker*/,
+    Dwarf_Error *     /*error*/);
+
 Dwarf_P_Die dwarf_die_link(
     Dwarf_P_Die         /*die*/,
     Dwarf_P_Die 	/*parent*/,
@@ -1826,8 +1905,42 @@ Dwarf_P_Die dwarf_die_link(
     Dwarf_P_Die		/*right*/, 
     Dwarf_Error* 	/*error*/);
 
+void dwarf_dealloc_compressed_block(
+    Dwarf_P_Debug,
+    void *
+);
+
+void dwarf_dealloc_uncompressed_block(
+    Dwarf_Debug,
+    void *
+);
+
+void * dwarf_compress_integer_block(
+    Dwarf_P_Debug,    /* dbg */
+    Dwarf_Bool,       /* signed==true (or unsigned) */
+    Dwarf_Small,      /* size of integer units: 8, 16, 32, 64 */
+    void*,            /* data */
+    Dwarf_Unsigned,   /* number of elements */
+    Dwarf_Unsigned*,  /* number of bytes in output block */
+    Dwarf_Error*      /* error */
+);
+
+void * dwarf_uncompress_integer_block(
+    Dwarf_Debug,    /* dbg */
+    Dwarf_Bool,       /* signed==true (or unsigned) */
+    Dwarf_Small,      /* size of integer units: 8, 16, 32, 64 */
+    void*,            /* data */
+    Dwarf_Unsigned,   /* number of bytes in input */
+    Dwarf_Unsigned*,  /* number of units in output block */
+    Dwarf_Error*      /* error */
+);
+
 /* Operations to create location expressions. */
 Dwarf_P_Expr dwarf_new_expr(Dwarf_P_Debug /*dbg*/, Dwarf_Error* /*error*/);
+
+void dwarf_expr_reset(
+    Dwarf_P_Expr     /*expr*/,
+    Dwarf_Error*     /*error*/);
 
 Dwarf_Unsigned dwarf_add_expr_gen(
     Dwarf_P_Expr        /*expr*/, 
@@ -1931,9 +2044,6 @@ int dwarf_vendor_ext(Dwarf_P_Debug /*dbg*/,
     Dwarf_Error*   /*error*/);
 
 /* end macinfo producer functions */
-
-
-void dwarf_p_dealloc(void* /*space*/, Dwarf_Unsigned /*type*/);
 
 int dwarf_attr_offset(Dwarf_Die /*die*/,
     Dwarf_Attribute /*attr of above die*/,

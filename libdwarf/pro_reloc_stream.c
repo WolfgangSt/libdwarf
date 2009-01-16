@@ -1,6 +1,7 @@
 /*
 
   Copyright (C) 2000,2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright 2002 Sun Microsystems, Inc. All rights reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -59,16 +60,15 @@
 
 */
  /*ARGSUSED*/ int
-_dwarf_pro_reloc_name_stream64(Dwarf_P_Debug dbg, int base_sec_index, Dwarf_Unsigned offset,	/* r_offset 
-												   of 
-												   reloc 
-												 */
+_dwarf_pro_reloc_name_stream64(Dwarf_P_Debug dbg,
+			       int base_sec_index,
+			       Dwarf_Unsigned offset,	/* r_offset of reloc */
 			       Dwarf_Unsigned symidx,
 			       enum Dwarf_Rel_Type type,
 			       int reltarget_length)
 {
 #if HAVE_ELF64_GETEHDR
-    Elf64_Rel *elf64_reloc;
+    REL64 *elf64_reloc;
     void *relrec_to_fill;
     int res;
     int rel_type;
@@ -95,7 +95,7 @@ _dwarf_pro_reloc_name_stream64(Dwarf_P_Debug dbg, int base_sec_index, Dwarf_Unsi
 	rel_type = 0;
     }
 
-    elf64_reloc = (Elf64_Rel *) relrec_to_fill;
+    elf64_reloc = (REL64 *)relrec_to_fill;
     elf64_reloc->r_offset = offset;
     Set_REL64_info(*elf64_reloc, symidx, rel_type);
     return DW_DLV_OK;
@@ -118,7 +118,7 @@ _dwarf_pro_reloc_name_stream32(Dwarf_P_Debug dbg, int base_sec_index, Dwarf_Unsi
 			       enum Dwarf_Rel_Type type,
 			       int reltarget_length)
 {
-    Elf32_Rel *elf32_reloc;
+    REL32 *elf32_reloc;
     void *relrec_to_fill;
     int res;
     int rel_type;
@@ -143,7 +143,7 @@ _dwarf_pro_reloc_name_stream32(Dwarf_P_Debug dbg, int base_sec_index, Dwarf_Unsi
 	rel_type = 0;
     }
 
-    elf32_reloc = (Elf32_Rel *) relrec_to_fill;
+    elf32_reloc = (REL32*)relrec_to_fill;
     elf32_reloc->r_offset = (Elf32_Addr) offset;
     Set_REL32_info(*elf32_reloc, (Dwarf_Word) symidx, rel_type);
     return DW_DLV_OK;

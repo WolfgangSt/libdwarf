@@ -1,6 +1,7 @@
 /*
 
   Copyright (C) 2000,2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright 2002 Sun Microsystems, Inc. All rights reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -123,6 +124,7 @@ typedef struct Dwarf_P_Simple_nameentry_s *Dwarf_P_Simple_nameentry;
 typedef struct Dwarf_P_Simple_name_header_s *Dwarf_P_Simple_name_header;
 typedef struct Dwarf_P_Arange_s *Dwarf_P_Arange;
 typedef struct Dwarf_P_Per_Reloc_Sect_s *Dwarf_P_Per_Reloc_Sect;
+typedef struct Dwarf_P_Per_Sect_String_Attrs_s *Dwarf_P_Per_Sect_String_Attrs;
 
 /* Defined to get at the elf section numbers and section name
    indices in symtab for the dwarf sections
@@ -159,6 +161,8 @@ struct Dwarf_P_Die_s {
     Dwarf_P_Attribute di_attrs;	/* list of attributes */
     Dwarf_P_Attribute di_last_attr;	/* last attribute */
     int di_n_attr;		/* number of attributes */
+    Dwarf_P_Debug di_dbg;	/* For memory management */
+    Dwarf_Unsigned di_marker;   /* used to attach symbols to dies */
 };
 
 
@@ -307,6 +311,18 @@ struct Dwarf_P_Per_Reloc_Sect_s {
 
 #define DEFAULT_SLOTS_PER_BLOCK 3
 
+typedef struct memory_list_s {
+  struct memory_list_s *prev;
+  struct memory_list_s *next;
+} memory_list_t;
+
+
+struct Dwarf_P_Per_Sect_String_Attrs_s {
+    int sect_sa_section_number;
+    unsigned sect_sa_n_alloc;
+    unsigned sect_sa_n_used;
+    Dwarf_P_String_Attr sect_sa_list;
+};
 
 /* Fields used by producer */
 struct Dwarf_P_Debug_s {
@@ -355,7 +371,6 @@ struct Dwarf_P_Debug_s {
     Dwarf_P_Cie de_frame_cies;
     Dwarf_P_Cie de_last_cie;
     Dwarf_Unsigned de_n_cie;
-
 
     /* Singly-linked list of fde's for the debug unit */
     Dwarf_P_Fde de_frame_fdes;
@@ -477,6 +492,12 @@ struct Dwarf_P_Debug_s {
        of sensible behavior on dbg passing between DSOs linked with
        mismatched libdwarf producer versions. */
 
+    Dwarf_P_Marker de_markers;  /* pointer to array of markers */
+    unsigned de_marker_n_alloc;
+    unsigned de_marker_n_used;
+    int de_sect_sa_next_to_return;  /* Iterator on sring attrib sects */
+    /* String attributes data of each section. */
+    struct Dwarf_P_Per_Sect_String_Attrs_s de_sect_string_attr[NUM_DEBUG_SECTIONS];
 };
 
 

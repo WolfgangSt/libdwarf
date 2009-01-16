@@ -58,7 +58,7 @@ GEN_HFILES = \
 
 all: dwarfdump
 
-$(OBJECTS): $(GEN_HFILES) globals.h print_frames.h
+$(OBJECTS): $(GEN_HFILES) $(srcdir)/globals.h $(srcdir)/print_frames.h
 
 default: $(TARGETS)
 
@@ -72,11 +72,11 @@ at_list.i: at_list.awk $(DIRINC)/dwarf.h
 #at_list.o: at_list.i
 #	 $(CC) $(CFLAGS) -c at_list.i -o $@
 
-_tag_tree_table.c: tag_tree.list tag_tree.c $(DIRINC)/dwarf.h
+_tag_tree_table.c: $(srcdir)/tag_tree.list $(srcdir)/tag_tree.c $(DIRINC)/dwarf.h
 	$(CC) $(CFLAGS)  $(LDFLAGS) -o tag_tree_build $(srcdir)/tag_tree.c
 	# gcc -E tag_tree.list does not work, so use a .c name
-	rm -f _tmp.c && ln -s $(srcdir)/tag_tree.list _tmp.c
-	$(CC) $(CFLAGS) -E _tmp.c \
+	rm -f _tmp1.c && ln -s $(srcdir)/tag_tree.list _tmp1.c
+	$(CC) $(CFLAGS) -E _tmp1.c \
 		| awk '!/^#/ && !/^[ \t]*$$/' > ./tag_tree_build.tmp
 	./tag_tree_build <tag_tree_build.tmp > $@
 	rm -f tag_tree_build .tmp
@@ -84,11 +84,11 @@ _tag_tree_table.c: tag_tree.list tag_tree.c $(DIRINC)/dwarf.h
 tag_tree_table.o: _tag_tree_table.c
 	$(CC) $(CFLAGS) -c _tag_tree_table.c -o $@ 
 
-_tag_attr_table.c: tag_attr.list tag_attr.c $(DIRINC)/dwarf.h
+_tag_attr_table.c: $(srcdir)/tag_attr.list $(srcdir)/tag_attr.c $(DIRINC)/dwarf.h
 	$(CC) $(CFLAGS)  $(LDFLAGS) -o tag_attr_build $(srcdir)/tag_attr.c
 	# gcc -E tag_attr.list does not work, so use a .c name
-	rm -f _tmp.c && ln -s $(srcdir)/tag_attr.list _tmp.c
-	$(CC) $(CFLAGS)  -E _tmp.c \
+	rm -f _tmp2.c && ln -s $(srcdir)/tag_attr.list _tmp2.c
+	$(CC) $(CFLAGS)  -E _tmp2.c \
 		| awk '!/^#/ && !/^[ \t]*$$/' > ./tag_attr_build.tmp
 	./tag_attr_build <tag_attr_build.tmp > $@
 	rm -f tag_attr_build.tmp
@@ -96,8 +96,12 @@ _tag_attr_table.c: tag_attr.list tag_attr.c $(DIRINC)/dwarf.h
 tag_attr_table.o: _tag_attr_table.c
 	$(CC) $(CFLAGS) -c _tag_attr_table.c -o $@ 
 
-dwarf_names.h dwarf_names.c: dwarf_names.awk $(DIRINC)/dwarf.h
+# The file dwarf_names.awk generates BOTH dwarf_names.h and dwarf_names.c
+#   be careful of the make dependencies here
+dwarf_names.h: dwarf_names.awk $(DIRINC)/dwarf.h
+	rm -f dwarf_names.h dwarf_names.c
 	awk -f $(srcdir)/dwarf_names.awk $(DIRINC)/dwarf.h > dwarf_names.c
+dwarf_names.c: dwarf_names.h
 
 test: esb.o $(srcdir)/testesb.c
 	$(CC) -o test $(srcdir)/testesb.c esb.o

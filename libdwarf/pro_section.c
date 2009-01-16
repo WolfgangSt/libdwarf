@@ -2,6 +2,7 @@
 
   Copyright (C) 2000,2004,2006 Silicon Graphics, Inc.  All Rights Reserved.
   Portions Copyright (C) 2007 David Anderson. All Rights Reserved.
+  Portions Copyright 2002 Sun Microsystems, Inc. All rights reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -74,22 +75,23 @@
 #endif
 
 /* must match up with pro_section.h defines of DEBUG_INFO etc 
-and sectnames (below)
+and sectnames (below).  REL_SEC_PREFIX is either ".rel" or ".rela"
+see pro_incl.h
 */
 char *_dwarf_rel_section_names[] = {
-    ".rel.debug_info",
-    ".rel.debug_line",
-    ".rel.debug_abbrev",	/* no relocations on this, really */
-    ".rel.debug_frame",
-    ".rel.debug_aranges",
-    ".rel.debug_pubnames",
-    ".rel.debug_str",
-    ".rel.debug_funcnames",	/* sgi extension */
-    ".rel.debug_typenames",	/* sgi extension */
-    ".rel.debug_varnames",	/* sgi extension */
-    ".rel.debug_weaknames",	/* sgi extension */
-    ".rel.debug_macinfo",
-    ".rel.debug_loc"
+    REL_SEC_PREFIX ".debug_info",
+    REL_SEC_PREFIX ".debug_line",
+    REL_SEC_PREFIX ".debug_abbrev",	/* no relocations on this, really */
+    REL_SEC_PREFIX ".debug_frame",
+    REL_SEC_PREFIX ".debug_aranges",
+    REL_SEC_PREFIX ".debug_pubnames",
+    REL_SEC_PREFIX ".debug_str",
+    REL_SEC_PREFIX ".debug_funcnames",	/* sgi extension */
+    REL_SEC_PREFIX ".debug_typenames",	/* sgi extension */
+    REL_SEC_PREFIX ".debug_varnames",	/* sgi extension */
+    REL_SEC_PREFIX ".debug_weaknames",	/* sgi extension */
+    REL_SEC_PREFIX ".debug_macinfo",
+    REL_SEC_PREFIX ".debug_loc"
 };
 
 /* names of sections. Ensure that it matches the defines 
@@ -1301,6 +1303,151 @@ _dwarf_pro_generate_debugframe(Dwarf_P_Debug dbg, Dwarf_Error * error)
     return (int) dbg->de_n_debug_sect;
 }
 
+/*
+  These functions remember all the markers we see along
+  with the right offset in the .debug_info section so that
+  we can dump them all back to the user with the section info.
+*/
+
+static int
+marker_init(Dwarf_P_Debug dbg,
+	    unsigned count)
+{
+    dbg->de_marker_n_alloc = count;
+    dbg->de_markers = NULL;
+    if (count > 0) {
+	dbg->de_markers = _dwarf_p_get_alloc(dbg, sizeof(struct Dwarf_P_Marker_s) *
+					     dbg->de_marker_n_alloc);
+	if (dbg->de_markers == NULL) {
+	    dbg->de_marker_n_alloc = 0;
+	    return -1;
+	}
+    }
+    return 0;
+}
+
+static int
+marker_add(Dwarf_P_Debug dbg,
+	   Dwarf_Unsigned offset,
+	   Dwarf_Unsigned marker)
+{
+    if (dbg->de_marker_n_alloc >= (dbg->de_marker_n_used + 1)) {
+	unsigned n = dbg->de_marker_n_used++;
+	dbg->de_markers[n].ma_offset = offset;
+	dbg->de_markers[n].ma_marker = marker;
+	return 0;
+    }
+
+    return -1;
+}
+
+Dwarf_Signed
+dwarf_get_die_markers(Dwarf_P_Debug dbg,
+		      Dwarf_P_Marker * marker_list, /* pointer to a pointer */
+		      Dwarf_Unsigned * marker_count,
+		      Dwarf_Error * error)
+{
+    if (marker_list == NULL || marker_count == NULL) {
+	DWARF_P_DBG_ERROR(dbg, DW_DLE_IA, DW_DLV_BADADDR);
+    }
+    if (dbg->de_marker_n_used != dbg->de_marker_n_alloc) {
+	DWARF_P_DBG_ERROR(dbg, DW_DLE_MAF, DW_DLV_BADADDR);
+    }
+    
+    *marker_list = dbg->de_markers;
+    *marker_count = dbg->de_marker_n_used;
+    return DW_DLV_OK;
+}
+
+/* These functions provide the offsets of DW_FORM_string
+   attributes in the section section_index. These information
+   will enable a producer app that is generating assembly 
+   text output to easily emit those attributes in ascii form 
+   without having to decode the byte stream.
+ */
+static int
+string_attr_init (Dwarf_P_Debug dbg, 
+                  Dwarf_Signed section_index,
+                  unsigned count)
+{
+    Dwarf_P_Per_Sect_String_Attrs sect_sa = &dbg->de_sect_string_attr[section_index];
+    
+    sect_sa->sect_sa_n_alloc = count;
+    sect_sa->sect_sa_list = NULL;
+    if (count > 0) {
+        sect_sa->sect_sa_section_number = section_index;
+        sect_sa->sect_sa_list = _dwarf_p_get_alloc(dbg,
+                                                   sizeof(struct Dwarf_P_String_Attr_s)
+                                                   * sect_sa->sect_sa_n_alloc);
+        if (sect_sa->sect_sa_list == NULL) {
+            sect_sa->sect_sa_n_alloc = 0;
+            return -1;
+        }
+    }
+    return 0;
+}
+
+static int 
+string_attr_add (Dwarf_P_Debug dbg, 
+                 Dwarf_Signed section_index,
+                 Dwarf_Unsigned offset,
+                 Dwarf_P_Attribute attr)
+{
+    Dwarf_P_Per_Sect_String_Attrs sect_sa = &dbg->de_sect_string_attr[section_index];
+    if (sect_sa->sect_sa_n_alloc >= (sect_sa->sect_sa_n_used + 1)) {
+        unsigned n = sect_sa->sect_sa_n_used++;
+        sect_sa->sect_sa_list[n].sa_offset = offset;
+        sect_sa->sect_sa_list[n].sa_nbytes = attr->ar_nbytes;
+        return 0;
+    }
+    
+    return -1;
+}
+
+int
+dwarf_get_string_attributes_count(Dwarf_P_Debug dbg,
+                                  Dwarf_Unsigned *
+                                  count_of_sa_sections,
+                                  int *drd_buffer_version,
+                                  Dwarf_Error *error)
+{
+    int i;
+    unsigned int count = 0;
+    
+    for (i = 0; i < NUM_DEBUG_SECTIONS; ++i) {
+        if (dbg->de_sect_string_attr[i].sect_sa_n_used > 0) {
+            ++count;
+        }
+    }
+    *count_of_sa_sections = (Dwarf_Unsigned) count;
+    *drd_buffer_version = DWARF_DRD_BUFFER_VERSION;
+
+    return DW_DLV_OK;
+}
+
+int 
+dwarf_get_string_attributes_info(Dwarf_P_Debug dbg,
+                                 Dwarf_Signed *elf_section_index,
+                                 Dwarf_Unsigned *sect_sa_buffer_count,
+                                 Dwarf_P_String_Attr *sect_sa_buffer,
+                                 Dwarf_Error *error)
+{
+    int i;
+    int next = dbg->de_sect_sa_next_to_return;
+
+    for (i = next; i < NUM_DEBUG_SECTIONS; ++i) {
+        Dwarf_P_Per_Sect_String_Attrs sect_sa = &dbg->de_sect_string_attr[i];        
+        if (sect_sa->sect_sa_n_used > 0) {
+            dbg->de_sect_sa_next_to_return = i + 1;
+            *elf_section_index = sect_sa->sect_sa_section_number;
+            *sect_sa_buffer_count = sect_sa->sect_sa_n_used;
+            *sect_sa_buffer = sect_sa->sect_sa_list;
+            return DW_DLV_OK;
+        }
+    }
+    return DW_DLV_NO_ENTRY;
+}
+
 
 
 /*---------------------------------------------------------------
@@ -1326,6 +1473,9 @@ _dwarf_pro_generate_debuginfo(Dwarf_P_Debug dbg, Dwarf_Error * error)
     Dwarf_Unsigned die_off = 0;	/* Offset of die in debug_info. */
     int n_abbrevs = 0;
     int res = 0;
+    unsigned marker_count = 0;
+    unsigned string_attr_count = 0;
+    unsigned string_attr_offset = 0;
 
     Dwarf_Small *start_info_sec = 0;
 
@@ -1420,14 +1570,23 @@ _dwarf_pro_generate_debuginfo(Dwarf_P_Debug dbg, Dwarf_Error * error)
     }
 
     /* pass 1: create abbrev info, get die offsets, calc relocations */
+    marker_count = 0;
+    string_attr_count = 0;
     while (curdie != NULL) {
-	int nbytes;
+	int nbytes = 0;
 	Dwarf_P_Attribute curattr;
-	char *space;
-	int res;
+	Dwarf_P_Attribute new_first_attr;
+	Dwarf_P_Attribute new_last_attr;
+	char *space = 0;
+	int res = 0;
 	char buff1[ENCODE_SPACE_NEEDED];
+	int i = 0;
 
 	curdie->di_offset = die_off;
+
+	if (curdie->di_marker != 0)
+	    marker_count++;
+	
 	curabbrev = _dwarf_pro_getabbrev(curdie, abbrev_head);
 	if (curabbrev == NULL) {
 	    DWARF_P_DBG_ERROR(dbg, DW_DLE_ABBREV_ALLOC, -1);
@@ -1459,7 +1618,47 @@ _dwarf_pro_generate_debuginfo(Dwarf_P_Debug dbg, Dwarf_Error * error)
 	curdie->di_abbrev = space;
 	curdie->di_abbrev_nbytes = nbytes;
 	die_off += nbytes;
+
+	/* Resorting the attributes!! */
+	new_first_attr = new_last_attr = NULL;
 	curattr = curdie->di_attrs;
+	for (i = 0; i < (int)curabbrev->abb_n_attr; i++) {
+	    Dwarf_P_Attribute ca;
+	    Dwarf_P_Attribute cl;
+
+	    /* The following should always find an attribute! */
+	    for (ca = cl = curattr;
+		 ca && curabbrev->abb_attrs[i] != ca->ar_attribute;
+		 cl = ca, ca = ca->ar_next)
+	    {
+	    }
+
+	    if (!ca) {
+		DWARF_P_DBG_ERROR(dbg,DW_DLE_ABBREV_ALLOC, -1);
+	    }
+
+	    /* Remove the attribute from the old list. */
+	    if (ca == curattr) {
+		curattr = ca->ar_next;
+	    } else {
+		cl->ar_next = ca->ar_next;
+	    }
+
+	    ca->ar_next = NULL;
+		
+	    /* Add the attribute to the new list. */
+	    if (new_first_attr == NULL) {
+		new_first_attr = new_last_attr = ca;
+	    } else {
+		new_last_attr->ar_next = ca;
+		new_last_attr = ca;
+	    }
+	}
+
+	curdie->di_attrs = new_first_attr;
+	    
+	curattr = curdie->di_attrs;
+	
 	while (curattr) {
 	    if (curattr->ar_rel_type != R_MIPS_NONE) {
 		switch (curattr->ar_attribute) {
@@ -1489,9 +1688,13 @@ _dwarf_pro_generate_debuginfo(Dwarf_P_Debug dbg, Dwarf_Error * error)
 		}
 
 	    }
+            if (curattr->ar_attribute_form == DW_FORM_string) {
+                string_attr_count++;
+            }
 	    die_off += curattr->ar_nbytes;
 	    curattr = curattr->ar_next;
 	}
+	
 	/* depth first search */
 	if (curdie->di_child)
 	    curdie = curdie->di_child;
@@ -1504,13 +1707,30 @@ _dwarf_pro_generate_debuginfo(Dwarf_P_Debug dbg, Dwarf_Error * error)
 	    if (curdie != NULL)
 		curdie = curdie->di_right;
 	}
-    }
+	
+    } /* end while (curdie != NULL) */
 
+    res = marker_init(dbg, marker_count);
+    if (res == -1) {
+	DWARF_P_DBG_ERROR(dbg, DW_DLE_REL_ALLOC, -1);	
+    }
+    res = string_attr_init(dbg, DEBUG_INFO, string_attr_count);
+    if (res == -1) {
+       	DWARF_P_DBG_ERROR(dbg, DW_DLE_REL_ALLOC, -1);	
+    } 
+    
     /* Pass 2: Write out the die information Here 'data' is a
        temporary, one block for each GET_CHUNK.  'data' is overused. */
     curdie = dbg->de_dies;
     while (curdie != NULL) {
 	Dwarf_P_Attribute curattr;
+
+	if (curdie->di_marker != 0) {
+	    res = marker_add(dbg, curdie->di_offset, curdie->di_marker);
+	    if (res == -1) {
+		DWARF_P_DBG_ERROR(dbg, DW_DLE_REL_ALLOC, -1);	
+	    }
+	}
 
 	/* index to abbreviation table */
 	GET_CHUNK(dbg, elfsectno_of_debug_info,
@@ -1522,6 +1742,8 @@ _dwarf_pro_generate_debuginfo(Dwarf_P_Debug dbg, Dwarf_Error * error)
 
 	/* Attribute values - need to fill in all form attributes */
 	curattr = curdie->di_attrs;
+        string_attr_offset = curdie->di_offset + curdie->di_abbrev_nbytes;
+        
 	while (curattr) {
 	    GET_CHUNK(dbg, elfsectno_of_debug_info, data,
 		      (unsigned long) curattr->ar_nbytes, error);
@@ -1552,6 +1774,15 @@ _dwarf_pro_generate_debuginfo(Dwarf_P_Debug dbg, Dwarf_Error * error)
 		}
 	    case DW_FORM_ref_addr:
 		{
+		    /* curattr->ar_ref_die == NULL!
+ 		     *
+		     * ref_addr doesn't take a CU-offset.
+		     * This is different than other refs.
+		     * This value will be set by the user of the
+ 		     * producer library using a relocation.
+		     * No need to set a value here.
+		     */
+#if 0		    
 		    du = curattr->ar_ref_die->di_offset;
 		    {
 			/* ref to offset of die */
@@ -1559,6 +1790,7 @@ _dwarf_pro_generate_debuginfo(Dwarf_P_Debug dbg, Dwarf_Error * error)
 					(const void *) &du,
 					sizeof(du), uwordb_size);
 		    }
+#endif		
 		    break;
 
 		}
@@ -1605,6 +1837,10 @@ _dwarf_pro_generate_debuginfo(Dwarf_P_Debug dbg, Dwarf_Error * error)
 		       curattr->ar_nbytes);
 		break;
 	    }
+            if (curattr->ar_attribute_form == DW_FORM_string) {
+                string_attr_add(dbg, DEBUG_INFO, string_attr_offset, curattr);
+            }
+            string_attr_offset += curattr->ar_nbytes;
 	    curattr = curattr->ar_next;
 	}
 
@@ -1620,7 +1856,7 @@ _dwarf_pro_generate_debuginfo(Dwarf_P_Debug dbg, Dwarf_Error * error)
 	    if (curdie != NULL)
 		curdie = curdie->di_right;
 	}
-    }
+    } /* end while (curdir != NULL) */
 
     /* Write out debug_info size */
     /* Dont include length field or extension bytes */
@@ -1758,6 +1994,7 @@ dwarf_reset_section_bytes(Dwarf_P_Debug dbg)
     /* No need to reset; commented out decrement. dbg->de_n_debug_sect
        = ???; */
     dbg->de_reloc_next_to_return = 0;
+    dbg->de_sect_sa_next_to_return = 0;
 }
 
 /*
@@ -1922,12 +2159,12 @@ _dwarf_pro_getabbrev(Dwarf_P_Die die, Dwarf_P_Abbrev head)
     /* no match, create new abbreviation */
     if (die->di_n_attr != 0) {
 	forms = (Dwarf_ufixed *)
-	    _dwarf_p_get_alloc(NULL,
+	    _dwarf_p_get_alloc(die->di_dbg,
 			       sizeof(Dwarf_ufixed) * die->di_n_attr);
 	if (forms == NULL)
 	    return NULL;
 	attrs = (Dwarf_ufixed *)
-	    _dwarf_p_get_alloc(NULL,
+	    _dwarf_p_get_alloc(die->di_dbg,
 			       sizeof(Dwarf_ufixed) * die->di_n_attr);
 	if (attrs == NULL)
 	    return NULL;
@@ -1942,7 +2179,7 @@ _dwarf_pro_getabbrev(Dwarf_P_Die die, Dwarf_P_Abbrev head)
     }
 
     curabbrev = (Dwarf_P_Abbrev)
-	_dwarf_p_get_alloc(NULL, sizeof(struct Dwarf_P_Abbrev_s));
+	_dwarf_p_get_alloc(die->di_dbg, sizeof(struct Dwarf_P_Abbrev_s));
     if (curabbrev == NULL)
 	return NULL;
 

@@ -332,4 +332,8 @@ dwarf_malloc_check_complete(char *msg)
     return;
 }
 
+#else
+
+static void nothing(){}
+
 #endif /* WANT_LIBBDWARF_MALLOC_CHECK */

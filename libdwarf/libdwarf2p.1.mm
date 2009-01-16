@@ -11,7 +11,7 @@
 .nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.19, 11 Mar 2007
+.ds vE rev 1.20, 7 May 2007
 \." ==============================================
 \." ==============================================
 .ds | |
@@ -47,13 +47,13 @@ suggest possible optimizations.
 .P
 The document is oriented to creating DWARF version 2.
 Support for creating DWARF3 is intended but such support
-is not yet present.
+is not yet fully present.
 .P
 \*(vE 
 .AE
 .MT 4
 .H 1 "INTRODUCTION"
-This document describes the proposed interface to \f(CWlibdwarf\fP, a
+This document describes an interface to \f(CWlibdwarf\fP, a
 library of functions to provide creation of DWARF debugging information
 records, DWARF line number information, DWARF address range and
 pubnames information, weak names information, and DWARF frame description 
@@ -79,21 +79,26 @@ The purpose of this document is to propose a library of functions to
 create DWARF debugging information.  Reading (consuming) of such records 
 is discussed in a separate document.
 
-The functions in this document have been implemented at Silicon Graphics
+The functions in this document have mostly been implemented at 
+Silicon Graphics
 and are being used by the code generator to provide debugging information.
+Some functions (and support for some extensions) were provided
+by Sun Microsystems.
 
 .P
-Additionally, the focus of this document is the functional interface,
+The focus of this document is the functional interface,
 and as such, implementation and optimization issues are
 intentionally ignored.
 
 .P
 Error handling, error codes, and certain \f(CWLibdwarf\fP codes are discussed
-in the "\fIProposed Interface to DWARF Consumer Library\fP", which should 
+in the "\fIA Consumer Library Interface to DWARF\fP", which should 
 be read (or at least skimmed) before reading this document.
 .P
-The general style of functions here is rather C-traditional
-with various types as return values.   The style
+However the general style of functions here 
+in the producer librar is rather C-traditional
+with various types as return values (quite different
+from the consumer library interfaces).   The style
 generally follows the style of the original DWARF1 reader
 proposed as an interface to DWARF.
 When the style of the reader interfaces was changed (1994) in the
@@ -102,7 +107,7 @@ section of "A Consumer Library Interface to DWARF")
 the interfaces here were not changed as it seemed like
 too much of a change for the two applications then using
 the interface!  So this interface remains in the traditional C style
-of returning various data types with various
+of returning various data types with various (somewhat inconsistent)
 means of indicating failure.
 
 .H 2 "Document History"
@@ -134,7 +139,7 @@ description of these entries.
 .P
 This document adopts all the terms and definitions in
 "\fIDWARF Debugging Information Format\fP" version 2.
-and the "\fIProposed Interface to DWARF Consumer Library\fP".
+and the "\fIA Consumer Library Interface to DWARF\fP".
 
 .P
 In addition, this document refers to Elf, the ATT/USL System V
@@ -153,7 +158,7 @@ This document assumes you
 are thoroughly familiar with the information contained in the 
 \fIDWARF 
 Debugging Information Format\fP document, and 
-"\fIProposed Interface to DWARF Consumer Library\fP".
+"\fIA Consumer Library Interface to DWARF\fP".
 
 .P
 The interface necessarily knows a little bit about the object format
@@ -176,6 +181,10 @@ simpler provision for differences in ABI.
 .LI "Sep 1, 1999"
 Added support for little- and cross- endian
 debug info creation.
+.LI "May 7  2007"
+This library interface now cleans up, deallocating
+all memory it uses (the application simply calls
+dwarf_producer_finish(dbg)).
 .LE
 
 .H 1 "Type Definitions"
@@ -331,22 +340,12 @@ of the symbol handles.
 
 .H 1 "Memory Management"
 
-Several of the functions that comprise the \fILibdwarf\fP interface 
-return values that have been dynamically allocated by the library.  
+Several of the functions that comprise the \fILibdwarf\fP 
+producer interface dynamically allocate values and some
+return pointers to those spaces.
 The dynamically allocated spaces 
-can not be reclaimed except by \f(CWdwarf_producer_finish()\fP.  
-This function is supposed to
-reclaim all the space, and invalidate all descriptors 
-returned from \f(CWLibdwarf\fP functions that add information to be 
-object specified.  
-After \f(CWdwarf_producer_finish()\fP is called, 
-the \f(CWDwarf_P_Debug\fP descriptor specified is also invalid.
-
-The present version of the producer library mostly
-ignores memory management: it leaks memory a great deal.
-For existing clients this is not a problem (they are
-short lived) but is contrary to the intent, which was
-that memory should be freed by \f(CWdwarf_producer_finish()\fP.
+can not be reclaimed  (and must
+not be freed)  except by \f(CWdwarf_producer_finish(dbg)\fP.  
 
 All data for a particular \f(CWDwarf_P_Debug\fP descriptor
 is separate from the data for any other 

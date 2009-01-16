@@ -136,6 +136,7 @@ DW_TAG_const_type
 DW_TAG_constant
 DW_TAG_file_type
 DW_TAG_namelist
+DW_TAG_namespace
 DW_TAG_packed_type
 DW_TAG_subprogram
 DW_TAG_variable

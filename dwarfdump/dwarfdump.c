@@ -1,6 +1,7 @@
 /* 
   Copyright (C) 2000,2002,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
   Portions Copyright (C) 2007 David Anderson. All Rights Reserved.
+  Portions Copyright 2007 Sun Microsystems, Inc. All rights reserved.
   
 
   This program is free software; you can redistribute it and/or modify it
@@ -97,6 +98,7 @@ int verbose = 0;
 boolean dense = FALSE;
 boolean ellipsis = FALSE;
 boolean dst_format = FALSE;
+boolean show_global_offsets = FALSE;
 
 boolean check_abbrev_code = FALSE;
 boolean check_pubname_attr = FALSE;
@@ -150,7 +152,6 @@ Dwarf_Error err;
 
 static int process_one_file(Elf * elf, string file_name, int archive,
 			    struct dwconf_s *conf);
-
 static int
 open_a_file(string name)
 {
@@ -319,6 +320,16 @@ process_one_file(Elf * elf, string file_name, int archive,
 
 }
 
+static void do_all()
+{
+	info_flag = line_flag = frame_flag = abbrev_flag = TRUE;
+	pubnames_flag = aranges_flag = macinfo_flag = TRUE;
+	loc_flag = string_flag = TRUE;
+	reloc_flag = TRUE;
+	static_func_flag = static_var_flag = TRUE;
+	type_flag = weakname_flag = TRUE;
+}
+
 /* process arguments and return object filename */
 static string
 process_args(int argc, char *argv[])
@@ -331,9 +342,13 @@ process_args(int argc, char *argv[])
     program_name = argv[0];
 
     /* j q unused */
+    if (argv[1] != NULL && argv[1][0] != '-') {
+		do_all();
+    }
+
     while ((c =
 	    getopt(argc, argv,
-		   "abcdefFghik:lmoprst:u:vwx:yz")) != EOF) {
+		   "abcdefFgGhik:lmoprst:u:vVwx:yz")) != EOF) {
 	switch (c) {
 	case 'x':		/* Select abi/path to use */
 	    {
@@ -399,16 +414,15 @@ process_args(int argc, char *argv[])
 	    string_flag = TRUE;
 	    break;
 	case 'a':
-	    info_flag = line_flag = frame_flag = abbrev_flag = TRUE;
-	    /* Do not turn on eh_frame_flag. */
-	    pubnames_flag = aranges_flag = macinfo_flag = TRUE;
-	    loc_flag = string_flag = TRUE;
-	    reloc_flag = TRUE;
-	    static_func_flag = static_var_flag = TRUE;
-	    type_flag = weakname_flag = TRUE;
+	    do_all();
 	    break;
 	case 'v':
 	    verbose++;
+	    break;
+	case 'V':
+	    {
+	    printf("%s\n","Version 4May2007");
+	    }
 	    break;
 	case 'd':
 	    dense = TRUE;
@@ -483,6 +497,9 @@ process_args(int argc, char *argv[])
 	case 'z':
 	    fprintf(stderr, "-z is no longer supported:ignored\n");
 	    break;
+	case 'G':
+	    show_global_offsets = TRUE;
+	    break;
 	default:
 	    usage_error = TRUE;
 	    break;
@@ -525,6 +542,7 @@ print_usage_message(void)
     fprintf(stderr, "\t\t-f\tprint dwarf frame section\n");
     fprintf(stderr, "\t\t-F\tprint gnu .eh_frame section\n");
     fprintf(stderr, "\t\t-g\t(use incomplete loclist support)\n");
+    fprintf(stderr, "\t\t-G\tshow global die offsets\n");
     fprintf(stderr, "\t\t-h\tprint exception tables\n");
     fprintf(stderr, "\t\t-i\tprint info section\n");
     fprintf(stderr, "\t\t-k[aerty] check dwarf information\n");
@@ -546,6 +564,8 @@ print_usage_message(void)
     fprintf(stderr,
 	    "\t\t-u<file> print sections only for specified file\n");
     fprintf(stderr, "\t\t-v\tverbose: show more information\n");
+    fprintf(stderr, "\t\t-vv verbose: show even more information\n");
+    fprintf(stderr, "\t\t-V print version information\n");	
     fprintf(stderr, "\t\t-x name=<path>\tname dwarfdump.conf\n");
     fprintf(stderr, "\t\t-x abi=<abi>\tname abi in dwarfdump.conf\n");
     fprintf(stderr, "\t\t-w\tprint weakname section\n");

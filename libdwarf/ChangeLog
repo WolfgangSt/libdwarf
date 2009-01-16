@@ -1,3 +1,49 @@
+2007-04-18 Chris Quenelle <chris.quenelle@sun.com>
+      * dwarf_addr_finder.c: repaired comment
+      * dwarf_form.c: add support for DW_AT_SUN_func_offsets
+      * pro_alloc.c: add memory block tracking to find and fix
+	lingering allocations.  This is more important for very large
+	and intensive compiles.
+      * pro_die.c: Implement "markers" which are a generic way to
+	do things like relocations.  You can set a marker on any
+	die, and when dwarf is produced in binary form, you get back
+	a list of your markers with the offset of each one in the binary
+	output.  This is used by the Sun compilers to implement die
+	references that span compile unit blocks.  (I may remove this,
+	it might be unused code related to partial_units and comdat
+	support)
+      * pro_die.c: Also check for loops in the die relationships so
+	that if you add a child twice, or other errors, you won't get
+	an infinite loop or a crash.  Also start passing a DBG structure
+	to all allocation calls to help with memory block tracking.
+      * pro_expr.c: Add a public function to "reset" an expr.  This
+	allows the same expr object to be reused over and over to save
+	memory if you're creating many many expressions for a location list.
+      * pro_finish.c: Free any left over blocks when the user calls
+	dwarf_producer_finish.
+      * pro_forms.c: More support for compressed integer blocks. Modify
+	error diagnostics so that user-defined attributes can be any type.
+	Add support for dwarf_add_AT_ref_address which is just like
+	dwarf_add_AT_address, only it produces a DW_FORM_ref_addr instead
+	of DW_FORM_addr.  This is needed for cross-CU die pointers.
+      * pro_incl.h: add macros to control the spelling of relocation types.
+      * pro_init.c: use new macros to control reloc types
+      * pro_line.h: correct minimum instruction length on x86
+      * pro_opaque.h: add support for markers (see above) and also ability
+	have libdwarf tell the caller where the string constants are so
+	that they can be recorded as strings in case the binary output of libdwarf
+	needs to be converted back into assembly.  That's what
+	Dwarf_P_Per_Sect_String_Attrs is about.
+        Remove de_mem_list as it is never used.
+      * pro_reloc_stream.c: repair prototype and comment for
+	_dwarf_pro_reloc_name_stream64, and use relocation type macros.
+      * pro_section.c: support for markers (see above) and for tracking
+	inline string attributes.  Add code to sort the attributes so that
+	abbreviation table entries will be reduced.  Change treatment of
+	DW_FORM_ref_addr to be more correct.  Some support for packing
+	in the middle of sections, this will probably be removed.
+	Also pass DBg structure to more allocations.
+      * pro_util.h: relocation type values can't be zero.
 2007-04-10 David Anderson <davea42@earthlink.net
       * dwarf_print_lines.c pro_section.c dwarf_query.c
         dwarf_alloc.c dwarf_arange.c dwarf_sort_line.c
