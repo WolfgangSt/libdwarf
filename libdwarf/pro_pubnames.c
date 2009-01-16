@@ -52,18 +52,12 @@
     It returns 0 on error, and 1 otherwise.
 */
 
-Dwarf_Unsigned 
-dwarf_add_pubname (
-    Dwarf_P_Debug	dbg,
-    Dwarf_P_Die		die,
-    char		*pubname_name,
-    Dwarf_Error		*error
-)
+Dwarf_Unsigned
+dwarf_add_pubname(Dwarf_P_Debug dbg,
+		  Dwarf_P_Die die,
+		  char *pubname_name, Dwarf_Error * error)
 {
-	return
-                _dwarf_add_simple_name_entry(
-                dbg,die, pubname_name,
-                dwarf_snk_pubname,
-                error);
+    return
+	_dwarf_add_simple_name_entry(dbg, die, pubname_name,
+				     dwarf_snk_pubname, error);
 }
-

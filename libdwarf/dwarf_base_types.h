@@ -74,19 +74,19 @@
 ** These work equally well with ILP64.
 */
 
-typedef unsigned long               Dwarf_Word;
-typedef signed long		    Dwarf_Sword;
+typedef unsigned long Dwarf_Word;
+typedef signed long Dwarf_Sword;
 
-typedef signed char                 Dwarf_Sbyte;
-typedef unsigned char               Dwarf_Ubyte;
-typedef signed short		    Dwarf_Shalf;
-typedef Dwarf_Small 		    *Dwarf_Byte_Ptr;
+typedef signed char Dwarf_Sbyte;
+typedef unsigned char Dwarf_Ubyte;
+typedef signed short Dwarf_Shalf;
+typedef Dwarf_Small *Dwarf_Byte_Ptr;
 
 /* these 2 are fixed sizes which must not vary with the
 ** ILP32/LP64 model. Between these two, stay at 32 bit.
 */
-typedef __uint32_t                  Dwarf_ufixed;
-typedef __int32_t                   Dwarf_sfixed;
+typedef __uint32_t Dwarf_ufixed;
+typedef __int32_t Dwarf_sfixed;
 
 /*
         In various places the code mistakenly associates
@@ -94,14 +94,14 @@ typedef __int32_t                   Dwarf_sfixed;
 	This is not a very portable assumption.
         The following should be used instead for 64 bit integers.
 */
-typedef __uint32_t                  Dwarf_ufixed64;
-typedef __int32_t                   Dwarf_sfixed64;
+typedef __uint32_t Dwarf_ufixed64;
+typedef __int32_t Dwarf_sfixed64;
 
 
-typedef struct Dwarf_Abbrev_List_s	*Dwarf_Abbrev_List;
-typedef struct Dwarf_File_Entry_s	*Dwarf_File_Entry;
-typedef struct Dwarf_CU_Context_s	*Dwarf_CU_Context;
-typedef struct Dwarf_Hash_Table_s	*Dwarf_Hash_Table;
+typedef struct Dwarf_Abbrev_List_s *Dwarf_Abbrev_List;
+typedef struct Dwarf_File_Entry_s *Dwarf_File_Entry;
+typedef struct Dwarf_CU_Context_s *Dwarf_CU_Context;
+typedef struct Dwarf_Hash_Table_s *Dwarf_Hash_Table;
 
 
-typedef struct Dwarf_Alloc_Hdr_s	*Dwarf_Alloc_Hdr;
+typedef struct Dwarf_Alloc_Hdr_s *Dwarf_Alloc_Hdr;

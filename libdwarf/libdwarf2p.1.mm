@@ -11,7 +11,7 @@
 .nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.17, 29 Sep 1999
+.ds vE rev 1.18, 10 Jan 2002
 \." ==============================================
 \." ==============================================
 .ds | |
@@ -863,7 +863,7 @@ Calling \f(CWdwarf_get_relocation_info() \fP
 more than the number of times indicated by
 \f(CWdwarf_get_relocation_info_count() \fP
 (without an intervening call to
-\f(CWdwarf_restart_section_bytes() \fP )
+\f(CWdwarf_reset_section_bytes() \fP )
 results in a return of \f(CWDW_DLV_ERROR\fP once past
 the valid count.
 The \f(CWerror\fP argument is set to indicate the error.
@@ -967,14 +967,14 @@ by the \f(CWdwarf_producer_finish() \fP call
 was actually correct), along
 with all the other space in use with that Dwarf_P_Debug.
 
-.H 3 "dwarf_restart_section_bytes()"
+.H 3 "dwarf_reset_section_bytes()"
 
 .DS
-\f(CWvoid dwarf_restart_section_bytes(
+\f(CWvoid dwarf_reset_section_bytes(
         Dwarf_P_Debug dbg
         ) \fP
 .DE
-The function \f(CWdwarf_restart_section_bytes() \fP 
+The function \f(CWdwarf_reset_section_bytes() \fP 
 is used to reset the internal information so that
 \f(CWdwarf_get_section_bytes() \fP will begin (on the next
 call) at the initial dwarf section again.

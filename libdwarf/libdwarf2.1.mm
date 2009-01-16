@@ -8,7 +8,7 @@
 .nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.46, 08 Jul 2001
+.ds vE rev 1.48, 31 Mar 2002
 \." ==============================================
 \." ==============================================
 .ds | |
@@ -950,6 +950,16 @@ The seek position of
 the file associated with \f(CWfd\fP is undefined upon return of 
 \f(CWdwarf_init()\fP.
 
+With SGI IRIX, by default it is allowed that the app
+\f(CWclose()\fP \f(CWfd\fP immediately after calling \f(CWdwarf_init()\fP,
+but that is not  a portable approach (that it
+works is an accidental
+side effect of the fact that SGI IRIX uses \f(CWELF_C_READ_MMAP\fP 
+in its hidden internal call to \f(CWelf_begin()\fP).
+The portable approach is to consider that \f(CWfd\fP
+must be left open till after the corresponding dwarf_finish() call
+has returned.
+
 Since \f(CWdwarf_init()\fP uses the same error handling processing as other 
 \fIlibdwarf\fP functions (see \fIError Handling\fP above), client programs 
 will generally supply an \f(CWerror\fP parameter to bypass the default actions 
@@ -1114,6 +1124,13 @@ the \f(CWDwarf_Die\fP
 descriptor of the debugging information entry at \f(CWoffset\fP in 
 the section containing debugging information entries i.e the .debug_info
 section.  
+A return of \f(CWDW_DLV_NO_ENTRY\fP
+means that the \f(CWoffset\fP in the section is of a byte containing
+all 0 bits, indicating that there
+is no abbreviation code. Meaning this 'die offset' is not
+the offset of a real die, but is instead an offset of a null die,
+a padding die, or of some random zero byte: this should
+not be returned in normal use.
 It is the user's 
 responsibility to make sure that \f(CWoffset\fP is the start of a valid 
 debugging information entry.  The result of passing it an invalid 
@@ -3444,7 +3461,7 @@ Debuggers can ignore this.
         Dwarf_Error *error)\fP
 .DE
 The function \f(CWdwarf_get_abbrev()\fP returns
-\f(CWDW_DLV_OK\fP and sets \f(CW*returned_fde\fP to
+\f(CWDW_DLV_OK\fP and sets \f(CW*returned_abbrev\fP to
 \f(CWDwarf_Abbrev\fP 
 descriptor for an abbreviation at offset \f(CW*offset\fP in the abbreviations 
 section (i.e .debug_abbrev) on success.  
@@ -3541,8 +3558,8 @@ the string section itself.
         Dwarf_Debug   dbg,
         Dwarf_Off     offset,
         char        **string,
-	Dwarf_Signed  returned_str_len,
-        Dwarf_Error *error)\fP
+	Dwarf_Signed *returned_str_len,
+        Dwarf_Error  *error)\fP
 .DE
 The function \f(CWdwarf_get_str()\fP returns
 \f(CWDW_DLV_OK\fP and sets \f(CW*returned_str_len\fP to
@@ -3622,7 +3639,7 @@ entry covering that address.
 
 .H 3 "dwarf_get_cu_die_offset()"
 .DS
-\f(CWDwarf_Off dwarf_get_cu_die_offset(
+\f(CWint dwarf_get_cu_die_offset(
         Dwarf_Arange arange,
         Dwarf_Off   *returned_cu_die_offset,
         Dwarf_Error *error)\fP
@@ -3638,7 +3655,7 @@ It returns \f(CWDW_DLV_ERROR\fP on error.
 
 .H 3 "dwarf_get_arange_cu_header_offset()"
 .DS
-\f(CWDwarf_Off dwarf_get_arange_cu_header_offset(
+\f(CWint dwarf_get_arange_cu_header_offset(
         Dwarf_Arange arange,
         Dwarf_Off   *returned_cu_header_offset,
         Dwarf_Error *error)\fP

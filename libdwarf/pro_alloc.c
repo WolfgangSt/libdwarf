@@ -47,35 +47,28 @@
 	this is to be in so it can allocate the new space
 	with respect to the right region.
 */
-/*ARGSUSED*/
-Dwarf_Ptr _dwarf_p_get_alloc (
-    Dwarf_P_Debug 	dbg,
-    Dwarf_Unsigned 	size
-)
+ /*ARGSUSED*/
+    Dwarf_Ptr _dwarf_p_get_alloc(Dwarf_P_Debug dbg, Dwarf_Unsigned size)
 {
     void *sp;
 
     sp = malloc(size);
-    bzero(sp,(int)size);
+    bzero(sp, (int) size);
     return sp;
 }
 
 
-/*ARGSUSED*/
-void dwarf_p_dealloc(void *space, Dwarf_Unsigned typ)
+ /*ARGSUSED*/ void
+dwarf_p_dealloc(void *space, Dwarf_Unsigned typ)
 {
-	free(space);
-	return;
+    free(space);
+    return;
 }
 
 
 /* Essentially a stub for now. */
-/*ARGSUSED*/
-void
-_dwarf_p_dealloc (
-    Dwarf_P_Debug       dbg,
-    Dwarf_Small         *ptr
-)
+ /*ARGSUSED*/ void
+_dwarf_p_dealloc(Dwarf_P_Debug dbg, Dwarf_Small * ptr)
 {
-    dwarf_p_dealloc(ptr,DW_DLA_STRING);
+    dwarf_p_dealloc(ptr, DW_DLA_STRING);
 }

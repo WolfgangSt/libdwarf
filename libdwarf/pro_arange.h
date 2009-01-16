@@ -45,19 +45,18 @@
 */
 
 struct Dwarf_P_Arange_s {
-    Dwarf_Addr		ag_begin_address; /* known address
-				or for symbolic assem output,
-				offset of symbol */
-    Dwarf_Addr          ag_length; /* zero or address or
-				offset */
-    Dwarf_Unsigned	ag_symbol_index; 
+    Dwarf_Addr ag_begin_address;	/* known address or for
+					   symbolic assem output,
+					   offset of symbol */
+    Dwarf_Addr ag_length;	/* zero or address or offset */
+    Dwarf_Unsigned ag_symbol_index;
 
-    Dwarf_P_Arange	ag_next;
+    Dwarf_P_Arange ag_next;
 
-    Dwarf_Unsigned      ag_end_symbol_index; /*  zero
-				or index/id of end symbol */
-    Dwarf_Addr          ag_end_symbol_offset;/* known address
-                                or for symbolic assem output,
-                                offset of end symbol */
+    Dwarf_Unsigned ag_end_symbol_index;	/* zero or index/id of end
+					   symbol */
+    Dwarf_Addr ag_end_symbol_offset;	/* known address or for
+					   symbolic assem output,
+					   offset of end symbol */
 
 };

@@ -40,26 +40,23 @@
 #include "dwarf_die_deliv.h"
 
 int
-dwarf_hasform (
-    Dwarf_Attribute	attr,
-    Dwarf_Half		form,
-    Dwarf_Bool	      *return_bool,
-    Dwarf_Error		*error
-)
+dwarf_hasform(Dwarf_Attribute attr,
+	      Dwarf_Half form,
+	      Dwarf_Bool * return_bool, Dwarf_Error * error)
 {
     if (attr == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_NULL);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_NULL);
+	return (DW_DLV_ERROR);
     }
 
     if (attr->ar_cu_context == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_NO_CU_CONTEXT);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_NO_CU_CONTEXT);
+	return (DW_DLV_ERROR);
     }
 
     if (attr->ar_cu_context->cc_dbg == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_DBG_NULL);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_DBG_NULL);
+	return (DW_DLV_ERROR);
     }
 
     *return_bool = (attr->ar_attribute_form == form);
@@ -68,29 +65,26 @@ dwarf_hasform (
 
 
 int
-dwarf_whatform (
-    Dwarf_Attribute	attr,
-    Dwarf_Half      *   return_form,
-    Dwarf_Error		*error
-)
+dwarf_whatform(Dwarf_Attribute attr,
+	       Dwarf_Half * return_form, Dwarf_Error * error)
 {
     if (attr == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_NULL);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_NULL);
+	return (DW_DLV_ERROR);
     }
 
     if (attr->ar_cu_context == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_NO_CU_CONTEXT);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_NO_CU_CONTEXT);
+	return (DW_DLV_ERROR);
     }
 
     if (attr->ar_cu_context->cc_dbg == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_DBG_NULL);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_DBG_NULL);
+	return (DW_DLV_ERROR);
     }
 
     *return_form = attr->ar_attribute_form;
-    return(DW_DLV_OK);
+    return (DW_DLV_OK);
 }
 
 
@@ -100,25 +94,22 @@ dwarf_whatform (
     the form.
 */
 int
-dwarf_whatattr (
-    Dwarf_Attribute	attr,
-    Dwarf_Half      *   return_attr,
-    Dwarf_Error		*error
-)
+dwarf_whatattr(Dwarf_Attribute attr,
+	       Dwarf_Half * return_attr, Dwarf_Error * error)
 {
     if (attr == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_NULL);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_NULL);
+	return (DW_DLV_ERROR);
     }
 
     if (attr->ar_cu_context == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_NO_CU_CONTEXT);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_NO_CU_CONTEXT);
+	return (DW_DLV_ERROR);
     }
 
     if (attr->ar_cu_context->cc_dbg == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_DBG_NULL);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_DBG_NULL);
+	return (DW_DLV_ERROR);
     }
 
     *return_attr = (attr->ar_attribute);
@@ -138,69 +129,63 @@ dwarf_whatattr (
     
 */
 int
-dwarf_formref (
-    Dwarf_Attribute	attr,
-    Dwarf_Off    *      ret_offset,
-    Dwarf_Error		*error
-)
+dwarf_formref(Dwarf_Attribute attr,
+	      Dwarf_Off * ret_offset, Dwarf_Error * error)
 {
-    Dwarf_Debug		dbg;
-    Dwarf_Unsigned	offset;
+    Dwarf_Debug dbg;
+    Dwarf_Unsigned offset;
 
     if (attr == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_NULL);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_NULL);
+	return (DW_DLV_ERROR);
     }
 
     if (attr->ar_cu_context == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_NO_CU_CONTEXT);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_NO_CU_CONTEXT);
+	return (DW_DLV_ERROR);
     }
 
     if (attr->ar_cu_context->cc_dbg == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_DBG_NULL);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_DBG_NULL);
+	return (DW_DLV_ERROR);
     }
     dbg = attr->ar_cu_context->cc_dbg;
 
     switch (attr->ar_attribute_form) {
 
-	case DW_FORM_ref1 : 
-	    offset = *(Dwarf_Small *)attr->ar_debug_info_ptr;
-	    break;
+    case DW_FORM_ref1:
+	offset = *(Dwarf_Small *) attr->ar_debug_info_ptr;
+	break;
 
-	case DW_FORM_ref2 : 
-	    READ_UNALIGNED(dbg,offset,Dwarf_Unsigned,
-		 attr->ar_debug_info_ptr, sizeof(Dwarf_Half));
-	    break;
+    case DW_FORM_ref2:
+	READ_UNALIGNED(dbg, offset, Dwarf_Unsigned,
+		       attr->ar_debug_info_ptr, sizeof(Dwarf_Half));
+	break;
 
-	case DW_FORM_ref4 : 
-	    READ_UNALIGNED(dbg,offset, Dwarf_Unsigned,
-		attr->ar_debug_info_ptr, sizeof(Dwarf_ufixed));
-	    break;
+    case DW_FORM_ref4:
+	READ_UNALIGNED(dbg, offset, Dwarf_Unsigned,
+		       attr->ar_debug_info_ptr, sizeof(Dwarf_ufixed));
+	break;
 
-	case DW_FORM_ref8 : 
-	    READ_UNALIGNED(dbg,offset,Dwarf_Unsigned,
-		 attr->ar_debug_info_ptr, 
-		sizeof(Dwarf_Unsigned));
-	    break;
+    case DW_FORM_ref8:
+	READ_UNALIGNED(dbg, offset, Dwarf_Unsigned,
+		       attr->ar_debug_info_ptr, sizeof(Dwarf_Unsigned));
+	break;
 
-	case DW_FORM_ref_udata :
-	    offset = _dwarf_decode_u_leb128(attr->ar_debug_info_ptr,
-			NULL);
-	    break;
+    case DW_FORM_ref_udata:
+	offset = _dwarf_decode_u_leb128(attr->ar_debug_info_ptr, NULL);
+	break;
 
-	default :
-	    _dwarf_error(dbg,error,DW_DLE_BAD_REF_FORM);
-	    return(DW_DLV_ERROR);
+    default:
+	_dwarf_error(dbg, error, DW_DLE_BAD_REF_FORM);
+	return (DW_DLV_ERROR);
     }
 
-    /* Check that offset is within current 
-       cu portion of .debug_info. */
-    if (offset >= attr->ar_cu_context->cc_length + 
-		attr->ar_cu_context->cc_length_size) {
+    /* Check that offset is within current cu portion of .debug_info. */
+    if (offset >= attr->ar_cu_context->cc_length +
+	attr->ar_cu_context->cc_length_size) {
 	_dwarf_error(dbg, error, DW_DLE_ATTR_FORM_OFFSET_BAD);
-	return(DW_DLV_ERROR);
+	return (DW_DLV_ERROR);
     }
 
     *ret_offset = (offset);
@@ -214,87 +199,81 @@ dwarf_formref (
     
 */
 int
-dwarf_global_formref (
-    Dwarf_Attribute	attr,
-    Dwarf_Off    *      ret_offset,
-    Dwarf_Error		*error
-)
+dwarf_global_formref(Dwarf_Attribute attr,
+		     Dwarf_Off * ret_offset, Dwarf_Error * error)
 {
-    Dwarf_Debug		dbg;
-    Dwarf_Unsigned	offset;
-    Dwarf_Addr   ref_addr;
+    Dwarf_Debug dbg;
+    Dwarf_Unsigned offset;
+    Dwarf_Addr ref_addr;
 
     if (attr == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_NULL);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_NULL);
+	return (DW_DLV_ERROR);
     }
 
     if (attr->ar_cu_context == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_NO_CU_CONTEXT);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_NO_CU_CONTEXT);
+	return (DW_DLV_ERROR);
     }
 
     if (attr->ar_cu_context->cc_dbg == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_DBG_NULL);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_DBG_NULL);
+	return (DW_DLV_ERROR);
     }
     dbg = attr->ar_cu_context->cc_dbg;
 
     switch (attr->ar_attribute_form) {
 
-	case DW_FORM_ref1 : 
-	    offset = *(Dwarf_Small *)attr->ar_debug_info_ptr;
-	    goto fixoffset;
+    case DW_FORM_ref1:
+	offset = *(Dwarf_Small *) attr->ar_debug_info_ptr;
+	goto fixoffset;
 
-	case DW_FORM_ref2 : 
-	    READ_UNALIGNED(dbg,offset,Dwarf_Unsigned,
-			 attr->ar_debug_info_ptr, sizeof(Dwarf_Half));
-	    goto fixoffset;
+    case DW_FORM_ref2:
+	READ_UNALIGNED(dbg, offset, Dwarf_Unsigned,
+		       attr->ar_debug_info_ptr, sizeof(Dwarf_Half));
+	goto fixoffset;
 
-	case DW_FORM_ref4 : 
-	    READ_UNALIGNED(dbg,offset,Dwarf_Unsigned,
-			 attr->ar_debug_info_ptr, 
-			sizeof(Dwarf_ufixed));
-	    goto fixoffset;
+    case DW_FORM_ref4:
+	READ_UNALIGNED(dbg, offset, Dwarf_Unsigned,
+		       attr->ar_debug_info_ptr, sizeof(Dwarf_ufixed));
+	goto fixoffset;
 
-	case DW_FORM_ref8 : 
-	    READ_UNALIGNED(dbg,offset, Dwarf_Unsigned,
-			attr->ar_debug_info_ptr, 
-		sizeof(Dwarf_Unsigned));
-	    goto fixoffset;
+    case DW_FORM_ref8:
+	READ_UNALIGNED(dbg, offset, Dwarf_Unsigned,
+		       attr->ar_debug_info_ptr, sizeof(Dwarf_Unsigned));
+	goto fixoffset;
 
-	case DW_FORM_ref_udata :
-	    offset = _dwarf_decode_u_leb128(
-			attr->ar_debug_info_ptr,NULL);
+    case DW_FORM_ref_udata:
+	offset = _dwarf_decode_u_leb128(attr->ar_debug_info_ptr, NULL);
 
-        fixoffset: /* we have a local offset, make it global */
+      fixoffset:		/* we have a local offset, make it
+				   global */
 
-	    /* check legality of offset */
-            if(offset >= attr->ar_cu_context->cc_length + 
-		     attr->ar_cu_context->cc_length_size){
-	        _dwarf_error(dbg, error, DW_DLE_ATTR_FORM_OFFSET_BAD);
-	        return(DW_DLV_ERROR);
-            }
+	/* check legality of offset */
+	if (offset >= attr->ar_cu_context->cc_length +
+	    attr->ar_cu_context->cc_length_size) {
+	    _dwarf_error(dbg, error, DW_DLE_ATTR_FORM_OFFSET_BAD);
+	    return (DW_DLV_ERROR);
+	}
 
-	    /* globalize the offset */
-	    offset +=  attr->ar_cu_context->cc_debug_info_offset;
-	    break;
+	/* globalize the offset */
+	offset += attr->ar_cu_context->cc_debug_info_offset;
+	break;
 
-        case DW_FORM_ref_addr:
-	    /* This offset is defined to be debug_info global already,
-	       so use this value unaltered.
-	    */
-            READ_UNALIGNED(dbg,ref_addr,Dwarf_Addr,
-		 attr->ar_debug_info_ptr, 
-		 attr->ar_cu_context->cc_length_size);
-            offset =  ref_addr;
-	    break;
-	default :
-	    _dwarf_error(dbg,error,DW_DLE_BAD_REF_FORM);
-	    return(DW_DLV_ERROR);
+    case DW_FORM_ref_addr:
+	/* This offset is defined to be debug_info global already, so
+	   use this value unaltered. */
+	READ_UNALIGNED(dbg, ref_addr, Dwarf_Addr,
+		       attr->ar_debug_info_ptr,
+		       attr->ar_cu_context->cc_length_size);
+	offset = ref_addr;
+	break;
+    default:
+	_dwarf_error(dbg, error, DW_DLE_BAD_REF_FORM);
+	return (DW_DLV_ERROR);
     }
 
-	/* Check that offset is within current cu portion of .debug_info. */
+    /* Check that offset is within current cu portion of .debug_info. */
 
     *ret_offset = (offset);
     return DW_DLV_OK;
@@ -302,386 +281,365 @@ dwarf_global_formref (
 
 
 int
-dwarf_formaddr (
-    Dwarf_Attribute	attr,
-    Dwarf_Addr       *  return_addr,
-    Dwarf_Error		*error
-)
+dwarf_formaddr(Dwarf_Attribute attr,
+	       Dwarf_Addr * return_addr, Dwarf_Error * error)
 {
-    Dwarf_Debug		dbg;
-    Dwarf_Addr		ret_addr;
+    Dwarf_Debug dbg;
+    Dwarf_Addr ret_addr;
 
     if (attr == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_NULL);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_NULL);
+	return (DW_DLV_ERROR);
     }
 
     if (attr->ar_cu_context == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_NO_CU_CONTEXT);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_NO_CU_CONTEXT);
+	return (DW_DLV_ERROR);
     }
 
     if (attr->ar_cu_context->cc_dbg == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_DBG_NULL);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_DBG_NULL);
+	return (DW_DLV_ERROR);
     }
     dbg = attr->ar_cu_context->cc_dbg;
 
     if (attr->ar_attribute_form == DW_FORM_addr
-        /*|| attr->ar_attribute_form == DW_FORM_ref_addr
-	   Allowance of DW_FORM_ref_addr was a mistake.
-	   The value returned in that case is NOT an address
-	   it is a global debug_info offset (ie, not CU-relative
-	   offset within the CU in debug_info).
-	   The Dwarf document refers to it as an address (misleadingly)
-	   in sec 6.5.4 where it describes the reference form.
-	   It is address-sized so that the linker can
-	   easily update it, but it is a reference inside the debug_info
-	   section.
-	   No longer allowed.
-	*/
-			 ) {
+	/* || attr->ar_attribute_form == DW_FORM_ref_addr Allowance of
+	   DW_FORM_ref_addr was a mistake. The value returned in that
+	   case is NOT an address it is a global debug_info offset (ie, 
+	   not CU-relative offset within the CU in debug_info). The
+	   Dwarf document refers to it as an address (misleadingly) in
+	   sec 6.5.4 where it describes the reference form. It is
+	   address-sized so that the linker can easily update it, but
+	   it is a reference inside the debug_info section. No longer
+	   allowed. */
+	) {
 
-	READ_UNALIGNED(dbg,ret_addr, Dwarf_Addr,
-		attr->ar_debug_info_ptr, dbg->de_pointer_size);
+	READ_UNALIGNED(dbg, ret_addr, Dwarf_Addr,
+		       attr->ar_debug_info_ptr, dbg->de_pointer_size);
 	*return_addr = ret_addr;
-        return(DW_DLV_OK);
+	return (DW_DLV_OK);
     }
 
     _dwarf_error(dbg, error, DW_DLE_ATTR_FORM_BAD);
-    return(DW_DLV_ERROR);
+    return (DW_DLV_ERROR);
 }
 
 
 int
-dwarf_formflag (
-    Dwarf_Attribute	attr,
-    Dwarf_Bool    *     ret_bool,
-    Dwarf_Error		*error
-)
+dwarf_formflag(Dwarf_Attribute attr,
+	       Dwarf_Bool * ret_bool, Dwarf_Error * error)
 {
     if (attr == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_NULL);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_NULL);
+	return (DW_DLV_ERROR);
     }
 
     if (attr->ar_cu_context == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_NO_CU_CONTEXT);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_NO_CU_CONTEXT);
+	return (DW_DLV_ERROR);
     }
 
     if (attr->ar_cu_context->cc_dbg == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_DBG_NULL);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_DBG_NULL);
+	return (DW_DLV_ERROR);
     }
 
     if (attr->ar_attribute_form == DW_FORM_flag) {
-	*ret_bool = (*(Dwarf_Small *)attr->ar_debug_info_ptr != 0);
-	return(DW_DLV_OK);
+	*ret_bool = (*(Dwarf_Small *) attr->ar_debug_info_ptr != 0);
+	return (DW_DLV_OK);
     }
-    _dwarf_error(attr->ar_cu_context->cc_dbg,error,DW_DLE_ATTR_FORM_BAD);
-    return(DW_DLV_ERROR);
+    _dwarf_error(attr->ar_cu_context->cc_dbg, error,
+		 DW_DLE_ATTR_FORM_BAD);
+    return (DW_DLV_ERROR);
 }
 
 
-int 
-dwarf_formudata (
-    Dwarf_Attribute	attr,
-    Dwarf_Unsigned     *return_uval,
-    Dwarf_Error		*error
-)
+int
+dwarf_formudata(Dwarf_Attribute attr,
+		Dwarf_Unsigned * return_uval, Dwarf_Error * error)
 {
-    Dwarf_Unsigned	ret_value;
-    Dwarf_Debug         dbg;
+    Dwarf_Unsigned ret_value;
+    Dwarf_Debug dbg;
 
     if (attr == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_NULL);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_NULL);
+	return (DW_DLV_ERROR);
     }
 
 
     if (attr->ar_cu_context == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_NO_CU_CONTEXT);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_NO_CU_CONTEXT);
+	return (DW_DLV_ERROR);
     }
 
     dbg = attr->ar_cu_context->cc_dbg;
     if (dbg == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_DBG_NULL);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_DBG_NULL);
+	return (DW_DLV_ERROR);
     }
 
     switch (attr->ar_attribute_form) {
 
-	case DW_FORM_data1 :
-	    READ_UNALIGNED(dbg,ret_value,Dwarf_Unsigned,
-		 attr->ar_debug_info_ptr, 
-		sizeof(Dwarf_Small));
-            *return_uval = ret_value;
-	    return DW_DLV_OK;
+    case DW_FORM_data1:
+	READ_UNALIGNED(dbg, ret_value, Dwarf_Unsigned,
+		       attr->ar_debug_info_ptr, sizeof(Dwarf_Small));
+	*return_uval = ret_value;
+	return DW_DLV_OK;
 
-	case DW_FORM_data2 : {
-	    READ_UNALIGNED(dbg,ret_value,Dwarf_Unsigned,
-		 attr->ar_debug_info_ptr, 
-		sizeof(Dwarf_Half));
-            *return_uval = ret_value;
+    case DW_FORM_data2:{
+	    READ_UNALIGNED(dbg, ret_value, Dwarf_Unsigned,
+			   attr->ar_debug_info_ptr, sizeof(Dwarf_Half));
+	    *return_uval = ret_value;
 	    return DW_DLV_OK;
 	}
 
-	case DW_FORM_data4 : {
-	    READ_UNALIGNED(dbg,ret_value, Dwarf_Unsigned,
-		attr->ar_debug_info_ptr, 
-		sizeof(Dwarf_ufixed));
-            *return_uval = ret_value;
+    case DW_FORM_data4:{
+	    READ_UNALIGNED(dbg, ret_value, Dwarf_Unsigned,
+			   attr->ar_debug_info_ptr,
+			   sizeof(Dwarf_ufixed));
+	    *return_uval = ret_value;
 	    return DW_DLV_OK;
 	}
 
-	case DW_FORM_data8 : {
-	    READ_UNALIGNED(dbg,ret_value,Dwarf_Unsigned,
-		 attr->ar_debug_info_ptr, 
-		sizeof(Dwarf_Unsigned));
-            *return_uval = ret_value;
+    case DW_FORM_data8:{
+	    READ_UNALIGNED(dbg, ret_value, Dwarf_Unsigned,
+			   attr->ar_debug_info_ptr,
+			   sizeof(Dwarf_Unsigned));
+	    *return_uval = ret_value;
 	    return DW_DLV_OK;
 	}
 
-	case DW_FORM_udata :
-	    ret_value = (_dwarf_decode_u_leb128(attr->ar_debug_info_ptr,NULL));
-            *return_uval = ret_value;
-	    return DW_DLV_OK;
+    case DW_FORM_udata:
+	ret_value =
+	    (_dwarf_decode_u_leb128(attr->ar_debug_info_ptr, NULL));
+	*return_uval = ret_value;
+	return DW_DLV_OK;
 
 
-	/* see bug 583450. We do not allow reading sdata
-	   from a udata value. Caller can retry, calling
-	   sdata */
-		
+	/* see bug 583450. We do not allow reading sdata from a udata
+	   value. Caller can retry, calling sdata */
 
-	default :
-	    break;
+
+    default:
+	break;
     }
-    _dwarf_error(attr->ar_cu_context->cc_dbg,error,
-		DW_DLE_ATTR_FORM_BAD);
-    return(DW_DLV_ERROR);
+    _dwarf_error(attr->ar_cu_context->cc_dbg, error,
+		 DW_DLE_ATTR_FORM_BAD);
+    return (DW_DLV_ERROR);
 }
 
 
 int
-dwarf_formsdata (
-    Dwarf_Attribute	attr,
-    Dwarf_Signed     *  return_sval,
-    Dwarf_Error		*error
-)
+dwarf_formsdata(Dwarf_Attribute attr,
+		Dwarf_Signed * return_sval, Dwarf_Error * error)
 {
-    Dwarf_Signed	ret_value;
-    Dwarf_Debug         dbg;
+    Dwarf_Signed ret_value;
+    Dwarf_Debug dbg;
 
     if (attr == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_NULL);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_NULL);
+	return (DW_DLV_ERROR);
     }
 
     if (attr->ar_cu_context == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_NO_CU_CONTEXT);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_NO_CU_CONTEXT);
+	return (DW_DLV_ERROR);
     }
 
     dbg = attr->ar_cu_context->cc_dbg;
-    if (dbg == NULL){
-	_dwarf_error(NULL,error,DW_DLE_ATTR_DBG_NULL);
-	return(DW_DLV_ERROR);
+    if (dbg == NULL) {
+	_dwarf_error(NULL, error, DW_DLE_ATTR_DBG_NULL);
+	return (DW_DLV_ERROR);
     }
 
     switch (attr->ar_attribute_form) {
 
-	case DW_FORM_data1 :
-	    *return_sval = (*(Dwarf_Sbyte *)attr->ar_debug_info_ptr);
+    case DW_FORM_data1:
+	*return_sval = (*(Dwarf_Sbyte *) attr->ar_debug_info_ptr);
+	return DW_DLV_OK;
+
+    case DW_FORM_data2:{
+	    READ_UNALIGNED(dbg, ret_value, Dwarf_Unsigned,
+			   attr->ar_debug_info_ptr,
+			   sizeof(Dwarf_Shalf));
+	    *return_sval = (Dwarf_Shalf) ret_value;
 	    return DW_DLV_OK;
 
-	case DW_FORM_data2 : {
-	    READ_UNALIGNED(dbg,ret_value,Dwarf_Unsigned,
-		 attr->ar_debug_info_ptr, 
-		sizeof(Dwarf_Shalf));
-	    *return_sval = (Dwarf_Shalf)ret_value;
-	    return DW_DLV_OK;
-	
 	}
 
-	case DW_FORM_data4 : {
-	    READ_UNALIGNED(dbg,ret_value,Dwarf_Unsigned,
-		 attr->ar_debug_info_ptr, 
-		sizeof(Dwarf_sfixed));
-	    *return_sval = (Dwarf_Sword)ret_value;
-	    return DW_DLV_OK;
-	}
-
-	case DW_FORM_data8 : {
-	    READ_UNALIGNED(dbg,ret_value,Dwarf_Unsigned,
-		 attr->ar_debug_info_ptr, 
-		sizeof(Dwarf_Signed));
-	    *return_sval = (Dwarf_Signed)ret_value;
+    case DW_FORM_data4:{
+	    READ_UNALIGNED(dbg, ret_value, Dwarf_Unsigned,
+			   attr->ar_debug_info_ptr,
+			   sizeof(Dwarf_sfixed));
+	    *return_sval = (Dwarf_Sword) ret_value;
 	    return DW_DLV_OK;
 	}
 
-	case DW_FORM_sdata :
-	    ret_value = (_dwarf_decode_s_leb128(attr->ar_debug_info_ptr,NULL));
-	    *return_sval = ret_value;
+    case DW_FORM_data8:{
+	    READ_UNALIGNED(dbg, ret_value, Dwarf_Unsigned,
+			   attr->ar_debug_info_ptr,
+			   sizeof(Dwarf_Signed));
+	    *return_sval = (Dwarf_Signed) ret_value;
 	    return DW_DLV_OK;
+	}
+
+    case DW_FORM_sdata:
+	ret_value =
+	    (_dwarf_decode_s_leb128(attr->ar_debug_info_ptr, NULL));
+	*return_sval = ret_value;
+	return DW_DLV_OK;
 
 
-	/* see bug 583450. We do not allow reading sdata
-	   from a udata value. Caller can retry, calling
-	   sdata */
+	/* see bug 583450. We do not allow reading sdata from a udata
+	   value. Caller can retry, calling sdata */
 
 
-	default :
-	   break;
+    default:
+	break;
     }
-    _dwarf_error(attr->ar_cu_context->cc_dbg,error,
-	DW_DLE_ATTR_FORM_BAD);
-    return(DW_DLV_ERROR);
+    _dwarf_error(attr->ar_cu_context->cc_dbg, error,
+		 DW_DLE_ATTR_FORM_BAD);
+    return (DW_DLV_ERROR);
 }
 
 
 int
-dwarf_formblock (
-    Dwarf_Attribute	attr,
-    Dwarf_Block    **   return_block,
-    Dwarf_Error		*error
-)
+dwarf_formblock(Dwarf_Attribute attr,
+		Dwarf_Block ** return_block, Dwarf_Error * error)
 {
-    Dwarf_CU_Context	cu_context;
-    Dwarf_Debug		dbg;
-    Dwarf_Unsigned	length;
-    Dwarf_Small		*data;
-    Dwarf_Word		leb128_length;
-    Dwarf_Block		*ret_block;
+    Dwarf_CU_Context cu_context;
+    Dwarf_Debug dbg;
+    Dwarf_Unsigned length;
+    Dwarf_Small *data;
+    Dwarf_Word leb128_length;
+    Dwarf_Block *ret_block;
 
     if (attr == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_NULL);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_NULL);
+	return (DW_DLV_ERROR);
     }
 
     if (attr->ar_cu_context == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_NO_CU_CONTEXT);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_NO_CU_CONTEXT);
+	return (DW_DLV_ERROR);
     }
     cu_context = attr->ar_cu_context;
 
     if (cu_context->cc_dbg == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_DBG_NULL);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_DBG_NULL);
+	return (DW_DLV_ERROR);
     }
     dbg = cu_context->cc_dbg;
 
     switch (attr->ar_attribute_form) {
 
-	case DW_FORM_block1 :
-	    length = *(Dwarf_Small *)attr->ar_debug_info_ptr;
-	    data = attr->ar_debug_info_ptr + sizeof(Dwarf_Small);
-	    break;
-	
-	case DW_FORM_block2 :
-	    READ_UNALIGNED(dbg,length,Dwarf_Unsigned,
-		 attr->ar_debug_info_ptr, sizeof(Dwarf_Half));
-	    data = attr->ar_debug_info_ptr + sizeof(Dwarf_Half);
-	    break;
+    case DW_FORM_block1:
+	length = *(Dwarf_Small *) attr->ar_debug_info_ptr;
+	data = attr->ar_debug_info_ptr + sizeof(Dwarf_Small);
+	break;
 
-	case DW_FORM_block4 :
-	    READ_UNALIGNED(dbg,length,Dwarf_Unsigned,
-		 attr->ar_debug_info_ptr, sizeof(Dwarf_ufixed));
-	    data = attr->ar_debug_info_ptr + sizeof(Dwarf_ufixed);
-	    break;
+    case DW_FORM_block2:
+	READ_UNALIGNED(dbg, length, Dwarf_Unsigned,
+		       attr->ar_debug_info_ptr, sizeof(Dwarf_Half));
+	data = attr->ar_debug_info_ptr + sizeof(Dwarf_Half);
+	break;
 
-	case DW_FORM_block :
-	    length = _dwarf_decode_u_leb128(attr->ar_debug_info_ptr, 
-		&leb128_length);
-	    data = attr->ar_debug_info_ptr + leb128_length;
-	    break;
+    case DW_FORM_block4:
+	READ_UNALIGNED(dbg, length, Dwarf_Unsigned,
+		       attr->ar_debug_info_ptr, sizeof(Dwarf_ufixed));
+	data = attr->ar_debug_info_ptr + sizeof(Dwarf_ufixed);
+	break;
 
-	default :
-	    _dwarf_error(cu_context->cc_dbg,error,DW_DLE_ATTR_FORM_BAD);
-	    return(DW_DLV_ERROR);
+    case DW_FORM_block:
+	length = _dwarf_decode_u_leb128(attr->ar_debug_info_ptr,
+					&leb128_length);
+	data = attr->ar_debug_info_ptr + leb128_length;
+	break;
+
+    default:
+	_dwarf_error(cu_context->cc_dbg, error, DW_DLE_ATTR_FORM_BAD);
+	return (DW_DLV_ERROR);
     }
 
-	/* Check that block lies within current cu in .debug_info. */
+    /* Check that block lies within current cu in .debug_info. */
     if (attr->ar_debug_info_ptr + length >=
-	dbg->de_debug_info + cu_context->cc_debug_info_offset + 
+	dbg->de_debug_info + cu_context->cc_debug_info_offset +
 	cu_context->cc_length + cu_context->cc_length_size) {
-	    _dwarf_error(dbg, error, DW_DLE_ATTR_FORM_SIZE_BAD);
-	    return(DW_DLV_ERROR);
-	}
+	_dwarf_error(dbg, error, DW_DLE_ATTR_FORM_SIZE_BAD);
+	return (DW_DLV_ERROR);
+    }
 
-    ret_block = (Dwarf_Block *)_dwarf_get_alloc(dbg, DW_DLA_BLOCK, 1);
+    ret_block = (Dwarf_Block *) _dwarf_get_alloc(dbg, DW_DLA_BLOCK, 1);
     if (ret_block == NULL) {
-	_dwarf_error(dbg,error,DW_DLE_ALLOC_FAIL);
-	return(DW_DLV_ERROR);
+	_dwarf_error(dbg, error, DW_DLE_ALLOC_FAIL);
+	return (DW_DLV_ERROR);
     }
 
     ret_block->bl_len = length;
-    ret_block->bl_data = (Dwarf_Ptr)data;
+    ret_block->bl_data = (Dwarf_Ptr) data;
 
     *return_block = ret_block;
-    return(DW_DLV_OK);
+    return (DW_DLV_OK);
 }
 
 
 int
-dwarf_formstring (
-    Dwarf_Attribute	attr,
-    char **             return_str,
-    Dwarf_Error		*error
-)
+dwarf_formstring(Dwarf_Attribute attr,
+		 char **return_str, Dwarf_Error * error)
 {
-    Dwarf_CU_Context	cu_context;
-    Dwarf_Debug		dbg;
-    Dwarf_Unsigned	offset;
+    Dwarf_CU_Context cu_context;
+    Dwarf_Debug dbg;
+    Dwarf_Unsigned offset;
 
     if (attr == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_NULL);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_NULL);
+	return (DW_DLV_ERROR);
     }
 
     if (attr->ar_cu_context == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_NO_CU_CONTEXT);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_NO_CU_CONTEXT);
+	return (DW_DLV_ERROR);
     }
     cu_context = attr->ar_cu_context;
 
     if (cu_context->cc_dbg == NULL) {
-	_dwarf_error(NULL,error,DW_DLE_ATTR_DBG_NULL);
-	return(DW_DLV_ERROR);
+	_dwarf_error(NULL, error, DW_DLE_ATTR_DBG_NULL);
+	return (DW_DLV_ERROR);
     }
     dbg = cu_context->cc_dbg;
 
     if (attr->ar_attribute_form == DW_FORM_string) {
 
-        void *begin = attr->ar_debug_info_ptr;
-	if(0 == dbg->de_assume_string_in_bounds) {
-	  /* Check that string lies within current cu in .debug_info. */
-          void *end = dbg->de_debug_info + 
-		   cu_context->cc_debug_info_offset +
-            cu_context->cc_length + cu_context->cc_length_size;
-	  if (0==_dwarf_string_valid(begin,end)) {
-	    _dwarf_error(dbg, error, DW_DLE_ATTR_FORM_SIZE_BAD);
-	    return(DW_DLV_ERROR);
-	  }
+	void *begin = attr->ar_debug_info_ptr;
+
+	if (0 == dbg->de_assume_string_in_bounds) {
+	    /* Check that string lies within current cu in .debug_info. 
+	     */
+	    void *end = dbg->de_debug_info +
+		cu_context->cc_debug_info_offset +
+		cu_context->cc_length + cu_context->cc_length_size;
+	    if (0 == _dwarf_string_valid(begin, end)) {
+		_dwarf_error(dbg, error, DW_DLE_ATTR_FORM_SIZE_BAD);
+		return (DW_DLV_ERROR);
+	    }
 	}
-	*return_str = (char *)(begin);
-        return DW_DLV_OK;
+	*return_str = (char *) (begin);
+	return DW_DLV_OK;
     }
 
     if (attr->ar_attribute_form == DW_FORM_strp) {
-	READ_UNALIGNED(dbg,offset,Dwarf_Unsigned,
-		attr->ar_debug_info_ptr, 
-		attr->ar_cu_context->cc_length_size);
+	READ_UNALIGNED(dbg, offset, Dwarf_Unsigned,
+		       attr->ar_debug_info_ptr,
+		       attr->ar_cu_context->cc_length_size);
 	if (dbg->de_debug_str == NULL) {
 	    _dwarf_error(dbg, error, DW_DLE_DEBUG_STR_NULL);
-	    return(DW_DLV_ERROR);
+	    return (DW_DLV_ERROR);
 	}
-	*return_str = (char *)(dbg->de_debug_str + offset);
-        return DW_DLV_OK;
+	*return_str = (char *) (dbg->de_debug_str + offset);
+	return DW_DLV_OK;
     }
 
-    _dwarf_error(dbg,error,DW_DLE_ATTR_FORM_BAD);
-    return(DW_DLV_ERROR);
+    _dwarf_error(dbg, error, DW_DLE_ATTR_FORM_BAD);
+    return (DW_DLV_ERROR);
 }
-

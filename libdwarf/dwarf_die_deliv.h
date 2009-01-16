@@ -43,15 +43,14 @@
 */
 struct Dwarf_Abbrev_List_s {
 
-    Dwarf_Word          		ab_code;
-    Dwarf_Half				ab_tag;
-    Dwarf_Half				ab_has_child;
+    Dwarf_Word ab_code;
+    Dwarf_Half ab_tag;
+    Dwarf_Half ab_has_child;
 
-	/* 
-	    Points to start of attribute and form pairs in
-	    the .debug_abbrev section for the abbrev.
-	*/
-    Dwarf_Byte_Ptr     	    		ab_abbrev_ptr;
+    /* 
+       Points to start of attribute and form pairs in the .debug_abbrev 
+       section for the abbrev. */
+    Dwarf_Byte_Ptr ab_abbrev_ptr;
 
-    struct Dwarf_Abbrev_List_s		*ab_next;
+    struct Dwarf_Abbrev_List_s *ab_next;
 };

@@ -35,12 +35,12 @@
 
 
 
-typedef struct Dwarf_Loc_Chain_s	*Dwarf_Loc_Chain;
+typedef struct Dwarf_Loc_Chain_s *Dwarf_Loc_Chain;
 
 struct Dwarf_Loc_Chain_s {
-    Dwarf_Small		lc_atom;
-    Dwarf_Unsigned	lc_number;
-    Dwarf_Unsigned	lc_number2;
-    Dwarf_Unsigned	lc_offset;
-    Dwarf_Loc_Chain	lc_next;
+    Dwarf_Small lc_atom;
+    Dwarf_Unsigned lc_number;
+    Dwarf_Unsigned lc_number2;
+    Dwarf_Unsigned lc_offset;
+    Dwarf_Loc_Chain lc_next;
 };

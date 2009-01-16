@@ -52,27 +52,26 @@
     are obvious from section 6.2.4 of the Libdwarf Doc.
 */
 struct Dwarf_File_Entry_s {
-        /* Points to string naming the file. */
-    Dwarf_Small        		*fi_file_name;
+    /* Points to string naming the file. */
+    Dwarf_Small *fi_file_name;
 
-        /* 
-            Index into the list of directories of 
-            the directory in which this file exits.
-        */
-    Dwarf_Sword          	fi_dir_index;
+    /* 
+       Index into the list of directories of the directory in which
+       this file exits. */
+    Dwarf_Sword fi_dir_index;
 
-        /* Time of last modification of the file. */
-    Dwarf_Unsigned          	fi_time_last_mod;
+    /* Time of last modification of the file. */
+    Dwarf_Unsigned fi_time_last_mod;
 
-        /* Length in bytes of the file. */
-    Dwarf_Unsigned          	fi_file_length;
+    /* Length in bytes of the file. */
+    Dwarf_Unsigned fi_file_length;
 
-        /* Pointer for chaining file entries. */
-    Dwarf_File_Entry        	fi_next;
+    /* Pointer for chaining file entries. */
+    Dwarf_File_Entry fi_next;
 };
 
 
-typedef struct Dwarf_Line_Context_s 	*Dwarf_Line_Context;
+typedef struct Dwarf_Line_Context_s *Dwarf_Line_Context;
 
 /* 
     This structure provides the context in which the fields of 
@@ -81,34 +80,29 @@ typedef struct Dwarf_Line_Context_s 	*Dwarf_Line_Context;
     dwarf_line.c.
 */
 struct Dwarf_Line_Context_s {
-	/*
-	    Points to a chain of entries providing info
-	    about source files for the current set of
-	    Dwarf_Line structures.
-	*/
-    Dwarf_File_Entry    lc_file_entries;
-	/*  
-	    Count of number of source files for this set of
-	    Dwarf_Line structures. 
-	*/
-    Dwarf_Sword      	lc_file_entry_count;
-	/* 
-	    Points to the portion of .debug_line section
-	    that contains a list of strings naming the
-	    included directories.
-	*/
-    Dwarf_Small         *lc_include_directories;
+    /* 
+       Points to a chain of entries providing info about source files
+       for the current set of Dwarf_Line structures. */
+    Dwarf_File_Entry lc_file_entries;
+    /* 
+       Count of number of source files for this set of Dwarf_Line
+       structures. */
+    Dwarf_Sword lc_file_entry_count;
+    /* 
+       Points to the portion of .debug_line section that contains a
+       list of strings naming the included directories. */
+    Dwarf_Small *lc_include_directories;
 
-	/* Count of the number of included directories. */
-    Dwarf_Sword      	lc_include_directories_count;
+    /* Count of the number of included directories. */
+    Dwarf_Sword lc_include_directories_count;
 
-	/* Count of the number of lines for this cu. */
-    Dwarf_Sword		lc_line_count;
+    /* Count of the number of lines for this cu. */
+    Dwarf_Sword lc_line_count;
 
-	/* Points to name of compilation directory. */
-    Dwarf_Small		*lc_compilation_directory;
+    /* Points to name of compilation directory. */
+    Dwarf_Small *lc_compilation_directory;
 
-    Dwarf_Debug		lc_dbg;
+    Dwarf_Debug lc_dbg;
 };
 
 
@@ -119,29 +113,30 @@ struct Dwarf_Line_Context_s {
     of the Libdwarf Document.
 */
 struct Dwarf_Line_s {
-   Dwarf_Addr              li_address;         /* pc value of machine instr */
-   union addr_or_line_s {
-     struct li_inner_s {
-      Dwarf_Sword             li_file;          /* int identifying src file */
-      Dwarf_Sword             li_line;          /* source file line number. */
-      Dwarf_Half              li_column;        /* source file column number */
-      Dwarf_Small             li_is_stmt;       /* indicate start of stmt */
-      Dwarf_Small             li_basic_block;   /* indicate start basic block */
-      Dwarf_Small             li_end_sequence;  /* first post sequence instr */
-     }li_l_data;
-     Dwarf_Off                li_offset;        /* for rqs */
-   } li_addr_line;
-   Dwarf_Line_Context      li_context;         /* assoc Dwarf_Line_Context_s */
+    Dwarf_Addr li_address;	/* pc value of machine instr */
+    union addr_or_line_s {
+	struct li_inner_s {
+	    Dwarf_Sword li_file;	/* int identifying src file */
+	    Dwarf_Sword li_line;	/* source file line number. */
+	    Dwarf_Half li_column;	/* source file column number */
+	    Dwarf_Small li_is_stmt;	/* indicate start of stmt */
+	    Dwarf_Small li_basic_block;	/* indicate start basic block */
+	    Dwarf_Small li_end_sequence;	/* first post sequence
+						   instr */
+	} li_l_data;
+	Dwarf_Off li_offset;	/* for rqs */
+    } li_addr_line;
+    Dwarf_Line_Context li_context;	/* assoc Dwarf_Line_Context_s */
 };
 
 
 int
-_dwarf_line_address_offsets(Dwarf_Debug dbg,
-                Dwarf_Die die,
-                Dwarf_Addr **addrs,
-                Dwarf_Off  **offs,
-                Dwarf_Unsigned *returncount,
-                Dwarf_Error *err);
+  _dwarf_line_address_offsets(Dwarf_Debug dbg,
+			      Dwarf_Die die,
+			      Dwarf_Addr ** addrs,
+			      Dwarf_Off ** offs,
+			      Dwarf_Unsigned * returncount,
+			      Dwarf_Error * err);
 
 
 /* The LOP, WHAT_IS_OPCODE stuff is here so it can

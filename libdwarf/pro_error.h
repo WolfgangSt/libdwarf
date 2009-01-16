@@ -45,7 +45,8 @@
      _dwarf_p_error(dbg,error,errval); return(retval);
 
 struct Dwarf_Error_s {
-    Dwarf_Sword         er_errval;
+    Dwarf_Sword er_errval;
 };
 
-void _dwarf_p_error(Dwarf_P_Debug dbg, Dwarf_Error *error, Dwarf_Word  errval);
+void _dwarf_p_error(Dwarf_P_Debug dbg, Dwarf_Error * error,
+		    Dwarf_Word errval);

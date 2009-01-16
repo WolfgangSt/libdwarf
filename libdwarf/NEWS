@@ -1,3 +1,6 @@
+Jan 10, 2002
+  Fixed memory leak in dwarf_finish().
+
 Aug 21, 2001
   If one called dwarf_add_file_decl()
   or dwarf_add_directory_decl() but never added a line,

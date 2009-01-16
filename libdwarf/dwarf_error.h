@@ -35,8 +35,9 @@
 
 
 
-void _dwarf_error (Dwarf_Debug dbg, Dwarf_Error *error, Dwarf_Sword  errval);
+void _dwarf_error(Dwarf_Debug dbg, Dwarf_Error * error,
+		  Dwarf_Sword errval);
 
 struct Dwarf_Error_s {
-    Dwarf_Sword         er_errval;
+    Dwarf_Sword er_errval;
 };

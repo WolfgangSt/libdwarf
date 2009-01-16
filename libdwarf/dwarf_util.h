@@ -134,7 +134,7 @@
     if (die->di_cu_context->cc_dbg == NULL) { \
 	_dwarf_error(NULL, error, DW_DLE_DBG_NULL); \
 	return(error_ret_value); \
-    } 
+    }
 
 
 /* 
@@ -150,6 +150,7 @@
    The memcpy args are the endian issue.
 */
 typedef Dwarf_Unsigned BIGGEST_UINT;
+
 #ifdef WORDS_BIGENDIAN
 #define READ_UNALIGNED(dbg,dest,desttype, source, length) \
     { \
@@ -271,39 +272,30 @@ typedef Dwarf_Unsigned BIGGEST_UINT;
 
 
 Dwarf_Unsigned
-_dwarf_decode_u_leb128 (
-    Dwarf_Small         *leb128,
-    Dwarf_Word      	*leb128_length
-);
+_dwarf_decode_u_leb128(Dwarf_Small * leb128,
+		       Dwarf_Word * leb128_length);
 
-Dwarf_Signed 
-_dwarf_decode_s_leb128 (
-    Dwarf_Small 	*leb128, 
-    Dwarf_Word 		*leb128_length
-);
+Dwarf_Signed
+_dwarf_decode_s_leb128(Dwarf_Small * leb128,
+		       Dwarf_Word * leb128_length);
 
-Dwarf_Unsigned 
-_dwarf_get_size_of_val (
-    Dwarf_Debug		dbg,
-    Dwarf_Unsigned      form,
-    Dwarf_Small         *val_ptr,
-    int                 v_length_size
-);
+Dwarf_Unsigned
+_dwarf_get_size_of_val(Dwarf_Debug dbg,
+		       Dwarf_Unsigned form,
+		       Dwarf_Small * val_ptr, int v_length_size);
 
 /*
     This struct is used to build a hash table for the
     abbreviation codes for a compile-unit.  
 */
 struct Dwarf_Hash_Table_s {
-    Dwarf_Abbrev_List	at_head;
-    Dwarf_Abbrev_List	at_tail;
+    Dwarf_Abbrev_List at_head;
+    Dwarf_Abbrev_List at_tail;
 };
 
 Dwarf_Abbrev_List
-_dwarf_get_abbrev_for_code (
-    Dwarf_CU_Context    cu_context,
-    Dwarf_Word          code
-);
+_dwarf_get_abbrev_for_code(Dwarf_CU_Context cu_context,
+			   Dwarf_Word code);
 
 
 /* return 1 if string ends before 'endptr' else
@@ -312,7 +304,6 @@ _dwarf_get_abbrev_for_code (
 */
 int _dwarf_string_valid(void *startptr, void *endptr);
 
-Dwarf_Unsigned _dwarf_length_of_cu_header(Dwarf_Debug, Dwarf_Unsigned offset);
+Dwarf_Unsigned _dwarf_length_of_cu_header(Dwarf_Debug,
+					  Dwarf_Unsigned offset);
 Dwarf_Unsigned _dwarf_length_of_cu_header_simple(Dwarf_Debug);
-
-

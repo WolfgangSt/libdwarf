@@ -43,14 +43,13 @@
 	This routine deallocates all memory, and does some 
 	finishing up
 -----------------------------------------------------------------*/
-/*ARGSUSED*/
-Dwarf_Unsigned
-dwarf_producer_finish(Dwarf_P_Debug dbg, Dwarf_Error *error)
+ /*ARGSUSED*/ Dwarf_Unsigned
+dwarf_producer_finish(Dwarf_P_Debug dbg, Dwarf_Error * error)
 {
-	if(dbg->de_version_magic_number != PRO_VERSION_MAGIC) {
-           DWARF_P_DBG_ERROR(dbg, DW_DLE_IA, DW_DLV_NOCOUNT);
-        }
+    if (dbg->de_version_magic_number != PRO_VERSION_MAGIC) {
+	DWARF_P_DBG_ERROR(dbg, DW_DLE_IA, DW_DLV_NOCOUNT);
+    }
 
-	dwarf_p_dealloc((void *)dbg, 0);
-	return 0;
+    dwarf_p_dealloc((void *) dbg, 0);
+    return 0;
 }

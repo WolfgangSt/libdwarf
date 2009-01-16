@@ -42,84 +42,71 @@
 #include "dwarf_global.h"
 
 int
-dwarf_get_types (
-    Dwarf_Debug		dbg,
-    Dwarf_Type		**types,
-    Dwarf_Signed	*ret_type_count,
-    Dwarf_Error		*error
-)
+dwarf_get_types(Dwarf_Debug dbg,
+		Dwarf_Type ** types,
+		Dwarf_Signed * ret_type_count, Dwarf_Error * error)
 {
-        return _dwarf_internal_get_pubnames_like_data(
-                dbg,
-		dbg->de_debug_typenames,
-		dbg->de_debug_typenames_size,
-                (Dwarf_Global **)types, /* type punning,
-			Dwarf_Type is never a completed  type */
-                ret_type_count,
-                error,
-                DW_DLA_TYPENAME_CONTEXT,
-                DW_DLE_DEBUG_TYPENAMES_LENGTH_BAD,
-                DW_DLE_DEBUG_TYPENAMES_VERSION_ERROR);
+    return _dwarf_internal_get_pubnames_like_data(dbg, dbg->de_debug_typenames, dbg->de_debug_typenames_size, (Dwarf_Global **) types,	/* type 
+																	   punning,
+																	   Dwarf_Type 
+																	   is never
+																	   a
+																	   completed 
+																	   type */
+						  ret_type_count,
+						  error,
+						  DW_DLA_TYPENAME_CONTEXT,
+						  DW_DLE_DEBUG_TYPENAMES_LENGTH_BAD,
+						  DW_DLE_DEBUG_TYPENAMES_VERSION_ERROR);
 
 }
 
 
 int
-dwarf_typename (
-    Dwarf_Type		type_in,
-    char            **  ret_name,
-    Dwarf_Error		*error
-)
+dwarf_typename(Dwarf_Type type_in, char **ret_name, Dwarf_Error * error)
 {
-    Dwarf_Global type = (Dwarf_Global)type_in;
-    if (type == NULL)
-	{_dwarf_error(NULL, error, DW_DLE_TYPE_NULL); return(DW_DLV_ERROR);}
+    Dwarf_Global type = (Dwarf_Global) type_in;
 
-    *ret_name = (char *)(type->gl_name);
+    if (type == NULL) {
+	_dwarf_error(NULL, error, DW_DLE_TYPE_NULL);
+	return (DW_DLV_ERROR);
+    }
+
+    *ret_name = (char *) (type->gl_name);
     return DW_DLV_OK;
 }
 
 
 int
-dwarf_type_die_offset (
-    Dwarf_Type		type_in,
-    Dwarf_Off        *  ret_offset,
-    Dwarf_Error		*error
-)
+dwarf_type_die_offset(Dwarf_Type type_in,
+		      Dwarf_Off * ret_offset, Dwarf_Error * error)
 {
-    Dwarf_Global type = (Dwarf_Global)type_in;
-    return dwarf_global_die_offset(type,
-		ret_offset,error);
+    Dwarf_Global type = (Dwarf_Global) type_in;
+
+    return dwarf_global_die_offset(type, ret_offset, error);
 }
 
 
 int
-dwarf_type_cu_offset (
-    Dwarf_Type		type_in,
-    Dwarf_Off        *  ret_offset,
-    Dwarf_Error		*error
-)
+dwarf_type_cu_offset(Dwarf_Type type_in,
+		     Dwarf_Off * ret_offset, Dwarf_Error * error)
 {
-    Dwarf_Global type = (Dwarf_Global)type_in;
-    return dwarf_global_cu_offset(
-		type,ret_offset,error);
-    
+    Dwarf_Global type = (Dwarf_Global) type_in;
+
+    return dwarf_global_cu_offset(type, ret_offset, error);
+
 }
 
 
 int
-dwarf_type_name_offsets (
-    Dwarf_Type		type_in,
-    char            **  returned_name,
-    Dwarf_Off		*die_offset,
-    Dwarf_Off		*cu_die_offset,
-    Dwarf_Error		*error
-)
+dwarf_type_name_offsets(Dwarf_Type type_in,
+			char **returned_name,
+			Dwarf_Off * die_offset,
+			Dwarf_Off * cu_die_offset, Dwarf_Error * error)
 {
-    Dwarf_Global type = (Dwarf_Global)type_in;
+    Dwarf_Global type = (Dwarf_Global) type_in;
+
     return dwarf_global_name_offsets(type,
-		returned_name,
-		die_offset,
-		cu_die_offset,
-		error);
+				     returned_name,
+				     die_offset, cu_die_offset, error);
 }

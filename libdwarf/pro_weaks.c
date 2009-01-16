@@ -50,18 +50,12 @@
     list of weak names for the given Dwarf_P_Debug.  
     It returns 0 on error, and 1 otherwise.
 */
-Dwarf_Unsigned 
-dwarf_add_weakname (
-    Dwarf_P_Debug	dbg,
-    Dwarf_P_Die		die,
-    char		*weak_name,
-    Dwarf_Error		*error
-)
+Dwarf_Unsigned
+dwarf_add_weakname(Dwarf_P_Debug dbg,
+		   Dwarf_P_Die die,
+		   char *weak_name, Dwarf_Error * error)
 {
-        return
-                _dwarf_add_simple_name_entry(
-                dbg,die, weak_name,
-                dwarf_snk_weakname,
-                error);
+    return
+	_dwarf_add_simple_name_entry(dbg, die, weak_name,
+				     dwarf_snk_weakname, error);
 }
-

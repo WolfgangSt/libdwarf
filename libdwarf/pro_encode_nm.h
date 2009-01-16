@@ -37,12 +37,12 @@
 
 /*  Bytes needed to encode a number.
     Not a tight bound, just a reasonable bound.
-*/ 
+*/
 #define ENCODE_SPACE_NEEDED   (2*sizeof(Dwarf_Unsigned))
 
 
 int _dwarf_pro_encode_leb128_nm(Dwarf_Unsigned val, int *nbytes,
-       char *space, int splen);
+				char *space, int splen);
 
 int _dwarf_pro_encode_signed_leb128_nm(Dwarf_Signed value, int *nbytes,
-    char *space, int splen);
+				       char *space, int splen);

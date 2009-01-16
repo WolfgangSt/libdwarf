@@ -43,6 +43,9 @@ extern "C" {
 	dwarf.h   DWARF  debugging information values
 	$Revision: 1.24 $    $Date: 2001/05/23 23:34:51 $    
 
+	The comment "DWARF3" appears where there are
+	new entries from DWARF3.
+
 */
 
 
@@ -93,6 +96,15 @@ extern "C" {
 #define DW_TAG_variant_part		0x33
 #define DW_TAG_variable			0x34
 #define DW_TAG_volatile_type		0x35
+#define DW_TAG_dwarf_procedure		0x36  /* DWARF3 */
+#define DW_TAG_restrict_type		0x37  /* DWARF3 */
+#define DW_TAG_interface_type		0x38  /* DWARF3 */
+#define DW_TAG_namespace		0x39  /* DWARF3 */
+#define DW_TAG_imported_module		0x3a  /* DWARF3 */
+#define DW_TAG_unspecified_type		0x3b  /* DWARF3 */
+#define DW_TAG_partial_unit		0x3c  /* DWARF3 */
+#define DW_TAG_imported_unit		0x3d  /* DWARF3 */
+#define DW_TAG_mutable_type		0x3e  /* DWARF3 */
 #define DW_TAG_lo_user			0x4080
 #define DW_TAG_MIPS_loop		0x4081
 #define DW_TAG_hi_user			0xffff
@@ -195,6 +207,19 @@ extern "C" {
 #define DW_AT_variable_parameter		0x4b
 #define DW_AT_virtuality			0x4c
 #define DW_AT_vtable_elem_location		0x4d
+#define DW_AT_allocated				0x4e /* DWARF3 */
+#define DW_AT_associated			0x4f /* DWARF3 */
+#define DW_AT_data_location			0x50 /* DWARF3 */
+#define DW_AT_stride				0x51 /* DWARF3 */
+#define DW_AT_entry_pc				0x52 /* DWARF3 */
+#define DW_AT_use_UTF8				0x53 /* DWARF3 */
+#define DW_AT_extension				0x54 /* DWARF3 */
+#define DW_AT_ranges				0x55 /* DWARF3 */
+#define DW_AT_trampoline			0x56 /* DWARF3 */
+#define DW_AT_call_column			0x57 /* DWARF3 */
+#define DW_AT_call_file				0x58 /* DWARF3 */
+#define DW_AT_call_line				0x59 /* DWARF3 */
+#define DW_AT_description			0x5a /* DWARF3 */
 #define DW_AT_lo_user				0x2000
 #define DW_AT_MIPS_fde				0x2001
 #define DW_AT_MIPS_loop_begin			0x2002
@@ -373,6 +398,10 @@ extern "C" {
 #define DW_OP_deref_size		0x94
 #define DW_OP_xderef_size		0x95
 #define DW_OP_nop			0x96
+#define DW_OP_push_object_address	0x97 /* DWARF3 */
+#define DW_OP_call2			0x98 /* DWARF3 */
+#define DW_OP_call4			0x99 /* DWARF3 */
+#define DW_OP_call_ref			0x9a /* DWARF3 */
 #define DW_OP_lo_user			0xe0
 #define DW_OP_hi_user			0xff
 
@@ -384,6 +413,7 @@ extern "C" {
 #define DW_ATE_signed_char		0x6
 #define DW_ATE_unsigned			0x7
 #define DW_ATE_unsigned_char		0x8
+#define DW_ATE_imaginary_float		0x9  /* DWARF3 */
 #define DW_ATE_lo_user			0x80
 #define DW_ATE_hi_user			0xff
 
@@ -409,6 +439,11 @@ extern "C" {
 #define DW_LANG_Fortran90		0x0008
 #define DW_LANG_Pascal83		0x0009
 #define DW_LANG_Modula2			0x000a
+#define DW_LANG_Java			0x000b /* DWARF3 */
+#define DW_LANG_C99			0x000c /* DWARF3 */
+#define DW_LANG_Ada95			0x000d /* DWARF3 */
+#define DW_LANG_Fortran95		0x000e /* DWARF3 */
+#define DW_LANG_PLI			0x000f /* DWARF3 */
 #define DW_LANG_lo_user			0x8000
 #define DW_LANG_Mips_Assembler		0x8001
 #define DW_LANG_hi_user			0xffff
@@ -445,10 +480,15 @@ extern "C" {
 #define DW_LNS_set_basic_block		7
 #define DW_LNS_const_add_pc		8
 #define DW_LNS_fixed_advance_pc		9
+#define DW_LNS_set_prologue_end		10 /* DWARF3 */
+#define DW_LNS_set_epilogue_begin	11 /* DWARF3 */
+#define DW_LNS_set_isa			12 /* DWARF3 */
 
 #define DW_LNE_end_sequence		1
 #define DW_LNE_set_address		2
 #define DW_LNE_define_file		3
+#define DW_LNE_lo_user			128 /* DWARF3 */
+#define DW_LNE_hi_user			255 /* DWARF3 */
 
 #define DW_MACINFO_define		1
 #define DW_MACINFO_undef		2
@@ -476,11 +516,11 @@ extern "C" {
 #define DW_CFA_def_cfa          0x0c
 #define DW_CFA_def_cfa_register 0x0d
 #define DW_CFA_def_cfa_offset   0x0e
-#define DW_CFA_def_cfa_expression 0x0f     /* dwarf 2.1 */
-#define DW_CFA_expression       0x10       /* dwarf 2.1 */
-#define DW_CFA_cfa_offset_extended_sf 0x11 /* dwarf 2.1 */
-#define DW_CFA_def_cfa_sf       0x12       /* dwarf 2.1 */
-#define DW_CFA_def_cfa_offset_sf 0x13      /* dwarf 2.1 */
+#define DW_CFA_def_cfa_expression 0x0f     /* DWARF3 */
+#define DW_CFA_expression       0x10       /* DWARF3 */
+#define DW_CFA_cfa_offset_extended_sf 0x11 /* DWARF3 */
+#define DW_CFA_def_cfa_sf       0x12       /* DWARF3 */
+#define DW_CFA_def_cfa_offset_sf 0x13      /* DWARF3 */
 
 #define DW_CFA_low_user          0x1c
 #define DW_CFA_MIPS_advance_loc8 0x1d

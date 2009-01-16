@@ -55,30 +55,30 @@
 ** passing length.
 ** number of bytes used returned thru nbytes arg
 */
-int 
+int
 _dwarf_pro_encode_leb128_nm(Dwarf_Unsigned val, int *nbytes,
-       char *space, int splen)
+			    char *space, int splen)
 {
-	char *a;
-	char *end = space + splen;
+    char *a;
+    char *end = space + splen;
 
-	a = space;
-  	do
-    	{
-		unsigned char uc;
-		if(a >= end) {
-			return DW_DLV_ERROR;
-		}
-    		uc = val & DATA_MASK;
-    		val >>= DIGIT_WIDTH;
-    		if (val != 0) {
-      		   uc |= MORE_BYTES;
-	        }
-		*a = uc;
-		a++;
-    	} while (val);
-	*nbytes = a - space;
-	return DW_DLV_OK;
+    a = space;
+    do {
+	unsigned char uc;
+
+	if (a >= end) {
+	    return DW_DLV_ERROR;
+	}
+	uc = val & DATA_MASK;
+	val >>= DIGIT_WIDTH;
+	if (val != 0) {
+	    uc |= MORE_BYTES;
+	}
+	*a = uc;
+	a++;
+    } while (val);
+    *nbytes = a - space;
+    return DW_DLV_OK;
 }
 
 /* return DW_DLV_ERROR or DW_DLV_OK.
@@ -89,34 +89,35 @@ _dwarf_pro_encode_leb128_nm(Dwarf_Unsigned val, int *nbytes,
 */
 int
 _dwarf_pro_encode_signed_leb128_nm(Dwarf_Signed value, int *nbytes,
-    char *space, int splen)
+				   char *space, int splen)
 {
-  char	*str;
-  Dwarf_Signed sign = - (value < 0);
-  int more = 1;
-  char *end = space + splen;
+    char *str;
+    Dwarf_Signed sign = -(value < 0);
+    int more = 1;
+    char *end = space + splen;
 
-  str = space;
+    str = space;
 
-  do {
-      unsigned char byte = value & DATA_MASK;
-      value >>= DIGIT_WIDTH;
+    do {
+	unsigned char byte = value & DATA_MASK;
 
-      if(str >= end) {
-	return DW_DLV_ERROR;
-      }
-      /*
-       * Remaining chunks would just contain the sign bit, and this chunk
-       * has already captured at least one sign bit.
-       */
-      if (value == sign && ((byte & SIGN_BIT) == (sign & SIGN_BIT))) {
-        more = 0;
-      } else {
-        byte |= MORE_BYTES;
-      }
-      *str = byte;
-      str++;
+	value >>= DIGIT_WIDTH;
+
+	if (str >= end) {
+	    return DW_DLV_ERROR;
+	}
+	/* 
+	 * Remaining chunks would just contain the sign bit, and this chunk
+	 * has already captured at least one sign bit.
+	 */
+	if (value == sign && ((byte & SIGN_BIT) == (sign & SIGN_BIT))) {
+	    more = 0;
+	} else {
+	    byte |= MORE_BYTES;
+	}
+	*str = byte;
+	str++;
     } while (more);
-  *nbytes = str - space;
-  return DW_DLV_OK;
+    *nbytes = str - space;
+    return DW_DLV_OK;
 }

@@ -38,9 +38,10 @@
 
 
 /* relocation section names */
-extern char * _dwarf_rel_section_names[];
+extern char *_dwarf_rel_section_names[];
+
 /* section names */
-extern char * _dwarf_sectnames[];
+extern char *_dwarf_sectnames[];
 
 /* struct to hold relocation entries. Its mantained as a linked
    list of relocation structs, and will then be written at as a 
@@ -56,13 +57,11 @@ extern char * _dwarf_sectnames[];
 	struct stores a chunk of data pertaining to a section 
 */
 struct Dwarf_P_Section_Data_s {
-    int 		  ds_elf_sect_no; /* elf section number */
-    char 		 *ds_data;        /* data contained in section */
-    unsigned long	  ds_nbytes;      /* bytes of data 
-					used so far*/
-    unsigned long	  ds_orig_alloc;  /* bytes allocated 
-					originally */
-    Dwarf_P_Section_Data  ds_next;        /* next on the list */
+    int ds_elf_sect_no;		/* elf section number */
+    char *ds_data;		/* data contained in section */
+    unsigned long ds_nbytes;	/* bytes of data used so far */
+    unsigned long ds_orig_alloc;	/* bytes allocated originally */
+    Dwarf_P_Section_Data ds_next;	/* next on the list */
 };
 
 /* Used to allow a dummy initial struct (which we
@@ -86,8 +85,8 @@ struct Dwarf_P_Section_Data_s {
 	chunk, if not, add new chunk to linked list, and return 
 	a char * pointer to it. Return null if unsuccessful.
 */
-Dwarf_Small * _dwarf_pro_buffer(Dwarf_P_Debug dbg,int sectno, 
-		unsigned long nbytes );
+Dwarf_Small *_dwarf_pro_buffer(Dwarf_P_Debug dbg, int sectno,
+			       unsigned long nbytes);
 
 #define GET_CHUNK(dbg,sectno,ptr,nbytes,error) \
 	{ \
@@ -100,17 +99,14 @@ Dwarf_Small * _dwarf_pro_buffer(Dwarf_P_Debug dbg,int sectno,
 
 
 int
-_dwarf_transform_arange_to_disk (
-    Dwarf_P_Debug       dbg,
-    Dwarf_Error         *error
-);
+  _dwarf_transform_arange_to_disk(Dwarf_P_Debug dbg,
+				  Dwarf_Error * error);
 
 /* These are for creating ELF section type codes.
 */
 #if defined(linux) || defined(__BEOS__) || !defined(SHT_MIPS_DWARF)
 /* Intel's SoftSdv accepts only this */
-#define SECTION_TYPE            SHT_PROGBITS 
+#define SECTION_TYPE            SHT_PROGBITS
 #else
 #define SECTION_TYPE            SHT_MIPS_DWARF
 #endif
-

@@ -36,7 +36,7 @@
 
 
 
-typedef struct Dwarf_Global_Context_s	*Dwarf_Global_Context;
+typedef struct Dwarf_Global_Context_s *Dwarf_Global_Context;
 
 /* 
     This struct contains header information for a set of pubnames.
@@ -52,60 +52,53 @@ typedef struct Dwarf_Global_Context_s	*Dwarf_Global_Context;
 */
 struct Dwarf_Global_Context_s {
 
-        /* 
-	    Length in .debug_pubnames of a set of pubnames 
-	    for a compilation-unit. 
-            Dwarf_Word			pu_length;
-	    The value is not made available outside
-	    libdwarf and not used inside,
-	    so no need to record it.
-	*/
+    /* 
+       Length in .debug_pubnames of a set of pubnames for a
+       compilation-unit. Dwarf_Word pu_length; The value is not made
+       available outside libdwarf and not used inside, so no need to
+       record it. */
 
     /* for this context, size of a length. 4 or 8 */
-    unsigned char               pu_length_size;
-    /* for this CU, size of the extension 0 except for
-	dwarf2 extension 64bit, in which case is 4.
-    */
-    unsigned char               pu_extension_size;
+    unsigned char pu_length_size;
+    /* for this CU, size of the extension 0 except for dwarf2 extension 
+       64bit, in which case is 4. */
+    unsigned char pu_extension_size;
 
-	/* 
-	    Offset into .debug_info of the compilation-unit
-	    header (not DIE) for this set of pubnames.
-	*/
-    Dwarf_Off			pu_offset_of_cu_header;
+    /* 
+       Offset into .debug_info of the compilation-unit header (not DIE) 
+       for this set of pubnames. */
+    Dwarf_Off pu_offset_of_cu_header;
 
-	/* Size of compilation-unit that these pubnames are in. */
-    Dwarf_Unsigned		pu_info_length;
+    /* Size of compilation-unit that these pubnames are in. */
+    Dwarf_Unsigned pu_info_length;
 
-    Dwarf_Debug                   pu_dbg;
+    Dwarf_Debug pu_dbg;
 };
 
 
 /* This struct contains information for a single pubname. */
 struct Dwarf_Global_s {
 
-	/* 
-	    Offset from the start of the corresponding compilation-unit
-	    of the DIE for the given pubname CU.
-	*/
-    Dwarf_Off			gl_named_die_offset_within_cu;
+    /* 
+       Offset from the start of the corresponding compilation-unit of
+       the DIE for the given pubname CU. */
+    Dwarf_Off gl_named_die_offset_within_cu;
 
-	/* Points to the given pubname. */
-    Dwarf_Small			*gl_name;
+    /* Points to the given pubname. */
+    Dwarf_Small *gl_name;
 
-	/* Context for this pubname. */
-    Dwarf_Global_Context	gl_context;
+    /* Context for this pubname. */
+    Dwarf_Global_Context gl_context;
 };
 
-int _dwarf_internal_get_pubnames_like_data(
-    Dwarf_Debug         dbg,
-    Dwarf_Small         *section_data_ptr,
-    Dwarf_Unsigned      section_length,
-    Dwarf_Global        **globals,
-    Dwarf_Signed       *return_count,
-    Dwarf_Error         *error,
-    int                 allocation_code,
-    int                 length_err_num,
-    int                 version_err_num
-);
-
+int _dwarf_internal_get_pubnames_like_data(Dwarf_Debug dbg,
+					   Dwarf_Small *
+					   section_data_ptr,
+					   Dwarf_Unsigned
+					   section_length,
+					   Dwarf_Global ** globals,
+					   Dwarf_Signed * return_count,
+					   Dwarf_Error * error,
+					   int allocation_code,
+					   int length_err_num,
+					   int version_err_num);

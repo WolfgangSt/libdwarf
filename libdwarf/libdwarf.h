@@ -59,6 +59,8 @@ extern "C" {
 
 */
 
+struct Elf; /* So that Elf* below works with less header-order dependency */
+
 #if (_MIPS_SZLONG == 64)
 /* Special case for MIPS, so -64 (LP64) build gets simple -long-.
    Non-MIPS LP64 or ILP64 environments should probably ensure

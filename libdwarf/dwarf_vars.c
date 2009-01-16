@@ -42,85 +42,71 @@
 #include "dwarf_global.h"
 
 int
-dwarf_get_vars (
-    Dwarf_Debug		dbg,
-    Dwarf_Var		**vars,
-    Dwarf_Signed       * ret_var_count,
-    Dwarf_Error		*error
-)
+dwarf_get_vars(Dwarf_Debug dbg,
+	       Dwarf_Var ** vars,
+	       Dwarf_Signed * ret_var_count, Dwarf_Error * error)
 {
-       return _dwarf_internal_get_pubnames_like_data(
-                dbg,
-		dbg->de_debug_varnames,
-		dbg->de_debug_varnames_size,
-                (Dwarf_Global **)vars, /* type punning,
-                        Dwarf_Type is never a completed  type */
-                ret_var_count,
-                error,
-                DW_DLA_VAR_CONTEXT,
-                DW_DLE_DEBUG_VARNAMES_LENGTH_BAD,
-                DW_DLE_DEBUG_VARNAMES_VERSION_ERROR);
+    return _dwarf_internal_get_pubnames_like_data(dbg, dbg->de_debug_varnames, dbg->de_debug_varnames_size, (Dwarf_Global **) vars,	/* type 
+																	   punning,
+																	   Dwarf_Type 
+																	   is never
+																	   a
+																	   completed 
+																	   type */
+						  ret_var_count,
+						  error,
+						  DW_DLA_VAR_CONTEXT,
+						  DW_DLE_DEBUG_VARNAMES_LENGTH_BAD,
+						  DW_DLE_DEBUG_VARNAMES_VERSION_ERROR);
 }
 
 
 int
-dwarf_varname (
-    Dwarf_Var		var_in,
-    char      **        ret_varname,
-    Dwarf_Error		*error
-)
+dwarf_varname(Dwarf_Var var_in, char **ret_varname, Dwarf_Error * error)
 {
-    Dwarf_Global var = (Dwarf_Global)var_in;
-    if (var == NULL)
-	{_dwarf_error(NULL, error, DW_DLE_VAR_NULL); return(DW_DLV_ERROR);}
+    Dwarf_Global var = (Dwarf_Global) var_in;
 
-    *ret_varname = (char *)(var->gl_name);
+    if (var == NULL) {
+	_dwarf_error(NULL, error, DW_DLE_VAR_NULL);
+	return (DW_DLV_ERROR);
+    }
+
+    *ret_varname = (char *) (var->gl_name);
     return DW_DLV_OK;
 }
 
 
 int
-dwarf_var_die_offset (
-    Dwarf_Var		var_in,
-    Dwarf_Off	*       returned_offset,
-    Dwarf_Error		*error
-)
+dwarf_var_die_offset(Dwarf_Var var_in,
+		     Dwarf_Off * returned_offset, Dwarf_Error * error)
 {
-    Dwarf_Global var = (Dwarf_Global)var_in;
-    return
-	dwarf_global_die_offset(var,
-		returned_offset,
-		error);
-    
+    Dwarf_Global var = (Dwarf_Global) var_in;
+
+    return dwarf_global_die_offset(var, returned_offset, error);
+
 }
 
 
 int
-dwarf_var_cu_offset (
-    Dwarf_Var		var_in,
-    Dwarf_Off	*       returned_offset,
-    Dwarf_Error		*error
-)
+dwarf_var_cu_offset(Dwarf_Var var_in,
+		    Dwarf_Off * returned_offset, Dwarf_Error * error)
 {
-    Dwarf_Global var = (Dwarf_Global)var_in;
-    return
-	dwarf_global_cu_offset(var,
-		returned_offset, error);
+    Dwarf_Global var = (Dwarf_Global) var_in;
+
+    return dwarf_global_cu_offset(var, returned_offset, error);
 }
 
 
 int
-dwarf_var_name_offsets (
-    Dwarf_Var		var_in,
-    char              **returned_name,
-    Dwarf_Off		*die_offset,
-    Dwarf_Off		*cu_offset,
-    Dwarf_Error		*error
-)
+dwarf_var_name_offsets(Dwarf_Var var_in,
+		       char **returned_name,
+		       Dwarf_Off * die_offset,
+		       Dwarf_Off * cu_offset, Dwarf_Error * error)
 {
-    Dwarf_Global var = (Dwarf_Global)var_in;
+    Dwarf_Global var = (Dwarf_Global) var_in;
+
     return
 	dwarf_global_name_offsets(var,
-		returned_name, die_offset, cu_offset,
-			error);
+				  returned_name, die_offset, cu_offset,
+				  error);
 }

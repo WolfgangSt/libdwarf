@@ -1,3 +1,50 @@
+
+2002-04-25 Kelly O'Hair <kelly.ohair@sun.com>
+      * pro_section.c (_dwarf_pro_generate_debuginfo): add
+      required dwarf2 sec 7.5.3 trailing null byte 
+      to .debug_abbrev per compilation-unit.
+
+2002-03-31 David Anderson <davea@sgi.com>
+      * dwarf_abbref.c (dwarf_get_abbrev): change 
+      DW_DLE_DEBUG_ABBREV_NULL to DW_DLE_DWARF_ABBREV_NULL. 
+      Former was wrong code.
+      * libdwarf2.1.mm: correct argument reference, returned_abbrev
+      not returned_fde in dwarf_get_abbrev discussion.
+      
+2002-03-07 David Anderson <davea@sgi.com>
+      * libdwarf.h: added struct Elf declaration
+      to reduce dependency on header include ordering. 
+
+2002-02-11 David Anderson <davea@sgi.com>
+      * libdwarf2.1.mm libdwarf2.1.ps:
+      dwarf_offdie can return DW_DLV_NO_ENTRY and that
+      is now documented.
+      * dwarf_loc.c: if the length of a location description
+      is zero that is ok, not an error. dwarf2 sec 2.4.1.
+
+2002-01-10 David Anderson <davea@sgi.com>
+      * dwarf_opaque.h, dwarf_init_finish.c: if libdwarf does
+      the elf_begin() it must also do the elf_end() to
+      avoid a memory leak, and now does this correctly.
+
+2002-01-10  David Anderson <davea@sgi.com>
+      * dwarf_init_finish.c:  Using a variable to
+      hold ELF_C_READ_MMAP.  Really motivated by
+      code not added to this source. 
+      * dwarf_die_deliv.c: Added comments, moved
+      a couple variables to local scope from function scope.
+
+      * dwarf.h: Added some #defines which were specified in the Dwarf
+      2.1 Dwarf draft 5 (now called dwarf 3 draft 5).
+
+2001-09-18  David Anderson davea@sgi.com
+	* all files: applied gnu indent with
+	-bad -bap -nbbo -br -ce -brs 
+	-l72  -lc72  -hnl  -nprs  
+	-fca -i4  -lp -psl -npcs 
+	Code should use this set in libdwarf.
+
+
 2001-08-21  "kelly o'hair" <kelly.ohair@eng.sun.com>
 	* pro_section.c:  If one called dwarf_add_file_decl()
 	  or dwarf_add_directory_decl() but never added a line,

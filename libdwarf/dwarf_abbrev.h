@@ -37,9 +37,9 @@
 
 
 struct Dwarf_Abbrev_s {
-    Dwarf_Word		ab_code;
-    Dwarf_Half		ab_tag;
-    Dwarf_Small		ab_has_child;
-    Dwarf_Byte_Ptr    	ab_abbrev_ptr;
-    Dwarf_Debug		ab_dbg;
+    Dwarf_Word ab_code;
+    Dwarf_Half ab_tag;
+    Dwarf_Small ab_has_child;
+    Dwarf_Byte_Ptr ab_abbrev_ptr;
+    Dwarf_Debug ab_dbg;
 };

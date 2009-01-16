@@ -50,20 +50,13 @@
     list of function names for the given Dwarf_P_Debug.  
     It returns 0 on error, and 1 otherwise.
 */
-Dwarf_Unsigned 
-dwarf_add_funcname (
-    Dwarf_P_Debug	dbg,
-    Dwarf_P_Die		die,
-    char		*function_name,
-    Dwarf_Error		*error
-)
+Dwarf_Unsigned
+dwarf_add_funcname(Dwarf_P_Debug dbg,
+		   Dwarf_P_Die die,
+		   char *function_name, Dwarf_Error * error)
 {
-        return
-                _dwarf_add_simple_name_entry(
-                dbg,die, function_name,
-                dwarf_snk_funcname,
-                error);
+    return
+	_dwarf_add_simple_name_entry(dbg, die, function_name,
+				     dwarf_snk_funcname, error);
 
 }
-
-
