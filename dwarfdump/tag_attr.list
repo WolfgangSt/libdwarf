@@ -766,6 +766,7 @@ DW_AT_specification
 DW_AT_start_scope
 DW_AT_type
 DW_AT_visibility
+DW_AT_artificial
 0xffffffff
 DW_TAG_variant
 DW_AT_decl_column

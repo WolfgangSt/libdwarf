@@ -372,6 +372,20 @@ _dwarf_setup(Dwarf_Debug dbg, Dwarf_Error * error)
             dbg->de_debug_macinfo_index = section_index;
             dbg->de_debug_macinfo_size = section_size;
         }
+        else if (strcmp(scn_name, ".debug_ranges") == 0) {
+            if (dbg->de_debug_ranges_index != 0) {
+                DWARF_DBG_ERROR(dbg,
+                                DW_DLE_DEBUG_RANGES_DUPLICATE,
+                                DW_DLV_ERROR);
+            }
+            if (section_size == 0) {
+                /* a zero size section is just empty. Ok, no error */
+                continue;
+            }
+            dbg->de_debug_ranges_index = section_index;
+            dbg->de_debug_ranges_size = section_size;
+            foundDwarf = TRUE;
+        }
     }
     if (foundDwarf) {
         return DW_DLV_OK;
@@ -510,9 +524,7 @@ dwarf_get_section_max_offsets(Dwarf_Debug dbg,
     *debug_pubnames_size = dbg->de_debug_pubnames_size;
     *debug_str_size = dbg->de_debug_str_size;
     *debug_frame_size = dbg->de_debug_frame_size;
-    *debug_ranges_size = 0;  /* Not yet supported. */
+    *debug_ranges_size = dbg->de_debug_ranges_size;
     *debug_typenames_size = dbg->de_debug_typenames_size;
-
-
     return DW_DLV_OK;
 }

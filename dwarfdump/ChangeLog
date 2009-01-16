@@ -1,3 +1,27 @@
+2008-12-30 David Anderson <davea42@earthlink.net>
+      * tag_attr.list: Mark DW_AT_artificial as sensible on
+        DW_TAG_variable.
+      * dwarfdump.1: Document -N option to print .debug_ranges.
+      * Makefile.in: add new source header files
+      * dwarfdump.c: Implement -N to print .debug_ranges.
+      * print_sections.c: Allow more flexible printing
+        of function names for .debug_frame section.
+	With -N, print .debug_ranges.
+      * print_die.c: Print .debug_ranges details.
+      * print_frames.c: Delete useless comment.
+      * globals.h: Allow re-use of debug_ranges formatting code.
+      * Makefile.in: Make the header dependency list more complete.
+      * makename.h: Comment tweaked.
+2008-12-08 David Anderson <davea42@earthlink.net>
+      * print_die.c: the -M option now also prints the form
+        number (after the form name).  And -v prints the DIE
+        abbreviation code, the index into the relevant abbreviation
+        table.
+      * globals.h: Removed unused global variable.
+      * dwarfdump.c: Removed unused global variable.
+      * dwarfdump.1: document -M and the new -v features.
+2008-12-07 David Anderson <davea42@earthlink.net>
+      * print_reloc.c (print_relocinfo): Removed unused local variable.
 2008-11-19 David Anderson <davea42@earthlink.net>
       * globals.h: Added new boolean to support -M.
       * dwarfdump.1: Mentioning the -M option.

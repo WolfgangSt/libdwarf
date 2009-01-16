@@ -8,7 +8,7 @@
 .nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.70, 19 Nov 2008
+.ds vE rev 1.72, 30 Dec 2008
 \." ==============================================
 \." ==============================================
 .ds | |
@@ -1598,6 +1598,19 @@ The storage pointed to by a successful return of
 \f(CWdwarf_diename()\fP should be freed using the allocation type
 \f(CWDW_DLA_STRING\fP when no longer of interest (see 
 \f(CWdwarf_dealloc()\fP).
+
+.H 3 "dwarf_die_abbrev_code()"
+.DS
+\f(CWint dwarf_die_abbrev_code( Dwarf_Die die,)\fP
+.DE
+The function returns
+the abbreviation code of the DIE.
+That is, it returns the abbreviation "index"
+into the abbreviation table for the compilation unit
+of which the DIE is a part.
+It cannot fail. No errors are possible.
+The pointer \f(CWdie()\fP must not be NULL.
+
 
 .H 3 "dwarf_attrlist()"
 .DS
@@ -4894,6 +4907,9 @@ It returns \f(CWDW_DLV_NO_ENTRY\fP if there is no .debug_aranges
 entry covering that address.
 
 
+
+
+
 .H 3 "dwarf_get_cu_die_offset()"
 .DS
 \f(CWint dwarf_get_cu_die_offset(
@@ -4970,6 +4986,87 @@ the \f(CW*addr_size\fP
 to the size in bytes of an address.
 In case of error, it returns \f(CWDW_DLV_ERROR\fP
 and does not set \f(CW*addr_size\fP.
+
+
+.H 2 "Ranges Operations (.debug_ranges)"
+These functions provide information about the address ranges
+indicated by a  \f(CWDW_AT_ranges\fP attribute (the ranges are recorded
+in the  \f(CW.debug_ranges\fP section).  
+Each call of \f(CWdwarf_get_ranges()\fP returns a an array
+of Dwarf_Ranges structs, each of which represents a single ranges
+entry.   The struct is defined in  \f(CWlibdwarf.h\fP.
+
+.H 3 "dwarf_get_ranges()"
+.DS
+\f(CWint dwarf_get_ranges(
+        Dwarf_Debug dbg,
+        Dwarf_Off  offset,
+        Dwarf_Ranges **ranges,
+        Dwarf_Signed * returned_ranges_count,
+        Dwarf_Unsigned * returned_byte_count,
+        Dwarf_Error *error)\fP
+.DE
+The function \f(CWdwarf_get_ranges()\fP returns 
+\f(CWDW_DLV_OK\fP and sets \f(CW*returned_ranges_count\fP to
+the count of the
+number of address ranges in the group of ranges 
+in the .debug_ranges section at offset  \f(CWoffset\fP
+(which ends with a pair of zeros of pointer-size).
+
+The
+\f(CWoffset\fP argument should be the value of 
+a \f(CWDW_AT_ranges\fP attribute of a Debugging Information Entry. 
+
+The call sets
+\f(CW*ranges\fP to point to a block of \f(CWDwarf_Ranges\fP 
+structs, one for each address range.  
+It returns \f(CWDW_DLV_ERROR\fP on error.
+It returns \f(CWDW_DLV_NO_ENTRY\fP if there is no  \f(CW.debug_ranges\fP 
+section or if \f(CWoffset\fP is past the end of the  
+\f(CW.debug_ranges\fP section.
+
+If the \f(CW*returned_byte_count\fP pointer is passed as non-NULL
+the number of bytes that the returned ranges
+were taken from is returned through the pointer
+(for example if the returned_ranges_count is 2 and the pointer-size
+is 4, then returned_byte_count will be 8).
+If the \f(CW*returned_byte_count\fP pointer is passed as NULL
+the parameter is ignored.
+The \f(CW*returned_byte_count\fP is only of use to certain
+dumper applications, most applications will not use it.
+
+
+.in +2
+.DS
+\f(CWDwarf_Signed cnt;
+Dwarf_Ranges *ranges;
+Dwarf_Unsigned bytes;
+int res;
+res = dwarf_get_ranges(dbg,off, &ranges,&cnt,&bytes,&error);
+if (res == DW_DLV_OK) {
+        Dwarf_Signed i;
+        for( i = 0; i < cnt; ++i ) {
+            Dwarf_Ranges *cur = ranges+i;
+            /* Use cur. */
+        }
+        dwarf_ranges_dealloc(dbg,ranges,cnt);
+}\fP
+.DE
+.in -2
+
+.H 3 "dwarf_ranges_dealloc()"
+.DS
+\f(CWint dwarf_ranges_dealloc(
+        Dwarf_Debug dbg,
+        Dwarf_Ranges *ranges,
+        Dwarf_Signed  range_count,
+        );\fP
+.DE
+The function \f(CWdwarf_ranges_dealloc()\fP takes as input a pointer 
+to a block of \f(CWDwarf_Ranges\fP array and the 
+number of structures in the block.  
+It frees all the data in the array of structures.
+
 
 
 .H 2 "Utility Operations"

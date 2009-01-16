@@ -37,13 +37,13 @@
 
 
 
-#define IS_64BIT(dbg) 	((dbg)->de_flags & DW_DLC_SIZE_64 ? 1 : 0)
-#define ISA_IA64(dbg) 	((dbg)->de_flags & DW_DLC_ISA_IA64 ? 1 : 0)
+#define IS_64BIT(dbg) ((dbg)->de_flags & DW_DLC_SIZE_64 ? 1 : 0)
+#define ISA_IA64(dbg) ((dbg)->de_flags & DW_DLC_ISA_IA64 ? 1 : 0)
 
 /* definition of sizes of types, given target machine */
-#define sizeof_sbyte(dbg) 	sizeof(Dwarf_Sbyte)
-#define sizeof_ubyte(dbg)	sizeof(Dwarf_Ubyte)
-#define sizeof_uhalf(dbg)	sizeof(Dwarf_Half)
+#define sizeof_sbyte(dbg) sizeof(Dwarf_Sbyte)
+#define sizeof_ubyte(dbg) sizeof(Dwarf_Ubyte)
+#define sizeof_uhalf(dbg) sizeof(Dwarf_Half)
 /* certain sizes not defined here, but set in dbg record.
    See pro_init.c
 */
@@ -115,21 +115,21 @@
 #define Get_REL32_isa(dbg)         (R_SPARC_UA32)
 #define Get_REL_SEGREL_isa(dbg)    (R_SPARC_NONE) /* I don't know! */
 #else  /* i386 */
-#define Get_REL64_isa(dbg)         (R_386_32)	/* Any non-zero value is ok */
+#define Get_REL64_isa(dbg)         (R_386_32)   /* Any non-zero value is ok */
 #define Get_REL32_isa(dbg)         (R_386_32)
 #define Get_REL_SEGREL_isa(dbg)    (R_386_NONE) /* I don't know! */
 #endif /* sparc || i386 */
 #else  /* !sun */
 #ifdef HAVE_SYS_IA64_ELF_H
 #define Get_REL64_isa(dbg)         (ISA_IA64(dbg) ? \
-				DWARF_PRO_R_IA64_DIR64LSB : R_MIPS_64)
+    DWARF_PRO_R_IA64_DIR64LSB : R_MIPS_64)
 #define Get_REL32_isa(dbg)         (ISA_IA64(dbg) ? \
-				DWARF_PRO_R_IA64_DIR32LSB : R_MIPS_32)
+    DWARF_PRO_R_IA64_DIR32LSB : R_MIPS_32)
 
 
 /* ia64 uses 32bit dwarf offsets for sections */
 #define Get_REL_SEGREL_isa(dbg)    (ISA_IA64(dbg) ? \
-				DWARF_PRO_R_IA64_SEGREL32LSB : R_MIPS_SCN_DISP)
+    DWARF_PRO_R_IA64_SEGREL32LSB : R_MIPS_SCN_DISP)
 #else /* HAVE_SYS_IA64_ELF_H */
 
 #if !defined(linux) && !defined(__BEOS__)
@@ -137,9 +137,9 @@
 #define Get_REL32_isa(dbg)         (R_MIPS_32)
 #define Get_REL_SEGREL_isa(dbg)    (R_MIPS_SCN_DISP)
 #else
-#define Get_REL64_isa(dbg)	(1)
-#define Get_REL32_isa(dbg)	(1)   /* these are used on linux */
-#define Get_REL_SEGREL_isa(dbg)	(1)   /* non zero values, see comments above */
+#define Get_REL64_isa(dbg) (1)
+#define Get_REL32_isa(dbg) (1)   /* these are used on linux */
+#define Get_REL_SEGREL_isa(dbg) (1)   /* non zero values, see comments above */
 #endif
 
 #endif /* HAVE_SYS_IA64_ELF_H */

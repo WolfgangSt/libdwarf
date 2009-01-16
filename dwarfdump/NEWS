@@ -1,3 +1,12 @@
+December 30, 2008
+  Now we print the .debug_ranges section (with -N) 
+  and the data for DW_AT_ranges (with -i).
+December 8, 2008
+  The -M option now causes printing of FORM details.
+  And -v adds details about abbreviation 'indexes' into
+  an abbreviation table (.debug_abbrev)
+  providing more detail for folks debugging or
+  improving their understanding of DWARF data.
 April 9, 2008
   Added -H  <num>  to limit the number of compilation-units/FDEs
   dwarfdump prints in one run.  Added -n to eliminate function-name

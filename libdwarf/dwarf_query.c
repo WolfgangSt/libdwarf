@@ -641,3 +641,9 @@ dwarf_attr_offset(Dwarf_Die die, Dwarf_Attribute attr, Dwarf_Off * offset,      
     *offset = attroff;
     return DW_DLV_OK;
 }
+
+int
+dwarf_die_abbrev_code(Dwarf_Die die)
+{
+        return die->di_abbrev_code;
+}

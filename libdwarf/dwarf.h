@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2000,2001,2003,2004,2005,2006 Silicon Graphics, Inc.  All Rights Reserved.
   Portions Copyright 2002,2007 Sun Microsystems, Inc. All rights reserved.
-  Portions Copyright 2007 David Anderson. All rights reserved.
+  Portions Copyright 2007,2008 David Anderson. All rights reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License
@@ -207,6 +207,9 @@ extern "C" {
 #define DW_FORM_ref8                    0x14
 #define DW_FORM_ref_udata               0x15
 #define DW_FORM_indirect                0x16
+#define DW_FORM_sec_offset              0x17 /* DWARF4 */
+#define DW_FORM_exprloc                 0x18 /* DWARF4 */
+#define DW_FORM_flag_present            0x19 /* DWARF4 */
 
 #define DW_AT_sibling                           0x01
 #define DW_AT_location                          0x02
@@ -299,6 +302,7 @@ extern "C" {
 #define DW_AT_elemental                         0x66 /* DWARF3f */
 #define DW_AT_pure                              0x67 /* DWARF3f */
 #define DW_AT_recursive                         0x68 /* DWARF3f */
+#define DW_AT_main_subprogram                   0x69 /* DWARF4 */
 
 
 /* HP extensions. */
@@ -567,6 +571,8 @@ extern "C" {
 #define DW_OP_form_tls_address          0x9b /* DWARF3f */
 #define DW_OP_call_frame_cfa            0x9c /* DWARF3f */
 #define DW_OP_bit_piece                 0x9d /* DWARF3f */
+#define DW_OP_implicit_value            0x9e /* DWARF4 */
+#define DW_OP_stack_value               0x9f /* DWARF4 */
 
 
     /* GNU extensions. */

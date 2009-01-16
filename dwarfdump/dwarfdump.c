@@ -88,6 +88,7 @@ static boolean pubnames_flag = FALSE;
 static boolean macinfo_flag = FALSE;
 static boolean loc_flag = FALSE;
 static boolean aranges_flag = FALSE;
+static boolean ranges_flag = FALSE; /* .debug_ranges section. */
 static boolean string_flag = FALSE;
 static boolean reloc_flag = FALSE;
 static boolean static_func_flag = FALSE;
@@ -98,7 +99,6 @@ static boolean weakname_flag = FALSE;
 int verbose = 0;
 boolean dense = FALSE;
 boolean ellipsis = FALSE;
-boolean dst_format = FALSE;
 boolean show_global_offsets = FALSE;
 boolean show_form_used = FALSE;
 
@@ -109,6 +109,7 @@ boolean check_attr_tag = FALSE;
 boolean check_tag_tree = FALSE;
 boolean check_type_offset = FALSE;
 boolean check_decl_file = FALSE;
+boolean check_ranges = FALSE;
 boolean generic_1000_regs = FALSE;
 /* suppress_nested_name_search is a band-aid. 
    A workaround. A real fix for N**2 behavior is needed. 
@@ -162,6 +163,7 @@ Dwarf_Check_Result attr_tag_result;
 Dwarf_Check_Result tag_tree_result;
 Dwarf_Check_Result type_offset_result;
 Dwarf_Check_Result decl_file_result;
+Dwarf_Check_Result ranges_result;
 
 Dwarf_Error err;
 
@@ -301,6 +303,8 @@ process_one_file(Elf * elf, string file_name, int archive,
         print_strings(dbg);
     if (aranges_flag)
         print_aranges(dbg);
+    if (ranges_flag)
+        print_ranges(dbg);
     if (frame_flag || eh_frame_flag) {
         current_cu_die_for_print_frames = 0;
         print_frames(dbg, frame_flag, eh_frame_flag, config_file_data);
@@ -335,6 +339,8 @@ process_one_file(Elf * elf, string file_name, int archive,
         PRINT_CHECK_RESULT("type_offset", type_offset_result)
     if (check_decl_file)
         PRINT_CHECK_RESULT("decl_file", decl_file_result)
+    if (check_ranges)
+        PRINT_CHECK_RESULT("ranges", ranges_result)
     dres = dwarf_finish(dbg, &err);
     if (dres != DW_DLV_OK) {
         print_error(dbg, "dwarf_finish", dres, err);
@@ -371,7 +377,7 @@ process_args(int argc, char *argv[])
 
     while ((c =
             getopt(argc, argv,
-                   "abcdefFgGhH:ik:lmMnoprRst:u:vVwx:yz")) != EOF) {
+                   "abcdefFgGhH:ik:lmMnNoprRst:u:vVwx:yz")) != EOF) {
         switch (c) {
         case 'M':
             show_form_used =  TRUE;
@@ -441,6 +447,9 @@ process_args(int argc, char *argv[])
         case 'r':
             aranges_flag = TRUE;
             break;
+        case 'N':
+            ranges_flag = TRUE;
+            break;
         case 'R':
             generic_1000_regs = TRUE;
             info_flag = TRUE;
@@ -484,6 +493,7 @@ process_args(int argc, char *argv[])
                 check_tag_tree = check_type_offset = TRUE;
                 pubnames_flag = info_flag = TRUE;
                 check_decl_file = TRUE;
+                check_ranges = TRUE;
                 break;
             case 'e':
                 check_pubname_attr = TRUE;
@@ -501,6 +511,7 @@ process_args(int argc, char *argv[])
                 check_type_offset = TRUE;
                 check_decl_file = TRUE;
                 info_flag = TRUE;
+                check_ranges = TRUE;
                 break;
             default:
                 usage_error = TRUE;
@@ -609,6 +620,7 @@ print_usage_message(void)
     fprintf(stderr, "\t\t-M\tprint the form name for each attribute\n");
     fprintf(stderr, "\t\t-o\tprint relocation info\n");
     fprintf(stderr, "\t\t-p\tprint pubnames section\n");
+    fprintf(stderr, "\t\t-N\tprint ranges section\n");
     fprintf(stderr, "\t\t-r\tprint aranges section\n");
     fprintf(stderr, "\t\t-R\tPrint frame register names as r33 etc\n");
     fprintf(stderr, "\t\t  \t    and allow up to 1000 registers.\n");

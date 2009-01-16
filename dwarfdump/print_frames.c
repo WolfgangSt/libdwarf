@@ -150,7 +150,6 @@ print_one_fde(Dwarf_Debug dbg, Dwarf_Fde fde,
         }                       /* else DW_DLV_ERROR, do nothing */
         printf("\n");
     }
-    /* call dwarf_get_fde_info_for_reg() to get whole matrix */
 
     for (j = low_pc; j < low_pc + func_length; j++) {
         Dwarf_Half k;

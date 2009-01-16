@@ -58,7 +58,13 @@ GEN_HFILES = \
 
 all: dwarfdump
 
-$(OBJECTS): $(GEN_HFILES) $(srcdir)/globals.h $(srcdir)/print_frames.h
+$(OBJECTS): $(GEN_CFILES) $(GEN_HFILES) $(srcdir)/globals.h \
+	$(srcdir)/print_frames.h \
+	$(srcdir)/dwconf.h \
+	$(srcdir)/esb.h \
+	$(srcdir)/makename.h \
+	$(srcdir)/print_frames.h
+
 
 default: $(TARGETS)
 

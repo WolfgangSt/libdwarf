@@ -57,7 +57,7 @@ dwarf_get_pubtypes(Dwarf_Debug dbg,
     return _dwarf_internal_get_pubnames_like_data(dbg, 
         dbg->de_debug_pubtypes, 
         dbg->de_debug_pubtypes_size, 
-        (Dwarf_Global **) types,/* /* Type punning for sections with identical format. */
+        (Dwarf_Global **) types, /* Type punning for sections with identical format. */
         ret_type_count, error, 
         DW_DLA_PUBTYPES_CONTEXT, 
         DW_DLA_GLOBAL, /* We don't have DW_DLA_PUBTYPES, so use DW_DLA_GLOBAL. */

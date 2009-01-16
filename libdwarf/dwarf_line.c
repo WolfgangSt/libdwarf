@@ -1802,7 +1802,7 @@ dwarf_read_line_table_prefix(Dwarf_Debug dbg,
             return (DW_DLV_ERROR);
         } else {
             /* Bug in compiler. These
-            /* bytes are really part of the instruction
+             * bytes are really part of the instruction
              * stream.  The prefix_out->pf_prologue_length is
              * wrong (12 too high).  */
             if(bogus_bytes_ptr) {

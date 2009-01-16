@@ -87,8 +87,6 @@ dwarf_init(int fd,
 {
     struct stat fstat_buf;
     dwarf_elf_handle elf_file_pointer = 0;
-    int res = 0;
-    int err = 0;
     /* ELF_C_READ is a portable value */
     Elf_Cmd what_kind_of_elf_read = ELF_C_READ;
 
@@ -166,7 +164,6 @@ dwarf_elf_init_file_ownership(dwarf_elf_handle elf_file_pointer,
     /* ELF is no longer tied to libdwarf. */
     Dwarf_Obj_Access_Interface *binary_interface = 0;
     int res = DW_DLV_OK;
-    int err = 0;
 
     if (access != DW_DLC_READ) {
         DWARF_DBG_ERROR(NULL, DW_DLE_INIT_ACCESS_WRONG, DW_DLV_ERROR);
@@ -203,8 +200,6 @@ dwarf_elf_init_file_ownership(dwarf_elf_handle elf_file_pointer,
 int
 dwarf_finish(Dwarf_Debug dbg, Dwarf_Error * error)
 {
-    int res = DW_DLV_OK;
-
     dwarf_elf_object_access_finish(dbg->de_obj_file);
 
     return dwarf_object_finish(dbg, error);

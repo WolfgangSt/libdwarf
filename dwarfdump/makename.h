@@ -47,7 +47,7 @@
 
 */
 
-char * makename(char *); /* makes a copy of the string in
+char * makename(char *); /* Makes a copy of the string in
         a malloc area.  Can never return 0. */
 
 #endif

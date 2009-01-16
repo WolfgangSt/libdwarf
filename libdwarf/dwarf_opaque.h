@@ -35,35 +35,28 @@
 
 */
 /* The versions applicable by section are:
-                       DWARF2    DWARF3 DWARF4
- .debug_info             2         3     4
- .debug_abbrev           -         -     -
- .debug_frame            1         3     3
- .debug_str              -         -     -
- .debug_loc              -         -     -
- .debug_line             2         3     3
- .debug_aranges          2         2     2
- .debug_ranges           x         -     -
- .debug_pubtypes         x         2     2
- .debug_pubnames         2         2     2
- .debug_macinfo          -         -     -
+                       DWARF2 DWARF3 DWARF4
+ .debug_info             2      3      4
+ .debug_abbrev           -      -      -
+ .debug_frame            1      3      4
+ .debug_str              -      -      -
+ .debug_loc              -      -      -
+ .debug_line             2      3      4
+ .debug_aranges          2      2      2
+ .debug_ranges           x      -      -
+ .debug_pubtypes         x      2      2
+ .debug_pubnames         2      2      2
+ .debug_macinfo          -      -      -
 */
 
 #include <stddef.h>
 
 
 struct Dwarf_Die_s {
-    /* 
-       Points to the start of the portion corresponding to this Die in 
-       the .debug_info section. */
     Dwarf_Byte_Ptr di_debug_info_ptr;
-
-    /* Points to the abbreviation record for this DIE.
-    */
     Dwarf_Abbrev_List di_abbrev_list;
-
-    /* Points to cu context for this die.  */
     Dwarf_CU_Context di_cu_context;
+    int  di_abbrev_code;
 };
 
 struct Dwarf_Attribute_s {
@@ -219,6 +212,7 @@ struct Dwarf_Debug_s {
 			identical to DWARF3 .debug_pubtypes. */
     Dwarf_Small *de_debug_varnames;
     Dwarf_Small *de_debug_weaknames;
+    Dwarf_Small *de_debug_ranges;	
 
     Dwarf_Unsigned de_debug_info_size;
     Dwarf_Unsigned de_debug_abbrev_size;
@@ -240,6 +234,7 @@ struct Dwarf_Debug_s {
     Dwarf_Unsigned de_debug_typenames_size;
     Dwarf_Unsigned de_debug_varnames_size;
     Dwarf_Unsigned de_debug_weaknames_size;
+    Dwarf_Unsigned de_debug_ranges_size;
 
     void *(*de_copy_word) (void *, const void *, size_t);
     unsigned char de_same_endian;
@@ -271,6 +266,7 @@ struct Dwarf_Debug_s {
     Dwarf_Half de_debug_info_index;
     Dwarf_Half de_debug_abbrev_index;
     Dwarf_Half de_debug_pubtypes_index; /* DWARF3 .debug_pubtypes */
+    Dwarf_Half de_debug_ranges_index; /* DWARF3 .debug_ranges */
 
     /* Default is DW_FRAME_INITIAL_VALUE from header. */
     Dwarf_Half de_frame_rule_initial_value;  

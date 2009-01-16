@@ -122,7 +122,6 @@ typedef struct {
 extern int verbose;
 extern boolean dense;
 extern boolean ellipsis;
-extern boolean dst_format;
 extern boolean use_mips_regnames;
 extern boolean show_global_offsets;
 extern boolean show_form_used;
@@ -143,6 +142,7 @@ extern Dwarf_Check_Result attr_tag_result;
 extern Dwarf_Check_Result tag_tree_result;
 extern Dwarf_Check_Result type_offset_result;
 extern Dwarf_Check_Result decl_file_result;
+extern Dwarf_Check_Result ranges_result;
 
 extern boolean info_flag;
 extern boolean use_old_dwarf_loclist;
@@ -162,6 +162,7 @@ extern void print_line_numbers_this_cu (Dwarf_Debug dbg, Dwarf_Die in_die);
 struct dwconf_s;
 extern void print_frames (Dwarf_Debug dbg, int print_debug_frame,
                 int print_eh_frame,struct dwconf_s *);
+extern void print_ranges (Dwarf_Debug dbg);
 extern void print_pubnames (Dwarf_Debug dbg);
 extern void print_macinfo (Dwarf_Debug dbg);
 extern void print_locs (Dwarf_Debug dbg);
@@ -176,6 +177,14 @@ extern void print_types(Dwarf_Debug dbg,enum type_type_e type_type);
 extern void print_weaknames(Dwarf_Debug dbg);
 extern void print_exception_tables(Dwarf_Debug dbg);
 extern string get_fde_proc_name(Dwarf_Debug dbg, Dwarf_Addr low_pc);
+struct esb_s;
+extern void print_ranges_list_to_extra(Dwarf_Debug dbg,
+    Dwarf_Unsigned off,
+    Dwarf_Ranges *rangeset,
+    Dwarf_Signed rangecount,
+    Dwarf_Unsigned bytecount,
+    struct esb_s *stringbuf);
+
 extern void print_die_and_children(
         Dwarf_Debug dbg, 
         Dwarf_Die in_die,

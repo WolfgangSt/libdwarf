@@ -126,6 +126,20 @@ typedef struct {
                     where loc-expr begins*/
 } Dwarf_Locdesc;
 
+/* First appears in DWARF3.
+   The dwr_addr1/addr2 data is either an offset (DW_RANGES_ENTRY)
+   or an address (dwr_addr2 in DW_RANGES_ADDRESS_SELECTION) or
+   both are zero (DW_RANGES_END).
+*/
+enum Dwarf_Ranges_Entry_Type { DW_RANGES_ENTRY, 
+    DW_RANGES_ADDRESS_SELECTION,
+    DW_RANGES_END };
+typedef struct {
+    Dwarf_Addr dwr_addr1;
+    Dwarf_Addr dwr_addr2; 
+    enum Dwarf_Ranges_Entry_Type  dwr_type;
+} Dwarf_Ranges;
+
 /* Frame description instructions expanded.
 */
 typedef struct {
@@ -650,6 +664,7 @@ struct Dwarf_Obj_Access_Interface_s {
 #define DW_DLA_VAR             0x1a     /* Dwarf_Var */
 #define DW_DLA_WEAK            0x1b     /* Dwarf_Weak */
 #define DW_DLA_ADDR            0x1c     /* Dwarf_Addr sized entries */
+#define DW_DLA_RANGES          0x1d     /* Dwarf_Ranges */
 
 /* The augmenter string for CIE */
 #define DW_CIE_AUGMENTER_STRING_V0              "z"
@@ -906,11 +921,15 @@ struct Dwarf_Obj_Access_Interface_s {
 #define DW_DLE_FRAME_REGISTER_COUNT_MISMATCH   202
 #define DW_DLE_LINK_LOOP                       203
 #define DW_DLE_STRP_OFFSET_BAD                 204
+#define DW_DLE_DEBUG_RANGES_DUPLICATE          205
+#define DW_DLE_DEBUG_RANGES_OFFSET_BAD         206
+#define DW_DLE_DEBUG_RANGES_MISSING_END        207
+#define DW_DLE_DEBUG_RANGES_OUT_OF_MEM         208
 
 
 
     /* DW_DLE_LAST MUST EQUAL LAST ERROR NUMBER */
-#define DW_DLE_LAST        203
+#define DW_DLE_LAST        205
 #define DW_DLE_LO_USER     0x10000
 
         /* taken as meaning 'undefined value', this is not
@@ -1061,6 +1080,10 @@ int dwarf_attr (Dwarf_Die /*die*/,
 int dwarf_diename(Dwarf_Die /*die*/, 
     char   **        /*diename*/,
     Dwarf_Error*     /*error*/);
+
+/* Returns the  abbrev code of the die. Cannot fail. */
+int dwarf_die_abbrev_code(Dwarf_Die /*die */);
+
 
 /* convenience functions, alternative to using dwarf_attrlist() */
 int dwarf_hasattr(Dwarf_Die /*die*/, 
@@ -2302,6 +2325,17 @@ Dwarf_Half dwarf_set_frame_rule_inital_value(Dwarf_Debug /*dbg*/,
 
 Dwarf_Half dwarf_set_frame_rule_table_size(Dwarf_Debug dbg, 
     Dwarf_Half value);
+
+int dwarf_get_ranges(Dwarf_Debug /*dbg*/, 
+    Dwarf_Off /*rangesoffset*/,
+    Dwarf_Ranges ** /*rangesbuf*/,
+    Dwarf_Signed * /*listlen*/,
+    Dwarf_Unsigned * /*bytecount*/,
+    Dwarf_Error * /*error*/);
+void dwarf_ranges_dealloc(Dwarf_Debug /*dbg*/, 
+    Dwarf_Ranges * /*rangesbuf*/,
+    Dwarf_Signed /*rangecount*/);
+
 
 
 #ifdef __cplusplus

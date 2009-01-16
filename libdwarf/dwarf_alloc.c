@@ -202,48 +202,44 @@ struct ial_s index_into_allocated[ALLOC_AREA_INDEX_TABLE_MAX] = {
     ,                           /* 19 DW_DLA_FRAME_OP */
     {12, sizeof(struct Dwarf_Cie_s), BASE_ALLOC, 0, 0}, /* 20
                                                            DW_DLA_CIE */
-    {13, sizeof(struct Dwarf_Fde_s), BASE_ALLOC, 0, 0}, /* 21
-                                                           DW_DLA_FDE */
+    {13, sizeof(struct Dwarf_Fde_s), BASE_ALLOC, 0, 0}, /* 21 DW_DLA_FDE */
     {0, 1, 1, 0, 0},            /* 22 DW_DLA_LOC_BLOCK */
     {0, 1, 1, 0, 0},            /* 23 DW_DLA_FRAME_BLOCK */
-    {14, sizeof(struct Dwarf_Global_s), BASE_ALLOC, 0, 0},      /* 24
-                                                                   DW_DLA_FUNC 
-                                                                   UNUSED 
-                                                                 */
-    {15, sizeof(struct Dwarf_Global_s), BASE_ALLOC, 0, 0},      /* 25
-                                                                   DW_DLA_TYPENAME
-                                                                   UNUSED */
-    {16, sizeof(struct Dwarf_Global_s), BASE_ALLOC, 0, 0},      /* 26
-                                                                   DW_DLA_VAR 
-                                                                   UNUSED 
-                                                                 */
-    {17, sizeof(struct Dwarf_Global_s), BASE_ALLOC, 0, 0},      /* 27
-                                                                   DW_DLA_WEAK 
-                                                                   UNUSED 
-                                                                 */
+    {14, sizeof(struct Dwarf_Global_s), BASE_ALLOC, 0, 0}, /* 24 DW_DLA_FUNC 
+                                                              UNUSED */
+    {15, sizeof(struct Dwarf_Global_s), BASE_ALLOC, 0, 0}, /* 25 
+                                                              DW_DLA_TYPENAME
+                                                              UNUSED */
+    {16, sizeof(struct Dwarf_Global_s), BASE_ALLOC, 0, 0}, /* 26 DW_DLA_VAR 
+                                                              UNUSED */
+    {17, sizeof(struct Dwarf_Global_s), BASE_ALLOC, 0, 0}, /* 27 DW_DLA_WEAK 
+                                                              UNUSED */
     {0, 1, 1, 0, 0},            /* 28 DW_DLA_ADDR */
-    {18, sizeof(struct Dwarf_Abbrev_List_s), BIG_ALLOC, 0, 0},
-    /* 29 DW_DLA_ABBREV_LIST */
+    {0, 1,1,0,0 },              /* 29 DW_DLA_RANGES */
 
-    {19, sizeof(struct Dwarf_Chain_s), BIG_ALLOC, 0, 0},        /* 30
-                                                                   DW_DLA_CHAIN 
-                                                                 */
+    /* The following DW_DLA data types
+       are known only inside libdwarf.  */
+    
+    {18, sizeof(struct Dwarf_Abbrev_List_s), BIG_ALLOC, 0, 0},
+    /* 30 DW_DLA_ABBREV_LIST */
+
+    {19, sizeof(struct Dwarf_Chain_s), BIG_ALLOC, 0, 0}, /* 31 DW_DLA_CHAIN */
     {20, sizeof(struct Dwarf_CU_Context_s), BASE_ALLOC, 0, 0},
-    /* 31 DW_DLA_CU_CONTEXT */
+    /* 32 DW_DLA_CU_CONTEXT */
     {21, sizeof(struct Dwarf_Frame_s), BASE_ALLOC,
      _dwarf_frame_constructor,
-     _dwarf_frame_destructor},  /* 32 DW_DLA_FRAME */
+     _dwarf_frame_destructor},  /* 33 DW_DLA_FRAME */
     {22, sizeof(struct Dwarf_Global_Context_s), BASE_ALLOC, 0, 0},
-    /* 33 DW_DLA_GLOBAL_CONTEXT */
+    /* 34 DW_DLA_GLOBAL_CONTEXT */
     {23, sizeof(struct Dwarf_File_Entry_s), BASE_ALLOC, 0, 0},  /* 34 */
-    /* 34 DW_DLA_FILE_ENTRY */
+    /* 35 DW_DLA_FILE_ENTRY */
     {24, sizeof(struct Dwarf_Line_Context_s), BASE_ALLOC, 0, 0},
-    /* 35 DW_DLA_LINE_CONTEXT */
+    /* 36 DW_DLA_LINE_CONTEXT */
     {25, sizeof(struct Dwarf_Loc_Chain_s), BASE_ALLOC, 0, 0},   /* 36 */
-    /* 36 DW_DLA_LOC_CHAIN */
+    /* 37 DW_DLA_LOC_CHAIN */
 
     {26, sizeof(struct Dwarf_Hash_Table_s),BASE_ALLOC, 0, 0},   /* 37 */
-    /* 37 DW_DLA_HASH_TABLE */
+    /* 38 DW_DLA_HASH_TABLE */
 
 /* The following really use Global struct: used to be unique struct
    per type, but now merged (11/99).  The opaque types
@@ -254,18 +250,19 @@ struct ial_s index_into_allocated[ALLOC_AREA_INDEX_TABLE_MAX] = {
   
 */
     {27, sizeof(struct Dwarf_Global_Context_s), BASE_ALLOC, 0, 0},
-    /* 38 DW_DLA_FUNC_CONTEXT */
+    /* 39 DW_DLA_FUNC_CONTEXT */
     {28, sizeof(struct Dwarf_Global_Context_s), BASE_ALLOC, 0, 0},
-    /* 39 DW_DLA_TYPENAME_CONTEXT */
+    /* 40 DW_DLA_TYPENAME_CONTEXT */
     {29, sizeof(struct Dwarf_Global_Context_s), BASE_ALLOC, 0, 0},
-    /* 40 DW_DLA_VAR_CONTEXT */
+    /* 41 DW_DLA_VAR_CONTEXT */
     {30, sizeof(struct Dwarf_Global_Context_s), BASE_ALLOC, 0, 0},
-    /* 41 DW_DLA_WEAK_CONTEXT */
+    /* 42 DW_DLA_WEAK_CONTEXT */
     {31, sizeof(struct Dwarf_Global_Context_s), BASE_ALLOC, 0, 0},
-    /* 42 DW_DLA_PUBTYPES_CONTEXT DWARF3 */
+    /* 43 DW_DLA_PUBTYPES_CONTEXT DWARF3 */
 
-    {0,1,1,0,0 }
-    /* 43 DW_DLA_HASH_TABLE_ENTRY */
+    {0,1,1,0,0 },
+    /* 44 DW_DLA_HASH_TABLE_ENTRY */
+
 
 };
 
@@ -457,7 +454,7 @@ _dwarf_find_memory(Dwarf_Alloc_Hdr alloc_hdr)
     contain, i.e it the length of the string
     plus 1 for the terminating null.  For lists
     of pointers, count is equal to the number of
-    pointers.  For DW_DLA_FRAME_BLOCK, and
+    pointers.  For DW_DLA_FRAME_BLOCK, DW_DLA_RANGES, and 
     DW_DLA_LOC_BLOCK allocation types also, count
     is the count of the number of structs needed.
 
@@ -508,6 +505,8 @@ _dwarf_get_alloc(Dwarf_Debug dbg,
             size = count *
                 (sizeof(Dwarf_Addr) > sizeof(Dwarf_Off) ?
                  sizeof(Dwarf_Addr) : sizeof(Dwarf_Off));
+        } else if (alloc_type == DW_DLA_RANGES) {
+            size = count * sizeof(Dwarf_Ranges);
         } else if (alloc_type == DW_DLA_ERROR) {
             void *m = _dwarf_special_no_dbg_error_malloc();
 
@@ -605,7 +604,7 @@ _dwarf_get_alloc(Dwarf_Debug dbg,
     that the space was allocated by a direct call to malloc,
     and so a straight free() is done.  This is also the case
     for variable length blocks such as DW_DLA_FRAME_BLOCK
-    and DW_DLA_LOC_BLOCK.
+    and DW_DLA_LOC_BLOCK and DW_DLA_RANGES.
 
     For strings, the pointer might point to a string in 
     .debug_info or .debug_string.  After this is checked,
@@ -737,6 +736,7 @@ dwarf_dealloc(Dwarf_Debug dbg,
         if (type == DW_DLA_LIST ||
             type == DW_DLA_FRAME_BLOCK ||
             type == DW_DLA_LOC_BLOCK || type == DW_DLA_ADDR ||
+            type == DW_DLA_RANGES ||
             type == DW_DLA_HASH_TABLE_ENTRY) {
 
 #ifdef DWARF_SIMPLE_MALLOC
@@ -847,7 +847,7 @@ _dwarf_get_debug(void
     Sets up the Dwarf_Debug_s struct for all the
     allocation types currently defined.  
     Allocation types DW_DLA_STRING, DW_DLA_LIST,
-    DW_DLA_FRAME_BLOCK, DW_DLA_LOC_BLOCK are 
+    DW_DLA_FRAME_BLOCK, DW_DLA_LOC_BLOCK, DW_DLA_RANGES are 
     malloc'ed directly.
 
     This routine should be called after _dwarf_setup(),
@@ -870,13 +870,6 @@ _dwarf_get_debug(void
     need to be initialized.
 
     Being an internal routine, assume proper dbg.
-
-
-
-
-*/
-/* 
-**  Set up all the Dwarf_Alloc_Hdr records.
 */
 
 Dwarf_Debug
@@ -945,6 +938,7 @@ dwarf_print_memory_stats(Dwarf_Debug dbg)
         "DW_DLA_VAR",
         "DW_DLA_WEAK",
         "DW_DLA_ADDR",
+        "DW_DLA_RANGES",
         "DW_DLA_ABBREV_LIST",
         "DW_DLA_CHAIN",
         "DW_DLA_CU_CONTEXT",
@@ -993,8 +987,8 @@ dwarf_print_memory_stats(Dwarf_Debug dbg)
 
 #ifndef DWARF_SIMPLE_MALLOC
 /*
-    This function is used to recursively
-    free the chunks still allocated, and
+    This recursively frees
+    the chunks still allocated, and
     forward chained through the aa_next
     pointer.
 */
@@ -1158,7 +1152,7 @@ _dwarf_simple_malloc_add_to_list(Dwarf_Debug dbg,
     cur = dbg->de_simple_malloc_base;
 
     if (cur->sr_used >= DSM_BLOCK_COUNT) {
-        /* better not be > than as that means chaos */
+        /* Better not be > than as that means chaos */
 
         /* Create a new block to link at the head. */
 
@@ -1223,7 +1217,7 @@ _dwarf_simple_malloc_delete_from_list(Dwarf_Debug dbg,
             smp = smp->sr_next;
         }
     }
-    /* Never found the space */
+    /* Never found the space. */
     _dwarf_simple_malloc_botch(1);
     return;
 

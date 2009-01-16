@@ -236,14 +236,13 @@ dwarf_compress_integer_block(
     Dwarf_Error*     error
 )
 {
-    Dwarf_Unsigned output_length_in_bytes;
-    char * output_block;
+    Dwarf_Unsigned output_length_in_bytes = 0;
+    char * output_block = 0;
     char encode_buffer[ENCODE_SPACE_NEEDED];
-    int unit_length;
-    int i;
-    char * ptr;
-    int remain;
-    int result;
+    int i = 0;
+    char * ptr = 0;
+    int remain = 0;
+    int result = 0;
 
     if (dbg == NULL) {
         _dwarf_p_error(NULL, error, DW_DLE_DBG_NULL);

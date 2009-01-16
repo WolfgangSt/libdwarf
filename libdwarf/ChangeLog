@@ -1,3 +1,38 @@
+2008-12-29  DavidAnderson <davea42@earthlink.net>
+      * libdwarf.h: Add support for .debug_ranges with
+        dwarf_get_ranges() and dwarf_ranges_dealloc().
+      * dwarf_init_finish.c: Add support for .debug_ranges.
+      * dwarf_base_types.h: Add support for .debug_ranges functions.
+      * dwarf_alloc.c, dwarf_alloc.h: Add support for .debug_ranges
+        alloc/dealloc.
+      * dwarf_opaque.h: Add support for .debug_ranges.
+      * libdwarf2.1.mm: Documented dwarf_get_ranges() and
+        dwarf_ranges_dealloc() (rev 1.72).
+      * libdwarf2.1.pdf: Regenerated.
+2008-12-09  DavidAnderson <davea42@earthlink.net>
+      * dwarf_alloc.c: Remove useless comments and
+        tweak a few comments.
+2008-12-08  DavidAnderson <davea42@earthlink.net>
+      * dwarf_opaque.h: Add di_abbrev_code field to record
+        a DIE abbreviation value so consumers can report it.
+      * libdwarf.h: Add dwarf_die_abbrev_code() interface.
+      * dwarf_query.c: Add dwarf_die_abbrev_code() interface.
+      * dwarf_die_deliv.c: Set di_abbrev_code for consumers.
+      * libdwarf2.1.mm: Documented dwarf_die_abbrev_code().
+      * libdwarf2.1.pdf: Regenerated.
+      * pro_util.h: Removed gratuitous tabs. Used a space instead.
+2008-12-07  DavidAnderson <davea42@earthlink.net>
+      * dwarf.h: Entered DWARF4 defines known so far.
+      * dwarf_opaque.h: Updated dwarf 4 section-version comment
+        with the latest info. 
+2008-12-07  DavidAnderson <davea42@earthlink.net>
+      * dwarf_original_elf_init.c: Delete unused local variables.
+      * pro_forms.c: Delete unused local variables and initialize
+        local variables at definition.
+      * dwarf_pubtypes.c, dwarf_line.c: Delete accidental 
+        duplicated /* comment-start.
+      * malloc_check.c: In the 'do nothing' case, create
+        an extern declaration to eliminate a compiler warning.
 2008-11-19  DavidAnderson <davea42@earthlink.net>
       * dwarf_die_deliv.c: Handle the case where DW_AT_sibling
         uses DW_FORM_ref_addr.

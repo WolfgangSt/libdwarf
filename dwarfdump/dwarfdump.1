@@ -43,7 +43,7 @@ command accepts one or more of the following options:
 .RS
 .TP
 .B \-a
-Dumps all sections.
+Dumps most sections.
 Same as 
 .B \-bcfilmoprsy
 .BR \-tfv .
@@ -85,6 +85,18 @@ Dumps the .debug_macinfo section.
 Dumps the form name for each attribute in each die
 entry printed, and if the form is the indirect form
 notes that too.
+If combined with -v it also prints the form number.
+.TP
+.B \-N
+Dumps the .debug_ranges section.
+There is no guarantee in the DWARF standard that
+just scanning the bytes like this will print the section
+correctly, only the -i output is really guaranteed by DWARF to
+find ranges correctly. But it will normally work
+and the output may be of value to compiler-writers.
+This section is not dumped by -a, but -a and -i
+dump the ranges data applicable to each 
+DW_AT_ranges attribute.
 .TP
 .B \-o
 Dumps the .reloc_debug_* sections.
@@ -113,7 +125,8 @@ Restricts the dumping of sections to dump only
 sections of the named compilation unit.
 .TP
 .B \-v
-Verbose mode.  Shows more detailed information.  
+Verbose mode.  Shows more detailed information.
+Prints the abbreviation index for each DIE (on its DW_TAG line).  
 More detailed information about the .debug_frame section prints if
 2 or 3 
 .B \-v

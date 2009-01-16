@@ -1,3 +1,10 @@
+Dec 30, 2008
+  Added interfaces for getting and printing the .debug_ranges
+  data.
+Dec 8, 2008
+  Record the abbreviation 'code' (index) in each DIE.
+  Making it possible for a pretty-printer to print the 
+  abbreviation code.
 Sep 30, 2008
   Phil Mucci provided an a.out test chase which demonstrates a bug
   in 64bit DWARF2 output by gcc.   Now libdwarf works around this

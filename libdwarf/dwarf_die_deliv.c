@@ -638,6 +638,7 @@ dwarf_siblingof(Dwarf_Debug dbg,
         dwarf_dealloc(dbg, ret_die, DW_DLA_DIE);
         return (DW_DLV_NO_ENTRY);
     }
+    ret_die->di_abbrev_code = abbrev_code;
     ret_die->di_abbrev_list =
         _dwarf_get_abbrev_for_code(ret_die->di_cu_context, abbrev_code);
     if (ret_die->di_abbrev_list == NULL || (die == NULL &&
@@ -712,6 +713,7 @@ dwarf_child(Dwarf_Die die,
         dwarf_dealloc(dbg, ret_die, DW_DLA_DIE);
         return DW_DLV_NO_ENTRY;
     }
+    ret_die->di_abbrev_code = abbrev_code;
     ret_die->di_abbrev_list =
         _dwarf_get_abbrev_for_code(die->di_cu_context, abbrev_code);
     if (ret_die->di_abbrev_list == NULL) {
@@ -818,7 +820,7 @@ dwarf_offdie(Dwarf_Debug dbg,
         dwarf_dealloc(dbg, die, DW_DLA_DIE);
         return DW_DLV_NO_ENTRY;
     }
-
+    die->di_abbrev_code = abbrev_code;
     die->di_abbrev_list =
         _dwarf_get_abbrev_for_code(cu_context, abbrev_code);
     if (die->di_abbrev_list == NULL) {

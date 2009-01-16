@@ -47,7 +47,7 @@ typedef struct Dwarf_Free_List_s *Dwarf_Free_List;
 /* ALLOC_AREA_INDEX_TABLE_MAX is the size of the
    struct ial_s index_into_allocated array in dwarf_alloc.c
 */
-#define ALLOC_AREA_INDEX_TABLE_MAX 44
+#define ALLOC_AREA_INDEX_TABLE_MAX 45
 /* ALLOC_AREA_REAL_TABLE_MAX is the size of the array needed
    to hold pointers to dwarf alloc chunk areas.
    It's smaller as some of the index_into_allocated 

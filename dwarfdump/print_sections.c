@@ -37,8 +37,12 @@ $Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/print_sections.c,v 1.6
 #include "globals.h"
 #include "dwarf_names.h"
 #include "dwconf.h"
+#include "esb.h"
 
 #include "print_frames.h"
+
+static struct esb_s esb_string;
+
 /*
  * Print line number information:
  *      filename
@@ -228,7 +232,7 @@ and never overruns the output.
 
 */
 static void
-safe_strcpy(char *out, long outlen, char *in, long inlen)
+safe_strcpy(char *out, long outlen, const char *in, long inlen)
 {
     if (inlen >= (outlen - 1)) {
         strncpy(out, in, outlen - 1);
@@ -337,7 +341,7 @@ get_proc_name(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Addr low_pc,
         b) With subprogram looks at current die *before* looking
            for a child.
         
-        Needed since some languages, including MP Fortran,
+        Needed since some languages, including SGI MP Fortran,
         have nested functions.
         Return 0 on failure, 1 on success.
 */
@@ -371,7 +375,6 @@ get_nested_proc_name(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Addr low_pc,
                 proc_name_v = get_proc_name(dbg, curdie, low_pc,
                                             name_buf, BUFSIZ);
                 if (proc_name_v) {
-                    /* this is it */
                     safe_strcpy(ret_name_buf, ret_name_buf_len,
                                 name_buf, (long) strlen(name_buf));
                     if (die_locally_gotten) {
@@ -468,7 +471,7 @@ get_nested_proc_name(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Addr low_pc,
 }
 
 /*
-  For MP Fortran and possibly other languages, functions 
+  For SGI MP Fortran and other languages, functions 
   nest!  As a result, we must dig thru all functions, 
   not just the top level.
 
@@ -1633,7 +1636,7 @@ print_types(Dwarf_Debug dbg, enum type_type_e type_type)
     }
 }                               /* print_types() */
 
-/* get all the data in .debug_weaknames */
+/* Get all the data in .debug_weaknames */
 extern void
 print_weaknames(Dwarf_Debug dbg)
 {
@@ -1685,6 +1688,55 @@ print_weaknames(Dwarf_Debug dbg)
     }
 }                               /* print_weaknames() */
 
+/* Get all the data in .debug_ranges 
+   Nothing in the DWARF standard guarantees just reading the
+   bytes in the section really works, but it will probably
+   normally work fine.
+   Here we don't have a DW_AT_ranges offset to get us
+   started.
+*/ 
+
+extern void
+print_ranges(Dwarf_Debug dbg)
+{
+    Dwarf_Unsigned off = 0;
+    printf("\n.debug_ranges\n");
+    int group_number = 0;
+    /* Turn off dense, we do not want  print_ranges_list_to_extra
+       to use dense form here. */
+    int wasdense = dense;
+    dense = 0;
+    for(;;) {
+          Dwarf_Ranges *rangeset = 0;
+          Dwarf_Signed rangecount = 0;
+          Dwarf_Unsigned bytecount = 0;
+
+          int rres = dwarf_get_ranges(dbg,off,&rangeset,
+              &rangecount,&bytecount,&err);
+          if(rres == DW_DLV_OK) {
+              char *val = 0;
+              printf(" Ranges group %d:\n",group_number);
+              esb_empty_string(&esb_string);
+              print_ranges_list_to_extra(dbg,off,
+                    rangeset,rangecount,bytecount,
+                    &esb_string);
+              dwarf_ranges_dealloc(dbg,rangeset,rangecount);
+              val = esb_get_string(&esb_string);
+              printf("%s",val);
+              ++group_number;
+          } else if (rres == DW_DLV_NO_ENTRY) {
+              printf("End of .debug_ranges.\n");
+              break;
+          } else { /* ERROR, which does not quite mean a real error,
+              as we might just be misaligned reading things without
+              a DW_AT_ranges offset.*/
+              printf("End of .debug_ranges..\n");
+              break;
+          }
+          off += bytecount;
+    }
+    dense = wasdense;
+}
 
 
 /*
@@ -1768,3 +1820,4 @@ dump_block(char *prefix, char *data, Dwarf_Signed len)
 
     }
 }
+

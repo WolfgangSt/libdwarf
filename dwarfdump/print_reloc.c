@@ -215,7 +215,6 @@ print_relocinfo(Dwarf_Debug dbg)
     int is_64bit;
     int res;
     int i;
-    Elf32_Sym *sym = 0;
 
     for (i = 0; i < DW_SECTION_REL_DEBUG_NUM; i++) {
         sect_data[i].buf = 0;

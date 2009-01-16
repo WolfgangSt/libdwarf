@@ -91,6 +91,7 @@ OBJS= dwarf_abbrev.o \
         dwarf_types.o \
         dwarf_util.o \
         dwarf_leb.o \
+        dwarf_ranges.o \
         dwarf_vars.o \
         dwarf_weaks.o    \
         dwarf_addr_finder.o \
