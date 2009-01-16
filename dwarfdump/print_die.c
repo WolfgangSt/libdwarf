@@ -48,6 +48,7 @@ static void print_attribute(Dwarf_Debug dbg, Dwarf_Die die,
 static void get_location_list(Dwarf_Debug dbg, Dwarf_Die die,
 			      Dwarf_Attribute attr, struct esb_s *esbp);
 static int tag_attr_combination(Dwarf_Half tag, Dwarf_Half attr);
+static int _dwarf_print_one_expr_op(Dwarf_Debug dbg,Dwarf_Loc* expr,int index, struct esb_s *string_out);
 
 /* esb_base is static so gets initialized to zeros.  
    It is not thread-safe or
@@ -391,12 +392,8 @@ get_FLAG_BLOCK_string(Dwarf_Debug dbg, Dwarf_Attribute attrib)
 {
     int fres = 0;
     Dwarf_Block *tempb = 0;
-    int i = 0;
-    char * p = 0;
     __uint32_t * array = 0;
     Dwarf_Unsigned array_len = 0;
-    int output_lines = 0;
-    int output_chars = 0;
     __uint32_t * array_ptr;
     Dwarf_Unsigned array_remain = 0;
     char linebuf[100];
@@ -650,20 +647,20 @@ print_attribute(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Half attr,
 }
 
 
-static int
-_dwarf_print_one_locdesc(Dwarf_Debug dbg,
+int
+dwarfdump_print_one_locdesc(Dwarf_Debug dbg,
 			 Dwarf_Locdesc * llbuf,
+                         int skip_locdesc_header,
 			 struct esb_s *string_out)
 {
 
-    Dwarf_Locdesc *locd;
+    Dwarf_Locdesc *locd = 0;
     Dwarf_Half no_of_ops = 0;
-    string op_name;
-    int i;
+    int i = 0;
     char small_buf[100];
 
 
-    if (verbose || llbuf->ld_from_loclist) {
+    if (!skip_locdesc_header && (verbose || llbuf->ld_from_loclist)) {
 	snprintf(small_buf, sizeof(small_buf), "<lowpc=0x%llx>",
 		 (unsigned long long) llbuf->ld_lopc);
 	esb_append(string_out, small_buf);
@@ -687,80 +684,93 @@ _dwarf_print_one_locdesc(Dwarf_Debug dbg,
     locd = llbuf;
     no_of_ops = llbuf->ld_cents;
     for (i = 0; i < no_of_ops; i++) {
-	Dwarf_Small op;
-	Dwarf_Unsigned opd1, opd2;
+        Dwarf_Loc * op = &locd->ld_s[i];
 
-	/* local_space_needed is intended to be 'more than big enough'
-	   for a short group of loclist entries.  */
-	char small_buf[100];
+        int res = _dwarf_print_one_expr_op(dbg,op,i,string_out);
+        if(res == DW_DLV_ERROR) {
+          return res;
+        }
+    }
+    return DW_DLV_OK;
+}
 
-	if (i > 0)
-	    esb_append(string_out, " ");
+int
+_dwarf_print_one_expr_op(Dwarf_Debug dbg,Dwarf_Loc* expr,int index,
+	struct esb_s *string_out)
+{
+     /* local_space_needed is intended to be 'more than big enough'
+       for a short group of loclist entries.  */
+    char small_buf[100];
+    Dwarf_Small op;
+    Dwarf_Unsigned opd1;  
+    Dwarf_Unsigned opd2;
+    string op_name;
 
-	op = locd->ld_s[i].lr_atom;
-	if (op > DW_OP_nop) {
-	    print_error(dbg, "dwarf_op unexpected value", DW_DLV_OK,
+
+    if (index > 0)
+        esb_append(string_out, " ");
+
+    op = expr->lr_atom;
+    if (op > DW_OP_nop) {
+        print_error(dbg, "dwarf_op unexpected value", DW_DLV_OK,
 			err);
-	    return DW_DLV_ERROR;
-	}
-	op_name = get_OP_name(dbg, op);
-	esb_append(string_out, op_name);
+	return DW_DLV_ERROR;
+    }
+    op_name = get_OP_name(dbg, op);
+    esb_append(string_out, op_name);
 
-	opd1 = locd->ld_s[i].lr_number;
-	if (op >= DW_OP_breg0 && op <= DW_OP_breg31) {
+    opd1 = expr->lr_number;
+    if (op >= DW_OP_breg0 && op <= DW_OP_breg31) {
 	    snprintf(small_buf, sizeof(small_buf),
 		     "%+lld", (Dwarf_Signed) opd1);
 	    esb_append(string_out, small_buf);
-	} else {
-	    switch (op) {
-	    case DW_OP_addr:
+    } else {
+        switch (op) {
+        case DW_OP_addr:
 		snprintf(small_buf, sizeof(small_buf), " %#llx", opd1);
 		esb_append(string_out, small_buf);
 		break;
-	    case DW_OP_const1s:
-	    case DW_OP_const2s:
-	    case DW_OP_const4s:
-	    case DW_OP_const8s:
-	    case DW_OP_consts:
-	    case DW_OP_skip:
-	    case DW_OP_bra:
-	    case DW_OP_fbreg:
+        case DW_OP_const1s:
+        case DW_OP_const2s:
+        case DW_OP_const4s:
+        case DW_OP_const8s:
+        case DW_OP_consts:
+        case DW_OP_skip:
+        case DW_OP_bra:
+        case DW_OP_fbreg:
 		snprintf(small_buf, sizeof(small_buf),
 			 " %lld", (Dwarf_Signed) opd1);
 		esb_append(string_out, small_buf);
 		break;
-	    case DW_OP_const1u:
-	    case DW_OP_const2u:
-	    case DW_OP_const4u:
-	    case DW_OP_const8u:
-	    case DW_OP_constu:
-	    case DW_OP_pick:
-	    case DW_OP_plus_uconst:
-	    case DW_OP_regx:
-	    case DW_OP_piece:
-	    case DW_OP_deref_size:
-	    case DW_OP_xderef_size:
-		snprintf(small_buf, sizeof(small_buf), " %llu", opd1);
-		esb_append(string_out, small_buf);
+        case DW_OP_const1u:
+        case DW_OP_const2u:
+        case DW_OP_const4u:
+        case DW_OP_const8u:
+        case DW_OP_constu:
+        case DW_OP_pick:
+        case DW_OP_plus_uconst:
+        case DW_OP_regx:
+        case DW_OP_piece:
+        case DW_OP_deref_size:
+        case DW_OP_xderef_size:
+            snprintf(small_buf, sizeof(small_buf), " %llu", opd1);
+            esb_append(string_out, small_buf);
 		break;
-	    case DW_OP_bregx:
-		snprintf(small_buf, sizeof(small_buf), "%llu", opd1);
-		esb_append(string_out, small_buf);
+        case DW_OP_bregx:
+            snprintf(small_buf, sizeof(small_buf), "%llu", opd1);
+            esb_append(string_out, small_buf);
 
 
 
-		opd2 = locd->ld_s[i].lr_number2;
-		snprintf(small_buf, sizeof(small_buf),
-			 "%+lld", (Dwarf_Signed) opd2);
-		esb_append(string_out, small_buf);
-
-		break;
-	    default:
-		break;
-	    }
+            opd2 = expr->lr_number2;
+            snprintf(small_buf, sizeof(small_buf),
+                "%+lld", (Dwarf_Signed) opd2);
+            esb_append(string_out, small_buf);
+            break;
+        default:
+            break;
 	}
     }
-
     return DW_DLV_OK;
 }
 
@@ -778,6 +788,7 @@ get_location_list(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Attribute attr,
     int i;
     int lres = 0;
     int llent = 0;
+    int skip_locdesc_header = 0;
 
 
     if (use_old_dwarf_loclist) {
@@ -788,7 +799,7 @@ get_location_list(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Attribute attr,
 	if (lres == DW_DLV_NO_ENTRY)
 	    return;
 
-	_dwarf_print_one_locdesc(dbg, llbuf, esbp);
+	dwarfdump_print_one_locdesc(dbg, llbuf,skip_locdesc_header,esbp);
 	dwarf_dealloc(dbg, llbuf->ld_s, DW_DLA_LOC_BLOCK);
 	dwarf_dealloc(dbg, llbuf, DW_DLA_LOCDESC);
 	return;
@@ -816,7 +827,10 @@ get_location_list(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Attribute attr,
 	    snprintf(small_buf, sizeof(small_buf), "[%2d]", llent);
 	    esb_append(esbp, small_buf);
 	}
-	lres = _dwarf_print_one_locdesc(dbg, llbuf, esbp);
+	lres = dwarfdump_print_one_locdesc(dbg,
+              llbuf, 
+              skip_locdesc_header,
+              esbp);
 	if (lres == DW_DLV_ERROR) {
 	    return;
 	} else {

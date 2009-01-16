@@ -215,6 +215,7 @@ _dwarf_get_locdesc(Dwarf_Debug dbg,
 
 	case DW_OP_const1s:
 	    operand1 = *(Dwarf_Sbyte *) loc_ptr;
+            SIGN_EXTEND(operand1,1);
 	    loc_ptr = loc_ptr + 1;
 	    offset = offset + 1;
 	    break;
@@ -227,6 +228,7 @@ _dwarf_get_locdesc(Dwarf_Debug dbg,
 
 	case DW_OP_const2s:
 	    READ_UNALIGNED(dbg, operand1, Dwarf_Unsigned, loc_ptr, 2);
+            SIGN_EXTEND(operand1,2);
 	    loc_ptr = loc_ptr + 2;
 	    offset = offset + 2;
 	    break;
@@ -239,6 +241,7 @@ _dwarf_get_locdesc(Dwarf_Debug dbg,
 
 	case DW_OP_const4s:
 	    READ_UNALIGNED(dbg, operand1, Dwarf_Unsigned, loc_ptr, 4);
+            SIGN_EXTEND(operand1,4);
 	    loc_ptr = loc_ptr + 4;
 	    offset = offset + 4;
 	    break;
@@ -805,6 +808,7 @@ dwarf_loclist_n(Dwarf_Attribute attr,
     return (DW_DLV_OK);
 }
 
+
 /* 
 	Handles only a location expression.
 	If called on a loclist, just returns one of those.
@@ -907,6 +911,62 @@ dwarf_loclist(Dwarf_Attribute attr,
     return (DW_DLV_OK);
 }
 
+
+
+/* 
+	Handles only a location expression.
+ 	It returns the location expression as a loclist with
+	a single entry.
+
+        Usable to access dwarf expressions from any source, but
+        specifically from
+            DW_CFA_def_cfa_expression
+            DW_CFA_expression
+            DW_CFA_val_expression
+ 
+        expression_in must point to a valid dwarf expression
+        set of bytes of length expression_length. Not
+        a DW_FORM_block*, just the expression bytes.
+
+*/
+int
+dwarf_loclist_from_expr(Dwarf_Debug dbg,
+              Dwarf_Ptr expression_in,
+              Dwarf_Unsigned expression_length,
+	      Dwarf_Locdesc ** llbuf,
+	      Dwarf_Signed * listlen, Dwarf_Error * error)
+{
+    /* Dwarf_Block that describes a single location expression. */
+    Dwarf_Block loc_block;
+
+    /* A pointer to the current Dwarf_Locdesc read. */
+    Dwarf_Locdesc *locdesc = 0;
+    Dwarf_Addr lowpc = 0;
+    Dwarf_Addr highpc = (Dwarf_Unsigned) (-1LL);
+
+    memset(&loc_block,0,sizeof(loc_block));
+    loc_block.bl_len = expression_length;
+    loc_block.bl_data = expression_in;
+    loc_block.bl_from_loclist = 0; /* Not from loclist. */
+    loc_block.bl_section_offset = 0; /* Fake. Not meaningful. */
+
+
+    /* An empty location description (block length 0) means the code
+    generator emitted no variable, the variable was not generated,
+    it was unused or perhaps never tested after being set. Dwarf2,
+    section 2.4.1 In other words, it is not an error, and we don't
+    test for block length 0 specially here.  */
+    locdesc = _dwarf_get_locdesc(dbg, &loc_block, lowpc, highpc, error);
+    if (locdesc == NULL) {
+        /* low level error already set: let it be passed back */
+        return (DW_DLV_ERROR);
+    }
+
+    *llbuf = locdesc;
+    *listlen = 1;
+    return (DW_DLV_OK);
+}
+
 /* Usable to read a single loclist or to read a block of them
    or to read an entire section's loclists.
 
@@ -954,3 +1014,5 @@ dwarf_get_loclist_entry(Dwarf_Debug dbg,
 
 
 }
+
+

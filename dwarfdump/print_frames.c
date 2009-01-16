@@ -46,10 +46,12 @@ $Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/print_frames.c,v 1.5 2
 
 #include "print_frames.h"
 #include "dwconf.h"
+#include "esb.h"
 
 
 static void
-  print_one_frame_reg_col(Dwarf_Unsigned rule_id,
+  print_one_frame_reg_col(Dwarf_Debug dbg,
+                          Dwarf_Unsigned rule_id,
 			  Dwarf_Small value_type,
 			  Dwarf_Unsigned reg_used,
 			  struct dwconf_s *config_data,
@@ -184,7 +186,7 @@ print_one_fde(Dwarf_Debug dbg, Dwarf_Fde fde,
 		printf("    %08llx:\t", j);
 		printed_intro_addr = 1;
 	    }
-	    print_one_frame_reg_col(config_data->cf_cfa_reg,
+	    print_one_frame_reg_col(dbg, config_data->cf_cfa_reg,
 				    value_type,
 				    reg,
 				    config_data,
@@ -242,7 +244,7 @@ print_one_fde(Dwarf_Debug dbg, Dwarf_Fde fde,
 		printf("    %08llx:\t", j);
 		printed_intro_addr = 1;
 	    }
-	    print_one_frame_reg_col(k,
+	    print_one_frame_reg_col(dbg,k,
 				    value_type,
 				    reg,
 				    config_data,
@@ -433,6 +435,48 @@ print_one_cie(Dwarf_Debug dbg, Dwarf_Cie cie,
 			       address_size, config_data);
     }
     return DW_DLV_OK;
+}
+
+void
+get_string_from_locs(Dwarf_Debug dbg,
+    Dwarf_Ptr bytes_in, 
+    Dwarf_Unsigned block_len,struct esb_s *out_string)
+{
+
+    Dwarf_Locdesc *locdescarray = 0;
+    Dwarf_Signed listlen = 0;
+    Dwarf_Error err2 =0;
+    int skip_locdesc_header=1;
+    int res2 = dwarf_loclist_from_expr(dbg,
+        bytes_in,block_len,
+        &locdescarray,
+        &listlen,&err2);
+    if (res2 == DW_DLV_ERROR) {
+        print_error(dbg, "dwarf_get_loclist_from_expr",
+            res2, err2);
+    }
+    if(res2==DW_DLV_NO_ENTRY) {
+        return;
+    }
+    /* lcnt is always 1 */
+
+    /* Use locdescarray  here.*/
+    int res = dwarfdump_print_one_locdesc(dbg,
+                         locdescarray,
+                         skip_locdesc_header,
+                         out_string);
+    if(res != DW_DLV_OK) {
+	   printf("Bad status from _dwarf_print_one_locdesc %d\n",res);
+           exit(1);
+    }
+            
+
+    
+    dwarf_dealloc(dbg, locdescarray->ld_s, DW_DLA_LOC_BLOCK);
+    dwarf_dealloc(dbg, locdescarray, DW_DLA_LOCDESC);
+        
+
+    return ;
 }
 
 /* Print the frame instructions in detail for a glob of instructions.
@@ -691,8 +735,17 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 			("\t%2u DW_CFA_def_cfa_expression expr block len %lld\n",
 			 loff, (unsigned long long)
 			 block_len);
-		    dump_block("\t\t", (char *) instp,
+		    dump_block("\t\t", (char *) instp+1,
 			       (Dwarf_Signed) block_len);
+                    printf("\n");
+                    if(verbose) {
+                      struct esb_s exprstring;
+                      esb_constructor(&exprstring);
+                      get_string_from_locs(dbg,
+			    instp+1,block_len,&exprstring);
+                      printf("\t\t%s\n",esb_get_string(&exprstring));
+                      esb_destructor(&exprstring);
+                    }
 		    instp += block_len;
 		    len -= block_len;
 		    off += block_len;
@@ -721,6 +774,15 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 			 block_len);
 		    dump_block("\t\t", (char *) instp+1,
 			       (Dwarf_Signed) block_len);
+                    printf("\n");
+                    if(verbose) {
+                      struct esb_s exprstring;
+                      esb_constructor(&exprstring);
+                      get_string_from_locs(dbg,
+			    instp+1,block_len,&exprstring);
+                      printf("\t\t%s\n",esb_get_string(&exprstring));
+                      esb_destructor(&exprstring);
+                    }
 		    instp += block_len;
 		    len -= block_len;
 		    off += block_len;
@@ -773,7 +835,7 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 		    printf("\t%2u DW_CFA_def_cfa_sf ", loff);
 		    printreg((Dwarf_Signed) uval, config_data);
 		    printf(" %lld", (long long) sval2); 
-                    printf(" (*data alignment factor=>lld)", (long long) sval2,
+                    printf(" (*data alignment factor=>%lld)",
                      (long long)(sval2*data_alignment_factor));
 		}
 		printf("\n");
@@ -875,6 +937,15 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 			 block_len);
 		    dump_block("\t\t", (char *) instp+1,
 			       (Dwarf_Signed) block_len);
+                    printf("\n");
+                    if(verbose) {
+                      struct esb_s exprstring;
+                      esb_constructor(&exprstring);
+                      get_string_from_locs(dbg,
+			    instp+1,block_len,&exprstring);
+                      printf("\t\t%s\n",esb_get_string(&exprstring));
+                      esb_destructor(&exprstring);
+                    }
 		    instp += block_len;
 		    len -= block_len;
 		    off += block_len;
@@ -942,9 +1013,7 @@ print_frame_inst_bytes(Dwarf_Debug dbg,
 void
 printreg(Dwarf_Signed reg, struct dwconf_s *config_data)
 {
-    char *intfmt = "r%lld";
-
-    print_reg_from_config_data(intfmt, reg, config_data);
+    print_reg_from_config_data(reg, config_data);
 }
 
 
@@ -954,7 +1023,8 @@ printreg(Dwarf_Signed reg, struct dwconf_s *config_data)
 */
 
 static void
-print_one_frame_reg_col(Dwarf_Unsigned rule_id,
+print_one_frame_reg_col(Dwarf_Debug dbg,
+                        Dwarf_Unsigned rule_id,
                         Dwarf_Small value_type,
                         Dwarf_Unsigned reg_used,
                         struct dwconf_s *config_data,
@@ -1015,6 +1085,14 @@ print_one_frame_reg_col(Dwarf_Unsigned rule_id,
 	    strcat(pref, "bytes:");
 	    dump_block(pref, block_ptr, offset);
 	    printf("%s", "> ");
+            if(verbose) {
+                      struct esb_s exprstring;
+                      esb_constructor(&exprstring);
+                      get_string_from_locs(dbg,
+			    block_ptr,offset,&exprstring);
+                      printf("<expr:%s>",esb_get_string(&exprstring));
+                      esb_destructor(&exprstring);
+            }
 	}
 	break;
     default:

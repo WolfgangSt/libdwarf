@@ -84,6 +84,8 @@ int find_conf_file_and_read_config(char *named_file,
 				   struct dwconf_s *conf_out);
 void init_conf_file_data(struct dwconf_s *config_file_data);
 
-void print_reg_from_config_data(char *intfmt,Dwarf_Signed reg,
+void print_reg_from_config_data(Dwarf_Signed reg,
 		struct dwconf_s *config_data);
 
+
+void init_generic_config_1000_regs(struct dwconf_s *conf);

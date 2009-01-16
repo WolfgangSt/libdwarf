@@ -187,6 +187,7 @@ extern void print_one_die(
 	check_error ++; \
 }
 
+struct esb_s;
 extern Dwarf_Die current_cu_die_for_print_frames; /* This is
         an awful hack, making this public. But it enables
         cleaning up (doing all dealloc needed). */
@@ -205,6 +206,12 @@ extern Dwarf_Signed local_dwarf_decode_s_leb128(unsigned char *leb128,
                             unsigned int *leb128_length);
 
 extern void dump_block(char *prefix, char *data, Dwarf_Signed len);
+
+int
+dwarfdump_print_one_locdesc(Dwarf_Debug dbg,
+                         Dwarf_Locdesc * llbuf,
+			 int skip_locdesc_header,
+                         struct esb_s *string_out);
 
 
 #endif /* globals_INCLUDED */

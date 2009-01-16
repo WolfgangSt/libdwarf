@@ -1,3 +1,11 @@
+2007-07-03 David Anderson <davea42@earthlink.net>
+      * libdwarf.h: Add declaration of dwarf_loclist_from_expr();
+      * dwarf_loc.c: Implement dwarf_loclist_from_expr() and add 
+        sign-extension macro calls to case DW_OP_const4s numbers.
+        Removed unused local variables.
+      * dwarf_form.c: Removed unused local variables.
+      * libdwarf2.1.mm: Document dwarf_loclist_from_expr().
+      * libdwarf2.1.pdf: Regenerated.
 2007-07-01 David Anderson <davea42@earthlink.net>
       * dwarf_frame2.c: Add commentary.
       * dwarf_frame.c: Add in block_len for DW_CFA_val_expression

@@ -82,7 +82,6 @@ static boolean line_flag = FALSE;
 static boolean abbrev_flag = FALSE;
 static boolean frame_flag = FALSE;	/* .debug_frame section. */
 static boolean eh_frame_flag = FALSE;	/* GNU .eh_frame section. */
-static boolean exceptions_flag = FALSE;
 static boolean pubnames_flag = FALSE;
 static boolean macinfo_flag = FALSE;
 static boolean loc_flag = FALSE;
@@ -106,6 +105,7 @@ boolean check_reloc_offset = FALSE;
 boolean check_attr_tag = FALSE;
 boolean check_tag_tree = FALSE;
 boolean check_type_offset = FALSE;
+boolean generic_1000_regs = FALSE;
 
 static boolean dwarf_check = FALSE;
 
@@ -348,7 +348,7 @@ process_args(int argc, char *argv[])
 
     while ((c =
 	    getopt(argc, argv,
-		   "abcdefFgGhik:lmoprst:u:vVwx:yz")) != EOF) {
+		   "abcdefFgGhik:lmoprRst:u:vVwx:yz")) != EOF) {
 	switch (c) {
 	case 'x':		/* Select abi/path to use */
 	    {
@@ -403,6 +403,10 @@ process_args(int argc, char *argv[])
 	    break;
 	case 'r':
 	    aranges_flag = TRUE;
+	    break;
+	case 'R':
+	    generic_1000_regs = TRUE;
+	    info_flag = TRUE;
 	    break;
 	case 'm':
 	    macinfo_flag = TRUE;
@@ -507,6 +511,14 @@ process_args(int argc, char *argv[])
     }
 
     init_conf_file_data(&config_file_data);
+    if (config_file_abi && generic_1000_regs) {
+        printf("Specifying both -R and -x abi= is not allowed. Use one "
+              "or the other.  -x abi= ignored.\n");
+        config_file_abi = FALSE;
+    }
+    if(generic_1000_regs) {
+        init_generic_config_1000_regs(&config_file_data);
+    }
     if (config_file_abi && (frame_flag || eh_frame_flag)) {
 	int res = find_conf_file_and_read_config(config_file_path,
 						 config_file_abi,
@@ -556,6 +568,9 @@ print_usage_message(void)
     fprintf(stderr, "\t\t-o\tprint relocation info\n");
     fprintf(stderr, "\t\t-p\tprint pubnames section\n");
     fprintf(stderr, "\t\t-r\tprint aranges section\n");
+    fprintf(stderr, "\t\t-R\tPrint frame register names as r33 etc\n");
+    fprintf(stderr, "\t\t  \t    and allow up to 1000 registers.\n");
+    fprintf(stderr, "\t\t  \t    Print using a 'generic' register set.\n");
     fprintf(stderr, "\t\t-s\tprint string section\n");
     fprintf(stderr, "\t\t-t[afv] static: \n");
     fprintf(stderr, "\t\t   a\tprint both sections\n");

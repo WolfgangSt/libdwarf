@@ -301,15 +301,20 @@ typedef struct Dwarf_Regtable_Entry3_s {
             the  value of this register is CFA +N where N is a signed offset.
             Rule: val_offset(N)
 
-	  E is pointed to by dw_block_ptr (length is dw_offset_or_block_len);
           if dw_value_type  == DW_EXPR_EXPRESSION
 	    The value of the register is the value at the address
             computed by evaluating the DWARF expression E.
             Rule: expression(E)
+            The expression E byte stream is pointed to by dw_block_ptr.
+            The expression length in bytes is given by
+            dw_offset_or_block_len.
           if dw_value_type  == DW_EXPR_VAL_EXPRESSION
 	    The value of the register is the value
             computed by evaluating the DWARF expression E.
             Rule: val_expression(E)
+            The expression E byte stream is pointed to by dw_block_ptr.
+            The expression length in bytes is given by
+            dw_offset_or_block_len.
           Other values of dw_value_type are an error.
         */
 	Dwarf_Small         dw_offset_relevant;
@@ -880,6 +885,17 @@ int dwarf_loclist(Dwarf_Attribute /*attr*/,  /* inflexible! */
     Dwarf_Locdesc** 	/*llbuf*/, 
     Dwarf_Signed *      /*locCount*/,
     Dwarf_Error* 	/*error*/);
+
+/* Extracts a dwarf expression from an expression byte stream.
+   Useful to get expressions from DW_CFA_def_cfa_expression
+   DW_CFA_expression DW_CFA_val_expression expression bytes.
+*/
+int 
+dwarf_loclist_from_expr(Dwarf_Debug dbg,
+              Dwarf_Ptr expression_in,
+              Dwarf_Unsigned expression_length,
+              Dwarf_Locdesc ** llbuf,
+              Dwarf_Signed * listlen, Dwarf_Error * error);
 
 /* Unimplemented */
 int dwarf_stringlen(Dwarf_Die /*die*/, 

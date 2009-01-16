@@ -22,11 +22,16 @@ unwise to depend too heavily on the format.
 .P
 .PP
 Frame information (.debug_frame and .eh_frame) is heavily
-dependent on the ABI/ISA of the object file.  The '-x abi=<abi>'
+dependent on the ABI/ISA of the object file.  
+The '-R' option uses a built-in 'generic' register name set
+handling up to 1000 registers named r0-r999.
+The '-x abi=<abi>'
 flavors below describe how to name an abi and use that to guide
-the -f or -F processing (without '-x abi=<abi>'/ dwarfdump ignores
+the -f or -F processing.
+Without '-R' or '-x abi=<abi>'/ dwarfdump ignores
 the dwarfdump.conf file and uses compiled-in MIPS/IRIX 
-conventions).  If no '-x name=<path>' is given, dwarfdump
+conventions).  
+If no '-x name=<path>' is given, dwarfdump
 looks for "./dwarfdump.conf", "$HOME/.dwarfdump.conf", "<install-prefix>/lib/dwarfdump.conf" and takes the first it finds.
 If one or more '-x name=<path>' is given the last of these is
 used and all other such files ignored.
@@ -113,6 +118,8 @@ where name=names the full pathname of a dwarfdump configuration
 file.  Default install location is /usr/local/lib/dwarfdump.conf.
 dwarfdump looks first for local ./dwarfdump.conf, then
 for $HOME/.dwarfdump.conf then  for  /usr/local/lib/dwarfdump.conf.
+The predefined abi names in dwarfdump.conf are
+generic, ia64,  m68k, x86, and x86_64.
 .TP
 .B \-y
 Dumps the .debug_types section.

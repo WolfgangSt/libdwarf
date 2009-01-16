@@ -1036,6 +1036,7 @@ static char *regnames[] = {
 
 
 /* These defaults match MIPS/IRIX ABI defaults.
+   For a 'generic' ABI, see -R.
    For other ABIs, see -x abi=<whatever>
    to configure dwarfdump (and libdwarf) frame 
    data reporting at runtime.
@@ -1067,45 +1068,75 @@ init_conf_file_data(struct dwconf_s *config_file_data)
     return;
 }
 
+/* Naming a few registers makes printing these just
+   a little bit faster.
+*/
+static char *genericregnames[] = {
+  "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9",
+  "r10", "r11", "r12", "r13", "r14", "r15", "r16", "r17", "r18", "r19",
+  "r20",
+};
+
+/* A 'generic' ABI. For up to 1000 registers. 
+   Perhaps cf_initial_rule_value should be d
+   UNDEFINED VALUE (1034) instead, but for the purposes of
+   getting the dwarfdump output correct
+   either will work.
+*/
+void
+init_generic_config_1000_regs(struct dwconf_s *config_file_data)
+{
+    unsigned long generic_table_count =
+	sizeof(genericregnames) / sizeof(genericregnames[0]);
+    config_file_data->cf_interface_number = 3;
+    config_file_data->cf_table_entry_count = 1000;
+    config_file_data->cf_initial_rule_value = 1035; /* SAME VALUE */
+    config_file_data->cf_cfa_reg = 1036;
+    config_file_data->cf_regs = genericregnames;
+    config_file_data->cf_named_regs_table_size = generic_table_count;
+    config_file_data->cf_regs_malloced = 0;
+}
+
 /*  Print the 'right' string for the register we are given.
     Deal sensibly with the special regs as well as numbers
     we know and those we have not been told about.
 
 */
 void
-print_reg_from_config_data(char *intfmt, Dwarf_Signed reg,
+print_reg_from_config_data(Dwarf_Signed reg,
 			   struct dwconf_s *config_data)
 {
     char *name = 0;
 
     if (reg == config_data->cf_cfa_reg) {
-	printf("%s", "cfa");
+	fputs("cfa",stdout);
 	return;
     }
     if (reg == DW_FRAME_CFA_COL3) {
 	/* This should not be necessary, but sometimes one forgets to
 	   do the cfa_reg: command in dwarfdump.conf */
-	printf("%s", "cfa");
+	fputs("cfa",stdout);
 	return;
     }
     if (reg == DW_FRAME_UNDEFINED_VAL) {
-	printf("u");
+	fputs("u",stdout);
 	return;
     }
     if (reg == DW_FRAME_SAME_VAL) {
-	printf("s");
+	fputs("s",stdout);
 	return;
     }
     if (config_data->cf_regs == 0 ||
 	reg < 0 || reg > config_data->cf_named_regs_table_size) {
-	printf(intfmt, (signed long long) reg);
+	printf("r%lld", (signed long long) reg);
 	return;
     }
     name = config_data->cf_regs[reg];
     if (!name) {
-	printf(intfmt, (signed long long) reg);
+        /* Can happen, the reg names table can be sparse. */
+	printf("r%lld", (signed long long) reg);
 	return;
     }
-    printf("%s", name);
+    fputs(name,stdout);
     return;
 }

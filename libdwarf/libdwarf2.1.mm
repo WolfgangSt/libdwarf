@@ -8,7 +8,7 @@
 .nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.64, 11 Mar 2007
+.ds vE rev 1.65, 03 July 2007
 \." ==============================================
 \." ==============================================
 .ds | |
@@ -2199,14 +2199,16 @@ using the allocation type \f(CWDW_DLA_LOCDESC\fP.
 Dwarf_Locdesc *llbuf;
 int lres;
 
-lres = dwarf_loclist(someattr, &llbuf,&lcnt &error);
+lres = dwarf_loclist(someattr, &llbuf,&lcnt,&error);
 if (lres == DW_DLV_OK) {
 	/* lcnt is always 1, (and has always been 1) */ */
-	/* use llbuf */
+
+	/* Use llbuf here. */
+
 
         dwarf_dealloc(dbg, llbuf->ld_s, DW_DLA_LOC_BLOCK);
         dwarf_dealloc(dbg, llbuf, DW_DLA_LOCDESC);
-/*      Earlier version. It works because lcnt is always 1.
+/*      Earlier version. 
 *         for (i = 0; i < lcnt; ++i) {
 *             /* use llbuf[i] */
 * 
@@ -2220,6 +2222,60 @@ if (lres == DW_DLV_OK) {
 .DE
 .in -2
 .P
+
+.H 4 "dwarf_loclist_from_expr()"
+.DS
+\f(CWint dwarf_loclist_from_expr(
+        Dwarf_Ptr bytes_in, 
+        Dwarf_Unsigned bytes_len,
+        Dwarf_Locdesc **llbuf,
+        Dwarf_Signed  *listlen,
+        Dwarf_Error *error)\fP
+.DE
+The function \f(CWdwarf_loclist_from_expr()\fP sets \f(CW*llbuf\fP to point to 
+a \f(CWDwarf_Locdesc\fP pointer for the single location expression
+which is pointed to by \f(CW*bytes_in\fP (whose length is
+\f(CW*bytes_len\fP).
+It sets
+\f(CW*listlen\fP to 1.
+and returns \f(CWDW_DLV_OK\fP 
+if decoding is successful.
+Some sources of bytes of expressions are dwarf expressions
+in frame operations like \f(CWDW_CFA_def_cfa_expression\fP,
+\f(CWDW_CFA_expression\fP, and  \f(CWDW_CFA_val_expression\fP.
+.P
+It returns \f(CWDW_DLV_ERROR\fP on error. 
+.P
+Storage allocated by a successful call of \f(CWdwarf_loclist_from_expr()\fP should 
+be deallocated when no longer of interest (see \f(CWdwarf_dealloc()\fP).
+The block of \f(CWDwarf_Loc\fP structs pointed to by the \f(CWld_s\fP 
+field of each \f(CWDwarf_Locdesc\fP structure 
+should be deallocated with the allocation type \f(CWDW_DLA_LOC_BLOCK\fP. 
+This should be followed by deallocation of the \f(CWllbuf\fP
+using the allocation type \f(CWDW_DLA_LOCDESC\fP.
+.in +2
+.DS
+\f(CWDwarf_Signed lcnt;
+Dwarf_Locdesc *llbuf;
+int lres;
+/* Example with an empty buffer here. */
+Dwarf_Ptr data = "";
+Dwarf_Unsigned len = 0;
+
+lres = dwarf_loclist_from_expr(data,len, &llbuf,&lcnt, &error);
+if (lres == DW_DLV_OK) {
+	/* lcnt is always 1 */
+
+	/* Use llbuf  here.*/
+
+        dwarf_dealloc(dbg, llbuf->ld_s, DW_DLA_LOC_BLOCK);
+        dwarf_dealloc(dbg, llbuf, DW_DLA_LOCDESC);
+
+}\fP
+.DE
+.in -2
+.P
+
 
 .P
 .H 2 "Line Number Operations"

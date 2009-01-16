@@ -1,3 +1,7 @@
+July 3, 2007
+  A new interface function, dwarf_loclist_from_expr(),
+  allows easy extraction of dwarf expression bytes from
+  expressions in frame data.
 May 8, 2007
   Now documents released as .mm and .pdf (no longer as .ps).
 May 7, 2007
