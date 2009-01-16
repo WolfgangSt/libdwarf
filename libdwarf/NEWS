@@ -1,3 +1,7 @@
+Oct 27, 2004
+  Added known vendor extensions to dwarf2/3 to dwarf.h
+  HP, GNU, PGI and UPC extensions are now recorded.
+
 Feb 3, 2004
   If 'Dwarf_Word' is 64 bits, two macros reading leb numbers
   fail to initialize upper bits of the values read.
