@@ -1,3 +1,14 @@
+2004-06-09  David Anderson <davea@sgi.com>
+      * dwarf_frame.c (_dwarf_exec_frame_instr):
+        Was not setting ru_offset to 1 in DW_CFA_def_cfa_offset 
+        case, now it does.
+
+2004-02-24  David Anderson <davea@sgi.com>
+      * dwarf_frame.c (_dwarf_exec_frame_instr):
+        DW_CFA_def_cfa_register case, was setting offset, which
+        is incorrect. Thanks to Tom Hughes <thh@cyberscience.com>
+        for pointing this out.
+
 2004-02-03 David Anderson <davea@sgi.com>
       * dwarf_util.h:  DECODE_LEB128_UWORD DECODE_LEB128_SWORD
         were simply wrong if  Dwarf_Word or

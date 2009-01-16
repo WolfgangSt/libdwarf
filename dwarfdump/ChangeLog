@@ -1,3 +1,13 @@
+2004-05-14 David Anderson <davea@sgi.com>
+
+      * print_die.c (print_die_and_children): Change to iteration
+        on siblings (still recursing on children).
+
+	
+2004-03-30 David Anderson <davea@sgi.com>
+      * dwarfdump.c (main): getopt() string should contain k:g
+        not kg:    Thanks to Peter Seiderer for pointing this out.
+
 2003-12-31 David Anderson <davea@sgi.com>
       * README: Added configure example.
       * Makefile.in: Removed bogus LIBS line, updated copyright date.

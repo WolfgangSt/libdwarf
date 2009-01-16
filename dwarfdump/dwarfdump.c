@@ -30,7 +30,7 @@
   http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 
-$Header: /plroot/cmplrs.src/v7.4.2m/.RCS/PL/dwarfdump/RCS/dwarfdump.c,v 1.35 2003/05/20 18:06:24 davea Exp $ */
+$Header: /plroot/cmplrs.src/v7.4.3m/.RCS/PL/dwarfdump/RCS/dwarfdump.c,v 1.37 2003/10/07 02:50:13 davea Exp $ */
 #include "globals.h"
 
 /* for 'open' */
@@ -285,7 +285,7 @@ process_args(int argc, char *argv[])
     program_name = argv[0];
 
     while ((c =
-	    getopt(argc, argv, "ailfghbprmcsvdeokg:u:t:ywz")) != EOF) {
+	    getopt(argc, argv, "ailfghbprmcsvdeok:gu:t:ywz")) != EOF) {
 	switch (c) {
 	case 'g':
 	    use_old_dwarf_loclist = TRUE;

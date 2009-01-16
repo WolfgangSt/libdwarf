@@ -30,7 +30,7 @@
   http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 
-$Header: /plroot/cmplrs.src/v7.4.2m/.RCS/PL/dwarfdump/RCS/print_die.c,v 1.39 2003/05/20 18:06:24 davea Exp $ */
+$Header: /plroot/cmplrs.src/v7.4.3m/.RCS/PL/dwarfdump/RCS/print_die.c,v 1.42 2003/10/07 02:50:13 davea Exp $ */
 #include "globals.h"
 #include "dwarf_names.h"
 
@@ -88,7 +88,7 @@ tag_tree_combination(Dwarf_Half tag_parent, Dwarf_Half tag_child)
 
 /* recursively follow the die tree */
 extern void
-print_die_and_children(Dwarf_Debug dbg, Dwarf_Die in_die,
+print_die_and_children(Dwarf_Debug dbg, Dwarf_Die in_die_in,
 		       char **srcfiles, Dwarf_Signed cnt)
 {
     Dwarf_Die child;
@@ -96,91 +96,111 @@ print_die_and_children(Dwarf_Debug dbg, Dwarf_Die in_die,
     Dwarf_Error err;
     int tres;
     int cdres;
+    Dwarf_Die in_die = in_die_in;
 
-    PUSH_DIE_STACK(in_die);
+    for (;;) {
+	PUSH_DIE_STACK(in_die);
 
-    if (check_tag_tree) {
-	tag_tree_result.checks++;
-	if (indent_level == 0) {
-	    Dwarf_Half tag;
+	if (check_tag_tree) {
+	    tag_tree_result.checks++;
+	    if (indent_level == 0) {
+		Dwarf_Half tag;
 
-	    tres = dwarf_tag(in_die, &tag, &err);
-	    if (tres != DW_DLV_OK) {
-		tag_tree_result.errors++;
-		DWARF_CHECK_ERROR
-		    ("Tag-tree root is not DW_TAG_compile_unit")
-	    } else if (tag == DW_TAG_compile_unit) {
-		/* OK */
-	    } else {
-		tag_tree_result.errors++;
-		DWARF_CHECK_ERROR
-		    ("tag-tree root is not DW_TAG_compile_unit")
-	    }
-	} else {
-	    Dwarf_Half tag_parent, tag_child;
-	    int pres;
-	    int cres;
-
-	    pres =
-		dwarf_tag(die_stack[indent_level - 1], &tag_parent,
-			  &err);
-	    cres = dwarf_tag(in_die, &tag_child, &err);
-	    if (pres != DW_DLV_OK)
-		tag_parent = 0;
-	    if (cres != DW_DLV_OK)
-		tag_child = 0;
-	    if (pres != cres) {
-		if (cres == DW_DLV_OK) {
-		    DWARF_CHECK_ERROR2(get_TAG_name(dbg, tag_child),
-				       "Tag-tree relation is not valid.")
+		tres = dwarf_tag(in_die, &tag, &err);
+		if (tres != DW_DLV_OK) {
+		    tag_tree_result.errors++;
+		    DWARF_CHECK_ERROR
+			("Tag-tree root is not DW_TAG_compile_unit")
+		} else if (tag == DW_TAG_compile_unit) {
+		    /* OK */
 		} else {
-		    DWARF_CHECK_ERROR2("<child has no name>",
-				       "Tag-tree relation is not valid..")
+		    tag_tree_result.errors++;
+		    DWARF_CHECK_ERROR
+			("tag-tree root is not DW_TAG_compile_unit")
 		}
-	    } else if (pres != DW_DLV_OK) {
-		if (cres == DW_DLV_OK) {
-		    DWARF_CHECK_ERROR2(get_TAG_name(dbg, tag_child),
-				       "Tag-tree Relation is not valid...")
-		} else {
-		    DWARF_CHECK_ERROR2("<child has no name>",
-				       "Tag-tree relation is not valid....")
-		}
-	    } else if (tag_tree_combination(tag_parent, tag_child)) {
-		/* OK */
 	    } else {
-		DWARF_CHECK_ERROR2(get_TAG_name(dbg, tag_child),
-				   "tag-tree relation is not valid")
+		Dwarf_Half tag_parent, tag_child;
+		int pres;
+		int cres;
+
+		pres =
+		    dwarf_tag(die_stack[indent_level - 1], &tag_parent,
+			      &err);
+		cres = dwarf_tag(in_die, &tag_child, &err);
+		if (pres != DW_DLV_OK)
+		    tag_parent = 0;
+		if (cres != DW_DLV_OK)
+		    tag_child = 0;
+		if (pres != cres) {
+		    if (cres == DW_DLV_OK) {
+			DWARF_CHECK_ERROR2(get_TAG_name(dbg, tag_child),
+					   "Tag-tree relation is not valid.")
+		    } else {
+			DWARF_CHECK_ERROR2("<child has no name>",
+					   "Tag-tree relation is not valid..")
+		    }
+		} else if (pres != DW_DLV_OK) {
+		    if (cres == DW_DLV_OK) {
+			DWARF_CHECK_ERROR2(get_TAG_name(dbg, tag_child),
+					   "Tag-tree Relation is not valid...")
+		    } else {
+			DWARF_CHECK_ERROR2("<child has no name>",
+					   "Tag-tree relation is not valid....")
+		    }
+		} else if (tag_tree_combination(tag_parent, tag_child)) {
+		    /* OK */
+		} else {
+		    DWARF_CHECK_ERROR2(get_TAG_name(dbg, tag_child),
+				       "tag-tree relation is not valid")
+		}
 	    }
 	}
-    }
 
-    /* here to pre-descent processing of the die */
-    print_one_die(dbg, in_die, info_flag, srcfiles, cnt);
+	/* here to pre-descent processing of the die */
+	print_one_die(dbg, in_die, info_flag, srcfiles, cnt);
 
-    cdres = dwarf_child(in_die, &child, &err);
-    /* child first: we are doing depth-first walk */
-    if (cdres == DW_DLV_OK) {
-	indent_level++;
-	(void) print_die_and_children(dbg, child, srcfiles, cnt);
-	indent_level--;
-	if (indent_level == 0)
-	    local_symbols_already_began = FALSE;
-	dwarf_dealloc(dbg, child, DW_DLA_DIE);
-    } else if (cdres == DW_DLV_ERROR) {
-	print_error(dbg, "dwarf_child", cdres, err);
-    }
+	cdres = dwarf_child(in_die, &child, &err);
+	/* child first: we are doing depth-first walk */
+	if (cdres == DW_DLV_OK) {
+	    indent_level++;
+	    print_die_and_children(dbg, child, srcfiles, cnt);
+	    indent_level--;
+	    if (indent_level == 0)
+		local_symbols_already_began = FALSE;
+	    dwarf_dealloc(dbg, child, DW_DLA_DIE);
+	} else if (cdres == DW_DLV_ERROR) {
+	    print_error(dbg, "dwarf_child", cdres, err);
+	}
 
-    cdres = dwarf_siblingof(dbg, in_die, &sibling, &err);
-    if (cdres == DW_DLV_OK) {
-	(void) print_die_and_children(dbg, sibling, srcfiles, cnt);
-	dwarf_dealloc(dbg, sibling, DW_DLA_DIE);
-    } else if (cdres == DW_DLV_ERROR) {
-	print_error(dbg, "dwarf_siblingof", cdres, err);
-    }
+	cdres = dwarf_siblingof(dbg, in_die, &sibling, &err);
+	if (cdres == DW_DLV_OK) {
+	    /* print_die_and_children(dbg, sibling, srcfiles, cnt); We 
+	       loop around to actually print this, rather than
+	       recursing. Recursing is horribly wasteful of stack
+	       space. */
+	} else if (cdres == DW_DLV_ERROR) {
+	    print_error(dbg, "dwarf_siblingof", cdres, err);
+	}
 
-    /* here do any post-descent processing of the die */
+	/* Here do any post-descent (ie post-dwarf_child) processing
+	   of the in_die. */
 
-    POP_DIE_STACK;
+	POP_DIE_STACK;
+	if (in_die != in_die_in) {
+	    /* Dealloc our in_die, but not the argument die, it belongs 
+	       to our caller. Whether the siblingof call worked or not. 
+	     */
+	    dwarf_dealloc(dbg, in_die, DW_DLA_DIE);
+	}
+	if (cdres == DW_DLV_OK) {
+	    /* Set to process the sibling, loop again. */
+	    in_die = sibling;
+	} else {
+	    /* We are done, no more siblings at this level. */
+
+	    break;
+	}
+    }				/* end for loop on siblings */
     return;
 }
 

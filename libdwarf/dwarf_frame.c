@@ -602,9 +602,9 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,	/* Make list of frame
 		    return DW_DLV_ERROR;
 		}
 
-		reg[DW_FRAME_CFA_COL].ru_is_off = 0;
 		reg[DW_FRAME_CFA_COL].ru_register = reg_no;
-		reg[DW_FRAME_CFA_COL].ru_offset = 0;
+		/* Do NOT set ru_offset or ru_is_off here. 
+	           See dwarf2/3 spec.  */
 		fp_register = reg_no;
 		break;
 	    }
@@ -618,6 +618,9 @@ _dwarf_exec_frame_instr(Dwarf_Bool make_instr,	/* Make list of frame
 		    *returned_error = (DW_DLE_DF_NO_CIE_AUGMENTATION);
 		    return DW_DLV_ERROR;
 		}
+		/* Do set ru_is_off here, as here
+	           factored_N_value counts.  */
+	        reg[DW_FRAME_CFA_COL].ru_is_off = 1;  
 		reg[DW_FRAME_CFA_COL].ru_offset = factored_N_value;
 
 		fp_offset = factored_N_value;
