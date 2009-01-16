@@ -1,32 +1,39 @@
 /*
-Copyright (c) 1994-9 Silicon Graphics, Inc.
 
-    Permission to use, copy, modify, distribute, and sell this software and 
-    its documentation for any purpose is hereby granted without fee, provided
-    that (i) the above copyright notice and this permission notice appear in
-    all copies of the software and related documentation, and (ii) the name
-    "Silicon Graphics" or any other trademark of Silicon Graphics, Inc.  
-    may not be used in any advertising or publicity relating to the software
-    without the specific, prior written permission of Silicon Graphics, Inc.
+  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 
-    THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND, 
-    EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY 
-    WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  
+  This program is free software; you can redistribute it and/or modify it
+  under the terms of version 2.1 of the GNU Lesser General Public License 
+  as published by the Free Software Foundation.
 
-    IN NO EVENT SHALL SILICON GRAPHICS, INC. BE LIABLE FOR ANY SPECIAL, 
-    INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND,
-    OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
-    WHETHER OR NOT ADVISED OF THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF 
-    LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE 
-    OF THIS SOFTWARE.
+  This program is distributed in the hope that it would be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 
-    dwarf_line.h
+  Further, this software is distributed without any warranty that it is
+  free of the rightful claim of any third person regarding infringement 
+  or the like.  Any license provided herein, whether implied or 
+  otherwise, applies only to this software file.  Patent licenses, if
+  any, provided herein do not apply to combinations of this program with 
+  other software, or any other product whatsoever.  
 
-    Defines the opaque structures used only by dwarf_line.c
-    and pro_line.c
+  You should have received a copy of the GNU Lesser General Public 
+  License along with this program; if not, write the Free Software 
+  Foundation, Inc., 59 Temple Place - Suite 330, Boston MA 02111-1307, 
+  USA.
 
-    $Revision: 1.14 $ $Date: 1999/03/05 22:00:08 $
+  Contact information:  Silicon Graphics, Inc., 1600 Amphitheatre Pky,
+  Mountain View, CA 94043, or:
+
+  http://www.sgi.com
+
+  For further information regarding this notice, see:
+
+  http://oss.sgi.com/projects/GenInfo/NoticeExplan
+
 */
+
+
 
 #define DW_EXTENDED_OPCODE	0
 
@@ -136,3 +143,86 @@ _dwarf_line_address_offsets(Dwarf_Debug dbg,
                 Dwarf_Unsigned *returncount,
                 Dwarf_Error *err);
 
+
+/* The LOP, WHAT_IS_OPCODE stuff is here so it can
+   be reused in 3 places.  Seemed hard to keep
+   the 3 places the same without an inline func or
+   a macro.
+
+   Handling the line section where the header and the
+    file being process do not match (unusual, but
+   planned for in the  design of .debug_line)
+   is too tricky to recode this several times and keep
+   it right.
+*/
+#define LOP_EXTENDED 1
+#define LOP_DISCARD  2
+#define LOP_STANDARD 3
+#define LOP_SPECIAL  4
+
+#define HIGHEST_STANDARD_OPCODE  DW_LNS_fixed_advance_pc
+
+#define WHAT_IS_OPCODE(type,opcode,base,opcode_length,line_ptr) \
+        if( opcode < base ) {                              \
+           /* we know we must treat as a standard op       \
+                or a special case.                         \
+           */                                              \
+           if(opcode == DW_EXTENDED_OPCODE) {              \
+                type = LOP_EXTENDED;                       \
+           } else  if( (HIGHEST_STANDARD_OPCODE+1) >=      \
+                        base) {                            \
+                /* == Standard case: compile of            \
+                   dwarf_line.c and object                 \
+                   have same standard op codes set.        \
+                                                           \
+                   >  Special case: compile of dwarf_line.c\
+                   has things in standard op codes list    \
+                   in dwarf.h header not                   \
+                   in the object: handle this as a standard\
+                   op code in switch below.                \
+                   The header special ops overlap the      \
+                   object standard ops.                    \
+                   The new standard op codes will not      \
+                   appear in the object.                   \
+                */                                         \
+                type = LOP_STANDARD;                       \
+           } else  {                                       \
+                /* These are standard opcodes in the object\
+                ** that were not defined  in the header    \
+                ** at the time dwarf_line.c                \
+                ** was compiled. Provides the ability of   \
+                ** out-of-date dwarf reader to read newer  \
+                ** line table data transparently.          \
+                */                                         \
+                int opcnt =  opcode_length[opcode];        \
+                int oc;                                    \
+                for(oc = 0; oc < opcnt; oc++)              \
+                  {                                         \
+                      /*                                    \
+                      ** Read and discard operands we don't \
+                      ** understand.                        \
+                      ** arbitrary choice of unsigned read. \
+                      ** signed read would work as well.    \
+                      */                                    \
+                      Dwarf_Unsigned utmp2;                 \
+                      DECODE_LEB128_UWORD(line_ptr, utmp2)  \
+                  }                                         \
+                /* Done processing this, do not             \
+                   do the switch , nor do                   \
+                   special op code processing.              \
+                */                                          \
+                type = LOP_DISCARD;                         \
+           }                                                \
+                                                            \
+        } else {                                            \
+	   /* Is  a special op code.                        \
+	   */                                               \
+           type =  LOP_SPECIAL;                             \
+        }
+
+/* The following is from  the dwarf definition of 'ubyte'
+   and is specifically  mentioned in section  6.2.5.1, page 54
+   of the Rev 2.0.0 dwarf specification.
+*/
+
+#define MAX_LINE_OP_CODE  255

@@ -8,7 +8,7 @@
 .nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.42, 14 December 1999
+.ds vE rev 1.43, 12 April 2000
 \." ==============================================
 \." ==============================================
 .ds | |
@@ -2796,15 +2796,16 @@ These functions provide information about stack frames to be
 used to perform stack traces.  The information is an abstraction
 of a table with a row per instruction and a column per register
 and a column for the canonical frame address (CFA, which corresponds
-to the frame pointer), as well as a column for the return address.  
+to the notion of a frame pointer), 
+as well as a column for the return address.  
 Each cell in the table contains one of the following:
 
 .AL 
 .LI
-A register + offset
+A register + offset(a)(b)
 
 .LI
-A register
+A register(c)(d)
 
 .LI
 A marker (DW_FRAME_UNDEFINED_VAL) meaning \fIregister value undefined\fP
@@ -2812,10 +2813,45 @@ A marker (DW_FRAME_UNDEFINED_VAL) meaning \fIregister value undefined\fP
 .LI
 A marker (DW_FRAME_SAME_VAL) meaning \fIregister value same as in caller\fP
 .LE
+.P
+(a) When  the column is DW_FRAME_CFA_COL: the register
+number is a real hardware register, not a reference
+to DW_FRAME_CFA_COL, not  DW_FRAME_UNDEFINED_VAL,
+and not DW_FRAME_SAME_VAL. 
+The CFA rule value should be the stack pointer
+plus offset 0 when no other value makes sense.
+A value of DW_FRAME_SAME_VAL would
+be semi-logical, but since the CFA is not a real register,
+not really correct.
+A value of DW_FRAME_UNDEFINED_VAL would imply
+the CFA is undefined  --
+this seems to be a useless notion, as
+the CFA is a means to finding real registers,
+so those real registers should be marked DW_FRAME_UNDEFINED_VAL,
+and the CFA column content (whatever register it
+specifies) becomes unreferenced by anything.
+.P
+(b) When the column is not DW_FRAME_CFA_COL, the 'register'
+will and must be DW_FRAME_CFA_COL, implying that
+to get the final location for the column one must add
+the offset here plus the DW_FRAME_CFA_COL rule value.
+.P
+(c) When the column is DW_FRAME_CFA_COL, then the register
+number is (must be) a real hardware register .
+If it were DW_FRAME_UNDEFINED_VAL or DW_FRAME_SAME_VAL
+it would be a marker, not a register number.
+.P
+(d) When the column is not DW_FRAME_CFA_COL, the register
+may be a hardware register.
+It will not be DW_FRAME_CFA_COL.
+.P
+There is no 'column' for DW_FRAME_UNDEFINED_VAL or DW_FRAME_SAME_VAL.
+
 
 Figure \n(aX
 is machine dependent and represents MIPS cpu register
 assignments.
+
 .DS
 .TS
 center box, tab(:);

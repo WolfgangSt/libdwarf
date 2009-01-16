@@ -1,28 +1,36 @@
 /* 
-Copyright (c) 1998,1999 Silicon Graphics, Inc.
+  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 
-    Permission to use, copy, modify, distribute, and sell this software and 
-    its documentation for any purpose is hereby granted without fee, provided
-    that (i) the above copyright notice and this permission notice appear in
-    all copies of the software and related documentation, and (ii) the name
-    "Silicon Graphics" or any other trademark of Silicon Graphics, Inc.  
-    may not be used in any advertising or publicity relating to the software
-    without the specific, prior written permission of Silicon Graphics, Inc.
+  This program is free software; you can redistribute it and/or modify it
+  under the terms of version 2 of the GNU General Public License as
+  published by the Free Software Foundation.
 
-    THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND, 
-    EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY 
-    WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  
+  This program is distributed in the hope that it would be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    IN NO EVENT SHALL SILICON GRAPHICS, INC. BE LIABLE FOR ANY SPECIAL, 
-    INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND,
-    OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
-    WHETHER OR NOT ADVISED OF THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF 
-    LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE 
-    OF THIS SOFTWARE.
+  Further, this software is distributed without any warranty that it is
+  free of the rightful claim of any third person regarding infringement
+  or the like.  Any license provided herein, whether implied or
+  otherwise, applies only to this software file.  Patent licenses, if
+  any, provided herein do not apply to combinations of this program with
+  other software, or any other product whatsoever.
+
+  You should have received a copy of the GNU General Public License along
+  with this program; if not, write the Free Software Foundation, Inc., 59
+  Temple Place - Suite 330, Boston MA 02111-1307, USA.
+
+  Contact information:  Silicon Graphics, Inc., 1600 Amphitheatre Pky,
+  Mountain View, CA 94043, or:
+
+  http://www.sgi.com
+
+  For further information regarding this notice, see:
+
+  http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 
-
-$Header: /isms/cmplrs.src/osprey1.0/dwarfdump/RCS/print_die.c,v 1.40 1999/06/22 16:33:19 davea Exp $ */
+$Header: /isms/cmplrs.src/osprey1.0/dwarfdump/RCS/print_die.c,v 1.43 2000/04/17 22:00:07 davea Exp $ */
 #include "globals.h"
 #include "dwarf_names.h"
 
@@ -55,11 +63,18 @@ int attrib_bufsiz;
 
 #include "_tag_tree_table.c"
 
+/*
+   Look only at valid table entries
+   The check here must match the building-logic in
+   tag_tree.c
+   And must match the tags defined in dwarf.h
+*/
+#define MAX_CHECKED_TAG_ID 0x35
 static int
 tag_tree_combination(Dwarf_Half tag_parent, Dwarf_Half tag_child)
 {
-    if (tag_parent > 0 && tag_child < 0x40 
-	&& tag_child > 0 && tag_child < 0x40) {
+    if (tag_parent > 0 && tag_parent <= MAX_CHECKED_TAG_ID
+	&& tag_child > 0 && tag_child <= MAX_CHECKED_TAG_ID) {
 	return((tag_tree_combination_table[tag_parent][tag_child / 0x20] 
 		& (1 << (tag_child % 0x20))) > 0 ? TRUE : FALSE);
     }
@@ -68,14 +83,12 @@ tag_tree_combination(Dwarf_Half tag_parent, Dwarf_Half tag_child)
 }
 
 /* recursively follow the die tree */
-extern DST_INFO_IDX
-print_die_and_children(Dwarf_Debug dbg, Dwarf_Die in_die, 
-		       DST_INFO_IDX parent_idx)
+extern void
+print_die_and_children(Dwarf_Debug dbg, Dwarf_Die in_die)
 {
 	Dwarf_Die child;
 	Dwarf_Die sibling;
 	Dwarf_Error err;
-	DST_INFO_IDX current_idx;
 	int tres;
 	int cdres;
 
@@ -134,13 +147,13 @@ print_die_and_children(Dwarf_Debug dbg, Dwarf_Die in_die,
 	}
 
 	/* here to pre-descent processing of the die */
-	current_idx = print_die (dbg, in_die, info_flag);
+	print_one_die (dbg, in_die, info_flag);
 
 	cdres = dwarf_child(in_die,&child,&err);
 	/* child first: we are doing depth-first walk */
 	if (cdres == DW_DLV_OK) {
 	        indent_level ++;
-		(void) print_die_and_children(dbg,child,current_idx);
+		(void) print_die_and_children(dbg,child);
 		indent_level --;
 		if (indent_level == 0)
 		    local_symbols_already_began = FALSE;
@@ -151,7 +164,7 @@ print_die_and_children(Dwarf_Debug dbg, Dwarf_Die in_die,
 
 	cdres = dwarf_siblingof(dbg,in_die,&sibling,&err);
 	if (cdres == DW_DLV_OK) {
-		(void) print_die_and_children(dbg,sibling,parent_idx);
+		(void) print_die_and_children(dbg,sibling);
 		dwarf_dealloc(dbg, sibling, DW_DLA_DIE);
 	} else if (cdres == DW_DLV_ERROR) {
 		print_error (dbg, "dwarf_siblingof",cdres, err);
@@ -161,15 +174,15 @@ print_die_and_children(Dwarf_Debug dbg, Dwarf_Die in_die,
 
 	POP_DIE_STACK
 
-	return(current_idx);
+	return;
 }
 
 #define SPACE(x) { register int i; for (i=0;i<x;i++) putchar(' '); }
 
 
 /* print info about die */
-extern DST_INFO_IDX
-print_die (Dwarf_Debug dbg, Dwarf_Die die, boolean print_information)
+void
+print_one_die(Dwarf_Debug dbg, Dwarf_Die die, boolean print_information)
 {
 	Dwarf_Signed i;
 	Dwarf_Off offset, overall_offset;
@@ -177,7 +190,6 @@ print_die (Dwarf_Debug dbg, Dwarf_Die die, boolean print_information)
         Dwarf_Half tag;
 	Dwarf_Signed atcnt;
 	Dwarf_Attribute *atlist;
-	DST_INFO_IDX ret_idx = null_idx;
 	int tres;
 	int ores;
 	int atres;
@@ -237,9 +249,8 @@ print_die (Dwarf_Debug dbg, Dwarf_Die die, boolean print_information)
 	    atcnt = 0;
 	}
 
-		{
 
-	    for (i = 0; i < atcnt; i++) {
+	for (i = 0; i < atcnt; i++) {
 		Dwarf_Half attr;
 		int ares;
 		ares = dwarf_whatattr(atlist[i],&attr, &err);
@@ -250,7 +261,6 @@ print_die (Dwarf_Debug dbg, Dwarf_Die die, boolean print_information)
 		} else {
 	          print_error(dbg, "dwarf_whatattr entry missing",ares, err);
 		}
-	    }
 	}
 
 	for (i = 0; i < atcnt; i ++) {
@@ -263,7 +273,7 @@ print_die (Dwarf_Debug dbg, Dwarf_Die die, boolean print_information)
 	if (dense && print_information) {
 	    printf("\n\n");
 	}
-	    return(null_idx);
+	return;
 }
 
 

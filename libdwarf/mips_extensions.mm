@@ -1,5 +1,5 @@
-\." $Revision: 1.12 $
-\." $Date: 1999/07/21 21:26:19 $
+\." $Revision: 1.14 $
+\." $Date: 2000/04/01 21:01:55 $
 \."
 \."
 \." the following line may be removed if the ff ligature works on your machine
@@ -9,7 +9,7 @@
 .ds HP +2 +2 +1 +0 +0
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.12, 21 July 1999
+.ds vE rev 1.15, 31 Mar 2000
 \." ==============================================
 \." ==============================================
 .nr Hs 5
@@ -353,18 +353,23 @@ is therefore mapped into memory at run time.
 The CIE_pointer (aka CIE_id, section 6.4.1
 of the DWARF2 document) is the field that 
 distinguishes a CIE from an FDE.
-The designers decided to make the CIE_id
+The designers of the egcs .eh_frame section
+decided to make the CIE_id
 be 0 as the CIE_pointer definition is
--the number of bytes from the CIE-pointer in the FDE back to the
-applicable CIE-.
-(In a .debug_frame section, the CIE_pointer is the
+.in +2
+the number of bytes from the CIE-pointer in the FDE back to the
+applicable CIE.
+.in -2
+In a dwarf .debug_frame section, the CIE_pointer is the
 offset in .debug_frame of the CIE for this fde, and
 since an offset can be zero of some CIE, the CIE_id
-cannot be 0, but must be all 1 bits (which is in most
-architectures not a valid positive offset).)
-Note that the dwarf2.0 spec does not specify the
-value of CIE_id, but cleary 0 won't work for .debug_frame.
-Zero works just fine for the .eh_frame definition of CIE_id.
+cannot be 0, but must be all 1 bits .
+Note that the dwarf2.0 spec does specify the value of CIE_id
+as 0xffffffff
+(see section 7.23 of v2.0.0),
+though earlier versions of this extensions document
+incorrectly said it was not specified in the dwarf
+document.
 .H 2 "augmentation eh"
 The augmentation string in each CIE is "eh"
 which, with its following NUL character, aligns
@@ -470,10 +475,16 @@ In an a.out or shared object (dynamic shared object, DSO)
 no text will be at address zero so in such this problem does
 not arise.
 .H 2 "Section 5.10 Subrange Type Entries problem"
-IT is not clearly specified that  DW_AT_upper_bound (and lower bound)
-must be signed entries. Since one cannot tell, with some
-dwarf constant types what the signedness is from the
-form itself (like DW_FORM_data1).
+It is specified that  DW_AT_upper_bound (and lower bound)
+must be signed entries if there is no object type
+info to specify the bound type (Sec 5.10, end of section). 
+One cannot tell (with some
+dwarf constant types) what the signedness is from the
+form itself (like DW_FORM_data1), so it is necessary
+to determine the object and type according to the rules 
+in 5.10 and then if all that fails, the type is signed.
+It's a bit complicated and earlier versions of  mips_extensions
+incorrectly said signedness was not defined.
 .H 2 "Section 5.5.6 Class Template Instantiations problem"
 Lots of room for implementor to canonicalize
 template declarations.  Ie various folks won't agree.

@@ -1,31 +1,39 @@
 /*
-Copyright (c) 1994-9 Silicon Graphics, Inc.
 
-    Permission to use, copy, modify, distribute, and sell this software and 
-    its documentation for any purpose is hereby granted without fee, provided
-    that (i) the above copyright notice and this permission notice appear in
-    all copies of the software and related documentation, and (ii) the name
-    "Silicon Graphics" or any other trademark of Silicon Graphics, Inc.  
-    may not be used in any advertising or publicity relating to the software
-    without the specific, prior written permission of Silicon Graphics, Inc.
+  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 
-    THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND, 
-    EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY 
-    WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  
+  This program is free software; you can redistribute it and/or modify it
+  under the terms of version 2.1 of the GNU Lesser General Public License 
+  as published by the Free Software Foundation.
 
-    IN NO EVENT SHALL SILICON GRAPHICS, INC. BE LIABLE FOR ANY SPECIAL, 
-    INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND,
-    OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
-    WHETHER OR NOT ADVISED OF THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF 
-    LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE 
-    OF THIS SOFTWARE.
+  This program is distributed in the hope that it would be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 
+  Further, this software is distributed without any warranty that it is
+  free of the rightful claim of any third person regarding infringement 
+  or the like.  Any license provided herein, whether implied or 
+  otherwise, applies only to this software file.  Patent licenses, if
+  any, provided herein do not apply to combinations of this program with 
+  other software, or any other product whatsoever.  
 
+  You should have received a copy of the GNU Lesser General Public 
+  License along with this program; if not, write the Free Software 
+  Foundation, Inc., 59 Temple Place - Suite 330, Boston MA 02111-1307, 
+  USA.
 
-	dwarf_init_finish.c
-	$Revision: 1.41 $   $Date: 1999/07/21 21:29:42 $
+  Contact information:  Silicon Graphics, Inc., 1600 Amphitheatre Pky,
+  Mountain View, CA 94043, or:
+
+  http://www.sgi.com
+
+  For further information regarding this notice, see:
+
+  http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 */
+
+
 
 #include "config.h"
 #include "dwarf_incl.h"
@@ -219,6 +227,7 @@ _dwarf_setup (
             if ((data=elf_getdata(scn,0)) == NULL || 
 			data->d_size == 0)
             {
+		/* Know no reason to allow empty debug_info section*/
 		DWARF_DBG_ERROR(dbg,DW_DLE_DEBUG_INFO_NULL,
 			DW_DLV_ERROR);
 	    }
@@ -275,6 +284,7 @@ _dwarf_setup (
 			DW_DLV_ERROR);
             }
             if ((data=elf_getdata(scn,0)) == NULL || data->d_size == 0){
+		/* Know no reason to allow empty debug_abbrev section*/
 		DWARF_DBG_ERROR(dbg,DW_DLE_DEBUG_ABBREV_NULL,
 			DW_DLV_ERROR);
   	    }
@@ -287,9 +297,13 @@ _dwarf_setup (
 		DWARF_DBG_ERROR(dbg,
 		   DW_DLE_DEBUG_ARANGES_DUPLICATE,DW_DLV_ERROR);
 	    }
-            if ((data=elf_getdata(scn,0)) == NULL || data->d_size == 0) {
+            if ((data=elf_getdata(scn,0)) == NULL ){
 		DWARF_DBG_ERROR(dbg,
 		  DW_DLE_DEBUG_ARANGES_NULL,DW_DLV_ERROR);
+	    }
+            if (data->d_size == 0) {
+		/* a zero size section is just empty. Ok, no error*/
+		continue;
 	    }
             dbg->de_debug_aranges = data->d_buf;
             dbg->de_debug_aranges_size = data->d_size;
@@ -300,9 +314,13 @@ _dwarf_setup (
 		DWARF_DBG_ERROR(dbg,
 		  DW_DLE_DEBUG_LINE_DUPLICATE,DW_DLV_ERROR);
 	    }
-            if ((data=elf_getdata(scn,0)) == NULL || data->d_size == 0){
+            if ((data=elf_getdata(scn,0)) == NULL) {
 		DWARF_DBG_ERROR(dbg,
 			DW_DLE_DEBUG_LINE_NULL,DW_DLV_ERROR);
+	    }
+            if (data->d_size == 0) {
+		/* a zero size section is just empty. Ok, no error*/
+		continue;
 	    }
             dbg->de_debug_line = data->d_buf;
             dbg->de_debug_line_size = data->d_size;
@@ -313,9 +331,13 @@ _dwarf_setup (
 		DWARF_DBG_ERROR(dbg,
 		 DW_DLE_DEBUG_FRAME_DUPLICATE,DW_DLV_ERROR);
 	    }
-            if ((data=elf_getdata(scn,0)) == NULL || data->d_size == 0) {
+            if ((data=elf_getdata(scn,0)) == NULL ) {
 		DWARF_DBG_ERROR(dbg,
 		  DW_DLE_DEBUG_FRAME_NULL,DW_DLV_ERROR);
+	    }
+            if (data->d_size == 0) {
+		/* a zero size section is just empty. Ok, no error*/
+		continue;
 	    }
             dbg->de_debug_frame = data->d_buf;
             dbg->de_debug_frame_size = data->d_size;
@@ -327,9 +349,13 @@ _dwarf_setup (
 		DWARF_DBG_ERROR(dbg,
 		  DW_DLE_DEBUG_FRAME_DUPLICATE,DW_DLV_ERROR);
 	    }
-            if ((data=elf_getdata(scn,0)) == NULL || data->d_size == 0) {
+            if ((data=elf_getdata(scn,0)) == NULL ) {
 		DWARF_DBG_ERROR(dbg,
 		  DW_DLE_DEBUG_FRAME_NULL,DW_DLV_ERROR);
+	    }
+            if (data->d_size == 0) {
+		/* a zero size section is just empty. Ok, no error*/
+		continue;
 	    }
             dbg->de_debug_frame_eh_gnu = data->d_buf;
             dbg->de_debug_frame_size_eh_gnu = data->d_size;
@@ -340,33 +366,30 @@ _dwarf_setup (
             if (dbg->de_debug_loc != NULL) {
 		DWARF_DBG_ERROR(dbg,DW_DLE_DEBUG_LOC_DUPLICATE,DW_DLV_ERROR);
 	    }
-            if ((data=elf_getdata(scn,0)) == NULL || data->d_size == 0) {
+            if ((data=elf_getdata(scn,0)) == NULL ) {
 		DWARF_DBG_ERROR(dbg,DW_DLE_DEBUG_LOC_NULL,DW_DLV_ERROR);
+	    }
+            if (data->d_size == 0) {
+		/* a zero size section is just empty. Ok, no error*/
+		continue;
 	    }
             dbg->de_debug_loc = data->d_buf;
             dbg->de_debug_loc_size = data->d_size;
         }
 
-        else if (strcmp(scn_name,".debug_macinfo") == 0) {
-            if (dbg->de_debug_macinfo != NULL) {
-		DWARF_DBG_ERROR(dbg,DW_DLE_DEBUG_MACINFO_DUPLICATE,
-		DW_DLV_ERROR);
-	    }
-            if ((data=elf_getdata(scn,0)) == NULL || data->d_size == 0) {
-		DWARF_DBG_ERROR(dbg,DW_DLE_DEBUG_MACINFO_NULL,DW_DLV_ERROR);
-	    }
-            dbg->de_debug_macinfo = data->d_buf;
-            dbg->de_debug_macinfo_size = data->d_size;
-        }
 
         else if (strcmp(scn_name,".debug_pubnames") == 0) {
             if (dbg->de_debug_pubnames != NULL) {
 		DWARF_DBG_ERROR(dbg,DW_DLE_DEBUG_PUBNAMES_DUPLICATE,
 			DW_DLV_ERROR);
 	    }
-            if ((data=elf_getdata(scn,0)) == NULL || data->d_size == 0) {
+            if ((data=elf_getdata(scn,0)) == NULL ) {
 		DWARF_DBG_ERROR(dbg,
 		  DW_DLE_DEBUG_PUBNAMES_DUPLICATE,DW_DLV_ERROR);
+	    }
+            if (data->d_size == 0) {
+		/* a zero size section is just empty. Ok, no error*/
+		continue;
 	    }
             dbg->de_debug_pubnames = data->d_buf;
             dbg->de_debug_pubnames_size = data->d_size;
@@ -377,8 +400,12 @@ _dwarf_setup (
 		DWARF_DBG_ERROR(dbg,
 		  DW_DLE_DEBUG_STR_DUPLICATE,DW_DLV_ERROR);
 	    }
-            if ((data=elf_getdata(scn,0)) == NULL || data->d_size == 0) {
+            if ((data=elf_getdata(scn,0)) == NULL ) {
 		DWARF_DBG_ERROR(dbg,DW_DLE_DEBUG_STR_NULL,DW_DLV_ERROR);
+	    }
+            if (data->d_size == 0) {
+		/* a zero size section is just empty. Ok, no error*/
+		continue;
 	    }
             dbg->de_debug_str = data->d_buf;
             dbg->de_debug_str_size = data->d_size;
@@ -389,9 +416,13 @@ _dwarf_setup (
 		DWARF_DBG_ERROR(dbg,
 		 DW_DLE_DEBUG_FUNCNAMES_DUPLICATE,DW_DLV_ERROR);
 	    }
-            if ((data=elf_getdata(scn,0)) == NULL || data->d_size == 0) {
+            if ((data=elf_getdata(scn,0)) == NULL ) {
 		DWARF_DBG_ERROR(dbg,
 		   DW_DLE_DEBUG_FUNCNAMES_NULL,DW_DLV_ERROR);
+	    }
+            if (data->d_size == 0) {
+		/* a zero size section is just empty. Ok, no error*/
+		continue;
 	    }
             dbg->de_debug_funcnames = data->d_buf;
             dbg->de_debug_funcnames_size = data->d_size;
@@ -402,9 +433,13 @@ _dwarf_setup (
 		DWARF_DBG_ERROR(dbg,
 		DW_DLE_DEBUG_TYPENAMES_DUPLICATE,DW_DLV_ERROR);
 	    }
-            if ((data=elf_getdata(scn,0)) == NULL || data->d_size == 0) {
+            if ((data=elf_getdata(scn,0)) == NULL ) {
 		DWARF_DBG_ERROR(dbg,
 		  DW_DLE_DEBUG_TYPENAMES_NULL,DW_DLV_ERROR);
+	    }
+            if (data->d_size == 0) {
+		/* a zero size section is just empty. Ok, no error*/
+		continue;
 	    }
             dbg->de_debug_typenames = data->d_buf;
             dbg->de_debug_typenames_size = data->d_size;
@@ -415,10 +450,14 @@ _dwarf_setup (
 		DWARF_DBG_ERROR(dbg,
 		  DW_DLE_DEBUG_VARNAMES_DUPLICATE,DW_DLV_ERROR);
 	    }
-            if ((data=elf_getdata(scn,0)) == NULL || data->d_size == 0) {
+            if ((data=elf_getdata(scn,0)) == NULL ) {
 		DWARF_DBG_ERROR(dbg,
 		  DW_DLE_DEBUG_VARNAMES_NULL,DW_DLV_ERROR);
  	    }
+            if (data->d_size == 0) {
+		/* a zero size section is just empty. Ok, no error*/
+		continue;
+	    }
             dbg->de_debug_varnames = data->d_buf;
             dbg->de_debug_varnames_size = data->d_size;
         }
@@ -428,9 +467,13 @@ _dwarf_setup (
 		DWARF_DBG_ERROR(dbg,
 		  DW_DLE_DEBUG_WEAKNAMES_DUPLICATE,DW_DLV_ERROR);
 	    }
-            if ((data=elf_getdata(scn,0)) == NULL || data->d_size == 0) {
+            if ((data=elf_getdata(scn,0)) == NULL ) {
 		DWARF_DBG_ERROR(dbg,
 		  DW_DLE_DEBUG_WEAKNAMES_NULL,DW_DLV_ERROR);
+	    }
+            if (data->d_size == 0) {
+		/* a zero size section is just empty. Ok, no error*/
+		continue;
 	    }
             dbg->de_debug_weaknames = data->d_buf;
             dbg->de_debug_weaknames_size = data->d_size;
@@ -440,9 +483,13 @@ _dwarf_setup (
 		DWARF_DBG_ERROR(dbg,
 		  DW_DLE_DEBUG_MACINFO_DUPLICATE,DW_DLV_ERROR);
 	    }
-            if ((data=elf_getdata(scn,0)) == NULL || data->d_size == 0) {
+            if ((data=elf_getdata(scn,0)) == NULL ) {
 		DWARF_DBG_ERROR(dbg,
 		   DW_DLE_DEBUG_MACINFO_NULL,DW_DLV_ERROR);
+	    }
+            if (data->d_size == 0) {
+		/* a zero size section is just empty. Ok, no error*/
+		continue;
 	    }
             dbg->de_debug_macinfo = data->d_buf;
             dbg->de_debug_macinfo_size = data->d_size;

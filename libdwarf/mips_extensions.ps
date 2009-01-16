@@ -1,13 +1,13 @@
 %!PS-Adobe-1.0
 %%Creator: quasar:davea (David B Anderson)
 %%Title: stdin (ditroff)
-%%CreationDate: Wed Jul 21 14:25:49 1999
+%%CreationDate: Sat Apr  1 13:22:43 2000
 %%EndComments
 % Start of psdit.pro -- prolog for ditroff translator
 % Copyright (c) 1985,1987 Adobe Systems Incorporated. All Rights Reserved. 
 % GOVERNMENT END USERS: See Notice file in TranScript library directory
 % -- probably /usr/lib/ps/Notice
-% $Revision: 1.11 $
+% $Revision: 1.2 $
 /$DITroff 140 dict def $DITroff begin
 /fontnum 1 def /fontsize 10 def /fontheight 10 def /fontslant 0 def
 /xi {0 72 11 mul translate 72 resolution div dup neg scale 0 0 moveto
@@ -656,10 +656,10 @@ xi
 3628(a)X
 3694(significant)X
 576 6164(rev)N
-699(1.12,)X
-879(21)X
-979(July)X
-1132(1999)X
+699(1.15,)X
+879(31)X
+979(Mar)X
+1133(2000)X
 2237(-)X
 2284(1)X
 2344(-)X
@@ -1210,10 +1210,10 @@ xi
 1354(non-register-windows)X
 2078(implementations.)X
 576 6164(rev)N
-699(1.12,)X
-879(21)X
-979(July)X
-1132(1999)X
+699(1.15,)X
+879(31)X
+979(Mar)X
+1133(2000)X
 2237(-)X
 2284(2)X
 2344(-)X
@@ -1835,10 +1835,10 @@ xi
 3303(if)X
 3372(used.)X
 576 6164(rev)N
-699(1.12,)X
-879(21)X
-979(July)X
-1132(1999)X
+699(1.15,)X
+879(31)X
+979(Mar)X
+1133(2000)X
 2237(-)X
 2284(3)X
 2344(-)X
@@ -2105,118 +2105,121 @@ xi
 1069(FDE.)X
 1284(The)X
 1433(designers)X
-1760(decided)X
-2034(to)X
-2120(make)X
-2318(the)X
-2440(CIE_id)X
-2695(be)X
-2795(0)X
-2859(as)X
-2950(the)X
-3072(CIE_pointer)X
-3493(definition)X
-3829(is)X
-3907(-the)X
-576 4368(number)N
-843(of)X
-932(bytes)X
-1123(from)X
-1301(the)X
-1421(CIE-pointer)X
-1826(in)X
-1910(the)X
-2030(FDE)X
-2203(back)X
-2377(to)X
-2461(the)X
-2580(applicable)X
-2931(CIE-.)X
-3148(\(In)X
-3263(a)X
-3320(.debug_frame)X
-3785(section,)X
-576 4464(the)N
-702(CIE_pointer)X
-1126(is)X
-1207(the)X
-1333(offset)X
-1544(in)X
-1634(.debug_frame)X
-2106(of)X
-2201(the)X
-2327(CIE)X
-2484(for)X
-2606(this)X
-2749(fde,)X
-2900(and)X
-3044(since)X
-3237(an)X
-3341(offset)X
-3552(can)X
-3692(be)X
-3797(zero)X
-3965(of)X
-576 4560(some)N
-766(CIE,)X
-936(the)X
-1055(CIE_id)X
-1307(cannot)X
-1542(be)X
-1639(0,)X
-1720(but)X
-1843(must)X
-2019(be)X
-2116(all)X
-2217(1)X
-2278(bits)X
-2414(\(which)X
-2658(is)X
-2732(in)X
-2815(most)X
-2990(architectures)X
-3421(not)X
-3543(a)X
-3599(valid)X
-3779(positive)X
-576 4656(offset\).\))N
-881(Note)X
-1065(that)X
-1213(the)X
-1339(dwarf2.0)X
-1656(spec)X
-1828(does)X
-2004(not)X
-2135(specify)X
-2396(the)X
-2523(value)X
-2726(of)X
-2822(CIE_id,)X
-3102(but)X
-3233(cleary)X
-3459(0)X
-3528(won't)X
-3744(work)X
-3938(for)X
-576 4752(.debug_frame.)N
-1080(Zero)X
-1252(works)X
-1468(just)X
-1603(fine)X
-1748(for)X
-1862(the)X
-1980(.eh_frame)X
-2324(definition)X
-2655(of)X
-2742(CIE_id.)X
+1760(of)X
+1851(the)X
+1973(egcs)X
+2140(.eh_frame)X
+2488(section)X
+2739(decided)X
+3013(to)X
+3099(make)X
+3297(the)X
+3420(CIE_id)X
+3676(be)X
+3777(0)X
+3842(as)X
+3934(the)X
+576 4368(CIE_pointer)N
+992(definition)X
+1323(is)X
+736 4464(the)N
+854(number)X
+1119(of)X
+1206(bytes)X
+1395(from)X
+1571(the)X
+1689(CIE-pointer)X
+2092(in)X
+2174(the)X
+2292(FDE)X
+2463(back)X
+2635(to)X
+2717(the)X
+2835(applicable)X
+3185(CIE.)X
+576 4560(In)N
+665(a)X
+723(dwarf)X
+933(.debug_frame)X
+1399(section,)X
+1668(the)X
+1788(CIE_pointer)X
+2206(is)X
+2281(the)X
+2401(offset)X
+2606(in)X
+2690(.debug_frame)X
+3156(of)X
+3245(the)X
+3365(CIE)X
+3516(for)X
+3632(this)X
+3770(fde,)X
+3916(and)X
+576 4656(since)N
+770(an)X
+875(offset)X
+1087(can)X
+1228(be)X
+1333(zero)X
+1501(of)X
+1597(some)X
+1795(CIE,)X
+1973(the)X
+2100(CIE_id)X
+2360(cannot)X
+2603(be)X
+2708(0,)X
+2797(but)X
+2928(must)X
+3111(be)X
+3215(all)X
+3323(1)X
+3391(bits)X
+3534(.)X
+3602(Note)X
+3786(that)X
+3934(the)X
+576 4752(dwarf2.0)N
+893(spec)X
+1065(does)X
+1241(specify)X
+1502(the)X
+1629(value)X
+1832(of)X
+1929(CIE_id)X
+2190(as)X
+2287(0xffffffff)X
+2613(\(see)X
+2773(section)X
+3030(7.23)X
+3200(of)X
+3297(v2.0.0\),)X
+3574(though)X
+3826(earlier)X
+576 4848(versions)N
+863(of)X
+950(this)X
+1085(extensions)X
+1443(document)X
+1779(incorrectly)X
+2147(said)X
+2296(it)X
+2360(was)X
+2505(not)X
+2627(specified)X
+2937(in)X
+3019(the)X
+3137(dwarf)X
+3345(document.)X
 3 f
 11 s
-576 4896(5.2)N
+576 4992(5.2)N
 730(augmentation)X
 1270(eh)X
 1 f
 10 s
-576 5040(The)N
+576 5136(The)N
 723(augmentation)X
 1181(string)X
 1385(in)X
@@ -2233,7 +2236,7 @@ xi
 3386(aligns)X
 3600(the)X
 3721(following)X
-576 5136(word)N
+576 5232(word)N
 775(to)X
 871(a)X
 941(32bit)X
@@ -2251,7 +2254,7 @@ xi
 3558(address)X
 3833(of)X
 3934(the)X
-576 5232(__EXCEPTION_TABLE__,)N
+576 5328(__EXCEPTION_TABLE__,)N
 1519(part)X
 1664(of)X
 1751(the)X
@@ -2262,12 +2265,12 @@ xi
 2769(egcs.)X
 3 f
 11 s
-576 5376(5.3)N
+576 5472(5.3)N
 730(DW_CFA_GNU_window_save)X
 1952(0x2d)X
 1 f
 10 s
-576 5520(This)N
+576 5616(This)N
 743(is)X
 821(effectively)X
 1190(a)X
@@ -2285,7 +2288,7 @@ xi
 3661(that)X
 3807(it)X
 3877(must)X
-576 5616(look)N
+576 5712(look)N
 740(to)X
 824(a)X
 882(previous)X
@@ -2303,17 +2306,17 @@ xi
 3164(egcs)X
 3348(gcc/frame.c)X
 3747(indicates)X
-576 5712(this)N
+576 5808(this)N
 711(is)X
 784(for)X
 898(SPARC)X
 1170(register)X
 1431(windows.)X
 576 6164(rev)N
-699(1.12,)X
-879(21)X
-979(July)X
-1132(1999)X
+699(1.15,)X
+879(31)X
+979(Mar)X
+1133(2000)X
 2237(-)X
 2284(4)X
 2344(-)X
@@ -2884,10 +2887,10 @@ xi
 1172(of)X
 1259(entries.)X
 576 6164(rev)N
-699(1.12,)X
-879(21)X
-979(July)X
-1132(1999)X
+699(1.15,)X
+879(31)X
+979(Mar)X
+1133(2000)X
 2237(-)X
 2284(5)X
 2344(-)X
@@ -2998,42 +3001,97 @@ xi
 2095(problem)X
 1 f
 10 s
-576 1488(IT)N
-672(is)X
-745(not)X
-867(clearly)X
-1106(specified)X
-1417(that)X
-1578(DW_AT_upper_bound)X
-2343(\(and)X
-2507(lower)X
-2711(bound\))X
-2959(must)X
-3135(be)X
-3232(signed)X
-3462(entries.)X
-3717(Since)X
-3916(one)X
-576 1584(cannot)N
-845(tell,)X
-1022(with)X
-1219(some)X
-1443(dwarf)X
-1685(constant)X
-2006(types)X
-2229(what)X
-2439(the)X
-2591(signedness)X
-2992(is)X
-3099(from)X
-3309(the)X
-3461(form)X
-3671(itself)X
-3885(\(like)X
-576 1680(DW_FORM_data1\).)N
+576 1488(It)N
+652(is)X
+732(specified)X
+1049(that)X
+1216(DW_AT_upper_bound)X
+1987(\(and)X
+2157(lower)X
+2367(bound\))X
+2621(must)X
+2803(be)X
+2906(signed)X
+3142(entries)X
+3383(if)X
+3459(there)X
+3647(is)X
+3728(no)X
+3836(object)X
+576 1584(type)N
+739(info)X
+893(to)X
+980(specify)X
+1237(the)X
+1359(bound)X
+1583(type)X
+1745(\(Sec)X
+1912(5.10,)X
+2096(end)X
+2236(of)X
+2327(section\).)X
+2645(One)X
+2803(cannot)X
+3041(tell)X
+3167(\(with)X
+3360(some)X
+3553(dwarf)X
+3765(constant)X
+576 1680(types\))N
+794(what)X
+972(the)X
+1092(signedness)X
+1461(is)X
+1537(from)X
+1716(the)X
+1837(form)X
+2016(itself)X
+2199(\(like)X
+2369(DW_FORM_data1\),)X
+3053(so)X
+3147(it)X
+3214(is)X
+3290(necessary)X
+3626(to)X
+3711(determine)X
+576 1776(the)N
+704(object)X
+930(and)X
+1076(type)X
+1244(according)X
+1591(to)X
+1683(the)X
+1811(rules)X
+1997(in)X
+2089(5.10)X
+2258(and)X
+2403(then)X
+2570(if)X
+2648(all)X
+2757(that)X
+2906(fails,)X
+3093(the)X
+3220(type)X
+3387(is)X
+3469(signed.)X
+3747(It's)X
+3883(a)X
+3948(bit)X
+576 1872(complicated)N
+988(and)X
+1124(earlier)X
+1350(versions)X
+1637(of)X
+1744(mips_extensions)X
+2297(incorrectly)X
+2665(said)X
+2814(signedness)X
+3181(was)X
+3326(not)X
+3448(defined.)X
 3 f
 11 s
-576 1824(6.6)N
+576 2016(6.6)N
 730(Section)X
 1026(5.5.6)X
 1224(Class)X
@@ -3042,7 +3100,7 @@ xi
 2365(problem)X
 1 f
 10 s
-576 1968(Lots)N
+576 2160(Lots)N
 741(of)X
 831(room)X
 1023(for)X
@@ -3058,7 +3116,7 @@ xi
 3574(agree.)X
 3813(This)X
 3979(is)X
-576 2064(not)N
+576 2256(not)N
 698(serious)X
 945(since)X
 1130(a)X
@@ -3077,7 +3135,7 @@ xi
 3515(cope!)X
 3 f
 11 s
-576 2208(6.7)N
+576 2400(6.7)N
 730(Section)X
 1026(2.4.3.4)X
 1312(#)X
@@ -3086,7 +3144,7 @@ xi
 1859(spelling)X
 1 f
 10 s
-576 2352(DW_OP_add)N
+576 2544(DW_OP_add)N
 1028(should)X
 1261(be)X
 1357(DW_OP_plus)X
@@ -3102,7 +3160,7 @@ xi
 3262(page\).)X
 3 f
 11 s
-576 2496(6.8)N
+576 2688(6.8)N
 730(No)X
 859(clear)X
 1067(specification)X
@@ -3112,7 +3170,7 @@ xi
 2061(funcs)X
 1 f
 10 s
-576 2640(There)N
+576 2832(There)N
 785(is)X
 859(no)X
 960(clear)X
@@ -3133,7 +3191,7 @@ xi
 3122(non-static)X
 3460(member)X
 3745(function.)X
-576 2736 0.3125(\(dwarf2read.c)AN
+576 2928 0.3125(\(dwarf2read.c)AN
 1046(in)X
 1128(gdb)X
 1268(4.18,)X
@@ -3144,13 +3202,13 @@ xi
 2136(observation\))X
 3 f
 11 s
-576 2880(6.9)N
+576 3072(6.9)N
 730(Misspelling)X
 1184(of)X
 1279(DW_AT_const_value)X
 1 f
 10 s
-576 3024(Twice)N
+576 3216(Twice)N
 797(in)X
 879(appendix)X
 1193(1,)X
@@ -3161,14 +3219,14 @@ xi
 2519(DW_AT_constant_value.)X
 3 f
 11 s
-576 3168(6.10)N
+576 3360(6.10)N
 774(Mistake)X
 1099(in)X
 1195(Atribute)X
 1539(Encodings)X
 1 f
 10 s
-576 3312(Section)N
+576 3504(Section)N
 842(7.5.4,)X
 1048("Attribute)X
 1396(Encodings")X
@@ -3185,7 +3243,7 @@ xi
 3684(6)X
 3751(forms)X
 3965(of)X
-576 3408(constants.)N
+576 3600(constants.)N
 936(It)X
 1007(is)X
 1082(incorrect)X
@@ -3205,7 +3263,7 @@ xi
 3437(clearly)X
 3677(allowed)X
 3952(by)X
-576 3504(section)N
+576 3696(section)N
 823(4.1)X
 943("Data)X
 1148(Object)X
@@ -3222,11 +3280,11 @@ xi
 3100(constants\).)X
 3 f
 11 s
-576 3648(6.11)N
+576 3840(6.11)N
 774(DW_OP_bregx)X
 1 f
 10 s
-576 3792(The)N
+576 3984(The)N
 726(description)X
 1107(of)X
 1199(DW_OP_bregx)X
@@ -3241,7 +3299,7 @@ xi
 3754(in)X
 3842(that)X
 3988(it)X
-576 3888(lists)N
+576 4080(lists)N
 740(the)X
 874(offset)X
 1093(first.)X
@@ -3257,19 +3315,19 @@ xi
 3329(encoding)X
 3658(the)X
 3791(register)X
-576 3984(number)N
+576 4176(number)N
 841(comes)X
 1066(first.)X
 3 f
 11 s
-576 4176(7.)N
+576 4368(7.)N
 686(MIPS)X
 928(attributes)X
-576 4320(7.1)N
+576 4512(7.1)N
 730(DW_AT_MIPS_fde)X
 1 f
 10 s
-576 4464(This)N
+576 4656(This)N
 758(extension)X
 1105(to)X
 1207(Dwarf)X
@@ -3287,7 +3345,7 @@ xi
 3587(offset,)X
 3831(in)X
 3934(the)X
-576 4560(.debug_frame)N
+576 4752(.debug_frame)N
 1041(section,)X
 1309(of)X
 1397(the)X
@@ -3306,17 +3364,17 @@ xi
 3712(of)X
 3799(sorts)X
 3970(to)X
-576 4656(have)N
+576 4848(have)N
 748(this)X
 883(present.)X
 3 f
 11 s
-576 4896(7.2)N
+576 5088(7.2)N
 730(DW_CFA_MIPS_advance_loc8)X
 1939(0x1d)X
 1 f
 10 s
-576 5040(This)N
+576 5232(This)N
 739(obvious)X
 1013(extension)X
 1341(to)X
@@ -3333,7 +3391,7 @@ xi
 3523(\(for)X
 3666(cases)X
 3858(when)X
-576 5136(such)N
+576 5328(such)N
 743(must)X
 918(be)X
 1014(relocatable,)X
@@ -3350,12 +3408,12 @@ xi
 3212(objects.)X
 3 f
 11 s
-576 5376(7.3)N
+576 5568(7.3)N
 730(DW_TAG_MIPS_loop)X
 1762(0x4081)X
 1 f
 10 s
-576 5520(For)N
+576 5712(For)N
 707(future)X
 919(use.)X
 1066(Not)X
@@ -3374,10 +3432,10 @@ xi
 3572(not)X
 3694(finalized.)X
 576 6164(rev)N
-699(1.12,)X
-879(21)X
-979(July)X
-1132(1999)X
+699(1.15,)X
+879(31)X
+979(Mar)X
+1133(2000)X
 2237(-)X
 2284(6)X
 2344(-)X
@@ -3802,10 +3860,10 @@ xi
 3598(problem)X
 3890(with)X
 576 6164(rev)N
-699(1.12,)X
-879(21)X
-979(July)X
-1132(1999)X
+699(1.15,)X
+879(31)X
+979(Mar)X
+1133(2000)X
 2237(-)X
 2284(7)X
 2344(-)X
@@ -4277,10 +4335,10 @@ xi
 576 5760(integer*2)N
 899(arrays.)X
 576 6164(rev)N
-699(1.12,)X
-879(21)X
-979(July)X
-1132(1999)X
+699(1.15,)X
+879(31)X
+979(Mar)X
+1133(2000)X
 2237(-)X
 2284(8)X
 2344(-)X
@@ -4703,10 +4761,10 @@ xi
 1495(twenty)X
 1733(reals.)X
 576 6164(rev)N
-699(1.12,)X
-879(21)X
-979(July)X
-1132(1999)X
+699(1.15,)X
+879(31)X
+979(Mar)X
+1133(2000)X
 2237(-)X
 2284(9)X
 2344(-)X
@@ -5157,10 +5215,10 @@ xi
 1683(much)X
 1881(easier)X
 576 6164(rev)N
-699(1.12,)X
-879(21)X
-979(July)X
-1132(1999)X
+699(1.15,)X
+879(31)X
+979(Mar)X
+1133(2000)X
 2217(-)X
 2264(10)X
 2364(-)X
@@ -5348,10 +5406,10 @@ xi
 791(492>)X
 1076(DW_TAG_member)X
 576 6164(rev)N
-699(1.12,)X
-879(21)X
-979(July)X
-1132(1999)X
+699(1.15,)X
+879(31)X
+979(Mar)X
+1133(2000)X
 2217(-)X
 2264(11)X
 2364(-)X
@@ -5491,10 +5549,10 @@ xi
 791(707>)X
 1076(DW_TAG_member)X
 576 6164(rev)N
-699(1.12,)X
-879(21)X
-979(July)X
-1132(1999)X
+699(1.15,)X
+879(31)X
+979(Mar)X
+1133(2000)X
 2217(-)X
 2264(12)X
 2364(-)X
@@ -5630,10 +5688,10 @@ xi
 896 5664(DW_AT_byte_size)N
 1780(8)X
 576 6164(rev)N
-699(1.12,)X
-879(21)X
-979(July)X
-1132(1999)X
+699(1.15,)X
+879(31)X
+979(Mar)X
+1133(2000)X
 2217(-)X
 2264(13)X
 2364(-)X
@@ -5987,10 +6045,10 @@ xi
 3404(dope)X
 3580(vector\).)X
 576 6164(rev)N
-699(1.12,)X
-879(21)X
-979(July)X
-1132(1999)X
+699(1.15,)X
+879(31)X
+979(Mar)X
+1133(2000)X
 2217(-)X
 2264(14)X
 2364(-)X
@@ -6499,10 +6557,10 @@ xi
 1059(user)X
 1213(code.)X
 576 6164(rev)N
-699(1.12,)X
-879(21)X
-979(July)X
-1132(1999)X
+699(1.15,)X
+879(31)X
+979(Mar)X
+1133(2000)X
 2217(-)X
 2264(15)X
 2364(-)X
@@ -6956,10 +7014,10 @@ xi
 1882(produced)X
 2201(earlier.)X
 576 6164(rev)N
-699(1.12,)X
-879(21)X
-979(July)X
-1132(1999)X
+699(1.15,)X
+879(31)X
+979(Mar)X
+1133(2000)X
 2217(-)X
 2264(16)X
 2364(-)X
@@ -6971,10 +7029,10 @@ xi
 2264(17)X
 2364(-)X
 576 6164(rev)N
-699(1.12,)X
-879(21)X
-979(July)X
-1132(1999)X
+699(1.15,)X
+879(31)X
+979(Mar)X
+1133(2000)X
 2217(-)X
 2264(17)X
 2364(-)X
@@ -8763,10 +8821,10 @@ xi
 2210(dwarf)X
 2418(usage.)X
 576 2064(rev)N
-699(1.12,)X
-879(21)X
-979(July)X
-1132(1999)X
+699(1.15,)X
+879(31)X
+979(Mar)X
+1133(2000)X
 
 21 p
 %%Page: 21 21

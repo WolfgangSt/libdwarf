@@ -1,32 +1,39 @@
 /*
-Copyright (c) 1994-9 Silicon Graphics, Inc.
 
-    Permission to use, copy, modify, distribute, and sell this software and 
-    its documentation for any purpose is hereby granted without fee, provided
-    that (i) the above copyright notice and this permission notice appear in
-    all copies of the software and related documentation, and (ii) the name
-    "Silicon Graphics" or any other trademark of Silicon Graphics, Inc.  
-    may not be used in any advertising or publicity relating to the software
-    without the specific, prior written permission of Silicon Graphics, Inc.
+  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 
-    THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND, 
-    EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY 
-    WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  
+  This program is free software; you can redistribute it and/or modify it
+  under the terms of version 2.1 of the GNU Lesser General Public License 
+  as published by the Free Software Foundation.
 
-    IN NO EVENT SHALL SILICON GRAPHICS, INC. BE LIABLE FOR ANY SPECIAL, 
-    INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND,
-    OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
-    WHETHER OR NOT ADVISED OF THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF 
-    LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE 
-    OF THIS SOFTWARE.
+  This program is distributed in the hope that it would be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 
-	pro_section.c 
-	$Revision: 1.65 $    $Date: 1999/06/22 16:33:42 $    
-	$Source: /isms/cmplrs.src/osprey1.0/libdwarf/RCS/pro_section.c,v $
+  Further, this software is distributed without any warranty that it is
+  free of the rightful claim of any third person regarding infringement 
+  or the like.  Any license provided herein, whether implied or 
+  otherwise, applies only to this software file.  Patent licenses, if
+  any, provided herein do not apply to combinations of this program with 
+  other software, or any other product whatsoever.  
 
-	This files contains routines for converting dwarf information
-	to disk form, and giving out bytes to be written to disk
+  You should have received a copy of the GNU Lesser General Public 
+  License along with this program; if not, write the Free Software 
+  Foundation, Inc., 59 Temple Place - Suite 330, Boston MA 02111-1307, 
+  USA.
+
+  Contact information:  Silicon Graphics, Inc., 1600 Amphitheatre Pky,
+  Mountain View, CA 94043, or:
+
+  http://www.sgi.com
+
+  For further information regarding this notice, see:
+
+  http://oss.sgi.com/projects/GenInfo/NoticeExplan
+
 */
+
+
 
 #include "config.h"
 #include "libdwarfdefs.h"
@@ -259,7 +266,6 @@ dwarf_transform_to_disk_form (
 	if (new_base_elf_sect == -1) {
     	    DWARF_P_DBG_ERROR(dbg, DW_DLE_ELF_SECT_ERR, DW_DLV_NOCOUNT);
 	}
-printf("dadebug. New elf sect given # %d, name is %s, internal index%d\n",(int)new_base_elf_sect,_dwarf_sectnames[sect],(int)sect);
 	dbg->de_elf_sects[sect] = new_base_elf_sect;
         
 	dbg->de_sect_name_idx[sect] = du;
@@ -1232,17 +1238,6 @@ _dwarf_pro_generate_debugframe(Dwarf_P_Debug dbg, Dwarf_Error *error)
 }
 
 
-static void
-dump(void *in, int len)
-{
-	int i;
-	char *inp = in;
-	printf("dump %d bytes from 0x%lx\n",len,(unsigned long)in);
-	for(i = 0; i < len;++i, ++inp) {
-		printf("%02x",*inp);
-	}
-	printf("\n");
-}
 	
 /*---------------------------------------------------------------
 	Generate debug_info and debug_abbrev sections
@@ -1281,7 +1276,6 @@ _dwarf_pro_generate_debuginfo(Dwarf_P_Debug dbg,Dwarf_Error *error)
 			 uword_size +	     /* offset into abbrev table */
 			 sizeof(Dwarf_Ubyte);/* size of target address */
 	GET_CHUNK(dbg,elfsectno_of_debug_info,data,cu_header_size,error);
-fprintf(stderr,"dadebug extension %d uword %d addr 0x%x hdr size %d\n",(int)extension_size,(int)uword_size,(int)data,(int)cu_header_size);
 	start_info_sec = data;
         if(extension_size) {
 	      du = DISTINGUISHED_VALUE;
@@ -1309,7 +1303,6 @@ fprintf(stderr,"dadebug extension %d uword %d addr 0x%x hdr size %d\n",(int)exte
 			sizeof(du), uword_size);
         data += uword_size;
         
-dump(start_info_sec,cu_header_size);
 
 	db =  dbg->de_pointer_size;
 
@@ -1571,13 +1564,10 @@ dump(start_info_sec,cu_header_size);
 	/* Write out debug_info size */
         /* Dont include length field  or extension bytes */
 	du = die_off - uword_size -extension_size; 
-dump(start_info_sec,cu_header_size);
-fprintf(stderr,"dadebug write len %lx %ld\n",(long)du,(long)du );
         WRITE_UNALIGNED(dbg,(void *)(start_info_sec + extension_size),
 			(const void *)&du, 
 			sizeof(du),uword_size);
 
-dump(start_info_sec,cu_header_size);
 
 	data = 0; /* Emphasise not usable now */
 
@@ -1733,7 +1723,6 @@ _dwarf_pro_buffer (
        test to have just two clauses (no NULL pointer test)
        See dwarf_producer_init().
     */
-printf("dadebug dwarf_pro_buffer. sectno %d nbytes %lu\n",elfsectno,nbytes);
     if ( (cursect->ds_elf_sect_no != elfsectno)    ||
 	((cursect->ds_nbytes + nbytes) > cursect->ds_orig_alloc) 
 				) {
@@ -1785,7 +1774,6 @@ printf("dadebug dwarf_pro_buffer. sectno %d nbytes %lu\n",elfsectno,nbytes);
 	    dbg->de_current_active_section = cursect;
         }
 	dbg->de_n_debug_sect++;
-printf("dadebug new buffer sectno %d nbytes alloc %lu\n",elfsectno,space);
 
         return((Dwarf_Small *)cursect->ds_data);
     }

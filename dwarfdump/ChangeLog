@@ -1,3 +1,47 @@
+
+2000 June 12   davea@sgi.com
+  print_sections.c the DW_CFA_offset_extended print 
+	did not multiply by data-alignment factor in the
+	-v -v detailed output.
+	And the offsets used %2d when the values were
+	unsigned int, so now %2u.
+
+	And not all cfa prints of values had
+	necessarily a type to match
+	%llu or %lld where required. Depended on the size of Dwarf_Signed
+	and Dwarf_Unsigned.
+	So now explicitly use cast to the
+	right type to match the % format.
+2000 April 13 davea@sgi.com
+  print_sections.c - 1.56
+        - A single byte of zero is a perfectly legitmate null 
+          abbreviation entry          (in .debug_abbrev) 
+	 now we print those directly and avoid a warning
+          from dwarfdump
+
+  print_die.c - 1.42
+        - Explain what combo checker is doing and make it 
+	  more maintainable (and fix bug which would 
+	  not be hit, but was real enough (in combo checker),
+	  using too large a number as highest tag number).
+
+  tag_tree.list - 1.2
+        - Add valid parent/child relationships so checker 
+	  does not report valid entries as bogus.
+
+
+
+
+2000 Feb 24
+  Jason Merrill <jason@cygnus.com> noticed that gcc did
+  not like   gcc -E foo.list, so  incorporated his fix so
+  now the Makefile.in makes a link and does gcc -E _tmp.c
+
+2000 Jan 26
+  elena.demikhovsky@intel.com noticed that 3 statements in
+  print_sections.c got warnings from the compiler
+  she was using. Simple casts  (provided by her) fixed these.
+
 1999 July 21
   davea@sgi.com 
   print_sections changed to allow printing

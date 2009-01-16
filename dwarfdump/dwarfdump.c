@@ -1,27 +1,36 @@
 /* 
-Copyright (c) 1998,1999 Silicon Graphics, Inc.
+  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 
-    Permission to use, copy, modify, distribute, and sell this software and 
-    its documentation for any purpose is hereby granted without fee, provided
-    that (i) the above copyright notice and this permission notice appear in
-    all copies of the software and related documentation, and (ii) the name
-    "Silicon Graphics" or any other trademark of Silicon Graphics, Inc.  
-    may not be used in any advertising or publicity relating to the software
-    without the specific, prior written permission of Silicon Graphics, Inc.
+  This program is free software; you can redistribute it and/or modify it
+  under the terms of version 2 of the GNU General Public License as
+  published by the Free Software Foundation.
 
-    THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND, 
-    EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY 
-    WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  
+  This program is distributed in the hope that it would be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    IN NO EVENT SHALL SILICON GRAPHICS, INC. BE LIABLE FOR ANY SPECIAL, 
-    INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND,
-    OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
-    WHETHER OR NOT ADVISED OF THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF 
-    LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE 
-    OF THIS SOFTWARE.
+  Further, this software is distributed without any warranty that it is
+  free of the rightful claim of any third person regarding infringement
+  or the like.  Any license provided herein, whether implied or
+  otherwise, applies only to this software file.  Patent licenses, if
+  any, provided herein do not apply to combinations of this program with
+  other software, or any other product whatsoever.
+
+  You should have received a copy of the GNU General Public License along
+  with this program; if not, write the Free Software Foundation, Inc., 59
+  Temple Place - Suite 330, Boston MA 02111-1307, USA.
+
+  Contact information:  Silicon Graphics, Inc., 1600 Amphitheatre Pky,
+  Mountain View, CA 94043, or:
+
+  http://www.sgi.com
+
+  For further information regarding this notice, see:
+
+  http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 
-$Header: /isms/cmplrs.src/osprey1.0/dwarfdump/RCS/dwarfdump.c,v 1.34 1999/06/22 16:33:19 davea Exp $ */
+$Header: /isms/cmplrs.src/osprey1.0/dwarfdump/RCS/dwarfdump.c,v 1.37 2000/04/17 22:00:07 davea Exp $ */
 #include "globals.h"
 
 /* for 'open' */
@@ -52,10 +61,6 @@ extern int attrib_bufsiz;
    used in get_fde_proc_name() */
 extern Dwarf_Die current_cu_die_for_print_frames;
 
-DST_INFO_IDX comp_unit_idx;
-DST_FILE_IDX file_name_idx;
-DST_DIR_IDX  incl_dir_idx;
-DST_INFO_IDX null_idx;
 
 boolean info_flag = FALSE;
 
@@ -376,6 +381,9 @@ process_args (int argc, char *argv[])
 		case 'w': /* .debug_weaknames */
 			weakname_flag = TRUE;
 			break;
+		case 'z':
+			fprintf(stderr,"-z is no longer supported:ignored\n");
+			break;
 		default:
 			usage_error = TRUE;
 			break;
@@ -525,8 +533,7 @@ print_infos (Dwarf_Debug dbg)
 		sres = dwarf_siblingof(dbg, NULL,&cu_die, &err);
 		if(sres == DW_DLV_OK) {
 		  if (info_flag || cu_name_flag) {
-		    comp_unit_idx = print_die_and_children(dbg, cu_die, 
-							   null_idx);
+		    print_die_and_children(dbg, cu_die);
 		  }
 		  if (line_flag)
 			print_line_numbers_this_cu(dbg, cu_die);

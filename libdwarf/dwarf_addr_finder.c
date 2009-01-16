@@ -1,90 +1,39 @@
 /*
-Copyright (c) 1994-9 Silicon Graphics, Inc.
 
-    Permission to use, copy, modify, distribute, and sell this software and 
-    its documentation for any purpose is hereby granted without fee, provided
-    that (i) the above copyright notice and this permission notice appear in
-    all copies of the software and related documentation, and (ii) the name
-    "Silicon Graphics" or any other trademark of Silicon Graphics, Inc.  
-    may not be used in any advertising or publicity relating to the software
-    without the specific, prior written permission of Silicon Graphics, Inc.
+  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 
-    THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND, 
-    EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY 
-    WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  
+  This program is free software; you can redistribute it and/or modify it
+  under the terms of version 2.1 of the GNU Lesser General Public License 
+  as published by the Free Software Foundation.
 
-    IN NO EVENT SHALL SILICON GRAPHICS, INC. BE LIABLE FOR ANY SPECIAL, 
-    INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND,
-    OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
-    WHETHER OR NOT ADVISED OF THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF 
-    LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE 
-    OF THIS SOFTWARE.
+  This program is distributed in the hope that it would be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 
-	dwarf_addr_finder.c
-	$Source: /isms/cmplrs.src/osprey1.0/libdwarf/RCS/dwarf_addr_finder.c,v $
-	$Date: 1999/07/21 21:29:38 $
+  Further, this software is distributed without any warranty that it is
+  free of the rightful claim of any third person regarding infringement 
+  or the like.  Any license provided herein, whether implied or 
+  otherwise, applies only to this software file.  Patent licenses, if
+  any, provided herein do not apply to combinations of this program with 
+  other software, or any other product whatsoever.  
 
-	This function make it possible to fix up addresses in
-	dwarf, such as is needed by rqs.   The method: for each
-	address in dwarf, it calls a callback-function,
-	passing a section number and the offset-in-the-section
-	of the address and the present value of the addr at that
-	offset and the size, in bytes, of an address.
-	The size will be identical for all callbacks, of course!
+  You should have received a copy of the GNU Lesser General Public 
+  License along with this program; if not, write the Free Software 
+  Foundation, Inc., 59 Temple Place - Suite 330, Boston MA 02111-1307, 
+  USA.
 
-	This only finds addresses actually marked as such. addresses
-	hidden in constants are NOT noticed.
+  Contact information:  Silicon Graphics, Inc., 1600 Amphitheatre Pky,
+  Mountain View, CA 94043, or:
 
-	This is presumed to be running against an a.out or dso and
-	it does not rely on relocation information (no such information
-	exists for the dwarf sections in an a.out or dso).
+  http://www.sgi.com
 
-	The implementor of the callback-function then
-	does whatever is needed with that address.
-	  rqs, for example, will modify the section data to update
-	  the address.
-	
+  For further information regarding this notice, see:
 
-	User Interface:
-
-	int dwarf_addr_finder(Elf * elf_file_ptr,
-		Dwarf_addr_callback_func cb_func,
-		int *dwerr);
-	It returns
-		DW_DLV_OK if it succeeds(all callbacks have been done).
-		DW_DLV_ERROR if there was an error (and sets the
-			error pointer (see the dwarf Consumer doc
-			for information on handling that).
-		DW_DLV_NO_ENTRY if there is no dwarf data present.
-	*dwerr may be set to a dwarf error code if there is one known.
-	Or it may be set to -1 (some other error).
-
- 	The caller must pass a valid open Elf * elf file pointer.
-	If there is an error, the dwerr parameter is used to put the libdwarf
-	error code in the int pointed at.
-
-
-	The callback Function (whose address is
-	passed in the 'func' arg above) is implemented by the user as:
-
-	int cb_func( int section, Dwarf_Off secoff, Dwarf_Addr existingAddr,
-		int addrsize) { ...do whatever... return DW_DLV_OK;}
-
-	The callback function should return one of the following to
-	its caller:
-		DW_DLV_OK meaning all is ok, continue.
-	 	DW_DLV_ERROR meaning that the called-back function
-		detected something wrong: abort the entire process
-		and return immediately from dwarf_addr_finder, returning,
-		from there, DW_DLV_ERROR.
-
-
-	Obviously you may choose any name: there is nothing
-	special about cb_func!
-	
-			
+  http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 */
+
+
 #include "config.h"
 #include "libdwarfdefs.h"
 #ifdef HAVE_ELF_H

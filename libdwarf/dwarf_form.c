@@ -1,27 +1,38 @@
 /*
-Copyright (c) 1994-9 Silicon Graphics, Inc.
 
-    Permission to use, copy, modify, distribute, and sell this software and 
-    its documentation for any purpose is hereby granted without fee, provided
-    that (i) the above copyright notice and this permission notice appear in
-    all copies of the software and related documentation, and (ii) the name
-    "Silicon Graphics" or any other trademark of Silicon Graphics, Inc.  
-    may not be used in any advertising or publicity relating to the software
-    without the specific, prior written permission of Silicon Graphics, Inc.
+  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 
-    THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND, 
-    EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY 
-    WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  
+  This program is free software; you can redistribute it and/or modify it
+  under the terms of version 2.1 of the GNU Lesser General Public License 
+  as published by the Free Software Foundation.
 
-    IN NO EVENT SHALL SILICON GRAPHICS, INC. BE LIABLE FOR ANY SPECIAL, 
-    INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND,
-    OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
-    WHETHER OR NOT ADVISED OF THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF 
-    LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE 
-    OF THIS SOFTWARE.
+  This program is distributed in the hope that it would be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 
+  Further, this software is distributed without any warranty that it is
+  free of the rightful claim of any third person regarding infringement 
+  or the like.  Any license provided herein, whether implied or 
+  otherwise, applies only to this software file.  Patent licenses, if
+  any, provided herein do not apply to combinations of this program with 
+  other software, or any other product whatsoever.  
+
+  You should have received a copy of the GNU Lesser General Public 
+  License along with this program; if not, write the Free Software 
+  Foundation, Inc., 59 Temple Place - Suite 330, Boston MA 02111-1307, 
+  USA.
+
+  Contact information:  Silicon Graphics, Inc., 1600 Amphitheatre Pky,
+  Mountain View, CA 94043, or:
+
+  http://www.sgi.com
+
+  For further information regarding this notice, see:
+
+  http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 */
+
 
 
 #include "config.h"
@@ -187,7 +198,7 @@ dwarf_formref (
     /* Check that offset is within current 
        cu portion of .debug_info. */
     if (offset >= attr->ar_cu_context->cc_length + 
-		dbg->de_length_size) {
+		attr->ar_cu_context->cc_length_size) {
 	_dwarf_error(dbg, error, DW_DLE_ATTR_FORM_OFFSET_BAD);
 	return(DW_DLV_ERROR);
     }
@@ -260,7 +271,7 @@ dwarf_global_formref (
 
 	    /* check legality of offset */
             if(offset >= attr->ar_cu_context->cc_length + 
-		     dbg->de_length_size){
+		     attr->ar_cu_context->cc_length_size){
 	        _dwarf_error(dbg, error, DW_DLE_ATTR_FORM_OFFSET_BAD);
 	        return(DW_DLV_ERROR);
             }
@@ -274,7 +285,8 @@ dwarf_global_formref (
 	       so use this value unaltered.
 	    */
             READ_UNALIGNED(dbg,ref_addr,Dwarf_Addr,
-		 attr->ar_debug_info_ptr, dbg->de_length_size);
+		 attr->ar_debug_info_ptr, 
+		 attr->ar_cu_context->cc_length_size);
             offset =  ref_addr;
 	    break;
 	default :
@@ -593,7 +605,7 @@ dwarf_formblock (
 	/* Check that block lies within current cu in .debug_info. */
     if (attr->ar_debug_info_ptr + length >=
 	dbg->de_debug_info + cu_context->cc_debug_info_offset + 
-	cu_context->cc_length + dbg->de_length_size) {
+	cu_context->cc_length + cu_context->cc_length_size) {
 	    _dwarf_error(dbg, error, DW_DLE_ATTR_FORM_SIZE_BAD);
 	    return(DW_DLV_ERROR);
 	}
@@ -647,7 +659,7 @@ dwarf_formstring (
 	  /* Check that string lies within current cu in .debug_info. */
           void *end = dbg->de_debug_info + 
 		   cu_context->cc_debug_info_offset +
-            cu_context->cc_length + dbg->de_length_size;
+            cu_context->cc_length + cu_context->cc_length_size;
 	  if (0==_dwarf_string_valid(begin,end)) {
 	    _dwarf_error(dbg, error, DW_DLE_ATTR_FORM_SIZE_BAD);
 	    return(DW_DLV_ERROR);
@@ -659,8 +671,8 @@ dwarf_formstring (
 
     if (attr->ar_attribute_form == DW_FORM_strp) {
 	READ_UNALIGNED(dbg,offset,Dwarf_Unsigned,
-		 attr->ar_debug_info_ptr, dbg->de_length_size);
-
+		attr->ar_debug_info_ptr, 
+		attr->ar_cu_context->cc_length_size);
 	if (dbg->de_debug_str == NULL) {
 	    _dwarf_error(dbg, error, DW_DLE_DEBUG_STR_NULL);
 	    return(DW_DLV_ERROR);

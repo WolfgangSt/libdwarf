@@ -1,37 +1,45 @@
 /*
-Copyright (c) 1994-9 Silicon Graphics, Inc.
 
-    Permission to use, copy, modify, distribute, and sell this software and 
-    its documentation for any purpose is hereby granted without fee, provided
-    that (i) the above copyright notice and this permission notice appear in
-    all copies of the software and related documentation, and (ii) the name
-    "Silicon Graphics" or any other trademark of Silicon Graphics, Inc.  
-    may not be used in any advertising or publicity relating to the software
-    without the specific, prior written permission of Silicon Graphics, Inc.
+  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 
-    THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND, 
-    EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY 
-    WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  
+  This program is free software; you can redistribute it and/or modify it
+  under the terms of version 2.1 of the GNU Lesser General Public License 
+  as published by the Free Software Foundation.
 
-    IN NO EVENT SHALL SILICON GRAPHICS, INC. BE LIABLE FOR ANY SPECIAL, 
-    INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND,
-    OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
-    WHETHER OR NOT ADVISED OF THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF 
-    LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE 
-    OF THIS SOFTWARE.
+  This program is distributed in the hope that it would be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 
-	dwarf_line.c
-	$Revision: 1.42 $  $Date: 1999/07/21 21:29:43 $
+  Further, this software is distributed without any warranty that it is
+  free of the rightful claim of any third person regarding infringement 
+  or the like.  Any license provided herein, whether implied or 
+  otherwise, applies only to this software file.  Patent licenses, if
+  any, provided herein do not apply to combinations of this program with 
+  other software, or any other product whatsoever.  
 
-	The comsumer line table functions.
+  You should have received a copy of the GNU Lesser General Public 
+  License along with this program; if not, write the Free Software 
+  Foundation, Inc., 59 Temple Place - Suite 330, Boston MA 02111-1307, 
+  USA.
 
+  Contact information:  Silicon Graphics, Inc., 1600 Amphitheatre Pky,
+  Mountain View, CA 94043, or:
+
+  http://www.sgi.com
+
+  For further information regarding this notice, see:
+
+  http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 */
+
+
 
 #include "config.h"
 #include "dwarf_incl.h"
 #include <stdio.h>
 #include "dwarf_line.h"
+#include <alloca.h>
 
 
 /* 
@@ -90,7 +98,7 @@ dwarf_srcfiles (
     Dwarf_Unsigned          total_length;
     Dwarf_Half              version;
     Dwarf_Unsigned          prologue_length;
-    Dwarf_Small		    opcode_base;
+    Dwarf_Small		    special_opcode_base;
 
 	/* File name excluding included directory. */
     char		    *file_name;
@@ -230,10 +238,10 @@ dwarf_srcfiles (
 	/* Skip over line_ptr. */
     line_ptr = line_ptr + sizeof(Dwarf_Small);
 
-    opcode_base = *(Dwarf_Small *)line_ptr;
+    special_opcode_base = *(Dwarf_Small *)line_ptr;
     line_ptr = line_ptr + sizeof(Dwarf_Small);
 
-    for (i = 1; i < opcode_base; i++) {
+    for (i = 1; i < special_opcode_base; i++) {
 	    /* Skip over opcode lengths for standard opcodes. */
         line_ptr = line_ptr + sizeof(Dwarf_Small);
     }
@@ -402,15 +410,9 @@ _dwarf_internal_srclines (
     Dwarf_Small             default_is_stmt;
     Dwarf_Sbyte             line_base;
     Dwarf_Small             line_range;
-    Dwarf_Small             opcode_base;
+    Dwarf_Small             special_opcode_base;
 
-        /* 
-            The full UCHAR_MAX number of standard opcode
-            lengths is used for the opcode_length table because
-            that is the only totally safe limit for static 
-            allocation to avoid malloc-ing the exact size needed.
-        */
-    Dwarf_Small             opcode_length[UCHAR_MAX];
+    Dwarf_Small            * opcode_length;
     Dwarf_Small             *include_directories;
     Dwarf_File_Entry        file_entries;
     
@@ -586,10 +588,12 @@ _dwarf_internal_srclines (
     line_range = *(Dwarf_Small *)line_ptr;
     line_ptr = line_ptr + sizeof(Dwarf_Small);
 
-    opcode_base = *(Dwarf_Small *)line_ptr;
+    special_opcode_base = *(Dwarf_Small *)line_ptr;
     line_ptr = line_ptr + sizeof(Dwarf_Small);
 
-    for (i = 1; i < opcode_base; i++) {
+    opcode_length = (Dwarf_Small *)
+	alloca(sizeof(Dwarf_Small)*special_opcode_base);
+    for (i = 1; i < special_opcode_base; i++) {
         opcode_length[i] = *(Dwarf_Small *)line_ptr;
         line_ptr = line_ptr + sizeof(Dwarf_Small);
     }
@@ -662,23 +666,37 @@ _dwarf_internal_srclines (
 
         /* Start of statement program.  */
     while (line_ptr < line_ptr_end) {
-        
+        int type; 
+
         opcode = *(Dwarf_Small *)line_ptr;
         line_ptr++;
-        switch (opcode) {
-            
-                /* 
-                    These are special opcodes between opcode_base
-                    and UCHAR_MAX.                            
-                */
-            default : {
 
-                opcode = opcode - opcode_base;
-                address = address + minimum_instruction_length * 
+
+	/* 'type' is the output */
+	WHAT_IS_OPCODE(type,opcode,special_opcode_base,
+		opcode_length,line_ptr);
+
+	
+
+	if(type == LOP_DISCARD) {
+		/* do nothing, necessary ops done */
+	}else if (type == LOP_SPECIAL) {
+	   /*   This op code is a special op in
+		the object, no matter
+		that it  might fall into the standard
+		op range in this compile 
+                Thatis, these are special opcodes between 
+		special_opcode_base
+                and MAX_LINE_OP_CODE.  (including
+		special_opcode_base and MAX_LINE_OP_CODE)
+           */
+
+           opcode = opcode - special_opcode_base;
+           address = address + minimum_instruction_length * 
 		    (opcode / line_range);
-                line = line + line_base + opcode % line_range;
+           line = line + line_base + opcode % line_range;
 
-		if(dolines) {
+	   if(dolines) {
                   curr_line = (Dwarf_Line)_dwarf_get_alloc(dbg, DW_DLA_LINE, 1);
                   if (curr_line == NULL) {
                     _dwarf_error(dbg,error,DW_DLE_ALLOC_FAIL);
@@ -712,11 +730,11 @@ _dwarf_internal_srclines (
                     curr_chain->ch_next = chain_line;
                     curr_chain = chain_line;
                   }
-                }
-
-                basic_block = false;
-                break;
             }
+
+            basic_block = false;
+	}else if (type == LOP_STANDARD) {
+	  switch (opcode) {
 
             case DW_LNS_copy : {
                 if (opcode_length[DW_LNS_copy] != 0) {
@@ -835,7 +853,7 @@ _dwarf_internal_srclines (
             }
 
             case DW_LNS_const_add_pc : {
-                opcode = UCHAR_MAX - opcode_base;
+                opcode = MAX_LINE_OP_CODE - special_opcode_base;
                 address = address + minimum_instruction_length *
 		    (opcode / line_range);
 
@@ -854,8 +872,9 @@ _dwarf_internal_srclines (
                 address = address + fixed_advance_pc;
                 break;
             }
+          }
 
-            case DW_EXTENDED_OPCODE : {
+	}else if (type == LOP_EXTENDED) {
 		Dwarf_Unsigned utmp3;
 		DECODE_LEB128_UWORD(line_ptr, utmp3)
 		instr_length = (Dwarf_Word)utmp3;
@@ -1003,7 +1022,6 @@ _dwarf_internal_srclines (
                 }
 
             }
-        }
     }
 
     block_line = (Dwarf_Line *)

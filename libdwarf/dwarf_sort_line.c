@@ -1,56 +1,46 @@
 /*
-Copyright (c) 1994-9 Silicon Graphics, Inc.
 
-    Permission to use, copy, modify, distribute, and sell this software and 
-    its documentation for any purpose is hereby granted without fee, provided
-    that (i) the above copyright notice and this permission notice appear in
-    all copies of the software and related documentation, and (ii) the name
-    "Silicon Graphics" or any other trademark of Silicon Graphics, Inc.  
-    may not be used in any advertising or publicity relating to the software
-    without the specific, prior written permission of Silicon Graphics, Inc.
+  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 
-    THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND, 
-    EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY 
-    WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  
+  This program is free software; you can redistribute it and/or modify it
+  under the terms of version 2.1 of the GNU Lesser General Public License 
+  as published by the Free Software Foundation.
 
-    IN NO EVENT SHALL SILICON GRAPHICS, INC. BE LIABLE FOR ANY SPECIAL, 
-    INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND,
-    OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
-    WHETHER OR NOT ADVISED OF THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF 
-    LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE 
-    OF THIS SOFTWARE.
+  This program is distributed in the hope that it would be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 
-	dwarf_sort_line.c
-	$Revision: 1.6 $
+  Further, this software is distributed without any warranty that it is
+  free of the rightful claim of any third person regarding infringement 
+  or the like.  Any license provided herein, whether implied or 
+  otherwise, applies only to this software file.  Patent licenses, if
+  any, provided herein do not apply to combinations of this program with 
+  other software, or any other product whatsoever.  
 
-	A special function called only by ld.
-	It is sgi ld specific at present.
+  You should have received a copy of the GNU Lesser General Public 
+  License along with this program; if not, write the Free Software 
+  Foundation, Inc., 59 Temple Place - Suite 330, Boston MA 02111-1307, 
+  USA.
 
-	The function is to take a relocated .debug_line
-	section with DW_LNE_set_address es
-	and sort the 'sections' this defines in increasing
-	address order.
+  Contact information:  Silicon Graphics, Inc., 1600 Amphitheatre Pky,
+  Mountain View, CA 94043, or:
 
-	This is needed so that -OPT:procedure_reorder=ON
-	combined with ld-cord
-	will not screw up line numbers.
-	The result is that the addresses
-	in the line table are strictly increasing order.
-	(the gaps which could be present should not matter).
+  http://www.sgi.com
 
-	This uses none of the functions dependent
-	on DIEs, or dbg, as ld does not want 
-	or need to
-	have to deal with a libdwarf init call.
+  For further information regarding this notice, see:
+
+  http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 */
+
+
 
 #include "config.h"
 #include "dwarf_incl.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "dwarf_line.h"
-#include "alloca.h"
+#include <alloca.h>
 
 static int 
 _dwarf_update_line_sec(Dwarf_Small *line_ptr,
@@ -291,13 +281,7 @@ _dwarf_update_line_sec(Dwarf_Small *line_ptr,
     struct Dwarf_Debug_s    dbg_data;
     Dwarf_Debug             dbg = &dbg_data;
 
-        /* 
-            The full UCHAR_MAX number of standard opcode
-            lengths is used for the opcode_length table because
-            that is the only totally safe limit for static 
-            allocation to avoid malloc-ing the exact size needed.
-        */
-    Dwarf_Small             opcode_length[UCHAR_MAX];
+    Dwarf_Small             *opcode_length = 0;
     
         /* These are the state machine state variables. */
     Dwarf_Addr              address;
@@ -389,6 +373,8 @@ _dwarf_update_line_sec(Dwarf_Small *line_ptr,
     opcode_base = *(Dwarf_Small *)line_ptr;
     line_ptr = line_ptr + sizeof(Dwarf_Small);
 
+    opcode_length = (Dwarf_Small *)
+        alloca(sizeof(Dwarf_Small)*opcode_base);
     for (i = 1; i < opcode_base; i++) {
         opcode_length[i] = *(Dwarf_Small *)line_ptr;
         line_ptr = line_ptr + sizeof(Dwarf_Small);
@@ -440,27 +426,34 @@ _dwarf_update_line_sec(Dwarf_Small *line_ptr,
 
         /* Start of statement program.  */
     while (line_ptr < line_ptr_end) {
+	int type ;
 
 	Dwarf_Small *stmt_prog_entry_start = line_ptr;
         
         opcode = *(Dwarf_Small *)line_ptr;
         line_ptr++;
-        switch (opcode) {
-            
-                /* 
-                    These are special opcodes between opcode_base
-                    and UCHAR_MAX.                            
-                */
-            default : {
+        /* 'type' is the output */
+        WHAT_IS_OPCODE(type,opcode,opcode_base,
+                opcode_length,line_ptr);
 
+
+
+        if(type == LOP_DISCARD) {
+                /* do nothing, necessary ops done */
+        }else if (type == LOP_SPECIAL) {
                 opcode = opcode - opcode_base;
                 address = address + minimum_instruction_length * 
 		    (opcode / line_range);
                 line = line + line_base + opcode % line_range;
 
                 /*basic_block = false; */
-                break;
-            }
+
+
+        }else if (type == LOP_STANDARD) {
+
+
+          switch (opcode) {
+            
 
             case DW_LNS_copy : {
                 if (opcode_length[DW_LNS_copy] != 0) {
@@ -544,7 +537,7 @@ _dwarf_update_line_sec(Dwarf_Small *line_ptr,
             }
 
             case DW_LNS_const_add_pc : {
-                opcode = UCHAR_MAX - opcode_base;
+                opcode = MAX_LINE_OP_CODE - opcode_base;
                 address = address + minimum_instruction_length *
 		    (opcode / line_range);
 
@@ -563,8 +556,10 @@ _dwarf_update_line_sec(Dwarf_Small *line_ptr,
                 address = address + fixed_advance_pc;
                 break;
             }
+           }
+	} else if (type == LOP_EXTENDED) {
 
-            case DW_EXTENDED_OPCODE : {
+	
 		Dwarf_Unsigned utmp3;
 		DECODE_LEB128_UWORD(line_ptr, utmp3)
 		instr_length = (Dwarf_Word)utmp3;
@@ -644,7 +639,6 @@ _dwarf_update_line_sec(Dwarf_Small *line_ptr,
                 }
 
             }
-        }
     }
 
 

@@ -1,26 +1,39 @@
 /*
-Copyright (c) 1994-9 Silicon Graphics, Inc.
 
-    Permission to use, copy, modify, distribute, and sell this software and 
-    its documentation for any purpose is hereby granted without fee, provided
-    that (i) the above copyright notice and this permission notice appear in
-    all copies of the software and related documentation, and (ii) the name
-    "Silicon Graphics" or any other trademark of Silicon Graphics, Inc.  
-    may not be used in any advertising or publicity relating to the software
-    without the specific, prior written permission of Silicon Graphics, Inc.
+  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 
-    THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND, 
-    EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY 
-    WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  
+  This program is free software; you can redistribute it and/or modify it
+  under the terms of version 2.1 of the GNU Lesser General Public License 
+  as published by the Free Software Foundation.
 
-    IN NO EVENT SHALL SILICON GRAPHICS, INC. BE LIABLE FOR ANY SPECIAL, 
-    INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND,
-    OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
-    WHETHER OR NOT ADVISED OF THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF 
-    LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE 
-    OF THIS SOFTWARE.
+  This program is distributed in the hope that it would be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+
+  Further, this software is distributed without any warranty that it is
+  free of the rightful claim of any third person regarding infringement 
+  or the like.  Any license provided herein, whether implied or 
+  otherwise, applies only to this software file.  Patent licenses, if
+  any, provided herein do not apply to combinations of this program with 
+  other software, or any other product whatsoever.  
+
+  You should have received a copy of the GNU Lesser General Public 
+  License along with this program; if not, write the Free Software 
+  Foundation, Inc., 59 Temple Place - Suite 330, Boston MA 02111-1307, 
+  USA.
+
+  Contact information:  Silicon Graphics, Inc., 1600 Amphitheatre Pky,
+  Mountain View, CA 94043, or:
+
+  http://www.sgi.com
+
+  For further information regarding this notice, see:
+
+  http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 */
+
+
 
 #include "config.h"
 #include "libdwarfdefs.h"
@@ -111,6 +124,7 @@ dwarf_add_AT_targ_address_b(
     new_attr->ar_nbytes = upointer_size;
     new_attr->ar_rel_symidx = sym_index;
     new_attr->ar_reloc_len = upointer_size;
+    new_attr->ar_next = 0;
     if (sym_index != NO_ELF_SYM_INDEX) 
         new_attr->ar_rel_type = dbg->de_ptr_reloc;
     else 
@@ -216,6 +230,7 @@ dwarf_add_AT_unsigned_const (
     new_attr->ar_rel_type = R_MIPS_NONE;
     new_attr->ar_reloc_len = 0 ; /* irrelevant: unused with R_MIPS_NONE */
     new_attr->ar_nbytes = size;
+    new_attr->ar_next  = 0;
 
     new_attr->ar_data = (char *)
         _dwarf_p_get_alloc(dbg, size);
@@ -297,8 +312,10 @@ dwarf_add_AT_signed_const (
     new_attr->ar_attribute = attr;
     new_attr->ar_attribute_form = attr_form;
     new_attr->ar_rel_type = R_MIPS_NONE;
-    new_attr->ar_reloc_len = 0 ; /* irrelevant: unused with R_MIPS_NONE */
+    new_attr->ar_reloc_len = 0 ; /* irrelevant: unused with 
+			R_MIPS_NONE */
     new_attr->ar_nbytes = size;
+    new_attr->ar_next = 0;
 
     new_attr->ar_data = (char *)
         _dwarf_p_get_alloc(dbg, size);
@@ -429,6 +446,7 @@ dwarf_add_AT_location_expr (
 
     new_attr->ar_nbytes = block_size + len_size;
 
+    new_attr->ar_next = 0;
     new_attr->ar_data = block_dest_ptr = 
 	(char *)_dwarf_p_get_alloc(dbg, block_size + len_size);
     if (new_attr->ar_data == NULL) {
@@ -530,10 +548,11 @@ dwarf_add_AT_reference (
 
     new_attr->ar_attribute = attr;
     new_attr->ar_attribute_form = dbg->de_ar_ref_attr_form;
-    new_attr->ar_nbytes = dbg->de_pointer_size; 
-    new_attr->ar_reloc_len = dbg->de_pointer_size;
+    new_attr->ar_nbytes = dbg->de_offset_size; 
+    new_attr->ar_reloc_len = dbg->de_offset_size;
     new_attr->ar_ref_die = otherdie;
     new_attr->ar_rel_type = R_MIPS_NONE;
+    new_attr->ar_next = 0;
 
     /* add attribute to the die */
     _dwarf_pro_add_at_to_die(ownerdie, new_attr);
@@ -594,6 +613,7 @@ dwarf_add_AT_flag (
     new_attr->ar_nbytes = 1;
     new_attr->ar_reloc_len = 0; /* not used */
     new_attr->ar_rel_type = R_MIPS_NONE;
+    new_attr->ar_next = 0;
 
     new_attr->ar_data = (char *)
         _dwarf_p_get_alloc(dbg, 1);
@@ -659,7 +679,7 @@ dwarf_add_AT_string (
     new_attr->ar_attribute = attr;
     new_attr->ar_attribute_form = DW_FORM_string;
     new_attr->ar_nbytes = strlen(string) + 1;
-    new_attr->ar_next = NULL;
+    new_attr->ar_next = 0;
 
     new_attr->ar_data = 
 	(char *)_dwarf_p_get_alloc(NULL, strlen(string)+1);
@@ -702,7 +722,7 @@ dwarf_add_AT_const_value_string (
     new_attr->ar_attribute = DW_AT_const_value;
     new_attr->ar_attribute_form = DW_FORM_string;
     new_attr->ar_nbytes = strlen(string_value) + 1;
-    new_attr->ar_next = NULL;
+    new_attr->ar_next = 0;
 
     new_attr->ar_data = 
 	(char *)_dwarf_p_get_alloc(NULL, strlen(string_value)+1);
@@ -745,7 +765,7 @@ dwarf_add_AT_producer (
     new_attr->ar_attribute = DW_AT_producer;
     new_attr->ar_attribute_form = DW_FORM_string;
     new_attr->ar_nbytes = strlen(producer_string) + 1;
-    new_attr->ar_next = NULL;
+    new_attr->ar_next = 0;
 
     new_attr->ar_data = 
 	(char *)_dwarf_p_get_alloc(NULL, strlen(producer_string)+1);
@@ -792,9 +812,10 @@ dwarf_add_AT_const_value_signedint (
     new_attr->ar_attribute_form = DW_FORM_sdata;
     new_attr->ar_rel_type = R_MIPS_NONE;
     new_attr->ar_reloc_len = 0 ; /* unused for R_MIPS_NONE */
-    new_attr->ar_next = NULL;
+    new_attr->ar_next = 0;
 
-    res =       _dwarf_pro_encode_signed_leb128_nm(signed_value, &leb_size,
+    res =       _dwarf_pro_encode_signed_leb128_nm(
+			signed_value, &leb_size,
           encode_buffer,sizeof(encode_buffer));
     if (res != DW_DLV_OK)  {
 	_dwarf_p_error(NULL, error, DW_DLE_ALLOC_FAIL);
@@ -843,7 +864,7 @@ dwarf_add_AT_const_value_unsignedint (
     new_attr->ar_attribute_form = DW_FORM_udata;
     new_attr->ar_rel_type = R_MIPS_NONE;
     new_attr->ar_reloc_len = 0 ; /* unused for R_MIPS_NONE */
-    new_attr->ar_next = NULL;
+    new_attr->ar_next = 0;
 
     res = 	_dwarf_pro_encode_leb128_nm(unsigned_value, &leb_size,
 	  encode_buffer,sizeof(encode_buffer));
