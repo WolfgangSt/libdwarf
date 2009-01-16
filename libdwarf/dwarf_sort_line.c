@@ -47,8 +47,8 @@
 #define MINIMUM_POSSIBLE_PROLOG_LEN 10	/* 10 is based on */
 	/* the definition of the DWARF2/3 line table prolog. The value
 	   here should be >8 (accounting for a 64 bit read) and <= the
-	   length of a legal DWARF2/3 line prolog, which is at least
-	   10 bytes long (but can be longer). What this constant helps
+	   length of a legal DWARF2/3 line prolog, which is at least 10 
+	   bytes long (but can be longer). What this constant helps
 	   avoid is reading past the end of a malloc'd buffer in
 	   _dwarf_update_line_sec(). */
 
@@ -63,10 +63,10 @@ static int
    a linked list of so we can sort and reorder the line info.
 */
 struct a_line_area {
-    Dwarf_Addr     ala_address;	 /* from DW_LNE_set_address */
-    Dwarf_Unsigned ala_offset;	 /* byte offset in buffer */
-    Dwarf_Unsigned ala_length;	 /* byte length in buffer */
-    long           ala_entry_num;/* to guarantee stable sort */
+    Dwarf_Addr ala_address;	/* from DW_LNE_set_address */
+    Dwarf_Unsigned ala_offset;	/* byte offset in buffer */
+    Dwarf_Unsigned ala_length;	/* byte length in buffer */
+    long ala_entry_num;		/* to guarantee stable sort */
     struct a_line_area *ala_next;
 };
 
@@ -261,34 +261,27 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
     /* 
        This points to the last byte of the .debug_line portion for the
        current cu. */
-    Dwarf_Small *line_ptr_end;
+    Dwarf_Small *line_ptr_end = 0;
 
     /* 
        This points to the end of the statement program prologue for the 
        current cu, and serves to check that the prologue was correctly
        decoded. */
-    Dwarf_Small *check_line_ptr;
 
     Dwarf_Small *orig_line_ptr;
 
     /* These are the fields of the statement program header. */
-    Dwarf_Unsigned total_length;
-    Dwarf_Half version;
-    Dwarf_Unsigned prologue_length;
-    Dwarf_Small minimum_instruction_length;
-    Dwarf_Small default_is_stmt;
-    Dwarf_Sbyte line_base;
-    Dwarf_Small line_range;
-    Dwarf_Small opcode_base;
     struct Dwarf_Debug_s dbg_data;
     Dwarf_Debug dbg = &dbg_data;
-
-    Dwarf_Small *opcode_length = 0;
 
     /* These are the state machine state variables. */
     Dwarf_Addr address;
     Dwarf_Word line;
     Dwarf_Bool is_stmt;
+
+    /* Dwarf_Bool prologue_end; Dwarf_Bool epilogue_begin; */
+    Dwarf_Small isa;
+
 
     struct a_line_area *area_base = 0;
     struct a_line_area *area_current = 0;
@@ -296,10 +289,6 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 
     Dwarf_Addr last_address = 0;
     int need_to_sort = 0;
-
-    Dwarf_Sword i;
-    Dwarf_Sword file_entry_count;
-    Dwarf_Sword include_directories_count;
 
     /* 
        This is the current opcode read from the statement program. */
@@ -311,7 +300,6 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
        holds the decoded number, and leb128_length is its length in
        bytes. */
     Dwarf_Word leb128_num;
-    Dwarf_Word leb128_length;
     Dwarf_Sword advance_line;
 
     /* 
@@ -322,6 +310,7 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
     /* This is the length of an extended opcode instr.  */
     Dwarf_Word instr_length;
     Dwarf_Small ext_opcode;
+    struct Line_Table_Prefix_s prefix;
 
 
 
@@ -330,6 +319,8 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
        Following is a straightforward decoding of the statement program 
        prologue information. */
     *any_change = 0;
+
+
     orig_line_ptr = line_ptr;
     if (remaining_bytes < MINIMUM_POSSIBLE_PROLOG_LEN) {
 	/* We are at the end. Remaining should be zero bytes, padding.
@@ -340,95 +331,44 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 	return (DW_DLV_NO_ENTRY);
     }
 
-    READ_UNALIGNED(dbg, total_length, Dwarf_Unsigned,
-		   line_ptr, length_size);
-    line_ptr += length_size;
-    line_ptr_end = line_ptr + total_length;
-    if (line_ptr_end > line_ptr + remaining_bytes) {
-	*err_code = DW_DLE_DEBUG_LINE_LENGTH_BAD;
-	return (DW_DLV_ERROR);
+    dwarf_init_line_table_prefix(&prefix);
+    {
+	Dwarf_Small *line_ptr_out = 0;
+	Dwarf_Error error;
+	int dres = dwarf_read_line_table_prefix(dbg,
+						line_ptr,
+						remaining_bytes,
+						&line_ptr_out,
+						&prefix, &error);
+
+	if (dres == DW_DLV_ERROR) {
+	    dwarf_free_line_table_prefix(&prefix);
+	    *err_code = dwarf_errno(error);
+	    dwarf_dealloc(dbg, error, DW_DLA_ERROR);
+	    return dres;
+	}
+	if (dres == DW_DLV_NO_ENTRY) {
+	    dwarf_free_line_table_prefix(&prefix);
+	    return dres;
+	}
+	line_ptr_end = prefix.pf_line_ptr_end;
+
+	line_ptr = line_ptr_out;
     }
 
-    *new_line_ptr = line_ptr_end;
-    READ_UNALIGNED(dbg, version, Dwarf_Half,
-		   line_ptr, sizeof(Dwarf_Half));
-    line_ptr += sizeof(Dwarf_Half);
-    if (version != CURRENT_VERSION_STAMP &&
-	version != CURRENT_VERSION_STAMP3) {
-	*err_code = DW_DLE_VERSION_STAMP_ERROR;
-	return (DW_DLV_ERROR);
-    }
-
-    READ_UNALIGNED(dbg, prologue_length, Dwarf_Unsigned,
-		   line_ptr, length_size);
-    line_ptr += length_size;
-    check_line_ptr = line_ptr;
-
-    minimum_instruction_length = *(Dwarf_Small *) line_ptr;
-    line_ptr = line_ptr + sizeof(Dwarf_Small);
-
-    default_is_stmt = *(Dwarf_Small *) line_ptr;
-    line_ptr = line_ptr + sizeof(Dwarf_Small);
-
-    line_base = *(Dwarf_Sbyte *) line_ptr;
-    line_ptr = line_ptr + sizeof(Dwarf_Sbyte);
-
-    line_range = *(Dwarf_Small *) line_ptr;
-    line_ptr = line_ptr + sizeof(Dwarf_Small);
-
-    opcode_base = *(Dwarf_Small *) line_ptr;
-    line_ptr = line_ptr + sizeof(Dwarf_Small);
-
-    opcode_length = (Dwarf_Small *)
-	alloca(sizeof(Dwarf_Small) * opcode_base);
-    for (i = 1; i < opcode_base; i++) {
-	opcode_length[i] = *(Dwarf_Small *) line_ptr;
-	line_ptr = line_ptr + sizeof(Dwarf_Small);
-    }
-
-    include_directories_count = 0;
-    while ((*(char *) line_ptr) != '\0') {
-	line_ptr = line_ptr + strlen((char *) line_ptr) + 1;
-	include_directories_count++;
-    }
-    line_ptr++;
-
-    file_entry_count = 0;
-    while (*(char *) line_ptr != '\0') {
-
-
-	/* filename = (Dwarf_Small *)line_ptr; */
-	line_ptr = line_ptr + strlen((char *) line_ptr) + 1;
-
-	/* dir_index = */
-	_dwarf_decode_u_leb128(line_ptr, &leb128_length);
-	line_ptr = line_ptr + leb128_length;
-
-	/* time_last_mod = */
-	_dwarf_decode_u_leb128(line_ptr, &leb128_length);
-	line_ptr = line_ptr + leb128_length;
-
-	/* file_length = */
-	_dwarf_decode_u_leb128(line_ptr, &leb128_length);
-	line_ptr = line_ptr + leb128_length;
-
-	file_entry_count++;
-    }
-    line_ptr++;
-
-    if (line_ptr != check_line_ptr + prologue_length) {
-	*err_code = DW_DLE_LINE_PROLOG_LENGTH_BAD;
-	return (DW_DLV_ERROR);
-    }
 
     /* Initialize the state machine.  */
     address = 0;
     /* file = 1; */
     line = 1;
     /* column = 0; */
-    is_stmt = default_is_stmt;
+    is_stmt = prefix.pf_default_is_stmt;
     /* basic_block = false; */
     /* end_sequence = false; */
+    /* prologue_end = false; */
+    /* epilogue_begin = false; */
+    isa = 0;
+
 
     /* Start of statement program.  */
     while (line_ptr < line_ptr_end) {
@@ -439,19 +379,33 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 	opcode = *(Dwarf_Small *) line_ptr;
 	line_ptr++;
 	/* 'type' is the output */
-	WHAT_IS_OPCODE(type, opcode, opcode_base,
-		       opcode_length, line_ptr,
-		       WHAT_IS_HIGHEST_STD(version));
-
-
+	WHAT_IS_OPCODE(type, opcode, prefix.pf_opcode_base,
+		       prefix.pf_opcode_length_table, line_ptr,
+		       prefix.pf_std_op_count);
 
 	if (type == LOP_DISCARD) {
-	    /* do nothing, necessary ops done */
+	    int oc;
+	    int opcnt = prefix.pf_opcode_length_table[opcode];
+
+	    for (oc = 0; oc < opcnt; oc++) {
+		/* 
+		 ** Read and discard operands we don't
+		 ** understand.
+		 ** arbitrary choice of unsigned read.
+		 ** signed read would work as well.
+		 */
+		Dwarf_Unsigned utmp2;
+
+		DECODE_LEB128_UWORD(line_ptr, utmp2)
+	    }
+
 	} else if (type == LOP_SPECIAL) {
-	    opcode = opcode - opcode_base;
-	    address = address + minimum_instruction_length *
-		(opcode / line_range);
-	    line = line + line_base + opcode % line_range;
+	    opcode = opcode - prefix.pf_opcode_base;
+	    address = address + prefix.pf_minimum_instruction_length *
+		(opcode / prefix.pf_line_range);
+	    line =
+		line + prefix.pf_line_base +
+		opcode % prefix.pf_line_range;
 
 	    /* basic_block = false; */
 
@@ -463,11 +417,6 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 
 
 	    case DW_LNS_copy:{
-		    if (opcode_length[DW_LNS_copy] != 0) {
-			*err_code = DW_DLE_LINE_NUM_OPERANDS_BAD;
-			return (DW_DLV_ERROR);
-		    }
-
 
 		    /* basic_block = false; */
 		    break;
@@ -476,26 +425,19 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 	    case DW_LNS_advance_pc:{
 		    Dwarf_Unsigned utmp2;
 
-		    if (opcode_length[DW_LNS_advance_pc] != 1) {
-			*err_code = DW_DLE_LINE_NUM_OPERANDS_BAD;
-			return (DW_DLV_ERROR);
-		    }
 
 		    DECODE_LEB128_UWORD(line_ptr, utmp2)
 			leb128_num = (Dwarf_Word) utmp2;
 		    address =
 			address +
-			minimum_instruction_length * leb128_num;
+			prefix.pf_minimum_instruction_length *
+			leb128_num;
 		    break;
 		}
 
 	    case DW_LNS_advance_line:{
 		    Dwarf_Signed stmp;
 
-		    if (opcode_length[DW_LNS_advance_line] != 1) {
-			*err_code = DW_DLE_LINE_NUM_OPERANDS_BAD;
-			return (DW_DLV_ERROR);
-		    }
 
 		    DECODE_LEB128_SWORD(line_ptr, stmp)
 			advance_line = (Dwarf_Sword) stmp;
@@ -506,10 +448,6 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 	    case DW_LNS_set_file:{
 		    Dwarf_Unsigned utmp2;
 
-		    if (opcode_length[DW_LNS_set_file] != 1) {
-			*err_code = DW_DLE_LINE_NUM_OPERANDS_BAD;
-			return (DW_DLV_ERROR);
-		    }
 
 		    DECODE_LEB128_UWORD(line_ptr, utmp2)
 			/* file = (Dwarf_Word)utmp2; */
@@ -519,10 +457,6 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 	    case DW_LNS_set_column:{
 		    Dwarf_Unsigned utmp2;
 
-		    if (opcode_length[DW_LNS_set_column] != 1) {
-			*err_code = DW_DLE_LINE_NUM_OPERANDS_BAD;
-			return (DW_DLV_ERROR);
-		    }
 
 		    DECODE_LEB128_UWORD(line_ptr, utmp2)
 			/* column = (Dwarf_Word)utmp2; */
@@ -530,38 +464,29 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 		}
 
 	    case DW_LNS_negate_stmt:{
-		    if (opcode_length[DW_LNS_negate_stmt] != 0) {
-			*err_code = DW_DLE_LINE_NUM_OPERANDS_BAD;
-			return (DW_DLV_ERROR);
-		    }
 
 		    is_stmt = !is_stmt;
 		    break;
 		}
 
 	    case DW_LNS_set_basic_block:{
-		    if (opcode_length[DW_LNS_set_basic_block] != 0) {
-			*err_code = DW_DLE_LINE_NUM_OPERANDS_BAD;
-			return (DW_DLV_ERROR);
-		    }
 
 		    /* basic_block = true; */
 		    break;
 		}
 
 	    case DW_LNS_const_add_pc:{
-		    opcode = MAX_LINE_OP_CODE - opcode_base;
-		    address = address + minimum_instruction_length *
-			(opcode / line_range);
+		    opcode = MAX_LINE_OP_CODE - prefix.pf_opcode_base;
+		    address =
+			address +
+			prefix.pf_minimum_instruction_length * (opcode /
+								prefix.
+								pf_line_range);
 
 		    break;
 		}
 
 	    case DW_LNS_fixed_advance_pc:{
-		    if (opcode_length[DW_LNS_fixed_advance_pc] != 1) {
-			*err_code = DW_DLE_LINE_NUM_OPERANDS_BAD;
-			return (DW_DLV_ERROR);
-		    }
 
 		    READ_UNALIGNED(dbg, fixed_advance_pc, Dwarf_Half,
 				   line_ptr, sizeof(Dwarf_Half));
@@ -569,6 +494,38 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 		    address = address + fixed_advance_pc;
 		    break;
 		}
+		/* New in DWARF3 */
+	    case DW_LNS_set_prologue_end:{
+
+		    /* prologue_end = true; */
+		    break;
+
+
+		}
+		/* New in DWARF3 */
+	    case DW_LNS_set_epilogue_begin:{
+		    /* epilogue_begin = true; */
+		    break;
+		}
+
+		/* New in DWARF3 */
+	    case DW_LNS_set_isa:{
+		    Dwarf_Unsigned utmp2;
+
+		    DECODE_LEB128_UWORD(line_ptr, utmp2)
+			isa = utmp2;
+		    if (isa != utmp2) {
+			/* The value of the isa did not fit in our
+			   local so we record it wrong. declare an
+			   error. */
+			dwarf_free_line_table_prefix(&prefix);
+
+			*err_code = DW_DLE_LINE_NUM_OPERANDS_BAD;
+			return (DW_DLV_ERROR);
+		    }
+		    break;
+		}
+
 	    }
 	} else if (type == LOP_EXTENDED) {
 
@@ -588,9 +545,12 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 		    /* file = 1; */
 		    line = 1;
 		    /* column = 0; */
-		    is_stmt = default_is_stmt;
+		    is_stmt = prefix.pf_default_is_stmt;
 		    /* basic_block = false; */
 		    /* end_sequence = false; */
+		    /* prologue_end = false; */
+		    /* epilogue_begin = false; */
+
 
 		    break;
 		}
@@ -631,6 +591,7 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 			line_ptr += length_size;
 		    } else {
 			*err_code = DW_DLE_LINE_SET_ADDR_ERROR;
+			dwarf_free_line_table_prefix(&prefix);
 			return (DW_DLV_ERROR);
 		    }
 
@@ -645,6 +606,7 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 
 	    default:{
 		    *err_code = DW_DLE_LINE_EXT_OPCODE_BAD;
+		    dwarf_free_line_table_prefix(&prefix);
 		    return (DW_DLV_ERROR);
 		}
 	    }
@@ -653,7 +615,9 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
     }
 
 
+    *new_line_ptr = line_ptr;
     if (!need_to_sort) {
+	dwarf_free_line_table_prefix(&prefix);
 	return (DW_DLV_OK);
     }
 
@@ -680,6 +644,7 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 
 	ala_array = malloc(area_count * sizeof(struct a_line_area));
 	if (!ala_array) {
+	    dwarf_free_line_table_prefix(&prefix);
 	    *err_code = DW_DLE_ALLOC_FAIL;
 	    return DW_DLV_ERROR;
 	}
@@ -694,11 +659,14 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
 
 	/* Now we must rearrange the pieces of the line table. */
 
-	start_len = (check_line_ptr + prologue_length) - orig_line_ptr;
+	start_len =
+	    (prefix.pf_line_prologue_start +
+	     prefix.pf_prologue_length) - orig_line_ptr;
 	new_area = malloc(remaining_bytes);
 	if (!new_area) {
 	    free(ala_array);
 	    *err_code = DW_DLE_ALLOC_FAIL;
+	    dwarf_free_line_table_prefix(&prefix);
 	    return DW_DLV_ERROR;
 	}
 	memcpy(new_area, orig_line_ptr, start_len);
@@ -718,5 +686,6 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
     }
 
     *any_change = 1;
+    dwarf_free_line_table_prefix(&prefix);
     return (DW_DLV_OK);
 }

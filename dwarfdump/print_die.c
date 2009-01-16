@@ -30,7 +30,7 @@
   http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 
-$Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/print_die.c,v 1.47 2005/08/04 05:09:37 davea Exp $ */
+$Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/print_die.c,v 1.49 2005/12/01 17:34:59 davea Exp $ */
 #include "globals.h"
 #include "dwarf_names.h"
 #include "esb.h"  /* For flexible string buffer. */

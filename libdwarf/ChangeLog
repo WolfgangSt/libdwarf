@@ -1,3 +1,15 @@
+2006-03-26 David Anderson <davea@sgi.com>
+      * dwarf_line.c: file_entry_count local was not initialized.
+        Initialized some locals at declaration.
+        Thanks to Mikael Vidstedt for noticing.
+2006-03-23 David Anderson <davea@sgi.com>
+      * dwarf_error.c: added error strings for codes 200,201
+      * dwarf_line.c dwarf_line.h dwarf_print_lines.c dwarf_sort_line.c: Moved
+        line prefix reading to a common routine, filling in a new internal
+        struct to make it simple.  Removed much duplicate code.
+        Added more support for dwarf3 line table standard opcodes.
+        Now prints details (with -v -v) of standard opcodes it
+        does not understand (if any present).
 2006-03-13 David Anderson <davea@sgi.com>
       * dwarf.h: add ALTIUM #defines (extensions to dwarf)
       * libdwarf.h: Alter arguments to new

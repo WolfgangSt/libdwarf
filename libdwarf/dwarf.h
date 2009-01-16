@@ -41,7 +41,7 @@ extern "C" {
 
 /*
         dwarf.h   DWARF  debugging information values
-        $Revision: 1.32 $    $Date: 2004/10/28 22:30:10 $
+        $Revision: 1.38 $    $Date: 2006/03/24 20:56:01 $
 
         The comment "DWARF3" appears where there are
         new entries from DWARF3 as of 2004, "DWARF3f"
@@ -279,10 +279,11 @@ extern "C" {
 #define DW_AT_elemental                         0x66 /* DWARF3f */
 #define DW_AT_pure                              0x67 /* DWARF3f */
 #define DW_AT_recursive                         0x68 /* DWARF3f */
-/* HP extensions. */
-#define DW_AT_HP_block_index                    0x2000  /* HP */
 
 #define DW_AT_lo_user                           0x2000
+
+/* HP extensions. */
+#define DW_AT_HP_block_index                    0x2000  /* HP */
 
 #define DW_AT_MIPS_fde                          0x2001 /* MIPS/SGI */
 #define DW_AT_MIPS_loop_begin                   0x2002 /* MIPS/SGI */
@@ -497,9 +498,10 @@ extern "C" {
 #define DW_OP_call_frame_cfa            0x9c /* DWARF3f */
 #define DW_OP_bit_piece                 0x9d /* DWARF3f */
 
+#define DW_OP_lo_user                   0xe0
+
     /* GNU extensions. */
 #define DW_OP_GNU_push_tls_address      0xe0 /* GNU */
-#define DW_OP_lo_user                   0xe0
 
     /* HP extensions. */
 #if 0
@@ -530,17 +532,16 @@ extern "C" {
 #define DW_ATE_unsigned_fixed           0xe  /* DWARF3f */
 #define DW_ATE_decimal_float            0xf  /* DWARF3f */
 
-/* HP Floating point extensions. */
-#define DW_ATE_HP_float80             0x80 /* (80 bit). HP */
-
-/* ALTIUM extensions. */
-#define DW_ATE_ALTIUM_fract             0x80 /* ALTIUM __fract type */
-#define DW_ATE_ALTIUM_accum             0x81 /* ALTIUM __accum type */
-
 
 #define DW_ATE_lo_user                  0x80
 
+
+/* ALTIUM extensions. */
+#define DW_ATE_ALTIUM_fract           0x80 /* ALTIUM __fract type */
+#define DW_ATE_ALTIUM_accum           0x81 /* ALTIUM __accum type */
+
 /* HP Floating point extensions. */
+#define DW_ATE_HP_float80             0x80 /* (80 bit). HP */
 #define DW_ATE_HP_complex_float80     0x81 /* Complex (80 bit). HP  */
 #define DW_ATE_HP_float128            0x82 /* (128 bit). HP */
 #define DW_ATE_HP_complex_float128    0x83 /* Complex (128 bit). HP */
@@ -723,7 +724,8 @@ extern "C" {
 #define DW_CFA_val_offset_sf     0x15      /* DWARF3f */
 #define DW_CFA_val_expression    0x16      /* DWARF3f */
 
-#define DW_CFA_low_user          0x1c
+#define DW_CFA_lo_user           0x1c
+#define DW_CFA_low_user          0x1c  /* Incorrect spelling, do not use. */
 
 /* SGI/MIPS extension. */
 #define DW_CFA_MIPS_advance_loc8 0x1d   /* MIPS */

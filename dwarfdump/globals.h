@@ -31,7 +31,7 @@
 
 
 
-$Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/globals.h,v 1.21 2005/07/22 15:48:43 davea Exp $ */
+$Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/globals.h,v 1.22 2005/12/01 17:34:59 davea Exp $ */
 #ifndef globals_INCLUDED
 #define globals_INCLUDED
 
