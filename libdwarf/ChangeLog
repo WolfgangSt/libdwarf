@@ -1,3 +1,10 @@
+2005-11-25 David Anderson <davea@sgi.com>
+      * dwarf.h: Now matches 2005 DWARF3 public review document.
+
+2005-11-08 David Anderson <davea@sgi.com>
+      * dwarf_alloc.c, dwarf_init_finish.c, dwarf_sort_line.c, malloc_check.c:
+        remove malloc.h include, it is not needed, stdlib.h suffices.
+
 2005-10-24 David Anderson <davea@sgi.com>
       * dwarf.h: Updated to match DWARF3 public review document.
     

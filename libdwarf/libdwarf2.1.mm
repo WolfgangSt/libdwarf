@@ -8,7 +8,7 @@
 .nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.56, 19 July 2005
+.ds vE rev 1.57, 11 November 2005
 \." ==============================================
 \." ==============================================
 .ds | |
@@ -319,6 +319,7 @@ the SGI
 \f(CWDwarf_Locdesc\fP,
 \f(CWDwarf_Block\fP, 
 \f(CWDwarf_Frame_Op\fP. 
+\f(CWDwarf_Regtable\fP. 
 While most of \f(CWlibdwarf\fP acts on or returns simple values or
 opaque pointer types, this small set of structures seems useful.
 
@@ -453,6 +454,52 @@ If not used with the op it is 0.
 \f(CWfp_instr_offset\fP is the byte_offset (within the instruction
 stream of the frame instructions) of this operation.  It starts at 0
 for a given frame descriptor.
+
+.H 3 "Frame Regtable"
+The \f(CWDwarf_Regtable\fP type is used to contain the 
+register-restore information for all registers at a given
+PC value.
+Normally used by debuggers.
+.DS
+/* DW_REG_TABLE_SIZE must reflect the number of registers
+ *(DW_FRAME_LAST_REG_NUM) as defined in dwarf.h
+ */
+#define DW_REG_TABLE_SIZE  <fill in size here, 66 for MIPS/IRIX>
+\f(CWtypedef struct {
+    struct {
+        Dwarf_Small         dw_offset_relevant;
+        Dwarf_Half          dw_regnum;
+        Dwarf_Addr          dw_offset;
+    }                       rules[DW_REG_TABLE_SIZE];
+} Dwarf_Regtable;
+.DE
+.P
+The array is indexed by register number.
+The field values for each index are described next.
+For clarity we describe the field values for index rules[M]
+(M being any legal array element index).
+.P
+\f(CWdw_offset_relevant is non-zero to indicate the \f(CWdw_offset
+field is meaningful. If zero then the \f(CWdw_offset is zero
+and should be ignored.
+.P
+\f(CWdw_regnum is the register number applicable.
+If \f(CWdw_offset_relevant is zero, then this is the register
+number of the register containing the value for register M.
+If \f(CWdw_offset_relevant is non-zero, then this is
+the register number of the register to use as a base (M may be
+DW_FRAME_CFA_COL, for example) and the \f(CWdw_offset
+value applies.  The value of register M is therefore
+the value of register \f(CWdw_regnum.
+.P
+\f(CWdw_offset should be ignored if \f(CWdw_offset_relevant is zero.
+If \f(CWdw_offset_relevant is non-zero, then 
+the consumer code should add the value to
+the value of the register \f(CWdw_regnum to produce the
+value.  
+
+
+
 .H 3 "Macro Details Record"
 The \f(CWDwarf_Macro_Details\fP type gives information about
 a single entry in the .debug.macinfo section.

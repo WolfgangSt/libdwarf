@@ -47,11 +47,10 @@
 */
 
 #include <stdio.h>
-#include <stdlib.h> /* for exit() */
+#include <stdlib.h> /* for exit() and various malloc prototypes */
 #include "config.h"
 #include "dwarf_incl.h"
 #include "malloc_check.h"
-#include "malloc.h"
 #ifdef  WANT_LIBBDWARF_MALLOC_CHECK
 
 /* To turn off printing every entry, just change the define

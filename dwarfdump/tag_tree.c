@@ -34,8 +34,52 @@
 $Header: /plroot/cmplrs.src/v7.4.4m/.RCS/PL/dwarfdump/RCS/tag_tree.c,v 1.5 2004/10/28 22:26:58 davea Exp $ */
 #include <dwarf.h>
 #include <stdio.h>
+#include <stdlib.h> /* For exit() declaration etc. */
+#include <errno.h> /* For errno declaration. */
 
-static unsigned int tag_tree_combination_table[0x36][2];
+
+/*  The following is the magic token used to
+    distinguish real tags/attrs from group-delimiters.
+    Blank lines have been eliminated by an awk script.
+*/
+#define MAGIC_TOKEN_VALUE 0xffffffff
+
+/* Expected input format
+
+0xffffffff
+value of a tag
+value of a standard tag that may be a child ofthat tag
+...
+0xffffffff
+value of a tag
+value of a standard tag that may be a child ofthat tag
+...
+0xffffffff
+...
+
+No blank lines or commentary allowed, no symbols, just numbers.
+
+
+*/
+
+
+/* We don't need really long lines: the input file is simple. */
+#define MAX_LINE_SIZE 1000
+
+/* 1 more than the higest number in the DW_TAG defines. */
+#define TABLE_SIZE 0x41
+
+/* Enough entries to have a bit for each standard legal tag. */
+#define COLUMN_COUNT 2
+
+/* Bits per 'int' to mark legal attrs. */
+#define BITS_PER_WORD 32
+
+
+
+#define TABLE_SIZE 0x41
+
+static unsigned int tag_tree_combination_table[TABLE_SIZE][COLUMN_COUNT];
 static char *tag_name[ ] = {
 	"0x00", 
 	"0x01 DW_TAG_array_type", 
@@ -104,25 +148,134 @@ static char *tag_name[ ] = {
         "0x40 DW_TAG_shared_type",
 };
 
+static int linecount = 0;
+static char line_in[MAX_LINE_SIZE];
+
+#define IS_EOF 1
+#define NOT_EOF 0
+
+#define MAX_LINE_SIZE 1000
+
+
+static void
+bad_line_input(char *msg)
+{
+  fprintf(stderr,
+        "tag_tree table build failed %s, line %d: \"%s\"  \n",
+                msg,linecount,line_in);
+  exit(1);
+
+}
+static void
+trim_newline(char *line,int max)
+{
+    char *end = line + max -1;
+    for(;  *line && (line < end)  ; ++line) {
+        if(*line == '\n') {
+            /* Found newline, drop it */
+            *line = 0;
+            return;
+        }
+    }
+       
+    return;
+}
+
+
+/* Reads a value from the text table. 
+   Exits  with non-zero status 
+   if the table is erroneous in some way. 
+*/
+static int
+read_value(unsigned int *outval)
+{
+    char *res = 0;
+    FILE *file = stdin;
+    unsigned long lval;
+    char * strout = 0;
+
+    ++linecount;
+    *outval = 0;
+    res = fgets(line_in, sizeof(line_in), file);
+    if(res == 0) {
+	if(ferror(file)) {
+	    fprintf(stderr,"tag_attr: Error reading table, %d lines read\n",
+		linecount);
+	    exit(1);
+	}
+	if(feof(file)) {
+	  return IS_EOF;
+	}
+	/* impossible */
+	fprintf(stderr,"tag_attr: Impossible error reading table, "
+		"%d lines read\n",
+		linecount);
+	exit(1);
+    }
+    trim_newline(line_in,sizeof(line_in));
+    errno = 0;
+    lval = strtoul(line_in,&strout,0);
+    if(strout == line_in) {
+	bad_line_input("bad number input!");
+    }
+    if( errno != 0) {
+	int myerr = errno;
+	fprintf(stderr,"tag_attr errno %d\n",myerr);
+	bad_line_input("invalid number on line");
+    }
+    *outval = (int)lval;
+    return NOT_EOF;
+}
+
+
 int
 main ()
 {
     int i;
-    int num;
-    scanf("%x\n", &num); /* 0xffffffff */
+    unsigned int num;
+    int input_eof;
+    
+
+    input_eof = read_value(&num); /* 0xffffffff */
+    if(IS_EOF == input_eof) {   
+        bad_line_input("Empty input file");
+    }
+    if(num != MAGIC_TOKEN_VALUE) {
+        bad_line_input("Expected 0xffffffff");
+    }
+
     while (! feof(stdin)) {
-	int tag;
-	scanf("%x\n", &tag);
-	scanf("%x\n", &num);
+        unsigned int tag;
+        input_eof = read_value(&tag);
+        if(IS_EOF == input_eof) {
+           /* Reached normal eof */
+           break;
+        }
+        if( tag >= TABLE_SIZE ) {
+          bad_line_input("tag value exceeds table size");
+        }
+        input_eof = read_value(&num);
+        if(IS_EOF == input_eof) {
+          bad_line_input("Not terminated correctly..");
+        }
+
 	while (num != 0xffffffff) {
-	    int idx = num / 0x20;
-	    int bit = num % 0x20;
+	    int idx = num / BITS_PER_WORD;
+	    int bit = num % BITS_PER_WORD;
+            if(idx >= COLUMN_COUNT) {
+                bad_line_input("too many TAGs: table incomplete.");
+            }
+
 	    tag_tree_combination_table[tag][idx] |= (1 << bit);
-	    scanf("%x\n", &num);
+            input_eof = read_value(&num);
+            if(IS_EOF == input_eof) {
+              bad_line_input("Not terminated correctly.");
+            }
 	}
     }
-    printf("static unsigned int tag_tree_combination_table [ ][2] = {\n");
-    for (i = 0; i < 0x36; i ++) {
+    printf("static unsigned int tag_tree_combination_table [ ][%d] = {\n",
+		COLUMN_COUNT);
+    for (i = 0; i < TABLE_SIZE; i ++) {
 	printf("/* %-37s*/\n", tag_name[i]);
 	printf("    { %#.8x, %#.8x},\n", 
 	       tag_tree_combination_table[i][0], 

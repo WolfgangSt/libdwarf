@@ -30,7 +30,7 @@
   http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 
-$Header: /plroot/cmplrs.src/v7.4.4m/.RCS/PL/dwarfdump/RCS/print_die.c,v 1.45 2004/10/28 22:26:58 davea Exp $ */
+$Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/print_die.c,v 1.47 2005/08/04 05:09:37 davea Exp $ */
 #include "globals.h"
 #include "dwarf_names.h"
 #include "esb.h"  /* For flexible string buffer. */
@@ -121,6 +121,8 @@ print_die_and_children(Dwarf_Debug dbg, Dwarf_Die in_die_in,
 		Dwarf_Half tag_parent, tag_child;
 		int pres;
 		int cres;
+		char * ctagname = "<child tag invalid>";
+		char * ptagname = "<parent tag invalid>";
 
 		pres =
 		    dwarf_tag(die_stack[indent_level - 1], &tag_parent,
@@ -130,27 +132,24 @@ print_die_and_children(Dwarf_Debug dbg, Dwarf_Die in_die_in,
 		    tag_parent = 0;
 		if (cres != DW_DLV_OK)
 		    tag_child = 0;
-		if (pres != cres) {
+		if (cres != DW_DLV_OK || pres != DW_DLV_OK) {
 		    if (cres == DW_DLV_OK) {
-			DWARF_CHECK_ERROR2(get_TAG_name(dbg, tag_child),
-					   "Tag-tree relation is not valid.")
-		    } else {
-			DWARF_CHECK_ERROR2("<child has no name>",
-					   "Tag-tree relation is not valid..")
+		        ctagname = get_TAG_name(dbg,tag_child);
 		    }
-		} else if (pres != DW_DLV_OK) {
-		    if (cres == DW_DLV_OK) {
-			DWARF_CHECK_ERROR2(get_TAG_name(dbg, tag_child),
-					   "Tag-tree Relation is not valid...")
-		    } else {
-			DWARF_CHECK_ERROR2("<child has no name>",
-					   "Tag-tree relation is not valid....")
+		    if (pres == DW_DLV_OK) {
+		        ptagname = get_TAG_name(dbg,tag_parent);
 		    }
+		    DWARF_CHECK_ERROR3(			
+				ptagname,
+				ctagname,
+				"Tag-tree relation is not standard..");
 		} else if (tag_tree_combination(tag_parent, tag_child)) {
 		    /* OK */
 		} else {
-		    DWARF_CHECK_ERROR2(get_TAG_name(dbg, tag_child),
-				       "tag-tree relation is not valid")
+		    DWARF_CHECK_ERROR3(
+			get_TAG_name(dbg,tag_parent),
+			get_TAG_name(dbg, tag_child),
+			"tag-tree relation is not standard.");
 		}
 	    }
 	}
@@ -331,21 +330,29 @@ print_attribute(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Half attr,
 	/* ok */
     }
     if (check_attr_tag) {
+	char *tagname = "<tag invalid>";
 	attr_tag_result.checks++;
 	if (tres == DW_DLV_ERROR) {
 	    attr_tag_result.errors++;
-	    DWARF_CHECK_ERROR2(get_AT_name(dbg, attr),
-			       "make sure of the tag-attr combination..")
+	    DWARF_CHECK_ERROR3(
+	        tagname,
+		get_AT_name(dbg, attr),
+		"check the tag-attr combination.");
 	} else if (tres == DW_DLV_NO_ENTRY) {
 	    attr_tag_result.errors++;
-	    DWARF_CHECK_ERROR2(get_AT_name(dbg, attr),
-			       "make sure of the tag-attr combination..")
+	    DWARF_CHECK_ERROR3(
+	        tagname,
+	        get_AT_name(dbg, attr),
+		"check the tag-attr combination..")
 	} else if (tag_attr_combination(tag, attr)) {
 	    /* OK */
 	} else {
 	    attr_tag_result.errors++;
-	    DWARF_CHECK_ERROR2(get_AT_name(dbg, attr),
-			       "make sure of the tag-attr combination")
+	    tagname = get_TAG_name(dbg,tag);
+	    DWARF_CHECK_ERROR3(
+		tagname,
+		get_AT_name(dbg, attr),
+		"check the tag-attr combination")
 	}
     }
 
@@ -813,7 +820,8 @@ get_attr_value(Dwarf_Debug dbg, Dwarf_Half tag, Dwarf_Attribute attrib,
 	    case DW_AT_decl_file:
 	    case DW_AT_decl_line:
 	    case DW_AT_start_scope:
-	    case DW_AT_stride_size:
+	    case DW_AT_byte_stride:
+	    case DW_AT_bit_stride:
 	    case DW_AT_count:
 	    case DW_AT_stmt_list:
 	    case DW_AT_MIPS_fde:

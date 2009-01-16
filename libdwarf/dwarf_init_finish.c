@@ -57,7 +57,6 @@
 #include <sys/types.h>
 #include <string.h>
 #include <stdlib.h>
-#include <malloc.h>
 
 #include "dwarf_incl.h"
 #include "malloc_check.h"

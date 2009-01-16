@@ -75,7 +75,9 @@ _tag_tree_table.c: tag_tree.list tag_tree.c $(DIRINC)/dwarf.h
 	# gcc -E tag_tree.list does not work, so use a .c name
 	rm -f _tmp.c && ln -s $(srcdir)/tag_tree.list _tmp.c
 	$(CC) $(CFLAGS) -E _tmp.c \
-		| awk '!/^#/ && !/^[ \t]*$$/' | ./tag_tree_build > $@
+		| awk '!/^#/ && !/^[ \t]*$$/' > ./tag_tree_build.tmp
+	./tag_tree_build <tag_tree_build.tmp > $@
+	rm -f tag_tree_build .tmp
 	rm -f tag_tree_build
 tag_tree_table.o: _tag_tree_table.c
 	$(CC) $(CFLAGS) -c _tag_tree_table.c -o $@ 
@@ -85,7 +87,9 @@ _tag_attr_table.c: tag_attr.list tag_attr.c $(DIRINC)/dwarf.h
 	# gcc -E tag_attr.list does not work, so use a .c name
 	rm -f _tmp.c && ln -s $(srcdir)/tag_attr.list _tmp.c
 	$(CC) $(CFLAGS)  -E _tmp.c \
-		| awk '!/^#/ && !/^[ \t]*$$/' | ./tag_attr_build > $@
+		| awk '!/^#/ && !/^[ \t]*$$/' > ./tag_attr_build.tmp
+	./tag_attr_build <tag_attr_build.tmp > $@
+	rm -f tag_attr_build.tmp
 	rm -f tag_attr_build
 tag_attr_table.o: _tag_attr_table.c
 	$(CC) $(CFLAGS) -c _tag_attr_table.c -o $@ 

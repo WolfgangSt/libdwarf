@@ -209,7 +209,8 @@ extern "C" {
 #define DW_AT_prototyped                        0x27
 #define DW_AT_return_addr                       0x2a
 #define DW_AT_start_scope                       0x2c
-#define DW_AT_stride_size                       0x2e
+#define DW_AT_bit_stride                        0x2e /* DWARF3 name */
+#define DW_AT_stride_size                       0x2e /* DWARF2 name */
 #define DW_AT_upper_bound                       0x2f
 #define DW_AT_abstract_origin                   0x31
 #define DW_AT_accessibility                     0x32
@@ -243,7 +244,8 @@ extern "C" {
 #define DW_AT_allocated                         0x4e /* DWARF3 */
 #define DW_AT_associated                        0x4f /* DWARF3 */
 #define DW_AT_data_location                     0x50 /* DWARF3 */
-#define DW_AT_stride                            0x51 /* DWARF3 */
+#define DW_AT_byte_stride                       0x51 /* DWARF3f */
+#define DW_AT_stride                            0x51 /* DWARF3 (do not use) */
 #define DW_AT_entry_pc                          0x52 /* DWARF3 */
 #define DW_AT_use_UTF8                          0x53 /* DWARF3 */
 #define DW_AT_extension                         0x54 /* DWARF3 */
@@ -267,6 +269,7 @@ extern "C" {
 #define DW_AT_elemental                         0x66 /* DWARF3f */
 #define DW_AT_pure                              0x67 /* DWARF3f */
 #define DW_AT_recursive                         0x68 /* DWARF3f */
+#define DW_AT_pointer                           0x69 /* DWARF3f */
 /* HP extensions. */
 #define DW_AT_HP_block_index                    0x2000  /* HP */
 
@@ -482,7 +485,8 @@ extern "C" {
 #define DW_OP_call4                     0x99 /* DWARF3 */
 #define DW_OP_call_ref                  0x9a /* DWARF3 */
 #define DW_OP_form_tls_address          0x9b /* DWARF3f */
-#define DW_OP_call_frame_cfa            0x9b /* DWARF3f */
+#define DW_OP_call_frame_cfa            0x9c /* DWARF3f */
+#define DW_OP_bit_piece                 0x9d /* DWARF3f */
 
     /* GNU extensions. */
 #define DW_OP_GNU_push_tls_address      0xe0 /* GNU */

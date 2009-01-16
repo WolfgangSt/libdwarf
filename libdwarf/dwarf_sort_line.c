@@ -43,7 +43,6 @@
 #ifdef HAVE_ALLOCA_H
 #include <alloca.h>
 #endif
-#include <malloc.h>
 
 #define MINIMUM_POSSIBLE_PROLOG_LEN 10  /* 10 is  based on */
 	/*  the definition of the DWARF2/3 line table prolog.

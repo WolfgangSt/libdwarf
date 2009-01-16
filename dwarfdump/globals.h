@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2 of the GNU General Public License as
@@ -31,7 +31,7 @@
 
 
 
-$Header: /plroot/cmplrs.src/v7.4.4m/.RCS/PL/dwarfdump/RCS/globals.h,v 1.20 2005/03/30 02:27:09 davea Exp $ */
+$Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/globals.h,v 1.21 2005/07/22 15:48:43 davea Exp $ */
 #ifndef globals_INCLUDED
 #define globals_INCLUDED
 
@@ -176,6 +176,11 @@ extern void print_one_die(
 
 #define DWARF_CHECK_ERROR2(str1, str2) {\
 	printf("*** DWARF CHECK: %s: %s ***\n", str1, str2);\
+	check_error ++; \
+}
+
+#define DWARF_CHECK_ERROR3(str1, str2,strexpl) {\
+	printf("*** DWARF CHECK: %s -> %s: %s ***\n", str1, str2,strexpl);\
 	check_error ++; \
 }
 

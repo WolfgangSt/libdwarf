@@ -1,3 +1,26 @@
+2005-12-01 David Anderson <davea@sgi.com>
+     * Makefile.in: Build attr/tag trees with
+       individual commands to catch build errors.
+     * tag_attr.c,tag_tree.c: Verify that
+       tables fit in the generated C code and check for 
+       format errors in the *.list files.
+     * tag_attr.list, tag_tree.list: Added some valid entries. 
+     * globals.h: add DWARF_ERROR3 macro for better diagnostics.
+     * print_die.c: Show both sides of questionable tag relation
+       in CHECK  -k diagnostic output.
+
+2005-11-25 David Anderson <davea@sgi.com>
+     * print_die.c: DW_AT_stride_size changed to DW_AT_bit_stride,
+                    added DW_AT_byte_stride.
+     * tag_attr.c,tag_tree.c: fixed array size now a #define for
+	readability.
+     * tag_attr.list: Added DWARF3  attributes, also new TAGs.
+     * tag_tree.list: Added DWARF3 TAGs.
+
+2005-11-08 David Anderson <davea@sgi.com>
+      * makename.c: remove non-standard malloc.h include,
+        stdlib.h suffices and is already included.
+
 2005-10-24 David Anderson <davea@sgi.com>
       * tag_attr.c tag_tree.c: added DWARF3 TAGs to string array.
 
