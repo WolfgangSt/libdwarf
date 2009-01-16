@@ -156,6 +156,9 @@ struct Dwarf_P_Die_s {
     Dwarf_Tag di_tag;
     Dwarf_P_Die di_parent;	/* parent of current die */
     Dwarf_P_Die di_child;	/* first child */
+    /* The last child field makes linking up children an O(1) operation,
+       See pro_die.c. */
+    Dwarf_P_Die di_last_child;	
     Dwarf_P_Die di_left;	/* left sibling */
     Dwarf_P_Die di_right;	/* right sibling */
     Dwarf_P_Attribute di_attrs;	/* list of attributes */

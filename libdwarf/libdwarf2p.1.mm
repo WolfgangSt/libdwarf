@@ -11,7 +11,7 @@
 .nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.20, 4 Sep 2007
+.ds vE rev 1.21, 14 Jan 2008
 \." ==============================================
 \." ==============================================
 .ds | |
@@ -966,7 +966,7 @@ this is an ordinary relocation.
 The relocation type means either
 (R_MIPS_64) or (R_MIPS_32) (or the like for
 the particular ABI.
-f(CWdrd_length\fP gives the length of the field to be relocated.
+\f(CWdrd_length\fP gives the length of the field to be relocated.
 \f(CWdrd_offset\fP is an offset (of the
 value to be relocated) in
 the section this relocation stuff is linked to.
