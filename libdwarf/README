@@ -68,6 +68,6 @@ libdwarf.h somewhere convenient.
 You will also need libelf (libelf.a and/or libelf.so) and
 libelf.h installed. These are available from GNU repositories.
 
-$Source: /plroot/cmplrs.src/v7.4.3m/.RCS/PL/libdwarf/RCS/README,v $
+$Source: /plroot/cmplrs.src/v7.4.4m/.RCS/PL/libdwarf/RCS/README,v $
 $Revision: 1.8 $
 $Date: 2004/01/05 22:29:20 $

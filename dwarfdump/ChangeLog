@@ -1,3 +1,10 @@
+2004-10-26 David Anderson <davea@sgi.com>
+      * acconfig.h: removed. Was old style autoconf usage.
+      * configure.in: Updated AC_DEFINE usage, adding args 2 & 3.
+      * config.guess: Updated. timestamp='2004-06-11'.
+      * config.sub: Updated.  timestamp='2004-03-12'.
+      * configure config.h.in: regenerated with autoconf 2.58.
+
 2004-05-14 David Anderson <davea@sgi.com>
 
       * print_die.c (print_die_and_children): Change to iteration

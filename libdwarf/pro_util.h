@@ -63,7 +63,7 @@
 /* R_MIPS* are #define so #ifndef works */
 /* R_IA_64* are not necessarily #define (might be enum) so #ifndef
    is useless, we use the configure script generating 
-   HAVE_R_IA_64_DIR32LSB.
+   HAVE_R_IA_64_DIR32LSB and HAVE_R_IA64_DIR32LSB.
 */
 #ifndef R_MIPS_64
 #define R_MIPS_64 0
@@ -75,33 +75,50 @@
 #define R_MIPS_SCN_DISP 0
 #endif
 
-#ifndef HAVE_R_IA_64_DIR32LSB
-#define R_IA_64_DIR32LSB 0
-#define R_IA_64_DIR64LSB 0
-#define R_IA_64_SEGREL64LSB 0
-#define R_IA_64_SEGREL32LSB 0
+/* R_IA_64_DIR32LSB came before the now-standard R_IA64_DIR32LSB
+   (etc) was defined.  This now deals with either form,
+   preferring the new form if available.  */
+#ifdef HAVE_R_IA64_DIR32LSB
+#define DWARF_PRO_R_IA64_DIR32LSB R_IA64_DIR32LSB
+#define DWARF_PRO_R_IA64_DIR64LSB R_IA64_DIR64LSB
+#define DWARF_PRO_R_IA64_SEGREL64LSB R_IA64_SEGREL64LSB
+#define DWARF_PRO_R_IA64_SEGREL32LSB R_IA64_SEGREL32LSB
 #endif
+#if defined(HAVE_R_IA_64_DIR32LSB) && !defined(HAVE_R_IA64_DIR32LSB)
+#define DWARF_PRO_R_IA64_DIR32LSB R_IA_64_DIR32LSB
+#define DWARF_PRO_R_IA64_DIR64LSB R_IA_64_DIR64LSB
+#define DWARF_PRO_R_IA64_SEGREL64LSB R_IA_64_SEGREL64LSB
+#define DWARF_PRO_R_IA64_SEGREL32LSB R_IA_64_SEGREL32LSB
+#endif
+#if !defined(HAVE_R_IA_64_DIR32LSB) && !defined(HAVE_R_IA64_DIR32LSB)
+#define DWARF_PRO_R_IA64_DIR32LSB 0
+#define DWARF_PRO_R_IA64_DIR64LSB 0
+#define DWARF_PRO_R_IA64_SEGREL64LSB 0
+#define DWARF_PRO_R_IA64_SEGREL32LSB 0
+#endif
+
+
 
 #ifdef HAVE_SYS_IA64_ELF_H
 #define Get_REL64_isa(dbg)         (ISA_IA64(dbg) ? \
-				R_IA_64_DIR64LSB : R_MIPS_64)
+				DWARF_PRO_R_IA64_DIR64LSB : R_MIPS_64)
 #define Get_REL32_isa(dbg)         (ISA_IA64(dbg) ? \
-				R_IA_64_DIR32LSB : R_MIPS_32)
+				DWARF_PRO_R_IA64_DIR32LSB : R_MIPS_32)
 
 
 /* ia64 uses 32bit dwarf offsets for sections */
 #define Get_REL_SEGREL_isa(dbg)    (ISA_IA64(dbg) ? \
-				R_IA_64_SEGREL32LSB : R_MIPS_SCN_DISP)
-#else
+				DWARF_PRO_R_IA64_SEGREL32LSB : R_MIPS_SCN_DISP)
+#else /* HAVE_SYS_IA64_ELF_H */
 
 #if !defined(linux) && !defined(__BEOS__)
 #define Get_REL64_isa(dbg)         (R_MIPS_64)
 #define Get_REL32_isa(dbg)         (R_MIPS_32)
 #define Get_REL_SEGREL_isa(dbg)    (R_MIPS_SCN_DISP)
 #else
-#define Get_REL64_isa(dbg)	(R_IA_64_DIR64LSB)
-#define Get_REL32_isa(dbg)	(R_IA_64_DIR32LSB)
-#define Get_REL_SEGREL_isa(dbg)	(R_IA_64_SEGREL64LSB)
+#define Get_REL64_isa(dbg)	(DWARF_PRO_R_IA64_DIR64LSB)
+#define Get_REL32_isa(dbg)	(DWARF_PRO_R_IA64_DIR32LSB)
+#define Get_REL_SEGREL_isa(dbg)	(DWARF_PRO_R_IA64_SEGREL64LSB)
 #endif
 
-#endif
+#endif /* HAVE_SYS_IA64_ELF_H */
