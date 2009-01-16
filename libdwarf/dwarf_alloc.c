@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000,2002 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -41,9 +41,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#ifdef HAVE_BSTRING_H
-#include <bstring.h>
-#endif
 #include <malloc.h>
 
 /*
@@ -407,7 +404,7 @@ _dwarf_find_memory(Dwarf_Alloc_Hdr alloc_hdr)
 
     alloc_hdr->ah_last_alloc_area = alloc_area;
     alloc_hdr->ah_struct_user_holds++;
-    bzero(ret_mem, alloc_hdr->ah_bytes_one_struct - _DW_RESERVE);
+    memset(ret_mem,0, alloc_hdr->ah_bytes_one_struct - _DW_RESERVE);
     return (ret_mem);
 }
 
@@ -518,7 +515,7 @@ _dwarf_get_alloc(Dwarf_Debug dbg,
 		alloc_type);
 #endif
     if (ret_mem != NULL)
-	bzero(ret_mem, size);
+	memset(ret_mem,0, size);
 
     return (ret_mem);
 }
@@ -725,7 +722,7 @@ dwarf_dealloc(Dwarf_Debug dbg,
 	if (alloc_area == alloc_hdr->ah_last_alloc_area) {
 	    alloc_hdr->ah_last_alloc_area = NULL;
 	}
-	bzero(alloc_area, sizeof(*alloc_area));
+	memset(alloc_area,0, sizeof(*alloc_area));
 	free(alloc_area);
     }
 
@@ -751,7 +748,7 @@ _dwarf_get_debug(void
     if (dbg == NULL)
 	return (NULL);
     else
-	bzero(dbg, sizeof(struct Dwarf_Debug_s));
+	memset(dbg,0, sizeof(struct Dwarf_Debug_s));
 
     return (dbg);
 }
@@ -974,7 +971,7 @@ _dwarf_free_all_of_one_debug(Dwarf_Debug dbg)
 
 #endif
 
-    bzero(dbg, sizeof(*dbg));	/* prevent accidental use later */
+    memset(dbg,0, sizeof(*dbg));	/* prevent accidental use later */
     free(dbg);
     return (DW_DLV_OK);
 }
@@ -1005,7 +1002,7 @@ _dwarf_special_no_dbg_error_malloc(void)
 	return 0;
 
     }
-    bzero(mem, sizeof(union u));
+    memset(mem,0, sizeof(union u));
     mem += _DW_RESERVE;
     return (struct Dwarf_Error_s *) mem;
 }
@@ -1044,7 +1041,8 @@ _dwarf_simple_malloc_add_to_list(Dwarf_Debug dbg,
 	  if(!dbg->de_simple_malloc_current) {
 		return; /* no memory, give up */
 	  }
-	  bzero(dbg->de_simple_malloc_current, 
+	  memset(dbg->de_simple_malloc_current, 
+		0,
 		sizeof(struct simple_malloc_record_s));
 	  dbg->de_simple_malloc_base = dbg->de_simple_malloc_current;
 	}
@@ -1060,7 +1058,7 @@ _dwarf_simple_malloc_add_to_list(Dwarf_Debug dbg,
 	    if(!newblock) {
 		return; /* Can do nothing, out of memory */
 	    }
-	    bzero(newblock, sizeof(struct simple_malloc_record_s));
+	    memset(newblock,0, sizeof(struct simple_malloc_record_s));
 	    /* Link the new block at the head of the chain,
 	       and make it 'current'
 	    */

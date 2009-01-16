@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000, 2002 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -40,7 +40,9 @@
 #include <stdio.h>
 #include <time.h>
 #include "dwarf_line.h"
+#ifdef HAVE_ALLOCA_H
 #include <alloca.h>
+#endif
 
 static void
 print_line_header(void)

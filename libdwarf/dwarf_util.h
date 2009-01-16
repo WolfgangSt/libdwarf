@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -34,7 +34,6 @@
 */
 
 
-#include <limits.h>
 
 /*
     Decodes unsigned leb128 encoded numbers that 
@@ -42,67 +41,24 @@
     Make sure ptr is a pointer to a 1-byte type.  
     Returns UINT_MAX on error.
 
-    Limits.h is included to define UINT_MAX.
 */
 #define DECODE_LEB128_UWORD(ptr, value) \
     { \
-        Dwarf_Small	byte; \
-    \
-        value = (byte = *(ptr++)) & 0x7f; \
-        if ((byte & 0x80) != 0) { \
-	    value |= ((byte = *(ptr++)) & 0x7f) << 7; \
-	    if ((byte & 0x80) != 0) { \
-	        value |= ((byte = *(ptr++)) & 0x7f) << 14; \
-	        if ((byte & 0x80) != 0) { \
-		    value |= ((byte = *(ptr++)) & 0x7f) << 21; \
-		    if ((byte & 0x80) != 0) { \
-		        value = UINT_MAX; \
-		    } \
-	        } \
-	    } \
-        } \
+       Dwarf_Word uleblen; \
+	value = _dwarf_decode_u_leb128(ptr,&uleblen); \
+        ptr += uleblen; \
     }
 
 /*
-    Decodes signed leb128 encoded numbers that
-    are assumed to be less than 4 bytes long.
+    Decodes signed leb128 encoded numbers.
     Make sure ptr is a pointer to a 1-byte type.
-    Returns INT_MAX on error.
 
-    Make sure value is a 4-byte signed int.
 */
 #define DECODE_LEB128_SWORD(ptr, value) \
     { \
-	Dwarf_Small	byte; \
-    \
-	value = (byte = *(ptr++)) & 0x7f; \
-	if ((byte & 0x80) == 0) { \
-	    if ((byte & 0x40) != 0)  \
-	        value |= 0xffffff80; \
-	} \
-	else { \
-	    value |= ((byte = *(ptr++)) & 0x7f) << 7; \
-	    if ((byte & 0x80) == 0) { \
-		if ((byte & 0x40) != 0) \
-		    value |= 0xffffc000; \
-	    } \
-	    else { \
-		value |= ((byte = *(ptr++)) & 0x7f) << 14; \
-		if ((byte & 0x80) == 0) { \
-		    if ((byte & 0x40) != 0) \
-			value |= 0xffe00000; \
-		} \
-		else { \
-		    value |= ((byte = *(ptr++)) & 0x7f) << 21; \
-		    if ((byte & 0x80) == 0) { \
-			if ((byte & 0x40) != 0) \
-			    value |= 0xf0000000; \
-		    } \
-		    else  \
-			value = INT_MAX; \
-		} \
-	    } \
-	} \
+       Dwarf_Word sleblen; \
+	value = _dwarf_decode_s_leb128(ptr,&sleblen); \
+        ptr += sleblen; \
     }
 
 

@@ -1,3 +1,20 @@
+2004-02-03 David Anderson <davea@sgi.com>
+      * dwarf_util.h:  DECODE_LEB128_UWORD DECODE_LEB128_SWORD
+        were simply wrong if  Dwarf_Word or
+        Dwarf_Sword longer than 4 bytes. Upper bits left random and
+        large values not extracted correcty.
+
+2004-01-15 David Anderson <davea@sgi.com>
+      * dwarf_alloc.c pro_alloc.c pro_init.c: changing BSD-ish bzero()
+ 	to posix-standard memset() calls.
+      * configure.in: remove bstring.h test, add alloca.h test.
+        No longer useing bzero, some environments have alloca 
+	in malloc.h, no alloca.h.  If neither exist
+        it's up to you to deal with it.
+      * dwarf_line.c dwarf_print_lines.c dwarf_sort_line.c: Test
+	HAVE_ALLOCA_H
+      * configure config.h.in: regenerated
+
 2003-12-31 David Anderson <davea@sgi.com>
       * dwarf_init_finish.c: added #error to detect and describe
   	absence of libelf.h.

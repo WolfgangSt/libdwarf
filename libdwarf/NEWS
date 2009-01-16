@@ -1,3 +1,8 @@
+Feb 3, 2004
+  If 'Dwarf_Word' is 64 bits, two macros reading leb numbers
+  fail to initialize upper bits of the values read.
+  First noticed with bogus line numbers printing from dwarfdump.
+  Now we use already-existing functions, avoiding the problem.
 
 Oct 02, 2003
   Support .debug_loc section fully.

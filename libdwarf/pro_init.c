@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -39,9 +39,6 @@
 #include "libdwarfdefs.h"
 #include <stdio.h>
 #include <string.h>
-#ifdef HAVE_BSTRING_H
-#include <bstring.h>
-#endif
 #include "pro_incl.h"
 #include "pro_section.h"	/* for MAGIC_SECT_NO */
 #include "pro_reloc_symbolic.h"
@@ -80,7 +77,7 @@ dwarf_producer_init_b(Dwarf_Unsigned flags,
 	DWARF_P_DBG_ERROR(dbg, DW_DLE_DBG_ALLOC,
 			  (Dwarf_P_Debug) DW_DLV_BADADDR);
     }
-    bzero((void *) dbg, sizeof(struct Dwarf_P_Debug_s));
+    memset((void *) dbg,0, sizeof(struct Dwarf_P_Debug_s));
     /* For the time being */
     if (func == NULL) {
 	DWARF_P_DBG_ERROR(dbg, DW_DLE_NO_CALLBACK_FUNC,
@@ -112,7 +109,7 @@ dwarf_producer_init(Dwarf_Unsigned flags,
 	DWARF_P_DBG_ERROR(dbg, DW_DLE_DBG_ALLOC,
 			  (Dwarf_P_Debug) DW_DLV_BADADDR);
     }
-    bzero((void *) dbg, sizeof(struct Dwarf_P_Debug_s));
+    memset((void *) dbg,0, sizeof(struct Dwarf_P_Debug_s));
     /* For the time being */
     if (func == NULL) {
 	DWARF_P_DBG_ERROR(dbg, DW_DLE_NO_CALLBACK_FUNC,

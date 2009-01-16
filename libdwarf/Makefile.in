@@ -147,7 +147,7 @@ dwarf.v2.ps:	$(BUILD_BASE)/dwarf.v2.mm
 
 # the index is only useful till the document changes: it is
 # not autmatically correct. It was prepared by tools internal
-# to use/Novell
+# to USL/Novell
 
 index.v2.ps:  index.v2.mm
 		pic index.v2.mm | tbl | psroff -t -mm >index.v2.ps
