@@ -46,13 +46,13 @@
 
 */
 
-#ifdef  WANT_LIBBDWARF_MALLOC_CHECK
 #include <stdio.h>
 #include <stdlib.h> /* for exit() */
 #include "config.h"
 #include "dwarf_incl.h"
 #include "malloc_check.h"
 #include "malloc.h"
+#ifdef  WANT_LIBBDWARF_MALLOC_CHECK
 
 /* To turn off printing every entry, just change the define
    to set PRINT_MALLOC_DETAILS 0.

@@ -1,3 +1,14 @@
+2005-08-01 David Anderson <davea@sgi.com>
+      * Makefile.in: Add esb.o and test rule (test code for esb.c).
+      * dwarfdump.c:  Remove old static buffer initialization.
+      * print_die.c: Use esb now, avoid crash due to long loclist
+        overrunning static buffer. Uses snprintf now, not sprintf.
+        snprintf is for safety.
+      * esb.h esb.c: Adding extensible string buffer (esb) code.
+      * testesb.c: Test code for esb.c.
+      * print_reloc.c: size field is now Elf64_Xword for 
+        Elf64  as Elf64_Word is only 32 bits.
+
 2005-07-15 David Anderson <davea@sgi.com>
       * dwarfdump.c: Add print of .debug_pubtypes, remove
         erroneous dealloc after dwarf_formstring() call.

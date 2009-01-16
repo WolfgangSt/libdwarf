@@ -43,6 +43,7 @@ GEN_CFILES = \
 OBJECTS =  tag_tree_table.o \
 	tag_attr_table.o \
 	dwarfdump.o \
+	esb.o \
 	print_sections.o \
 	print_die.o \
 	print_reloc.o \
@@ -91,6 +92,11 @@ tag_attr_table.o: _tag_attr_table.c
 
 dwarf_names.h dwarf_names.c: dwarf_names.awk $(DIRINC)/dwarf.h
 	awk -f $(srcdir)/dwarf_names.awk $(DIRINC)/dwarf.h > dwarf_names.c
+
+test: esb.o $(srcdir)/testesb.c
+	$(CC) -o test $(srcdir)/testesb.c esb.o
+	./test
+	-rm -f ./test
 
 
 install: all

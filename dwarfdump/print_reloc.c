@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2 of the GNU General Public License as
@@ -147,13 +147,16 @@ static struct {
 } sect_data[DW_SECTION_REL_DEBUG_NUM];
 
 #ifndef HAVE_ELF64_GETEHDR
-#define Elf64_Addr long
-#define Elf64_Word unsigned long
-#define Elf64_Sym  long
+#define Elf64_Addr  long
+#define Elf64_Word  unsigned long
+#define Elf64_Xword unsigned long
+#define Elf64_Sym   long
 #endif
 
+typedef size_t indx_type;
+
 typedef struct {
-    int indx;
+    indx_type indx;
     char *name;
     Elf32_Addr value;
     Elf32_Word size;
@@ -165,10 +168,10 @@ typedef struct {
 
 
 typedef struct {
-    int indx;
+    indx_type indx;
     char *name;
     Elf64_Addr value;
-    Elf64_Word size;
+    Elf64_Xword size;
     int type;
     int bind;
     unsigned char other;
@@ -413,7 +416,7 @@ static SYM *
 readsyms(Elf32_Sym *data, size_t num, Elf *elf, Elf32_Word link)
 {
     SYM *s, *buf;
-    size_t i;
+    indx_type i;
     if((buf = (SYM *)calloc(num, sizeof(SYM)) ) == NULL) {
 	return NULL;
     }
@@ -437,7 +440,7 @@ read_64_syms(Elf64_Sym *data, size_t num, Elf *elf, Elf64_Word link)
 #ifdef HAVE_ELF64_GETEHDR
 
     SYM64 *s, *buf;
-    size_t i;
+    indx_type i;
     if( (buf = (SYM64 *)calloc(num, sizeof(SYM64)) ) == NULL) {
 	return NULL;
     }

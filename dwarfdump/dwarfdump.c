@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2000,2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2002,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2 of the GNU General Public License as
@@ -52,10 +52,6 @@ static void print_infos(Dwarf_Debug dbg);
 
 static string program_name;
 int check_error = 0;
-
-/* defined in print_die.c, buffer to hold attribute values */
-extern string attrib_buf;
-extern int attrib_bufsiz;
 
 /* defined in print_sections.c, die for the current compile unit, 
    used in get_fde_proc_name() */
@@ -202,15 +198,6 @@ process_one_file(Elf * elf, string file_name, int archive)
     if (dres != DW_DLV_OK) {
 	print_error(dbg, "dwarf_elf_init", dres, err);
     }
-    /* allocate buffer for attribute value */
-    attrib_buf = (string) malloc(ATTRIB_BUFSIZ);
-    if (attrib_buf == NULL) {
-	fprintf(stderr, "%s ERROR: mallocing %d bytes for buffer\n",
-		program_name, ATTRIB_BUFSIZ);
-	exit(FAILED);
-    }
-    attrib_bufsiz = ATTRIB_BUFSIZ;
-
 
     if (archive) {
 	Elf_Arhdr *mem_header = elf_getarhdr(elf);
@@ -271,11 +258,6 @@ process_one_file(Elf * elf, string file_name, int archive)
     if (dres != DW_DLV_OK) {
 	print_error(dbg, "dwarf_finish", dres, err);
     }
-    /* free attrib_buf */
-    if (attrib_buf != NULL)
-	free(attrib_buf);
-
-
     return 0;
 
 }

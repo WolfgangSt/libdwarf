@@ -1,3 +1,6 @@
+2005-08-01 David Anderson <davea@sgi.com>
+      * malloc_check.c: Moved the #ifdef WANT_LIBBDWARF_MALLOC_CHECK
+        down after #includes so the test is meaningful.
 2005-07-15 David Anderson <davea@sgi.com>
       * libdwarf.h: New DW_DLA codes and full .debug_types support added.
         new dealloc functions declared.
