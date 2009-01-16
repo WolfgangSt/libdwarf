@@ -1,0 +1,11 @@
+_tag_attr_table.c
+_tag_tree_table.c
+_tmp1.c
+_tmp2.c
+dwarf_names.c
+dwarf_names.h
+dwarf_names_enum.h
+dwarf_names_new.c
+dwarf_names_new.h
+dwarfdump
+tag_tree_build.tmp
