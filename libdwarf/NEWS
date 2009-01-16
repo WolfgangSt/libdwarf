@@ -1,3 +1,7 @@
+February 9, 2007
+  Maintenance of libdwarf is now outside SGI
+  as David Anderson has left SGI.
+
 March 29, 2006
   The March  27, 2006 version accomodates DWARF3.
   Some people have been using the library without

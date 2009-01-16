@@ -32,6 +32,12 @@
   http://oss.sgi.com/projects/GenInfo/NoticeExplan
 
 */
+/* Copyright (C) 2007 David Anderson
+   Same terms as the SGI copyright.
+   The address of the Free Software Foundation is 
+   Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, 
+   Boston, MA 02110-1301, USA.
+*/
 
 
 
@@ -165,8 +171,10 @@ dwarf_srcfiles(Dwarf_Die die,
 						&line_ptr_out,
 						&line_prefix, error);
 
-	if (dres == DW_DLV_ERROR)
+	if (dres == DW_DLV_ERROR) {
+	    dwarf_free_line_table_prefix(&line_prefix);
 	    return dres;
+	}
 	if (dres == DW_DLV_NO_ENTRY) {
 	    dwarf_free_line_table_prefix(&line_prefix);
 	    return dres;
@@ -204,6 +212,7 @@ dwarf_srcfiles(Dwarf_Die die,
 						  strlen(file_name) +
 						  1);
 	    if (full_name == NULL) {
+		dwarf_free_line_table_prefix(&line_prefix);
 		_dwarf_error(dbg, error, DW_DLE_ALLOC_FAIL);
 		return (DW_DLV_ERROR);
 	    }
@@ -218,6 +227,7 @@ dwarf_srcfiles(Dwarf_Die die,
 	curr_chain =
 	    (Dwarf_Chain) _dwarf_get_alloc(dbg, DW_DLA_CHAIN, 1);
 	if (curr_chain == NULL) {
+	    dwarf_free_line_table_prefix(&line_prefix);
 	    _dwarf_error(dbg, error, DW_DLE_ALLOC_FAIL);
 	    return (DW_DLV_ERROR);
 	}
@@ -234,6 +244,7 @@ dwarf_srcfiles(Dwarf_Die die,
 
     curr_chain = (Dwarf_Chain) _dwarf_get_alloc(dbg, DW_DLA_CHAIN, 1);
     if (curr_chain == NULL) {
+	dwarf_free_line_table_prefix(&line_prefix);
 	_dwarf_error(dbg, error, DW_DLE_ALLOC_FAIL);
 	return (DW_DLV_ERROR);
     }
@@ -244,6 +255,7 @@ dwarf_srcfiles(Dwarf_Die die,
     if (line_prefix.pf_files_count == 0) {
 	*srcfiles = NULL;
 	*srcfilecount = 0;
+	dwarf_free_line_table_prefix(&line_prefix);
 	return (DW_DLV_NO_ENTRY);
     }
 
@@ -251,6 +263,7 @@ dwarf_srcfiles(Dwarf_Die die,
 	_dwarf_get_alloc(dbg, DW_DLA_LIST, line_prefix.pf_files_count);
     if (ret_files == NULL) {
 	_dwarf_error(dbg, error, DW_DLE_ALLOC_FAIL);
+	dwarf_free_line_table_prefix(&line_prefix);
 	return (DW_DLV_ERROR);
     }
 
@@ -264,6 +277,7 @@ dwarf_srcfiles(Dwarf_Die die,
 
     *srcfiles = ret_files;
     *srcfilecount = line_prefix.pf_files_count;
+    dwarf_free_line_table_prefix(&line_prefix);
     return (DW_DLV_OK);
 }
 

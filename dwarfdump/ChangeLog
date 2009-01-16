@@ -1,3 +1,12 @@
+2006-12-24 David Anderson <davea@sgi.com>
+     * DWARFDUMPCOPYRIGHT: Added GPL copyright text with
+       explanation of the intended content.
+     * COPYING: added text explaining confusion of GPL vs LGPL.
+       Thanks to Chris Quenelle for pointing out the disconnect
+       between DWARFDUMPCOPYRIGHT and the source files in dwarfdump.
+2006-12-21 David Anderson <davea@sgi.com>
+     * tag_tree.list: add tags to make allowed list more complete.
+       Omission noticed by Marcel Mettes.
 2006-06-14 David Anderson <davea@sgi.com>
      * print_frames.c: Clean up printing of augmentation data  by
        eliminating dangling 0x (for eh_frame).
