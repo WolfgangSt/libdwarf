@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000,2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2002,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -280,7 +280,12 @@ const char *_dwarf_errmsgs[] = {
     "DW_DLE_DF_ALLOC_FAIL(192)",
     "DW_DLE_DF_FRAME_DECODING_ERROR(193)",
     "DW_DLE_DEBUG_LOC_SECTION_SHORT(194)",
-    "DW_DLE_FRAME_AUGMENTATION_UNKNOWN(195)"
+    "DW_DLE_FRAME_AUGMENTATION_UNKNOWN(195)",
+    "DW_DLA_PUBTYPE_CONTEXT(196)",
+    "DW_DLE_DEBUG_PUBTYPES_LENGTH_BAD(197)",
+    "DW_DLE_DEBUG_PUBTYPES_VERSION_ERROR(198)",
+    "DW_DLE_DEBUG_PUBTYPES_DUPLICATE(199)"
+
 };
 
 

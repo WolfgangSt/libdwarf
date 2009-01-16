@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2 of the GNU General Public License as
@@ -971,7 +971,6 @@ get_attr_value(Dwarf_Debug dbg, Dwarf_Half tag, Dwarf_Attribute attrib,
 		attrib_bufsiz = strlen(temps) + 1;
 	    }
 	    sprintf(attrib_buf, "%s", temps);
-	    dwarf_dealloc(dbg, temps, DW_DLA_STRING);
 	} else if (wres == DW_DLV_NO_ENTRY) {
 	    /* nothing? */
 	} else {

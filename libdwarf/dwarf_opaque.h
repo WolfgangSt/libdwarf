@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000,2002,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2002,2003,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -191,11 +191,13 @@ struct Dwarf_Debug_s {
     Dwarf_Small *de_debug_pubnames;
     Dwarf_Small *de_debug_str;
     Dwarf_Small *de_debug_frame;
+    Dwarf_Small *de_debug_pubtypes; /* DWARF3 .debug_pubtypes */
     Dwarf_Small *de_debug_frame_eh_gnu;	/* gnu for the g++ eh_frame
 					   section */
 
     Dwarf_Small *de_debug_funcnames;
-    Dwarf_Small *de_debug_typenames;
+    Dwarf_Small *de_debug_typenames; /* SGI IRIX extension essentially
+			identical to DWARF3 .debug_pubtypes. */
     Dwarf_Small *de_debug_varnames;
     Dwarf_Small *de_debug_weaknames;
 
@@ -207,6 +209,7 @@ struct Dwarf_Debug_s {
     Dwarf_Unsigned de_debug_macinfo_size;
     Dwarf_Unsigned de_debug_pubnames_size;
     Dwarf_Unsigned de_debug_str_size;
+    Dwarf_Unsigned de_debug_pubtypes_size; /* DWARF3 .debug_pubtypes*/
 
 
     Dwarf_Unsigned de_debug_frame_size;
@@ -248,6 +251,7 @@ struct Dwarf_Debug_s {
     Dwarf_Half de_debug_str_index;
     Dwarf_Half de_debug_info_index;
     Dwarf_Half de_debug_abbrev_index;
+    Dwarf_Half de_debug_pubtypes_index; /* DWARF3 .debug_pubtypes */
     unsigned char de_big_endian_object; /* non-zero if big-endian
 		object opened. */
 };

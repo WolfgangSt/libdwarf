@@ -60,6 +60,7 @@
 #include <malloc.h>
 
 #include "dwarf_incl.h"
+#include "malloc_check.h"
 
 #define DWARF_DBG_ERROR(dbg,errval,retval) \
      _dwarf_error(dbg, error, errval); return(retval);
@@ -448,6 +449,8 @@ _dwarf_setup(Dwarf_Debug dbg, dwarf_elf_handle elf, Dwarf_Error * error)
 	}
 
 	else if (strcmp(scn_name, ".debug_typenames") == 0) {
+	    /* SGI IRIX-only, created years before DWARF3. 
+	       Content essentially identical to .debug_pubtypes.  */
 	    if (dbg->de_debug_typenames_index != 0) {
 		DWARF_DBG_ERROR(dbg,
 				DW_DLE_DEBUG_TYPENAMES_DUPLICATE,
@@ -459,6 +462,20 @@ _dwarf_setup(Dwarf_Debug dbg, dwarf_elf_handle elf, Dwarf_Error * error)
 	    }
 	    dbg->de_debug_typenames_index = section_index;
 	    dbg->de_debug_typenames_size = section_size;
+	}
+	else if (strcmp(scn_name, ".debug_pubtypes") == 0) {
+	    /* Section new in DWARF3.  */
+	    if (dbg->de_debug_pubtypes_index != 0) {
+		DWARF_DBG_ERROR(dbg,
+				DW_DLE_DEBUG_PUBTYPES_DUPLICATE,
+				DW_DLV_ERROR);
+	    }
+	    if (section_size == 0) {
+		/* a zero size section is just empty. Ok, no error */
+		continue;
+	    }
+	    dbg->de_debug_pubtypes_index = section_index;
+	    dbg->de_debug_pubtypes_size = section_size;
 	}
 
 	else if (strcmp(scn_name, ".debug_varnames") == 0) {
@@ -659,6 +676,7 @@ dwarf_finish(Dwarf_Debug dbg, Dwarf_Error * error)
     if (res == DW_DLV_ERROR) {
 	DWARF_DBG_ERROR(dbg, DW_DLE_DBG_ALLOC, DW_DLV_ERROR);
     }
+    dwarf_malloc_check_complete("After Final free");
 
     return res;
 
@@ -762,7 +780,7 @@ dwarf_get_section_max_offsets(Dwarf_Debug dbg,
     Dwarf_Unsigned *debug_str_size,
     Dwarf_Unsigned *debug_frame_size,
 	Dwarf_Unsigned *debug_ranges_size,
-	Dwarf_Unsigned *debug_pubtypes_size)
+	Dwarf_Unsigned *debug_typenames_size)
 {
     *debug_info_size = dbg->de_debug_info_size;
     *debug_abbrev_size = dbg->de_debug_abbrev_size;
@@ -774,7 +792,7 @@ dwarf_get_section_max_offsets(Dwarf_Debug dbg,
     *debug_str_size = dbg->de_debug_str_size;
     *debug_frame_size = dbg->de_debug_frame_size;
     *debug_ranges_size = 0; /* Not yet supported. */
-    *debug_pubtypes_size = dbg->de_debug_typenames_size;
+    *debug_typenames_size = dbg->de_debug_typenames_size;
 
 	
    return DW_DLV_OK;

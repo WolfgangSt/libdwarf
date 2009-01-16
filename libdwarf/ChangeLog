@@ -1,3 +1,34 @@
+2005-07-15 David Anderson <davea@sgi.com>
+      * libdwarf.h: New DW_DLA codes and full .debug_types support added.
+        new dealloc functions declared.
+      * Makefile.in: Add dwarf_pubtypes.o (.debug_pubtypes support).
+      * dwarf_abbrev.c: Add dealloc() calls where needed.
+      * dwarf_alloc.c: Add dwarf_malloc_check calls, rename and
+        update _DW_RESERVE to DW_RESERVE, make hash table declaration
+        in array more readable. Add optional final dealloc loop.
+      * dwarf_alloc.h: Increase the index array to add .debug_pubtypes
+        support.
+      * dwarf_base_types.h: Increase the index array to add .debug_pubtypes
+        support.
+      * dwarf_die_deliv.c: Add dealloc calls to get full dealloc.
+      * dwarf_error.c: Document new error codes for .debug_pubtypes.
+      * dwarf_init_finish.c: Add .debug_pubtypes support, add
+        dwarf_malloc_check_complete() call for alloc checking.
+      * dwarf_form.c: Document dwarf_formstring() use.
+      * dwarf_frame.c: Add dwarf_fde_cie_list_dealloc() for
+        complete dealloc.
+      * dwarf_global.h: Add _dwarf_internal_globals_dealloc
+        declaration for libdwarf-internal use.
+      * dwarf_global.c dwarf_funcs.c dwarf_types.c dwarf_vars.c
+        dwarf_weaks.c:  Add new dealloc public routines for
+        complete dealloc and add .debug_pubtypes support.
+      * dwarf_pubtypes.c: Support for .debug_pubtypes.
+      * dwarf_malloc_check.h dwarf_malloc_check.c : New checking 
+	for complete accurate dealloc (off by default).
+      * dwarf_opaque.h: Add internal .debug_pubtypes support.
+      * libdwarf2.1.mm: Document new dealloc code, correct
+        dwarf_formstring documentation.
+
 2005-07-14 David Anderson <davea@sgi.com>
       * dwarf_line.c: Added dwarf_srclines_dealloc and call it
         for dwarf_srclines output.  Does complete deallocation,

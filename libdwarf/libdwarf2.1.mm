@@ -8,7 +8,7 @@
 .nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.54, 14 July 2005
+.ds vE rev 1.56, 19 July 2005
 \." ==============================================
 \." ==============================================
 .ds | |
@@ -163,8 +163,12 @@ The miscellaneous interface is just what is left over: the error handler
 functions.
 .P
 The following is a brief mention of the changes in this libdwarf from 
-the libdwarf draft for DWARF Version 1.
+the libdwarf draft for DWARF Version 1 and recent changes.
 .H 2 "Items Changed"
+.P
+Added support for DWARF3 .debug_pubtypes section.
+Corrected various leaks (revising dealloc() calls, adding
+new functions) and corrected dwarf_formstring() documentation.
 .P 
 Added dwarf_srclines_dealloc() as the previous deallocation
 method documented for data returned by
@@ -543,10 +547,7 @@ allocation type \f(CWDW_DLA_LINE\fP when no longer needed.
 .DE
 Instances of \f(CWDwarf_Global\fP type are returned from a successful 
 call to the \f(CWdwarf_get_globals()\fP function, and are used as 
-descriptors for queries about global names (pubnames).  The storage 
-pointed to by these descriptors should be individually free'd, using 
-\f(CWdwarf_dealloc()\fP with the allocation type \f(CWDW_DLA_GLOBAL\fP, 
-when no longer needed.
+descriptors for queries about global names (pubnames).
 
 .DS
 \f(CWtypedef struct Dwarf_Weak_s* Dwarf_Weak;\fP
@@ -557,7 +558,11 @@ SGI-specific \f(CWdwarf_get_weaks()\fP
 function, and are used as descriptors for 
 queries about weak names.  The storage pointed to by these descriptors 
 should be individually free'd, using \f(CWdwarf_dealloc()\fP with the 
-allocation type \f(CWDW_DLA_WEAK\fP when no longer needed.
+allocation type 
+\f(CWDW_DLA_WEAK_CONTEXT\fP 
+(or
+\f(CWDW_DLA_WEAK\fP, an older name, supported for compatibility)
+when no longer needed.
 
 .DS
 \f(CWtypedef struct Dwarf_Func_s* Dwarf_Func;\fP
@@ -567,10 +572,6 @@ call to the
 SGI-specific \f(CWdwarf_get_funcs()\fP
 function, and are used as 
 descriptors for queries about static function names.  
-The storage 
-pointed to by these descriptors should be individually free'd, using 
-\f(CWdwarf_dealloc()\fP with the allocation type \f(CWDW_DLA_FUNC\fP, 
-when no longer needed.
 
 .DS
 \f(CWtypedef struct Dwarf_Type_s* Dwarf_Type;\fP
@@ -580,9 +581,6 @@ to the
 SGI-specific \f(CWdwarf_get_types()\fP
 function, and are used as descriptors for 
 queries about user defined types.  
-The storage pointed to by this descriptor 
-should be individually free'd, using \f(CWdwarf_dealloc()\fP with the 
-allocation type \f(CWDW_DLA_TYPENAME\fP when no longer needed.
 
 .DS
 \f(CWtypedef struct Dwarf_Var_s* Dwarf_Var;\fP
@@ -591,9 +589,6 @@ Instances of \f(CWDwarf_Var\fP type are returned from a successful call
 to the SGI-specific \f(CWdwarf_get_vars()\fP
 function, and are used as descriptors for 
 queries about static variables.  
-The storage pointed to by this descriptor 
-should be individually free'd, using \f(CWdwarf_dealloc()\fP with the 
-allocation type \f(CWDW_DLA_VAR\fP when no longer needed.
 
 .DS
 \f(CWtypedef struct Dwarf_Error_s* Dwarf_Error;\fP
@@ -630,19 +625,14 @@ allocation type \f(CWDW_DLA_ABBREV\fP when no longer needed.
 Instances of \f(CWDwarf_Fde\fP type are returned from a successful call 
 to the \f(CWdwarf_get_fde_list()\fP, \f(CWdwarf_get_fde_for_die()\fP, or
 \f(CWdwarf_get_fde_at_pc()\fP functions, and are used as descriptors for 
-queries about frames descriptors.  The storage pointed to by these 
-descriptors should be individually free'd, using \f(CWdwarf_dealloc()\fP 
-with the allocation type \f(CWDW_DLA_FDE\fP when no longer needed.
+queries about frames descriptors.
 
 .DS
 \f(CWtypedef struct Dwarf_Cie_s* Dwarf_Cie;\fP
 .DE
 Instances of \f(CWDwarf_Cie\fP type are returned from a successful call 
 to the \f(CWdwarf_get_fde_list()\fP function, and are used as descriptors 
-for queries about information that is common to several frames.  The 
-storage pointed to by this descriptor should be individually free'd, using 
-\f(CWdwarf_dealloc()\fP with the allocation type \f(CWDW_DLA_CIE\fP when 
-no longer needed.
+for queries about information that is common to several frames.
 
 .DS
 \f(CWtypedef struct Dwarf_Arange_s* Dwarf_Arange;\fP
@@ -907,7 +897,7 @@ DW_DLA_LINE             :     Dwarf_Line
 DW_DLA_ATTR             :     Dwarf_Attribute 
 DW_DLA_TYPE             :     Dwarf_Type  (not used) 
 DW_DLA_SUBSCR           :     Dwarf_Subscr (not used) 
-DW_DLA_GLOBAL           :     Dwarf_Global 
+DW_DLA_GLOBAL_CONTEXT   :     Dwarf_Global 
 DW_DLA_ERROR            :     Dwarf_Error 
 DW_DLA_LIST             :     a list of opaque descriptors
 DW_DLA_LINEBUF          :     Dwarf_Line* (not used) 
@@ -918,10 +908,11 @@ DW_DLA_CIE              :     Dwarf_Cie
 DW_DLA_FDE              :     Dwarf_Fde
 DW_DLA_LOC_BLOCK        :     Dwarf_Loc Block
 DW_DLA_FRAME_BLOCK      :     Dwarf_Frame Block (not used) 
-DW_DLA_FUNC             :     Dwarf_Func 
-DW_DLA_TYPENAME         :     Dwarf_Type
-DW_DLA_VAR              :     Dwarf_Var
-DW_DLA_WEAK		:     Dwarf_Weak
+DW_DLA_FUNC_CONTEXT     :     Dwarf_Func 
+DW_DLA_TYPENAME_CONTEXT :     Dwarf_Type
+DW_DLA_VAR_CONTEXT      :     Dwarf_Var
+DW_DLA_WEAK_CONTEXT	:     Dwarf_Weak
+DW_DLA_PUBTYPES_CONTEXT	:     Dwarf_Pubtype
 .TE
 .FG "Allocation/Deallocation Identifiers"
 .DE
@@ -1817,10 +1808,11 @@ attribute belongs to the \f(CWSTRING\fP class.
 It is an error
 for the form to not belong to this class.  
 The storage pointed 
-to by a successful return of \f(CWdwarf_formstring()\fP should 
-be free'd using the allocation type \f(CWDW_DLA_STRING\fP when 
-no longer of interest (see \f(CWdwarf_dealloc()\fP).  
-It returns \f(CWDW_DLV_ERROR\fP on error.
+to by a successful return of \f(CWdwarf_formstring()\fP 
+should not be free'd.  The pointer points into
+existing dwarf memory and the pointer becomes stale/invalid
+after a call to \f(CWdwarf_finish\fP.
+\f(CWdwarf_formstring()\fP returns \f(CWDW_DLV_ERROR\fP on error.
 
 .H 4 "dwarf_loclist_n()"
 .DS
@@ -2288,10 +2280,44 @@ It returns \f(CWDW_DLV_ERROR\fP on error.
 It returns \f(CWDW_DLV_NO_ENTRY\fP if the .debug_pubnames 
 section does not exist.
 
+.P
+On a successful return from
+\f(CWdwarf_get_globals()\fP, the \f(CWDwarf_Global\fP 
+descriptors should be
+free'd using \f(CWdwarf_globals_dealloc()\fP.
+\f(CWdwarf_globals_dealloc()\fP is new as of July 15, 2005
+and is the preferred approach to freeing this memory..
+
+.in +2
+.DS
+\f(CWDwarf_Signed cnt;
+Dwarf_Global *globs;
+int res;
+
+res = dwarf_get_globals(dbg, &globs,&cnt, &error);
+if (res == DW_DLV_OK) {
+
+        for (i = 0; i < cnt; ++i) {
+                /* use globs[i] */
+        }
+        dwarf_globals_dealloc(dbg, globs, cnt);
+}\fP
+.DE
+.in -2
+
+
+.P
+The following code is deprecated as of July 15, 2005 as it does not
+free all relevant memory.
+This approach  still works as well as it ever did.
 On a successful return from 
-this function, the \f(CWDwarf_Global\fP descriptors should be individually 
+\f(CWdwarf_get_globals()\fP, the \f(CWDwarf_Global\fP 
+descriptors should be individually 
 free'd using \f(CWdwarf_dealloc()\fP with the allocation type 
-\f(CWDW_DLA_GLOBAL\fP, followed by the deallocation of the list itself 
+\f(CWDW_DLA_GLOBAL_CONTEXT\fP, 
+(or
+\f(CWDW_DLA_GLOBAL\fP, an older name, supported for compatibility)
+followed by the deallocation of the list itself 
 with the allocation type \f(CWDW_DLA_LIST\fP when the descriptors are 
 no longer of interest.
 
@@ -2306,7 +2332,7 @@ if (res == DW_DLV_OK) {
 
         for (i = 0; i < cnt; ++i) {
                 /* use globs[i] */
-                dwarf_dealloc(dbg, globs[i], DW_DLA_GLOBAL);
+                dwarf_dealloc(dbg, globs[i], DW_DLA_GLOBAL_CONTEXT);
         }
         dwarf_dealloc(dbg, globs, DW_DLA_LIST);
 }\fP
@@ -2427,6 +2453,154 @@ pointed to by \f(CWreturn_name\fP
 should be free'd using \f(CWdwarf_dealloc()\fP, 
 with the allocation type \f(CWDW_DLA_STRING\fP when no longer of interest.
 
+
+.H 2 "DWARF3 Type Names Operations"
+Section ".debug_pubtypes"  is new in DWARF3.
+.P
+These functions operate on the .debug_pubtypes section of the debugging
+information.  The .debug_pubtypes section contains the names of file-scope
+user-defined types, the offsets of the \f(CWDIE\fPs that represent the
+definitions of those types, and the offsets of the compilation-units 
+that contain the definitions of those types.
+
+.H 3 "Debugger Interface Operations"
+
+.H 4 "dwarf_get_pubtypes()"
+.DS
+\f(CWint dwarf_get_pubtypes(
+        Dwarf_Debug dbg,
+        Dwarf_Type **types,
+        Dwarf_Signed *typecount,
+        Dwarf_Error *error)\fP
+.DE
+The function \f(CWdwarf_get_pubtypes()\fP returns
+\f(CWDW_DLV_OK\fP and sets \f(CW*typecount\fP to
+the count of user-defined
+type names represented in the section containing user-defined type names,
+i.e. .debug_pubtypes.  
+It also stores at \f(CW*types\fP, 
+a pointer to a list of \f(CWDwarf_Pubtype\fP descriptors, one for each of the 
+user-defined type names in the .debug_pubtypes section.  
+It returns \f(CWDW_DLV_NOCOUNT\fP on error. 
+It returns \f(CWDW_DLV_NO_ENTRY\fP if 
+the .debug_pubtypes section does not exist.  
+
+.P
+On a successful 
+return from \f(CWdwarf_get_pubtypes()\fP, 
+the \f(CWDwarf_Type\fP descriptors should be 
+free'd using \f(CWdwarf_types_dealloc()\fP.
+\f(CWdwarf_types_dealloc()\fP is used for both
+\f(CWdwarf_get_pubtypes()\fP and \f(CWdwarf_get_types()\fP
+as the data types are the same.
+
+.in +2
+.DS
+\f(CWDwarf_Signed cnt;
+Dwarf_Pubtype *types;
+int res;
+
+res = dwarf_get_pubtypes(dbg, &types,&cnt, &error);
+if (res == DW_DLV_OK) {
+
+        for (i = 0; i < cnt; ++i) {
+                /* use types[i] */
+        }
+        dwarf_types_dealloc(dbg, types, cnt);
+}\fP
+.DE
+.in -2
+
+.H 4 "dwarf_pubtypename()"
+.DS
+\f(CWint dwarf_pubtypename(
+        Dwarf_Pubtype   type,
+        char       **return_name,
+        Dwarf_Error *error)\fP
+.DE
+The function \f(CWdwarf_pubtypename()\fP returns
+\f(CWDW_DLV_OK\fP and sets \f(CW*return_name\fP to
+a pointer to a
+null-terminated string that names the user-defined type represented by the
+\f(CWDwarf_Pubtype\fP descriptor, \f(CWtype\fP.  
+It returns \f(CWDW_DLV_ERROR\fP on error.  
+It never returns \f(CWDW_DLV_NO_ENTRY\fP.
+On a successful return from this function, the string should
+be free'd using \f(CWdwarf_dealloc()\fP, with the allocation type
+\f(CWDW_DLA_STRING\fP when no longer of interest.
+
+.H 4 "dwarf_pubtype_die_offset()"
+.DS
+\f(CWint dwarf_pubtype_die_offset(
+        Dwarf_Pubtype type,
+        Dwarf_Off  *return_offset,
+        Dwarf_Error *error)\fP
+.DE
+The function \f(CWdwarf_pubtype_die_offset()\fP returns
+\f(CWDW_DLV_OK\fP and sets \f(CW*return_offset\fP to
+the offset in
+the section containing DIE's, i.e. .debug_info, of the DIE representing
+the user-defined type that is described by the \f(CWDwarf_Pubtype\fP 
+descriptor, \f(CWtype\fP.  
+It returns \f(CWDW_DLV_ERROR\fP on error.
+It never returns \f(CWDW_DLV_NO_ENTRY\fP.
+
+.H 4 "dwarf_pubtype_cu_offset()"
+.DS
+\f(CWint dwarf_pubtype_cu_offset(
+        Dwarf_Pubtype type,
+        Dwarf_Off  *return_offset,
+        Dwarf_Error *error)\fP
+.DE
+The function \f(CWdwarf_pubtype_cu_offset()\fP returns
+\f(CWDW_DLV_OK\fP and sets \f(CW*return_offset\fP to
+the offset in
+the section containing DIE's, i.e. .debug_info, of the compilation-unit
+header of the compilation-unit that contains the user-defined type
+described by the \f(CWDwarf_Pubtype\fP descriptor, \f(CWtype\fP.  
+It returns \f(CWDW_DLV_ERROR\fP on error.
+It never returns \f(CWDW_DLV_NO_ENTRY\fP.
+
+.H 4 "dwarf_pubtype_name_offsets()"
+.DS
+\f(CWint dwarf_pubtype_name_offsets(
+        Dwarf_Pubtype   type,
+        char      ** returned_name,
+        Dwarf_Off *  die_offset,
+        Dwarf_Off *  cu_offset,
+        Dwarf_Error *error)\fP
+.DE
+The function \f(CWdwarf_pubtype_name_offsets()\fP returns
+\f(CWDW_DLV_OK\fP and sets \f(CW*returned_name\fP to
+a pointer to
+a null-terminated string that gives the name of the user-defined
+type described by the \f(CWDwarf_Pubtype\fP descriptor \f(CWtype\fP.
+It also returns in the locations
+pointed to by \f(CWdie_offset\fP, and \f(CWcu_offset\fP, the offsets
+of the DIE representing the 
+user-defined type, and the DIE
+representing the compilation-unit containing the 
+user-defined type, respectively.
+It returns \f(CWDW_DLV_ERROR\fP on error.  
+It never returns \f(CWDW_DLV_NO_ENTRY\fP.
+On a successful return from \f(CWdwarf_pubtype_name_offsets()\fP
+the storage pointed to by \f(CWreturned_name\fP should
+be free'd using
+\f(CWdwarf_dealloc()\fP, with the allocation type \f(CWDW_DLA_STRING\fP
+when no longer of interest.
+
+
+.H 2 "User Defined Static Variable Names Operations"
+This section is SGI specific and is not part of standard DWARF version 2.
+.P
+These functions operate on the .debug_varnames section of the debugging
+information.  The .debug_varnames section contains the names of file-scope
+static variables, the offsets of the \f(CWDIE\fPs that represent the 
+definitions of those variables, and the offsets of the compilation-units
+that contain the definitions of those variables.
+.P
+
+
 .H 2 "Weak Name Space Operations" 
 These operations operate on the .debug_weaknames section of the debugging 
 information.
@@ -2453,9 +2627,42 @@ It returns \f(CWDW_DLV_NO_ENTRY\fP if the section does not exist.
 It also stores in \f(CW*weaks\fP, a pointer to 
 a list of \f(CWDwarf_Weak\fP descriptors, one for each of the weak names 
 in the .debug_weaknames section.  
-On a successful return from this function, 
+
+.P
+On a successful return from this function,
+the \f(CWDwarf_Weak\fP descriptors should be free'd using
+\f(CWdwarf_weaks_dealloc()\fP when the data is no longer of
+interest.  \f(CWdwarf_weaks_dealloc()\fPis new as of July 15, 2005.
+
+.in +2
+.DS
+\f(CWDwarf_Signed cnt;
+Dwarf_Weak *weaks;
+int res;
+
+res = dwarf_get_weaks(dbg, &weaks,&cnt, &error);
+if (res == DW_DLV_OK) {
+
+        for (i = 0; i < cnt; ++i) {
+                /* use weaks[i] */
+        }
+        dwarf_weaks_dealloc(dbg, weaks, cnt);
+}\fP
+.DE
+.in -2
+
+
+
+.P
+The following code is deprecated as of July 15, 2005 as it does not
+free all relevant memory.
+This approach  still works as well as it ever did.
+On a successful return from \f(CWdwarf_get_weaks()\fP
 the \f(CWDwarf_Weak\fP descriptors should be individually free'd using 
-\f(CWdwarf_dealloc()\fP with the allocation type \f(CWDW_DLA_WEAK\fP, 
+\f(CWdwarf_dealloc()\fP with the allocation type 
+\f(CWDW_DLA_WEAK_CONTEXT\fP, 
+(or
+\f(CWDW_DLA_WEAK\fP, an older name, supported for compatibility)
 followed by the deallocation of the list itself with the allocation type 
 \f(CWDW_DLA_LIST\fP when the descriptors are no longer of interest.
 
@@ -2470,7 +2677,7 @@ if (res == DW_DLV_OK) {
 
         for (i = 0; i < cnt; ++i) {
                 /* use weaks[i] */
-                dwarf_dealloc(dbg, weaks[i], DW_DLA_WEAK);
+                dwarf_dealloc(dbg, weaks[i], DW_DLA_WEAK_CONTEXT);
         }
         dwarf_dealloc(dbg, weaks, DW_DLA_LIST);
 }\fP
@@ -2584,9 +2791,42 @@ section.
 It returns \f(CWDW_DLV_NOCOUNT\fP on error.
 It returns \f(CWDW_DLV_NO_ENTRY\fP
 if the .debug_funcnames section does not exist.  
-On a successful return from this function, the \f(CWDwarf_Func\fP 
+.P
+On a successful return from \f(CWdwarf_get_funcs()\fP, 
+the \f(CWDwarf_Func\fP
+descriptors should be free'd using \f(CWdwarf_funcs_dealloc()\fP.
+\f(CWdwarf_funcs_dealloc()\fP is new as of July 15, 2005.
+
+.in +2
+.DS
+\f(CWDwarf_Signed cnt;
+Dwarf_Func *funcs;
+int fres;
+
+fres = dwarf_get_funcs(dbg, &funcs, &error);
+if (fres == DW_DLV_OK) {
+
+        for (i = 0; i < cnt; ++i) {
+                /* use funcs[i] */
+        }
+        dwarf_funcs_dealloc(dbg, funcs, cnt);
+}\fP
+.DE
+.in -2
+
+
+.P
+The following code is deprecated as of July 15, 2005 as it does not
+free all relevant memory.
+This approach  still works as well as it ever did.
+On a successful return from \f(CWdwarf_get_funcs()\fP, 
+the \f(CWDwarf_Func\fP 
 descriptors should be individually free'd using \f(CWdwarf_dealloc()\fP 
-with the allocation type \f(CWDW_DLA_FUNC\fP, followed by the deallocation 
+with the allocation type 
+\f(CWDW_DLA_FUNC_CONTEXT\fP, 
+(or
+\f(CWDW_DLA_FUNC\fP, an older name, supported for compatibility)
+followed by the deallocation 
 of the list itself with the allocation type \f(CWDW_DLA_LIST\fP when 
 the descriptors are no longer of interest.
 
@@ -2601,7 +2841,7 @@ if (fres == DW_DLV_OK) {
 
         for (i = 0; i < cnt; ++i) {
                 /* use funcs[i] */
-                dwarf_dealloc(dbg, funcs[i], DW_DLA_FUNC);
+                dwarf_dealloc(dbg, funcs[i], DW_DLA_FUNC_CONTEXT);
         }
         dwarf_dealloc(dbg, funcs, DW_DLA_LIST);
 }\fP
@@ -2689,8 +2929,8 @@ when no longer of interest.
 .H 2 "User Defined Type Names Operations"
 Section "debug_typenames"  is SGI specific 
 and is not part of standard DWARF version 2.
-(However, an identical section is part of draft DWARF version 3
-named ".debug_pubtypes", which the library does not yet deal with.)
+(However, an identical section is part of DWARF version 3
+named ".debug_pubtypes", see  \f(CWdwarf_get_pubtypes()\fP above.)
 .P
 These functions operate on the .debug_typenames section of the debugging
 information.  The .debug_typenames section contains the names of file-scope
@@ -2719,10 +2959,47 @@ user-defined type names in the .debug_typenames section.
 It returns \f(CWDW_DLV_NOCOUNT\fP on error. 
 It returns \f(CWDW_DLV_NO_ENTRY\fP if 
 the .debug_typenames section does not exist.  
+
+.P
+
+On a successful
+return from \f(CWdwarf_get_types()\fP, 
+the \f(CWDwarf_Type\fP descriptors should be
+free'd using \f(CWdwarf_types_dealloc()\fP.
+\f(CWdwarf_types_dealloc()\fP is new as of July 15, 2005
+and frees all memory allocated by \f(CWdwarf_get_types()\fP.
+
+.in +2
+.DS
+\f(CWDwarf_Signed cnt;
+Dwarf_Type *types;
+int res;
+
+res = dwarf_get_types(dbg, &types,&cnt, &error);
+if (res == DW_DLV_OK) {
+
+        for (i = 0; i < cnt; ++i) {
+                /* use types[i] */
+        }
+        dwarf_types_dealloc(dbg, types, cnt);
+}\fP
+.DE
+.in -2
+
+
+
+.P
+The following code is deprecated as of July 15, 2005 as it does not
+free all relevant memory.
+This approach  still works as well as it ever did.
 On a successful 
-return from this function, the \f(CWDwarf_Type\fP descriptors should be 
+return from \f(CWdwarf_get_types()\fP, 
+the \f(CWDwarf_Type\fP descriptors should be 
 individually free'd using \f(CWdwarf_dealloc()\fP with the allocation type 
-\f(CWDW_DLA_TYPENAME\fP, followed by the deallocation of the list itself 
+\f(CWDW_DLA_TYPENAME_CONTEXT\fP, 
+(or
+\f(CWDW_DLA_TYPENAME\fP, an older name, supported for compatibility)
+followed by the deallocation of the list itself 
 with the allocation type \f(CWDW_DLA_LIST\fP when the descriptors are no 
 longer of interest.
 
@@ -2737,7 +3014,7 @@ if (res == DW_DLV_OK) {
 
         for (i = 0; i < cnt; ++i) {
                 /* use types[i] */
-                dwarf_dealloc(dbg, types[i], DW_DLA_TYPENAME);
+                dwarf_dealloc(dbg, types[i], DW_DLA_TYPENAME_CONTEXT);
         }
         dwarf_dealloc(dbg, types, DW_DLA_LIST);
 }\fP
@@ -2855,10 +3132,41 @@ variable names in the .debug_varnames section.
 It returns \f(CWDW_DLV_ERROR\fP on error.
 It returns \f(CWDW_DLV_NO_ENTRY\fP if the .debug_varnames section does 
 not exist.  
+
+.P 
+The following is new as of July 15, 2005.
+On a successful return
+from \f(CWdwarf_get_vars()\fP, the \f(CWDwarf_Var\fP descriptors should be
+free'd using \f(CWdwarf_vars_dealloc()\fP.
+
+.in +2
+.DS
+\f(CWDwarf_Signed cnt;
+Dwarf_Var *vars;
+int res;
+
+res = dwarf_get_vars(dbg, &vars,&cnt &error);
+if (res == DW_DLV_OK) {
+
+        for (i = 0; i < cnt; ++i) {
+                /* use vars[i] */
+        }
+        dwarf_vars_dealloc(dbg, vars, cnt);
+}\fP
+.DE
+.in -2
+
+.P 
+The following code is deprecated as of July 15, 2005 as it does not
+free all relevant memory.
+This approach  still works as well as it ever did.
 On a successful return 
-from this function, the \f(CWDwarf_Var\fP descriptors should be individually 
+from \f(CWdwarf_get_vars()\fP, the \f(CWDwarf_Var\fP descriptors should be individually 
 free'd using \f(CWdwarf_dealloc()\fP with the allocation type 
-\f(CWDW_DLA_VAR\fP, followed by the deallocation of the list itself with 
+\f(CWDW_DLA_VAR_CONTEXT\fP, 
+(or
+\f(CWDW_DLA_VAR\fP, an older name, supported for compatibility)
+followed by the deallocation of the list itself with 
 the allocation type \f(CWDW_DLA_LIST\fP when the descriptors are no 
 longer of interest.
 
@@ -2873,7 +3181,7 @@ if (res == DW_DLV_OK) {
 
         for (i = 0; i < cnt; ++i) {
                 /* use vars[i] */
-                dwarf_dealloc(dbg, vars[i], DW_DLA_VAR);
+                dwarf_dealloc(dbg, vars[i], DW_DLA_VAR_CONTEXT);
         }
         dwarf_dealloc(dbg, vars, DW_DLA_LIST);
 }\fP
@@ -3177,15 +3485,35 @@ descriptor per FDE in the .debug_frame section.
 \f(CWdwarf_get_fde_list()\fP  returns \f(CWDW_DLV_EROR\fP on error.
 It returns \f(CWDW_DLV_NO_ENTRY\fP if it cannot find frame entries.
 It returns \f(CWDW_DLV_OK\fP on a successful return.
+.P
+On successful return, structures pointed to by a
+descriptor should be free'd using \f(CWdwarf_fde_cie_list_dealloc()\fP.
+This dealloc approach is new as of July 15, 2005.
 
-On successful return, each of the structures pointed to by a 
-descriptor should be individually free'd using \f(CWdwarf_dealloc()\fP 
-with either the allocation type \f(CWDW_DLA_CIE\fP, or \f(CWDW_DLA_FDE\fP 
-as appropriate when no longer of interest.  Each of the blocks 
-of descriptors should be free'd using \f(CWdwarf_dealloc()\fP with 
-the allocation type \f(CWDW_DLA_LIST\fP when no longer of interest.
+.in +2
+.DS
+\f(CWDwarf_Signed cnt;
+Dwarf_Cie *cie_data;
+Dwarf_Signed cie_count;
+Dwarf_Fde *fde_data;
+Dwarf_Signed fde_count;
+int fres;
+
+fres = dwarf_get_fde_list(dbg,&cie_data,&cie_count,
+                &fde_data,&fde_count,&error);
+if (fres == DW_DLV_OK) {
+        dwarf_fde_cie_list_dealloc(dbg, cie_data, cie_count,
+		fde_data,fde_count);
+}\fP
+.DE
+.in -2
 
 
+
+.P
+The following code is deprecated as of July 15, 2005 as it does not
+free all relevant memory.
+This approach  still works as well as it ever did.
 .in +2
 .DS
 \f(CWDwarf_Signed cnt;
@@ -3242,12 +3570,28 @@ It returns \f(CWDW_DLV_NO_ENTRY\fP if it cannot find
 exception handling entries.
 It returns \f(CWDW_DLV_OK\fP on a successful return.
 
-On successful return, each of the structures pointed to by a
-descriptor should be individually free'd using \f(CWdwarf_dealloc()\fP
-with either the allocation type \f(CWDW_DLA_CIE\fP, or \f(CWDW_DLA_FDE\fP
-as appropriate when no longer of interest.  Each of the blocks
-of descriptors should be free'd using \f(CWdwarf_dealloc()\fP with
-the allocation type \f(CWDW_DLA_LIST\fP when no longer of interest.
+.P
+On successful return, structures pointed to by a
+descriptor should be free'd using \f(CWdwarf_fde_cie_list_dealloc()\fP.
+This dealloc approach is new as of July 15, 2005.
+
+.in +2
+.DS
+\f(CWDwarf_Signed cnt;
+Dwarf_Cie *cie_data;
+Dwarf_Signed cie_count;
+Dwarf_Fde *fde_data;
+Dwarf_Signed fde_count;
+int fres;
+
+fres = dwarf_get_fde_list(dbg,&cie_data,&cie_count,
+                &fde_data,&fde_count,&error);
+if (fres == DW_DLV_OK) {
+        dwarf_fde_cie_list_dealloc(dbg, cie_data, cie_count,
+                fde_data,fde_count);
+}\fP
+.DE
+.in -2
 
 
 .P
@@ -3646,6 +3990,11 @@ An abbreviation entry with a
 length of 1 is the 0 byte of the last abbreviation entry of a compilation 
 unit.
 \f(CWdwarf_get_abbrev()\fP returns \f(CWDW_DLV_ERROR\fP on error.  
+If the call succeeds, the storage pointed to
+by \f(CW*returned_abbrev\fP
+should be free'd, using \f(CWdwarf_dealloc()\fP with the
+allocation type \f(CWDW_DLA_ABBREV\fP when no longer needed.
+
 
 .H 3 "dwarf_get_abbrev_tag()"
 .DS

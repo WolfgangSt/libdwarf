@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000, 2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -43,24 +43,25 @@ typedef struct Dwarf_Global_Context_s *Dwarf_Global_Context;
     Essentially, they contain the context for a set of pubnames 
     belonging to a compilation-unit.
 
-
     This is also used for the sgi-specific
     weaknames, typenames, varnames, funcnames data:
     the structs for those are incomplete and
     instances of this are used instead.
 
+    Also used for DWARF3 .debug_pubtypes.
+
 */
 struct Dwarf_Global_Context_s {
 
-    /* 
-       Length in .debug_pubnames of a set of pubnames for a
+    /* Length in .debug_pubnames (etc) of a set of names for a
        compilation-unit. Dwarf_Word pu_length; The value is not made
        available outside libdwarf and not used inside, so no need to
        record it. */
 
-    /* for this context, size of a length. 4 or 8 */
+    /* For this context, size of a length. 4 or 8 */
     unsigned char pu_length_size;
-    /* for this CU, size of the extension 0 except for dwarf2 extension 
+
+    /* For this CU, size of the extension 0 except for dwarf2 extension 
        64bit, in which case is 4. */
     unsigned char pu_extension_size;
 
@@ -102,6 +103,14 @@ int _dwarf_internal_get_pubnames_like_data(Dwarf_Debug dbg,
 					   int allocation_code,
 					   int length_err_num,
 					   int version_err_num);
+
+void
+_dwarf_internal_globals_dealloc( Dwarf_Debug dbg, Dwarf_Global *dwgl,
+        Dwarf_Signed count,
+        int context_code,
+        int global_code,
+        int list_code);
+
 
 #ifdef __sgi  /* __sgi should only be defined for IRIX/MIPS. */
 void _dwarf_fix_up_offset_irix(Dwarf_Debug dbg,

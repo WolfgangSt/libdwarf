@@ -1,3 +1,14 @@
+2005-07-15 David Anderson <davea@sgi.com>
+      * dwarfdump.c: Add print of .debug_pubtypes, remove
+        erroneous dealloc after dwarf_formstring() call.
+      * globals.h: Add declarations for .debug_pubtypes print.  Add
+        declaration for full dealloc.
+      * print_die.c: Remove erroneous dealloc after dwarf_formstring() call.
+      * print_exception_tables.c: Call dwarf_fde_cie_list_dealloc()
+        for complete dealloc.
+      * print_sections.c: Remove incorrect dealloc() call.
+        Add calls to new dealloc routines. Add support of .debug_pubtypes
+        print.
 2005-07-14 David Anderson <davea@sgi.com>
       * print_sections.c (print_line_numbers_this_cu): Use new
         dwarf_srclines_dealloc() for deallocation after

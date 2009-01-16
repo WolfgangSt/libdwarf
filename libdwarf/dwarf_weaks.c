@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000,2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2002,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -70,6 +70,22 @@ dwarf_get_weaks(Dwarf_Debug dbg,
 						  DW_DLE_DEBUG_WEAKNAMES_LENGTH_BAD,
 						  DW_DLE_DEBUG_WEAKNAMES_VERSION_ERROR);
 
+}
+
+/* Deallocating fully requires deallocating the list
+   and all entries.  But some internal data is
+   not exposed, so we need a function with internal knowledge.
+*/
+
+void
+dwarf_weaks_dealloc(Dwarf_Debug dbg, Dwarf_Weak *dwgl, Dwarf_Signed count)
+{
+   _dwarf_internal_globals_dealloc(dbg, (Dwarf_Global *)dwgl,
+                count,
+        DW_DLA_WEAK_CONTEXT,
+        DW_DLA_GLOBAL,
+        DW_DLA_LIST);
+   return;
 }
 
 

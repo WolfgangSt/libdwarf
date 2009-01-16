@@ -80,6 +80,7 @@ OBJS= dwarf_abbrev.o \
         dwarf_query.o \
         dwarf_string.o \
         dwarf_stubs.o \
+        dwarf_pubtypes.o \
         dwarf_types.o \
         dwarf_util.o \
         dwarf_leb.o \
@@ -89,6 +90,7 @@ OBJS= dwarf_abbrev.o \
 	dwarf_sort_line.o \
 	dwarf_print_lines.o \
 	dwarf_macro.o \
+	malloc_check.o \
         pro_alloc.o \
         pro_arange.o \
         pro_die.o \

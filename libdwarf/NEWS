@@ -1,3 +1,13 @@
+July 15, 2005
+  New optional alloc-check code optionally checks all
+  allocated memory is freed (malloc_check.h malloc_check.c)
+  Various new dealloc routines written as the previous approach
+  of letting client code do detailed dealloc turned out not
+  to dealloc all memory.
+  To get the new checking you must manually change a line
+  in malloc_check.h and rebuild libdwarf.
+
+
 Mar 31, 2005
   Documented  the libexc.so/.debug_funcnames
   dependency and the 64bit-offset DWARF extension in

@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000,2002,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -33,107 +33,106 @@
 
 */
 
+/* Reads DWARF3 .debug_pubtypes section. */
 
 
 #include "config.h"
 #include "dwarf_incl.h"
 #include <stdio.h>
-#include "dwarf_vars.h"
+#include "dwarf_types.h"
 #include "dwarf_global.h"
 
 int
-dwarf_get_vars(Dwarf_Debug dbg,
-	       Dwarf_Var ** vars,
-	       Dwarf_Signed * ret_var_count, Dwarf_Error * error)
+dwarf_get_pubtypes(Dwarf_Debug dbg,
+		Dwarf_Type ** types,
+		Dwarf_Signed * ret_type_count, Dwarf_Error * error)
 {
     int res;
 
     res =
        _dwarf_load_section(dbg,
-		           dbg->de_debug_varnames_index,
-			   &dbg->de_debug_varnames,
-		           error);
+		           dbg->de_debug_pubtypes_index,
+			   &dbg->de_debug_pubtypes,
+			   error);
     if (res != DW_DLV_OK) {
 	return res;
     }
 
-    return _dwarf_internal_get_pubnames_like_data(dbg, dbg->de_debug_varnames, dbg->de_debug_varnames_size, (Dwarf_Global **) vars,	/* type 
-																	   punning,
-																	   Dwarf_Type 
-																	   is never
-																	   a
-																	   completed 
-																	   type */
-						  ret_var_count,
-						  error,
-						  DW_DLA_VAR_CONTEXT,
-						  DW_DLE_DEBUG_VARNAMES_LENGTH_BAD,
-						  DW_DLE_DEBUG_VARNAMES_VERSION_ERROR);
-}
+    return _dwarf_internal_get_pubnames_like_data(dbg, 
+	dbg->de_debug_pubtypes, 
+	dbg->de_debug_pubtypes_size, 
+	(Dwarf_Global **) types,	/* type punning,
+	Dwarf_Type is never a completed type */
 
+	ret_type_count,
+	error,
+	DW_DLA_PUBTYPES_CONTEXT,
+	DW_DLE_DEBUG_PUBTYPES_LENGTH_BAD,
+	DW_DLE_DEBUG_PUBTYPES_VERSION_ERROR);
+}
 /* Deallocating fully requires deallocating the list
    and all entries.  But some internal data is
    not exposed, so we need a function with internal knowledge.
 */
 
 void
-dwarf_vars_dealloc(Dwarf_Debug dbg, Dwarf_Var *dwgl, Dwarf_Signed count)
+dwarf_pubtypes_dealloc(Dwarf_Debug dbg, Dwarf_Type *dwgl, Dwarf_Signed count)
 {
    _dwarf_internal_globals_dealloc(dbg, (Dwarf_Global *)dwgl,
                 count,
-        DW_DLA_VAR_CONTEXT,
+        DW_DLA_PUBTYPES_CONTEXT,
         DW_DLA_GLOBAL,
         DW_DLA_LIST);
    return;
 }
 
 
-int
-dwarf_varname(Dwarf_Var var_in, char **ret_varname, Dwarf_Error * error)
-{
-    Dwarf_Global var = (Dwarf_Global) var_in;
 
-    if (var == NULL) {
-	_dwarf_error(NULL, error, DW_DLE_VAR_NULL);
+int
+dwarf_pubtypename(Dwarf_Type type_in, char **ret_name, Dwarf_Error * error)
+{
+    Dwarf_Global type = (Dwarf_Global) type_in;
+
+    if (type == NULL) {
+	_dwarf_error(NULL, error, DW_DLE_TYPE_NULL);
 	return (DW_DLV_ERROR);
     }
 
-    *ret_varname = (char *) (var->gl_name);
+    *ret_name = (char *) (type->gl_name);
     return DW_DLV_OK;
 }
 
 
 int
-dwarf_var_die_offset(Dwarf_Var var_in,
-		     Dwarf_Off * returned_offset, Dwarf_Error * error)
+dwarf_pubtype_type_die_offset(Dwarf_Type type_in,
+		      Dwarf_Off * ret_offset, Dwarf_Error * error)
 {
-    Dwarf_Global var = (Dwarf_Global) var_in;
+    Dwarf_Global type = (Dwarf_Global) type_in;
 
-    return dwarf_global_die_offset(var, returned_offset, error);
+    return dwarf_global_die_offset(type, ret_offset, error);
+}
+
+
+int
+dwarf_pubtype_cu_offset(Dwarf_Type type_in,
+		     Dwarf_Off * ret_offset, Dwarf_Error * error)
+{
+    Dwarf_Global type = (Dwarf_Global) type_in;
+
+    return dwarf_global_cu_offset(type, ret_offset, error);
 
 }
 
 
 int
-dwarf_var_cu_offset(Dwarf_Var var_in,
-		    Dwarf_Off * returned_offset, Dwarf_Error * error)
+dwarf_pubtype_name_offsets(Dwarf_Type type_in,
+			char **returned_name,
+			Dwarf_Off * die_offset,
+			Dwarf_Off * cu_die_offset, Dwarf_Error * error)
 {
-    Dwarf_Global var = (Dwarf_Global) var_in;
+    Dwarf_Global type = (Dwarf_Global) type_in;
 
-    return dwarf_global_cu_offset(var, returned_offset, error);
-}
-
-
-int
-dwarf_var_name_offsets(Dwarf_Var var_in,
-		       char **returned_name,
-		       Dwarf_Off * die_offset,
-		       Dwarf_Off * cu_offset, Dwarf_Error * error)
-{
-    Dwarf_Global var = (Dwarf_Global) var_in;
-
-    return
-	dwarf_global_name_offsets(var,
-				  returned_name, die_offset, cu_offset,
-				  error);
+    return dwarf_global_name_offsets(type,
+				     returned_name,
+				     die_offset, cu_die_offset, error);
 }

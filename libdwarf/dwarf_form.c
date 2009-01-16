@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000,2002,2004  Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2002,2004,2005  Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -626,6 +626,11 @@ dwarf_formblock(Dwarf_Attribute attr,
 }
 
 
+/* Contrary to long standing documentation,
+   The string pointer returned thru return_str must
+   never have dwarf_dealloc() applied to it.
+   Documentation fixed July 2005.
+*/
 int
 dwarf_formstring(Dwarf_Attribute attr,
 		 char **return_str, Dwarf_Error * error)

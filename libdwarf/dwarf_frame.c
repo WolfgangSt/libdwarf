@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000,2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2002,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -1055,6 +1055,32 @@ dwarf_get_fde_list(Dwarf_Debug dbg,
     return res;
 }
 
+/* To properly release all spaced used.  
+   Earlier approaches (before July 15, 2005)
+   letting client do the dealloc directly left
+   some data allocated.
+*/
+void
+dwarf_fde_cie_list_dealloc(Dwarf_Debug dbg,
+	Dwarf_Cie *cie_data,
+	Dwarf_Signed cie_element_count,
+	Dwarf_Fde *fde_data,
+	Dwarf_Signed fde_element_count)
+{
+    Dwarf_Signed i = 0;
+    for (i = 0; i < cie_element_count; ++i) {
+	Dwarf_Frame frame = cie_data[i]->ci_initial_table;
+	dwarf_dealloc(dbg,frame,DW_DLA_FRAME);
+        dwarf_dealloc(dbg, cie_data[i], DW_DLA_CIE);
+    }
+    for (i = 0; i < fde_element_count; ++i) {
+        dwarf_dealloc(dbg, fde_data[i], DW_DLA_FDE);
+    }
+    if(cie_data) dwarf_dealloc(dbg, cie_data, DW_DLA_LIST);
+    if(fde_data) dwarf_dealloc(dbg, fde_data, DW_DLA_LIST);
+
+}
+
 static int
 __dwarf_get_fde_list_internal(Dwarf_Debug dbg,
 			      Dwarf_Cie ** cie_data,
@@ -1494,9 +1520,11 @@ __dwarf_get_fde_list_internal(Dwarf_Debug dbg,
 	cie_list_ptr = (Dwarf_Cie *)
 	    _dwarf_get_alloc(dbg, DW_DLA_LIST, cie_count);
     } else {
+	/* leaks FDEs. */
 	return (DW_DLV_NO_ENTRY);
     }
     if (cie_list_ptr == NULL) {
+	/* leaks FDEs. */
 	_dwarf_error(dbg, error, DW_DLE_ALLOC_FAIL);
 	return (DW_DLV_ERROR);
     }
@@ -1519,6 +1547,7 @@ __dwarf_get_fde_list_internal(Dwarf_Debug dbg,
 	return (DW_DLV_NO_ENTRY);
     }
     if (fde_list_ptr == NULL) {
+        /* leaks FDEs */ 
 	_dwarf_error(dbg, error, DW_DLE_ALLOC_FAIL);
 	return (DW_DLV_ERROR);
     }
@@ -1563,6 +1592,7 @@ __dwarf_get_fde_list_internal(Dwarf_Debug dbg,
 	j = new_cie_index;
 	last_cie_index = new_cie_index;
 	if (j == cie_count) {
+            /* leaks FDEs */ 
 	    _dwarf_error(dbg, error, DW_DLE_NO_CIE_FOR_FDE);
 	    return (DW_DLV_ERROR);
 	} else {

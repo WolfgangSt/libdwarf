@@ -152,7 +152,8 @@ extern void print_aranges (Dwarf_Debug dbg);
 extern void print_relocinfo (Dwarf_Debug dbg);
 extern void print_static_funcs(Dwarf_Debug dbg);
 extern void print_static_vars(Dwarf_Debug dbg);
-extern void print_types(Dwarf_Debug dbg);
+enum type_type_e {SGI_TYPENAME, DWARF_PUBTYPES} ;
+extern void print_types(Dwarf_Debug dbg,enum type_type_e type_type);
 extern void print_weaknames(Dwarf_Debug dbg);
 extern void print_exception_tables(Dwarf_Debug dbg);
 extern string get_fde_proc_name(Dwarf_Debug dbg, Dwarf_Addr low_pc);
@@ -177,5 +178,9 @@ extern void print_one_die(
 	printf("*** DWARF CHECK: %s: %s ***\n", str1, str2);\
 	check_error ++; \
 }
+
+extern Dwarf_Die current_cu_die_for_print_frames; /* This is
+        an awful hack, making this public. But it enables
+        cleaning up (doing all dealloc needed). */
 
 #endif /* globals_INCLUDED */

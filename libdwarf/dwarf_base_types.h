@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2005 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -64,9 +64,10 @@
 #define DW_DLA_TYPENAME_CONTEXT	DW_DLA_ADDR + 11
 #define DW_DLA_VAR_CONTEXT	DW_DLA_ADDR + 12
 #define DW_DLA_WEAK_CONTEXT	DW_DLA_ADDR + 13
+#define DW_DLA_PUBTYPES_CONTEXT	DW_DLA_ADDR + 14 /* DWARF3 */
 
 /* Maximum number of allocation types for allocation routines. */
-#define MAX_DW_DLA		DW_DLA_WEAK_CONTEXT
+#define MAX_DW_DLA		DW_DLA_PUBTYPES_CONTEXT
 
 /*Dwarf_Word  is unsigned word usable for index, count in memory */
 /*Dwarf_Sword is   signed word usable for index, count in memory */

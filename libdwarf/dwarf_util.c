@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -233,6 +233,8 @@ _dwarf_get_abbrev_for_code(Dwarf_CU_Context cu_context, Dwarf_Word code)
 	abbrev_list->ab_has_child = *(abbrev_ptr++);
 	abbrev_list->ab_abbrev_ptr = abbrev_ptr;
 
+	/* Cycle thru the abbrev content, ignoring
+	   the content except to find the end of the content. */
 	do {
 	    Dwarf_Unsigned utmp3;
 

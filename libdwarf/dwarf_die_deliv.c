@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000,2001,2002,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2001,2002,2003,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -188,22 +188,26 @@ _dwarf_make_CU_Context(Dwarf_Debug dbg,
 	(offset + length + local_length_size +
 	 local_extension_size > dbg->de_debug_info_size)) {
 
+	dwarf_dealloc(dbg,cu_context,DW_DLA_CU_CONTEXT);
 	_dwarf_error(dbg, error, DW_DLE_CU_LENGTH_ERROR);
 	return (NULL);
     }
 
     if (cu_context->cc_address_size != dbg->de_pointer_size) {
+	dwarf_dealloc(dbg,cu_context,DW_DLA_CU_CONTEXT);
 	_dwarf_error(dbg, error, DW_DLE_CU_ADDRESS_SIZE_BAD);
 	return (NULL);
     }
 
     if (cu_context->cc_version_stamp != CURRENT_VERSION_STAMP
 	&& cu_context->cc_version_stamp != CURRENT_VERSION_STAMP3) {
+	dwarf_dealloc(dbg,cu_context,DW_DLA_CU_CONTEXT);
 	_dwarf_error(dbg, error, DW_DLE_VERSION_STAMP_ERROR);
 	return (NULL);
     }
 
     if (abbrev_offset >= dbg->de_debug_abbrev_size) {
+	dwarf_dealloc(dbg,cu_context,DW_DLA_CU_CONTEXT);
 	_dwarf_error(dbg, error, DW_DLE_ABBREV_OFFSET_ERROR);
 	return (NULL);
     }
@@ -581,6 +585,7 @@ dwarf_siblingof(Dwarf_Debug dbg,
 	abbrev_code = (Dwarf_Half) utmp;
     if (abbrev_code == 0) {
 	/* Zero means a null DIE */
+	dwarf_dealloc(dbg,ret_die,DW_DLA_DIE);
 	return (DW_DLV_NO_ENTRY);
     }
     ret_die->di_abbrev_list =
@@ -589,6 +594,7 @@ dwarf_siblingof(Dwarf_Debug dbg,
 					    ret_die->di_abbrev_list->
 					    ab_tag !=
 					    DW_TAG_compile_unit)) {
+	dwarf_dealloc(dbg,ret_die,DW_DLA_DIE);
 	_dwarf_error(dbg, error, DW_DLE_FIRST_DIE_NOT_CU);
 	return (DW_DLV_ERROR);
     }
@@ -651,11 +657,13 @@ dwarf_child(Dwarf_Die die,
 	/* We have arrived at a null DIE, at the end of a CU or the end 
 	   of a list of siblings. */
 	*caller_ret_die = 0;
+	dwarf_dealloc(dbg,ret_die,DW_DLA_DIE);
 	return DW_DLV_NO_ENTRY;
     }
     ret_die->di_abbrev_list =
 	_dwarf_get_abbrev_for_code(die->di_cu_context, abbrev_code);
     if (ret_die->di_abbrev_list == NULL) {
+	dwarf_dealloc(dbg,ret_die,DW_DLA_DIE);
 	_dwarf_error(dbg, error, DW_DLE_DIE_BAD);
 	return (DW_DLV_ERROR);
     }
@@ -751,12 +759,14 @@ dwarf_offdie(Dwarf_Debug dbg,
     if (abbrev_code == 0) {
 	/* we are at a null DIE (or there is a bug). */
 	*new_die = 0;
+	dwarf_dealloc(dbg,die,DW_DLA_DIE);
 	return DW_DLV_NO_ENTRY;
     }
 
     die->di_abbrev_list =
 	_dwarf_get_abbrev_for_code(cu_context, abbrev_code);
     if (die->di_abbrev_list == NULL) {
+	dwarf_dealloc(dbg,die,DW_DLA_DIE);
 	_dwarf_error(dbg, error, DW_DLE_DIE_ABBREV_LIST_NULL);
 	return (DW_DLV_ERROR);
     }

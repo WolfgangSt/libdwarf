@@ -241,8 +241,14 @@ process_one_file(Elf * elf, string file_name, int archive)
 	print_static_funcs(dbg);
     if (static_var_flag)
 	print_static_vars(dbg);
-    if (type_flag)
-	print_types(dbg);
+    /* DWARF_PUBTYPES is the standard typenames dwarf section.
+       SGI_TYPENAME is the same concept but is SGI specific ( it
+       was defined 10 years before dwarf pubtypes). */
+
+    if (type_flag) {
+	print_types(dbg,DWARF_PUBTYPES);
+	print_types(dbg,SGI_TYPENAME);
+    }
     if (weakname_flag)
 	print_weaknames(dbg);
     if (reloc_flag)
@@ -520,10 +526,8 @@ print_infos(Dwarf_Debug dbg)
 		    }
 		}
 		if (strcmp(cu_name, p)) {
-		    dwarf_dealloc(dbg, temps, DW_DLA_STRING);
 		    continue;
 		}
-		dwarf_dealloc(dbg, temps, DW_DLA_STRING);
 	    } else {
 		print_error(dbg,
 			    "dwarf_whatform unexpected value",

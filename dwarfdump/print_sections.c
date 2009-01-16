@@ -331,7 +331,6 @@ get_proc_name(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Addr low_pc,
 
 		    safe_strcpy(proc_name_buf, proc_name_buf_len, temps,
 				len);
-		    dwarf_dealloc(dbg, temps, DW_DLA_STRING);
 		}
 		funcnamefound = 1;	/* FOUND THE NAME */
 		break;
@@ -405,7 +404,7 @@ get_nested_proc_name(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Addr low_pc,
 		    safe_strcpy(ret_name_buf, ret_name_buf_len,
 				name_buf, (long)strlen(name_buf));
 		    if (die_locally_gotten) {
-			/* If we got this die from the parent, we don
+			/* If we got this die from the parent, we do
 			   not want to dealloc here! */
 			dwarf_dealloc(dbg, curdie, DW_DLA_DIE);
 		    }
@@ -425,6 +424,11 @@ get_nested_proc_name(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Addr low_pc,
 			/* Found it.  We could just take this name or
 			   we could concatenate names together For now, 
 			   just take name */
+		        if (die_locally_gotten) {
+			    /* If we got this die from the parent, we do
+			       not want to dealloc here! */
+			    dwarf_dealloc(dbg, curdie, DW_DLA_DIE);
+		        }
 			safe_strcpy(ret_name_buf, ret_name_buf_len,
 				    name_buf, (long)strlen(name_buf));
 			return 1;
@@ -436,7 +440,7 @@ get_nested_proc_name(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Addr low_pc,
 				"get_nested_proc_name dwarf_child() failed ",
 				chres, err);
 		    if (die_locally_gotten) {
-			/* If we got this die from the parent, we don
+			/* If we got this die from the parent, we do
 			   not want to dealloc here! */
 			dwarf_dealloc(dbg, curdie, DW_DLA_DIE);
 		    }
@@ -446,7 +450,7 @@ get_nested_proc_name(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Addr low_pc,
 	} else {
 	    print_error(dbg, "no tag on child read ", tres, err);
 	    if (die_locally_gotten) {
-		/* If we got this die from the parent, we don not want
+		/* If we got this die from the parent, we do not want
 		   to dealloc here! */
 		dwarf_dealloc(dbg, curdie, DW_DLA_DIE);
 	    }
@@ -459,17 +463,22 @@ get_nested_proc_name(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Addr low_pc,
 	    print_error(dbg, "dwarf_cu_header On Child read ", chres,
 			err);
 	    if (die_locally_gotten) {
-		/* If we got this die from the parent, we don not want
+		/* If we got this die from the parent, we do not want
 		   to dealloc here! */
 		dwarf_dealloc(dbg, curdie, DW_DLA_DIE);
 	    }
 	    return 0;
 	} else if (chres == DW_DLV_NO_ENTRY) {
+	    if (die_locally_gotten) {
+		/* If we got this die from the parent, we do not want
+		   to dealloc here! */
+		dwarf_dealloc(dbg, prev_child, DW_DLA_DIE);
+	    }
 	    return 0;		/* proc name not at this level */
 	} else {		/* DW_DLV_OK */
 	    curdie = newsibling;
 	    if (die_locally_gotten) {
-		/* If we got this die from the parent, we don not want
+		/* If we got this die from the parent, we do not want
 		   to dealloc here! */
 		dwarf_dealloc(dbg, prev_child, DW_DLA_DIE);
 	    }
@@ -479,7 +488,7 @@ get_nested_proc_name(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Addr low_pc,
 
     }
     if (die_locally_gotten) {
-	/* If we got this die from the parent, we don not want to
+	/* If we got this die from the parent, we do not want to
 	   dealloc here! */
 	dwarf_dealloc(dbg, curdie, DW_DLA_DIE);
     }
@@ -495,9 +504,7 @@ get_nested_proc_name(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Addr low_pc,
   This remembers the CU die and restarts each search at the start
   of  the current cu.
 
-  No  mechanism exists for dwarf_dealloc of the last 
-  current_cu_die_for_print_frames other than dwarf_finish().
-
+  
 */
 string
 get_fde_proc_name(Dwarf_Debug dbg, Dwarf_Addr low_pc)
@@ -551,10 +558,10 @@ get_fde_proc_name(Dwarf_Debug dbg, Dwarf_Addr low_pc)
 	    int gotname =
 		get_nested_proc_name(dbg, child, low_pc, proc_name,
 				     BUFSIZ);
+	    dwarf_dealloc(dbg, child, DW_DLA_DIE);
 	    if (gotname) {
 		return (proc_name);
 	    }
-	    dwarf_dealloc(dbg, child, DW_DLA_DIE);
 	    child = 0;
 	}
     }
@@ -610,10 +617,10 @@ get_fde_proc_name(Dwarf_Debug dbg, Dwarf_Addr low_pc)
 		int gotname =
 		    get_nested_proc_name(dbg, child, low_pc, proc_name,
 					 BUFSIZ);
+		dwarf_dealloc(dbg, child, DW_DLA_DIE);
 		if (gotname) {
 		    return (proc_name);
 		}
-		dwarf_dealloc(dbg, child, DW_DLA_DIE);
 	    }
 	}
     }
@@ -1251,9 +1258,13 @@ print_frames(Dwarf_Debug dbg, int print_debug_frame,
 		    }
 		}
 	    }
-	    dwarf_dealloc(dbg, cie_data, DW_DLA_LIST);
-	    dwarf_dealloc(dbg, fde_data, DW_DLA_LIST);
+	    dwarf_fde_cie_list_dealloc(dbg, cie_data, cie_element_count,
+        		fde_data, fde_element_count);
 	}
+    }
+    if( current_cu_die_for_print_frames) {
+	dwarf_dealloc(dbg,current_cu_die_for_print_frames, DW_DLA_DIE);
+	current_cu_die_for_print_frames = 0;
     }
 }
 
@@ -1372,6 +1383,7 @@ print_pubname_style_entry(Dwarf_Debug dbg,
     /* get die at offset cu_off */
     cudres = dwarf_offdie(dbg, cu_off, &cu_die, &err);
     if (cudres != DW_DLV_OK) {
+        dwarf_dealloc(dbg,die,DW_DLA_DIE);
         print_error(dbg, "dwarf_offdie", cudres, err);
     }
     printf("%s %-15s die %lld, cu-die %lld,"
@@ -1391,6 +1403,10 @@ print_pubname_style_entry(Dwarf_Debug dbg,
     if (verbose) {
         printf(" cuhdr %llu", global_cu_offset);
     }
+
+
+    dwarf_dealloc(dbg,die,DW_DLA_DIE);
+    dwarf_dealloc(dbg,cu_die,DW_DLA_DIE);
 
 
     printf("\n");
@@ -1449,7 +1465,6 @@ print_pubnames(Dwarf_Debug dbg)
 		"global",
 		name, die_off,cu_off,global_cu_off,maxoff);
 
-	    dwarf_dealloc(dbg, name, DW_DLA_STRING);
 	    /* print associated die too? */
 
 	    if (check_pubname_attr) {
@@ -1478,13 +1493,12 @@ print_pubnames(Dwarf_Debug dbg)
 		    DWARF_CHECK_ERROR2(name,
 				       "pubname does not have DW_AT_external")
 		}
+		dwarf_dealloc(dbg,die,DW_DLA_DIE);
 	    }
-
-	    dwarf_dealloc(dbg, globbuf[i], DW_DLA_GLOBAL);
 	}
-	dwarf_dealloc(dbg, globbuf, DW_DLA_LIST);
+	dwarf_globals_dealloc(dbg,globbuf,count);
     }
-}
+} /* print_pubnames() */
 
 
 struct macro_counts_s {
@@ -1717,14 +1731,17 @@ print_abbrevs(Dwarf_Debug dbg)
 
 	    offset += length;
 	    ++abbrev_num;
+	    dwarf_dealloc(dbg,ab,DW_DLA_ABBREV);
 	    continue;
 	}
 	tres = dwarf_get_abbrev_tag(ab, &tag, &err);
 	if (tres != DW_DLV_OK) {
+	    dwarf_dealloc(dbg,ab,DW_DLA_ABBREV);
 	    print_error(dbg, "dwarf_get_abbrev_tag", tres, err);
 	}
 	tres = dwarf_get_abbrev_code(ab, &abbrev_code, &err);
 	if (tres != DW_DLV_OK) {
+	    dwarf_dealloc(dbg,ab,DW_DLA_ABBREV);
 	    print_error(dbg, "dwarf_get_abbrev_code", tres, err);
 	}
 	if (dense)
@@ -1736,6 +1753,7 @@ print_abbrevs(Dwarf_Debug dbg)
 	++abbrev_num;
 	acres = dwarf_get_abbrev_children_flag(ab, &child_flag, &err);
 	if (acres == DW_DLV_ERROR) {
+	    dwarf_dealloc(dbg,ab,DW_DLA_ABBREV);
 	    print_error(dbg, "dwarf_get_abbrev_children_flag", acres,
 			err);
 	}
@@ -1756,6 +1774,7 @@ print_abbrevs(Dwarf_Debug dbg)
 	    aeres =
 		dwarf_get_abbrev_entry(ab, i, &attr, &form, &off, &err);
 	    if (aeres == DW_DLV_ERROR) {
+	        dwarf_dealloc(dbg,ab,DW_DLA_ABBREV);
 		print_error(dbg, "dwarf_get_abbrev_entry", aeres, err);
 	    }
 	    if (aeres == DW_DLV_NO_ENTRY) {
@@ -1771,6 +1790,7 @@ print_abbrevs(Dwarf_Debug dbg)
 		       (unsigned long) off, get_AT_name(dbg, attr),
 		       get_FORM_name(dbg, (Dwarf_Half)form));
 	}
+	dwarf_dealloc(dbg,ab,DW_DLA_ABBREV);
 	offset += length;
 	if (dense)
 	    printf("\n");
@@ -1878,11 +1898,7 @@ print_aranges(Dwarf_Debug dbg)
 					}
 				    }
 				    if (!strcmp(cu_name, p)) {
-					dwarf_dealloc(dbg, temps,
-						      DW_DLA_STRING);
 				    } else {
-					dwarf_dealloc(dbg, temps,
-						      DW_DLA_STRING);
 					continue;
 				    }
 				} else {
@@ -1932,7 +1948,9 @@ print_aranges(Dwarf_Debug dbg)
     }
 }
 
-/* get all the data in .debug_static_funcs */
+/* Get all the data in .debug_static_funcs 
+   On error, this allows some dwarf memory leaks.
+*/
 extern void
 print_static_funcs(Dwarf_Debug dbg)
 {
@@ -1941,7 +1959,6 @@ print_static_funcs(Dwarf_Debug dbg)
     Dwarf_Signed i;
     Dwarf_Off die_off;
     Dwarf_Off cu_off;
-    char *name;
     int gfres;
 
     printf("\n.debug_static_func\n");
@@ -1956,6 +1973,7 @@ print_static_funcs(Dwarf_Debug dbg)
 	    int fnres;
 	    int cures3;
 	    Dwarf_Unsigned global_cu_off = 0;
+            char *name = 0;
 
 	    fnres =
 		dwarf_func_name_offsets(funcbuf[i], &name, &die_off,
@@ -1973,7 +1991,6 @@ print_static_funcs(Dwarf_Debug dbg)
 	    print_pubname_style_entry(dbg,
 		"static-func", name, die_off,cu_off,global_cu_off,maxoff);
 
-	    dwarf_dealloc(dbg, name, DW_DLA_STRING); 
 
 	    /* print associated die too? */
 	    if (check_pubname_attr) {
@@ -2002,15 +2019,12 @@ print_static_funcs(Dwarf_Debug dbg)
 		    DWARF_CHECK_ERROR2(name,
 				       "pubname does not have DW_AT_external")
 		}
+		dwarf_dealloc(dbg,die,DW_DLA_DIE);
 	    }
-
-	    dwarf_dealloc(dbg, name, DW_DLA_STRING);
-	    /* print associated die too? */
-	    dwarf_dealloc(dbg, funcbuf[i], DW_DLA_FUNC);
 	}
-	dwarf_dealloc(dbg, funcbuf, DW_DLA_LIST);
+	dwarf_funcs_dealloc(dbg,funcbuf,count);
     }
-}
+} /* print_static_funcs() */  
 
 /* get all the data in .debug_static_vars */
 extern void
@@ -2055,18 +2069,15 @@ print_static_vars(Dwarf_Debug dbg)
                 "static-var",
                 name, die_off,cu_off,global_cu_off,maxoff);
 
-
-	    dwarf_dealloc(dbg, name, DW_DLA_STRING);
 	    /* print associated die too? */
-	    dwarf_dealloc(dbg, varbuf[i], DW_DLA_VAR);
 	}
-	dwarf_dealloc(dbg, varbuf, DW_DLA_LIST);
+	dwarf_vars_dealloc(dbg,varbuf,count);
     }
-}
+} /* print_static_vars */
 
 /* get all the data in .debug_types */
 extern void
-print_types(Dwarf_Debug dbg)
+print_types(Dwarf_Debug dbg,enum type_type_e type_type)
 {
     Dwarf_Type *typebuf;
     Dwarf_Signed count;
@@ -2076,44 +2087,79 @@ print_types(Dwarf_Debug dbg)
     char *name;
     int gtres;
 
-    printf("\n.debug_types\n");
-    gtres = dwarf_get_types(dbg, &typebuf, &count, &err);
+    char * section_name =  NULL;
+    char * offset_err_name =  NULL;
+    char * section_open_name = NULL;
+    char * print_name_prefix = NULL;
+    int (*get_types)(Dwarf_Debug, Dwarf_Type**, Dwarf_Signed *, Dwarf_Error*)
+		= 0;
+    int (*get_offset)(Dwarf_Type, char   **, Dwarf_Off*, Dwarf_Off*, 
+			Dwarf_Error*) = NULL;
+    int (*get_cu_offset)(Dwarf_Type, Dwarf_Off*, Dwarf_Error*) = NULL;
+    void (*dealloctype)(Dwarf_Debug,Dwarf_Type* , Dwarf_Signed ) =  NULL;
+
+
+    if(type_type == DWARF_PUBTYPES) {
+	section_name = ".debug_pubtypes";
+	offset_err_name  = "dwarf_pubtype_name_offsets";
+	section_open_name = "dwarf_get_pubtypes";
+	print_name_prefix = "pubtype";
+	get_types = dwarf_get_pubtypes;
+	get_offset =  dwarf_pubtype_name_offsets;
+	get_cu_offset = dwarf_pubtype_cu_offset;
+	dealloctype =  dwarf_pubtypes_dealloc;
+    }else {
+	/* SGI_TYPENAME */
+	section_name = ".debug_typenames";
+	offset_err_name = "dwarf_type_name_offsets";
+	section_open_name = "dwarf_get_types";
+	print_name_prefix = "type";
+	get_types = dwarf_get_types;
+	get_offset = dwarf_type_name_offsets;
+	get_cu_offset = dwarf_type_cu_offset;
+	dealloctype =  dwarf_types_dealloc;
+    }
+
+    
+
+    gtres = get_types(dbg, &typebuf, &count, &err);
     if (gtres == DW_DLV_ERROR) {
-	print_error(dbg, "dwarf_get_types", gtres, err);
+	print_error(dbg, section_open_name, gtres, err);
     } else if (gtres == DW_DLV_NO_ENTRY) {
 	/* no types */
     } else {
         Dwarf_Unsigned maxoff =   get_info_max_offset(dbg);
+
+	/* Before July 2005, the section name was printed
+	   unconditionally, now only prints if non-empty	
+	   section really exists. */
+	printf("\n%s\n",section_name);
+
 	for (i = 0; i < count; i++) {
 	    int tnres;
 	    int cures3;
 	    Dwarf_Off global_cu_off = 0;
 
-	    tnres = dwarf_type_name_offsets(typebuf[i], &name,
-					    &die_off, &cu_off, &err);
+	    tnres = get_offset(typebuf[i], &name, &die_off, &cu_off, &err);
 	    deal_with_name_offset_err(dbg,
-		"dwarf_type_name_offsets",
-			name,die_off,tnres,err);
+		offset_err_name, name,die_off,tnres,err);
 
-            cures3 = dwarf_type_cu_offset(typebuf[i],
+            cures3 = get_cu_offset(typebuf[i],
                 &global_cu_off, &err);
 
             if (cures3 != DW_DLV_OK) {
                print_error(dbg, "dwarf_var_cu_offset", cures3,
                                 err);
             }
-
             print_pubname_style_entry(dbg,
-                "type",
+                print_name_prefix,
                 name, die_off,cu_off,global_cu_off,maxoff);
 
-	    dwarf_dealloc(dbg, name, DW_DLA_STRING);
 	    /* print associated die too? */
-	    dwarf_dealloc(dbg, typebuf[i], DW_DLA_TYPENAME);
 	}
-	dwarf_dealloc(dbg, typebuf, DW_DLA_LIST);
+	dealloctype(dbg,typebuf,count);
     }
-}
+} /* print_types() */
 
 /* get all the data in .debug_weaknames */
 extern void
@@ -2159,13 +2205,11 @@ print_weaknames(Dwarf_Debug dbg)
 		"weakname",
 		name, die_off,cu_off,global_cu_off,maxoff);
 
-	    dwarf_dealloc(dbg, name, DW_DLA_STRING);
 	    /* print associated die too? */
-	    dwarf_dealloc(dbg, weaknamebuf[i], DW_DLA_WEAK);
 	}
-	dwarf_dealloc(dbg, weaknamebuf, DW_DLA_LIST);
+	dwarf_weaks_dealloc(dbg,weaknamebuf,count);
     }
-}
+} /* print_weaknames() */
 
 /* Print our register names for the cases we have a name.
 */

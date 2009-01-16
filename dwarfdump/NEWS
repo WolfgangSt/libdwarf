@@ -1,3 +1,13 @@
+July 15, 2005
+  Now completely frees all allocated memory. Various
+  routines were not calling dealloc() code and
+  new libdwarf dealloc routines are now used where those
+  are needed.
+
+  Now prints DWARF3 .debug_pubtypes section (with -a or -y).
+  The .debug_pubtypes section and  SGI-specific .debug_typenames
+  are equvalent so they are treated alike.
+
 Mar 21, 2005
   The -f flag now prints only .debug_frame data. The .eh_frame section
   (GNU exceptions data) now prints with -F (not -a). 

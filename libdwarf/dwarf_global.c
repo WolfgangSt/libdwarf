@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000,2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2002,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -108,6 +108,46 @@ dwarf_get_globals(Dwarf_Debug dbg,
 						  DW_DLE_PUBNAMES_LENGTH_BAD,
 						  DW_DLE_PUBNAMES_VERSION_ERROR);
 
+}
+
+/* Deallocating fully requires deallocating the list
+   and all entries.  But some internal data is
+   not exposed, so we need a function with internal knowledge.
+*/
+
+void
+dwarf_globals_dealloc(Dwarf_Debug dbg, Dwarf_Global *dwgl, Dwarf_Signed count)
+{
+   _dwarf_internal_globals_dealloc(dbg,dwgl,
+		count,
+	DW_DLA_GLOBAL_CONTEXT,
+	DW_DLA_GLOBAL,
+	DW_DLA_LIST);
+   return;
+}
+void
+_dwarf_internal_globals_dealloc( Dwarf_Debug dbg, Dwarf_Global *dwgl,
+	Dwarf_Signed count,
+	int context_code,
+	int global_code,
+	int list_code)
+{
+   Dwarf_Signed i;
+   struct Dwarf_Global_Context_s *gcp = 0;
+   struct Dwarf_Global_Context_s *lastgcp = 0;
+  
+   for(i = 0; i < count;  i++) {
+	Dwarf_Global dgb = dwgl[i];
+	gcp = dgb->gl_context;
+
+	if(lastgcp != gcp) {
+		lastgcp = gcp;
+	 	dwarf_dealloc(dbg,gcp,context_code);
+	}
+	dwarf_dealloc(dbg,dgb,global_code);
+   }
+   dwarf_dealloc(dbg,dwgl,list_code);
+   return;
 }
 
 
@@ -350,6 +390,7 @@ _dwarf_internal_get_pubnames_like_data(Dwarf_Debug dbg,
     return DW_DLV_OK;
 }
 
+
 /*
 	Given a pubnames entry (or other like section entry)
 	return thru the ret_name pointer
@@ -440,6 +481,10 @@ dwarf_global_cu_offset(Dwarf_Global global,
   name, symbol DIE offset, and the cu-DIE offset.
 
   Various errors are possible.
+
+  The string pointer returned thru ret_name is not
+  dwarf_get_alloc()ed, so no dwarf_dealloc() 
+  DW_DLA_STRING should be applied to it.
 
 */
 int

@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2005 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -43,8 +43,8 @@ int _dwarf_free_all_of_one_debug(Dwarf_Debug);
 typedef struct Dwarf_Alloc_Area_s *Dwarf_Alloc_Area;
 typedef struct Dwarf_Free_List_s *Dwarf_Free_List;
 
-#define ALLOC_AREA_INDEX_TABLE_MAX 42
-#define ALLOC_AREA_REAL_TABLE_MAX 31
+#define ALLOC_AREA_INDEX_TABLE_MAX 43
+#define ALLOC_AREA_REAL_TABLE_MAX 32
 
 /* 
     This struct is used to chain all the deallocated

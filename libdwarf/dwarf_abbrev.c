@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2000,2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000,2001,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -82,6 +82,7 @@ dwarf_get_abbrev(Dwarf_Debug dbg,
     }
     ret_abbrev->ab_dbg = dbg;
     if (returned_abbrev == 0 || abbr_count == 0) {
+	dwarf_dealloc(dbg,ret_abbrev,DW_DLA_ABBREV);
 	_dwarf_error(dbg, error, DW_DLE_DWARF_ABBREV_NULL);
 	return (DW_DLV_ERROR);
     }
@@ -126,6 +127,7 @@ dwarf_get_abbrev(Dwarf_Debug dbg,
 	     (attr != 0 || attr_form != 0));
 
     if (abbrev_ptr > abbrev_section_end) {
+	dwarf_dealloc(dbg,ret_abbrev,DW_DLA_ABBREV);
 	_dwarf_error(dbg, error, DW_DLE_ABBREV_DECODE_ERROR);
 	return (DW_DLV_ERROR);
     }

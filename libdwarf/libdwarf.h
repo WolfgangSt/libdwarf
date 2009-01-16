@@ -469,9 +469,15 @@ typedef void  (*Dwarf_Handler)(Dwarf_Error /*error*/, Dwarf_Ptr /*errarg*/);
 #define DW_DLE_DF_FRAME_DECODING_ERROR         	193
 #define DW_DLE_DEBUG_LOC_SECTION_SHORT         	194
 #define DW_DLE_FRAME_AUGMENTATION_UNKNOWN       195
+#define DW_DLA_PUBTYPE_CONTEXT                  196
+#define DW_DLE_DEBUG_PUBTYPES_LENGTH_BAD        197
+#define DW_DLE_DEBUG_PUBTYPES_VERSION_ERROR     198
+#define DW_DLE_DEBUG_PUBTYPES_DUPLICATE         199
+
+
 
     /* DW_DLE_LAST MUST EQUAL LAST ERROR NUMBER */
-#define DW_DLE_LAST        			195
+#define DW_DLE_LAST        			199
 #define DW_DLE_LO_USER     0x10000
 
         /* taken as meaning 'undefined value', this is not
@@ -810,6 +816,9 @@ int dwarf_get_globals(Dwarf_Debug /*dbg*/,
     Dwarf_Global** 	/*globals*/, 
     Dwarf_Signed *      /*number_of_globals*/,
     Dwarf_Error* 	/*error*/);
+void dwarf_globals_dealloc(Dwarf_Debug /*dbg*/,
+    Dwarf_Global* /*globals*/,
+    Dwarf_Signed /*number_of_globals*/);
 
 int dwarf_globname(Dwarf_Global /*glob*/, 
     char   **           /*returned_name*/,
@@ -843,6 +852,9 @@ int dwarf_get_funcs(Dwarf_Debug	/*dbg*/,
     Dwarf_Func**	/*funcs*/,
     Dwarf_Signed *      /*number_of_funcs*/,
     Dwarf_Error*	/*error*/);
+void dwarf_funcs_dealloc(Dwarf_Debug /*dbg*/,
+    Dwarf_Func* /*funcs*/,
+    Dwarf_Signed /*number_of_funcs*/);
 
 int dwarf_funcname(Dwarf_Func /*func*/,
     char   **           /*returned_name*/,
@@ -862,11 +874,17 @@ int dwarf_func_name_offsets(Dwarf_Func /*func*/,
     Dwarf_Off*		/*cu_offset*/,
     Dwarf_Error*	/*error*/);
 
-/* User-defined type name operations.  */
+/* User-defined type name operations, SGI IRIX .debug_typenames section.
+   Same content as DWARF3 .debug_pubtypes, but defined years before
+   .debug_pubtypes was defined.   SGI IRIX only. */
 int dwarf_get_types(Dwarf_Debug	/*dbg*/,
     Dwarf_Type**	/*types*/,
     Dwarf_Signed *      /*number_of_types*/,
     Dwarf_Error*	/*error*/);
+void dwarf_types_dealloc(Dwarf_Debug /*dbg*/,
+    Dwarf_Type* /*types*/,
+    Dwarf_Signed /*number_of_types*/);
+
 
 int dwarf_typename(Dwarf_Type /*type*/,
     char   **           /*returned_name*/,
@@ -886,11 +904,44 @@ int dwarf_type_name_offsets(Dwarf_Type	/*type*/,
     Dwarf_Off*		/*cu_offset*/,
     Dwarf_Error*	/*error*/);
 
+/* User-defined type name operations, DWARF3  .debug_pubtypes section. 
+*/
+int dwarf_get_pubtypes(Dwarf_Debug	/*dbg*/,
+    Dwarf_Type**	/*types*/,
+    Dwarf_Signed *      /*number_of_types*/,
+    Dwarf_Error*	/*error*/);
+void dwarf_pubtypes_dealloc(Dwarf_Debug /*dbg*/,
+    Dwarf_Type* /*pubtypes*/,
+    Dwarf_Signed /*number_of_pubtypes*/);
+
+
+int dwarf_pubtypename(Dwarf_Type /*type*/,
+    char   **           /*returned_name*/,
+    Dwarf_Error*	/*error*/);
+
+int dwarf_pubtype_die_offset(Dwarf_Type /*type*/,
+    Dwarf_Off*          /*return_offset*/,
+    Dwarf_Error*	/*error*/);
+
+int dwarf_pubtype_cu_offset(Dwarf_Type /*type*/,
+    Dwarf_Off*          /*return_offset*/,
+    Dwarf_Error*	/*error*/);
+
+int dwarf_pubtype_name_offsets(Dwarf_Type	/*type*/,
+    char   **           /*returned_name*/,
+    Dwarf_Off*		/*die_offset*/,
+    Dwarf_Off*		/*cu_offset*/,
+    Dwarf_Error*	/*error*/);
+
 /* File-scope static variable name operations.  */
 int dwarf_get_vars(Dwarf_Debug	/*dbg*/,
     Dwarf_Var**		/*vars*/,
     Dwarf_Signed *      /*number_of_vars*/,
     Dwarf_Error*	/*error*/);
+void dwarf_vars_dealloc(Dwarf_Debug /*dbg*/,
+    Dwarf_Var* /*vars*/,
+    Dwarf_Signed /*number_of_vars*/);
+
 
 int dwarf_varname(Dwarf_Var /*var*/,
     char   **           /*returned_name*/,
@@ -915,6 +966,10 @@ int dwarf_get_weaks(Dwarf_Debug	/*dbg*/,
     Dwarf_Weak**	/*weaks*/,
     Dwarf_Signed *      /*number_of_weaks*/,
     Dwarf_Error*	/*error*/);
+void dwarf_weaks_dealloc(Dwarf_Debug /*dbg*/,
+    Dwarf_Weak* /*weaks*/,
+    Dwarf_Signed /*number_of_weaks*/);
+
 
 int dwarf_weakname(Dwarf_Weak /*weak*/,
     char   **           /*returned_name*/,
@@ -995,6 +1050,15 @@ int dwarf_get_fde_list(Dwarf_Debug /*dbg*/,
     Dwarf_Fde**   	/*fde_data*/, 
     Dwarf_Signed* 	/*fde_element_count*/, 
     Dwarf_Error* 	/*error*/);
+
+/* Release storage gotten by dwarf_get_fde_list_eh() or
+   dwarf_get_fde_list() */
+void dwarf_fde_cie_list_dealloc(Dwarf_Debug dbg,
+        Dwarf_Cie *cie_data,
+        Dwarf_Signed cie_element_count,
+        Dwarf_Fde *fde_data,
+        Dwarf_Signed fde_element_count);
+
 
 
 int dwarf_get_fde_range(Dwarf_Fde /*fde*/, 
