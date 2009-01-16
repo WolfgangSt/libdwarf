@@ -1,3 +1,11 @@
+2006-12-05 David Anderson <davea@sgi.com>
+      * dwarf_error.c, libdwarf.h: added 
+        DW_DLE_FRAME_REGISTER_COUNT_MISMATCH.
+      * dwarf_frame.c (_dwarf_exec_frame_instr): removed references
+        to compile-time constants for register table size.  Now uses
+        run-time-chosen sizes.  Now uses heap for reg table instead
+        of stack. Now uses SIMPLE_ERROR_RETURN macro to simplify
+        the code.
 2006-11-08 David Anderson <davea@sgi.com>
       * pro_expr.c (dwarf_add_expr_gen): DW_OP_deref_size,
         DW_OP_xderef_size, and  DW_OP_pick were incorrect, missing

@@ -692,6 +692,7 @@ typedef void  (*Dwarf_Handler)(Dwarf_Error /*error*/, Dwarf_Ptr /*errarg*/);
 #define DW_DLE_DEBUG_PUBTYPES_DUPLICATE         199
 #define DW_DLE_FRAME_CIE_DECODE_ERROR           200
 #define DW_DLE_FRAME_REGISTER_UNREPRESENTABLE   201
+#define DW_DLE_FRAME_REGISTER_COUNT_MISMATCH    202
 
 
 
