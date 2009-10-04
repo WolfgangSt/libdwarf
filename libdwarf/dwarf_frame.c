@@ -1923,6 +1923,7 @@ dwarf_get_fde_n(Dwarf_Fde * fde_data,
                 Dwarf_Fde * returned_fde, Dwarf_Error * error)
 {
     Dwarf_Debug dbg = 0;
+	Dwarf_Signed fdecount;
 
     if (fde_data == NULL) {
         _dwarf_error(dbg, error, DW_DLE_FDE_PTR_NULL);
@@ -1931,7 +1932,7 @@ dwarf_get_fde_n(Dwarf_Fde * fde_data,
 
     FDE_NULL_CHECKS_AND_SET_DBG(*fde_data, dbg);
     /* Assumes fde_data table has at least one entry. */
-    Dwarf_Signed fdecount = fde_data[0]->fd_is_eh? 
+    fdecount = fde_data[0]->fd_is_eh? 
         dbg->de_fde_count_eh:dbg->de_fde_count;
     if (fde_index >= fdecount) {
         return (DW_DLV_NO_ENTRY);
@@ -1956,6 +1957,7 @@ dwarf_get_fde_at_pc(Dwarf_Fde * fde_data,
     Dwarf_Debug dbg = NULL;
     Dwarf_Fde fde = NULL;
     Dwarf_Fde entryfde = NULL;
+	Dwarf_Signed fdecount;
 
     if (fde_data == NULL) {
         _dwarf_error(NULL, error, DW_DLE_FDE_PTR_NULL);
@@ -1970,7 +1972,7 @@ dwarf_get_fde_at_pc(Dwarf_Fde * fde_data,
         _dwarf_error(NULL, error, DW_DLE_FDE_DBG_NULL);
         return (DW_DLV_ERROR);
     }
-    Dwarf_Signed fdecount = entryfde->fd_is_eh? 
+    fdecount = entryfde->fd_is_eh? 
         dbg->de_fde_count_eh:dbg->de_fde_count;
     {
         /* The fde's are sorted by their addresses. Binary search to

@@ -168,6 +168,8 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
 
     int res=0;
 
+	unsigned long long offset;
+
     /* ***** BEGIN CODE ***** */
 
     if (error != NULL)
@@ -319,7 +321,7 @@ _dwarf_internal_printlines(Dwarf_Die die, Dwarf_Error * error)
                 "Section offset: %llu (0x%llx)\n",
                 wcount, boffset,boffset);
         }
-        unsigned long long offset = line_ptr - orig_line_ptr;
+        offset = line_ptr - orig_line_ptr;
 
         printf("  statement prog offset in section: %llu 0x%llx\n",
                offset, offset);
