@@ -1,0 +1,6 @@
+Release
+Debug
+check.c
+libdwarf.vcproj.*
+*.suo
+*.ncb
