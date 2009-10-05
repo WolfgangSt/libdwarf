@@ -1,9 +1,0 @@
-*~
-*.rej
-*.orig
-*.[oa]
-*.so
-config.*
-Makefile
-autom4te.cache
-configure
