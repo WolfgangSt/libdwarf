@@ -254,8 +254,10 @@ _dwarf_decode_s_leb128(Dwarf_Small * leb128,
 
 Dwarf_Unsigned
 _dwarf_get_size_of_val(Dwarf_Debug dbg,
-		       Dwarf_Unsigned form,
-		       Dwarf_Small * val_ptr, int v_length_size);
+    Dwarf_Unsigned form,
+    Dwarf_Half address_size,
+    Dwarf_Small * val_ptr, 
+    int v_length_size);
 
 struct Dwarf_Hash_Table_Entry_s;
 /* This single struct is the base for the hash table.
@@ -305,5 +307,6 @@ Dwarf_Unsigned _dwarf_length_of_cu_header_simple(Dwarf_Debug);
 int  _dwarf_load_debug_info(Dwarf_Debug dbg, Dwarf_Error *error);
 void _dwarf_free_abbrev_hash_table_contents(Dwarf_Debug dbg,
     struct Dwarf_Hash_Table_s* hash_table);
+int _dwarf_get_address_size(Dwarf_Debug dbg, Dwarf_Die die);
 
 #endif /* DWARF_UTIL_H */

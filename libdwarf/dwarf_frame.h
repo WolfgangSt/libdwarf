@@ -257,6 +257,11 @@ struct Dwarf_Cie_s {
        record the position so fde can get it on fde creation. */
     Dwarf_Unsigned ci_index;
     Dwarf_Small *  ci_section_ptr;
+    /* DWARF4 adds address size to the CIE: the .debug_info
+       section may not always be present to allow libdwarf to
+       find address_size from the compilation-unit. */
+    Dwarf_Half   ci_address_size;
+
 };
 
 /*

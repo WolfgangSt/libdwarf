@@ -1,6 +1,7 @@
 /*
 
-  Copyright (C) 2000,2002,2004,2005,2006 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000-2006 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright (C) 2009 David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -40,21 +41,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "dwarf_frame.h"
-#include "dwarf_arange.h"       /* using Arange as a way to build a
-                                   list */
+#include "dwarf_arange.h" /* using Arange as a way to build a list */
 
 /*
-        Used by rqs (an IRIX application).  
-        Not needed except for that one application.
-        Should be moved to its own source file since
-        it is so rarely needed.
-        Returns DW_DLV_OK if returns the arrays.
-        Returns DW_DLV_NO_ENTRY if no section. ?? (How do I tell?)
-        Returns DW_DLV_ERROR if there is an error.
+    Used by rqs (an IRIX application).  
+    Not needed except for that one application.
+    Should be moved to its own source file since
+    it is so rarely needed.
+    Returns DW_DLV_OK if returns the arrays.
+    Returns DW_DLV_NO_ENTRY if no section. ?? (How do I tell?)
+    Returns DW_DLV_ERROR if there is an error.
 
-        Uses DW_FRAME_CFA_COL because IRIX is only DWARF2
-        and that is what IRIX compilers and compatible
-        compilers support on IRIX.
+    Uses DW_FRAME_CFA_COL because IRIX is only DWARF2
+    and that is what IRIX compilers and compatible
+    compilers support on IRIX.
 */
 int
 _dwarf_frame_address_offsets(Dwarf_Debug dbg, Dwarf_Addr ** addrlist,
@@ -63,7 +63,7 @@ _dwarf_frame_address_offsets(Dwarf_Debug dbg, Dwarf_Addr ** addrlist,
                              Dwarf_Error * err)
 {
     int retval = DW_DLV_OK;
-    int res;
+    int res = DW_DLV_ERROR;
     Dwarf_Cie *cie_data;
     Dwarf_Signed cie_count;
     Dwarf_Fde *fde_data;
@@ -86,10 +86,7 @@ _dwarf_frame_address_offsets(Dwarf_Debug dbg, Dwarf_Addr ** addrlist,
         return res;
     }
 
-    res =
-        _dwarf_load_section(dbg,
-                            dbg->de_debug_frame_index,
-                            &dbg->de_debug_frame, err);
+    res = _dwarf_load_section(dbg, &dbg->de_debug_frame, err);
     if (res != DW_DLV_OK) {
         return res;
     }
@@ -99,28 +96,28 @@ _dwarf_frame_address_offsets(Dwarf_Debug dbg, Dwarf_Addr ** addrlist,
         Dwarf_Signed initial_instructions_length = 0;
         Dwarf_Small *instr_end = 0;
         Dwarf_Sword icount = 0;
-        int j;
+        int j = 0;
         int dw_err;
 
         ciep = cie_data[i];
-        instoff = ciep->ci_cie_instr_start - dbg->de_debug_frame;
+        instoff = ciep->ci_cie_instr_start - dbg->de_debug_frame.dss_data;
         initial_instructions_length = ciep->ci_length +
             ciep->ci_length_size + ciep->ci_extension_size -
             (ciep->ci_cie_instr_start - ciep->ci_cie_start);
         instr_end = ciep->ci_cie_instr_start +
             initial_instructions_length;
         res = _dwarf_exec_frame_instr( /* make_instr */ true,
-                                      &frame_inst,
-                                      /* search_pc= */ false,
-                                      /* search_pc_val= */ 0,
-                                      /* location */ 0,
-                                      ciep->ci_cie_instr_start,
-                                      instr_end,
-                                      /* Dwarf_frame= */ 0,
-                                      /* cie= */ 0,
-                                      dbg,
-                                      DW_FRAME_CFA_COL,
-                                      &icount, &dw_err);
+            &frame_inst,
+            /* search_pc= */ false,
+            /* search_pc_val= */ 0,
+            /* location */ 0,
+            ciep->ci_cie_instr_start,
+            instr_end,
+            /* Dwarf_frame= */ 0,
+            /* cie= */ 0,
+            dbg,
+            DW_FRAME_CFA_COL,
+            &icount, &dw_err);
         if (res == DW_DLV_ERROR) {
             _dwarf_error(dbg, err, dw_err);
             return (res);
@@ -170,11 +167,11 @@ _dwarf_frame_address_offsets(Dwarf_Debug dbg, Dwarf_Addr ** addrlist,
         Dwarf_Off instoff = 0;
         Dwarf_Off off = 0;
         Dwarf_Addr addr = 0;
-        int j;
+        int j = 0;
         int dw_err;
 
         fdep = fde_data[i];
-        off = fdep->fd_initial_loc_pos - dbg->de_debug_frame;
+        off = fdep->fd_initial_loc_pos - dbg->de_debug_frame.dss_data;
         addr = fdep->fd_initial_location;
         arange = (Dwarf_Arange)
             _dwarf_get_alloc(dbg, DW_DLA_ARANGE, 1);
@@ -200,23 +197,23 @@ _dwarf_frame_address_offsets(Dwarf_Debug dbg, Dwarf_Addr ** addrlist,
         }
 
 
-        instoff = fdep->fd_fde_instr_start - dbg->de_debug_frame;
+        instoff = fdep->fd_fde_instr_start - dbg->de_debug_frame.dss_data;
         instructions_length = fdep->fd_length +
             fdep->fd_length_size + fdep->fd_extension_size -
             (fdep->fd_fde_instr_start - fdep->fd_fde_start);
         instr_end = fdep->fd_fde_instr_start + instructions_length;
         res = _dwarf_exec_frame_instr( /* make_instr */ true,
-                                      &frame_inst,
-                                      /* search_pc= */ false,
-                                      /* search_pc_val= */ 0,
-                                      /* location */ 0,
-                                      fdep->fd_fde_instr_start,
-                                      instr_end,
-                                      /* Dwarf_frame= */ 0,
-                                      /* cie= */ 0,
-                                      dbg,
-                                      DW_FRAME_CFA_COL,
-                                      &icount, &dw_err);
+            &frame_inst,
+            /* search_pc= */ false,
+            /* search_pc_val= */ 0,
+            /* location */ 0,
+            fdep->fd_fde_instr_start,
+            instr_end,
+            /* Dwarf_frame= */ 0,
+            /* cie= */ 0,
+            dbg,
+            DW_FRAME_CFA_COL,
+            &icount, &dw_err);
         if (res == DW_DLV_ERROR) {
             _dwarf_error(dbg, err, dw_err);
             return (res);

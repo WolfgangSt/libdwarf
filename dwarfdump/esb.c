@@ -92,10 +92,10 @@ allocate_more(struct esb_s *data, size_t len)
 }
 
 static void
-  esb_appendn_internal(struct esb_s *data, string in_string, size_t len);
+  esb_appendn_internal(struct esb_s *data, const char * in_string, size_t len);
 
 void
-esb_appendn(struct esb_s *data, string in_string, size_t len)
+esb_appendn(struct esb_s *data, const char * in_string, size_t len)
 {
     size_t full_len = strlen(in_string);
 
@@ -111,7 +111,7 @@ esb_appendn(struct esb_s *data, string in_string, size_t len)
 
 /* The length is gotten from the in_string itself. */
 void
-esb_append(struct esb_s *data, string in_string)
+esb_append(struct esb_s *data, const char * in_string)
 {
     size_t len = strlen(in_string);
 
@@ -120,7 +120,7 @@ esb_append(struct esb_s *data, string in_string)
 
 /* The 'len' is believed. Do not pass in strings < len bytes long. */
 static void
-esb_appendn_internal(struct esb_s *data, string in_string, size_t len)
+esb_appendn_internal(struct esb_s *data, const char * in_string, size_t len)
 {
     size_t remaining = 0;
     size_t needed = len + 1;

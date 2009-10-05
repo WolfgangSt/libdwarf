@@ -1,7 +1,7 @@
 /*
 
-  Copyright (C) 2000,2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
-  Portions Copyright (C) 2007 David Anderson. All Rights Reserved.
+  Copyright (C) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright (C) 2007-2009 David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -60,20 +60,19 @@
 
     Must be identical in most aspects to
         dwarf_get_aranges_addr_offsets!
+
 */
 int
 dwarf_get_aranges(Dwarf_Debug dbg,
-                  Dwarf_Arange ** aranges,
-                  Dwarf_Signed * returned_count, Dwarf_Error * error)
+    Dwarf_Arange ** aranges,
+    Dwarf_Signed * returned_count, Dwarf_Error * error)
 {
     /* Sweeps the .debug_aranges section. */
     Dwarf_Small *arange_ptr = 0;
 
-    /* 
-       Start of arange header.  Used for rounding offset of arange_ptr
+    /* Start of arange header.  Used for rounding offset of arange_ptr
        to twice the tuple size.  Libdwarf requirement. */
     Dwarf_Small *header_ptr = 0;
-
 
     /* Version of .debug_aranges header. */
     Dwarf_Half version = 0;
@@ -107,7 +106,7 @@ dwarf_get_aranges(Dwarf_Debug dbg,
     Dwarf_Chain prev_chain = NULL;
     Dwarf_Chain head_chain = NULL;
 
-    int res = 0;
+    int res = DW_DLV_ERROR;
 
     /* ***** BEGIN CODE ***** */
 
@@ -116,15 +115,12 @@ dwarf_get_aranges(Dwarf_Debug dbg,
         return (DW_DLV_ERROR);
     }
 
-    res =
-        _dwarf_load_section(dbg,
-                            dbg->de_debug_aranges_index,
-                            &dbg->de_debug_aranges, error);
+    res = _dwarf_load_section(dbg, &dbg->de_debug_aranges, error);
     if (res != DW_DLV_OK) {
         return res;
     }
 
-    arange_ptr = dbg->de_debug_aranges;
+    arange_ptr = dbg->de_debug_aranges.dss_data;
     do {
         /* Length of current set of aranges. */
         Dwarf_Unsigned length;
@@ -132,21 +128,20 @@ dwarf_get_aranges(Dwarf_Debug dbg,
 
         int local_length_size;
 
-         /*REFERENCED*/         /* Not used in this instance of the
-                                   macro */
+         /*REFERENCED*/ /* Not used in this instance of the macro */
         int local_extension_size;
 
         header_ptr = arange_ptr;
 
         /* READ_AREA_LENGTH updates arange_ptr for consumed bytes */
         READ_AREA_LENGTH(dbg, length, Dwarf_Unsigned,
-                         arange_ptr, local_length_size,
-                         local_extension_size);
+            arange_ptr, local_length_size,
+            local_extension_size);
         arange_ptr_past_end = arange_ptr + length;
 
 
         READ_UNALIGNED(dbg, version, Dwarf_Half,
-                       arange_ptr, sizeof(Dwarf_Half));
+            arange_ptr, sizeof(Dwarf_Half));
         arange_ptr += sizeof(Dwarf_Half);
         length = length - sizeof(Dwarf_Half);
         if (version != CURRENT_VERSION_STAMP) {
@@ -155,24 +150,28 @@ dwarf_get_aranges(Dwarf_Debug dbg,
         }
 
         READ_UNALIGNED(dbg, info_offset, Dwarf_Off,
-                       arange_ptr, local_length_size);
+            arange_ptr, local_length_size);
         arange_ptr += local_length_size;
         length = length - local_length_size;
-        if (info_offset >= dbg->de_debug_info_size) {
+        if (info_offset >= dbg->de_debug_info.dss_size) {
             FIX_UP_OFFSET_IRIX_BUG(dbg, info_offset,
-                                   "arange info offset.a");
-            if (info_offset >= dbg->de_debug_info_size) {
+                "arange info offset.a");
+            if (info_offset >= dbg->de_debug_info.dss_size) {
                 _dwarf_error(dbg, error, DW_DLE_ARANGE_OFFSET_BAD);
                 return (DW_DLV_ERROR);
             }
         }
 
         address_size = *(Dwarf_Small *) arange_ptr;
+#ifdef notdef
+        /* It is not an error if the sizes differ.
+           Unusual, but not an error. */
         if (address_size != dbg->de_pointer_size) {
             /* Internal error of some kind */
             _dwarf_error(dbg, error, DW_DLE_BADBITC);
             return (DW_DLV_ERROR);
         }
+#endif
         arange_ptr = arange_ptr + sizeof(Dwarf_Small);
         length = length - sizeof(Dwarf_Small);
 
@@ -194,12 +193,12 @@ dwarf_get_aranges(Dwarf_Debug dbg,
 
         do {
             READ_UNALIGNED(dbg, range_address, Dwarf_Addr,
-                           arange_ptr, address_size);
+                arange_ptr, address_size);
             arange_ptr += address_size;
             length = length - address_size;
 
             READ_UNALIGNED(dbg, range_length, Dwarf_Unsigned,
-                           arange_ptr, address_size);
+                arange_ptr, address_size);
             arange_ptr += address_size;
             length = length - address_size;
 
@@ -247,10 +246,10 @@ dwarf_get_aranges(Dwarf_Debug dbg,
         arange_ptr = arange_ptr_past_end;
 
     } while (arange_ptr <
-             dbg->de_debug_aranges + dbg->de_debug_aranges_size);
+        dbg->de_debug_aranges.dss_data + dbg->de_debug_aranges.dss_size);
 
     if (arange_ptr !=
-        dbg->de_debug_aranges + dbg->de_debug_aranges_size) {
+        dbg->de_debug_aranges.dss_data + dbg->de_debug_aranges.dss_size) {
         _dwarf_error(dbg, error, DW_DLE_ARANGE_DECODE_ERROR);
         return (DW_DLV_ERROR);
     }
@@ -288,10 +287,10 @@ dwarf_get_aranges(Dwarf_Debug dbg,
 */
 int
 _dwarf_get_aranges_addr_offsets(Dwarf_Debug dbg,
-                                Dwarf_Addr ** addrs,
-                                Dwarf_Off ** offsets,
-                                Dwarf_Signed * count,
-                                Dwarf_Error * error)
+    Dwarf_Addr ** addrs,
+    Dwarf_Off ** offsets,
+    Dwarf_Signed * count,
+    Dwarf_Error * error)
 {
     /* Sweeps the .debug_aranges section. */
     Dwarf_Small *arange_ptr = 0;
@@ -340,7 +339,7 @@ _dwarf_get_aranges_addr_offsets(Dwarf_Debug dbg,
     Dwarf_Addr *arange_addrs = 0;
     Dwarf_Off *arange_offsets = 0;
 
-    int res = 0;
+    int res = DW_DLV_ERROR;
 
     /* ***** BEGIN CODE ***** */
 
@@ -352,33 +351,27 @@ _dwarf_get_aranges_addr_offsets(Dwarf_Debug dbg,
         return (DW_DLV_ERROR);
     }
 
-    res =
-        _dwarf_load_section(dbg,
-                            dbg->de_debug_aranges_index,
-                            &dbg->de_debug_aranges, error);
+    res = _dwarf_load_section(dbg, &dbg->de_debug_aranges,error);
     if (res != DW_DLV_OK) {
         return res;
     }
 
-    arange_ptr = dbg->de_debug_aranges;
+    arange_ptr = dbg->de_debug_aranges.dss_data;
     do {
-        int local_length_size;
+        int local_length_size = 0;
 
-         /*REFERENCED*/         /* not used in this instance of the
-                                   macro */
-        int local_extension_size;
+         /*REFERENCED*/ /* Not used in this instance of the macro */
+        int local_extension_size = 0;
 
         header_ptr = arange_ptr;
 
-
         /* READ_AREA_LENGTH updates arange_ptr for consumed bytes */
         READ_AREA_LENGTH(dbg, length, Dwarf_Unsigned,
-                         arange_ptr, local_length_size,
-                         local_extension_size);
-
+            arange_ptr, local_length_size,
+            local_extension_size);
 
         READ_UNALIGNED(dbg, version, Dwarf_Half,
-                       arange_ptr, sizeof(Dwarf_Half));
+            arange_ptr, sizeof(Dwarf_Half));
         arange_ptr += sizeof(Dwarf_Half);
         length = length - sizeof(Dwarf_Half);
         if (version != CURRENT_VERSION_STAMP) {
@@ -387,14 +380,13 @@ _dwarf_get_aranges_addr_offsets(Dwarf_Debug dbg,
         }
 
         READ_UNALIGNED(dbg, info_offset, Dwarf_Off,
-                       arange_ptr, local_length_size);
+            arange_ptr, local_length_size);
         arange_ptr += local_length_size;
         length = length - local_length_size;
-        if (info_offset >= dbg->de_debug_info_size) {
+        if (info_offset >= dbg->de_debug_info.dss_size) {
             FIX_UP_OFFSET_IRIX_BUG(dbg, info_offset,
-                                   "arange info offset.b");
-            if (info_offset >= dbg->de_debug_info_size) {
-
+                "arange info offset.b");
+            if (info_offset >= dbg->de_debug_info.dss_size) {
                 _dwarf_error(dbg, error, DW_DLE_ARANGE_OFFSET_BAD);
                 return (DW_DLV_ERROR);
             }
@@ -423,12 +415,12 @@ _dwarf_get_aranges_addr_offsets(Dwarf_Debug dbg,
         do {
             arange_start_ptr = arange_ptr;
             READ_UNALIGNED(dbg, range_address, Dwarf_Addr,
-                           arange_ptr, dbg->de_pointer_size);
+                arange_ptr, dbg->de_pointer_size);
             arange_ptr += dbg->de_pointer_size;
             length = length - dbg->de_pointer_size;
 
             READ_UNALIGNED(dbg, range_length, Dwarf_Unsigned,
-                           arange_ptr, local_length_size);
+                arange_ptr, local_length_size);
             arange_ptr += local_length_size;
             length = length - local_length_size;
 
@@ -444,7 +436,7 @@ _dwarf_get_aranges_addr_offsets(Dwarf_Debug dbg,
                 arange->ar_address = range_address;
                 arange->ar_length = range_length;
                 arange->ar_info_offset =
-                    arange_start_ptr - dbg->de_debug_aranges;
+                    arange_start_ptr - dbg->de_debug_aranges.dss_data;
                 arange->ar_dbg = dbg;
                 arange_count++;
 
@@ -471,10 +463,10 @@ _dwarf_get_aranges_addr_offsets(Dwarf_Debug dbg,
         }
 
     } while (arange_ptr <
-             dbg->de_debug_aranges + dbg->de_debug_aranges_size);
+        dbg->de_debug_aranges.dss_data + dbg->de_debug_aranges.dss_size);
 
     if (arange_ptr !=
-        dbg->de_debug_aranges + dbg->de_debug_aranges_size) {
+        dbg->de_debug_aranges.dss_data + dbg->de_debug_aranges.dss_size) {
         _dwarf_error(dbg, error, DW_DLE_ARANGE_DECODE_ERROR);
         return (DW_DLV_ERROR);
     }
@@ -521,18 +513,17 @@ _dwarf_get_aranges_addr_offsets(Dwarf_Debug dbg,
 */
 int
 dwarf_get_arange(Dwarf_Arange * aranges,
-                 Dwarf_Unsigned arange_count,
-                 Dwarf_Addr address,
-                 Dwarf_Arange * returned_arange, Dwarf_Error * error)
+    Dwarf_Unsigned arange_count,
+    Dwarf_Addr address,
+    Dwarf_Arange * returned_arange, Dwarf_Error * error)
 {
     Dwarf_Arange curr_arange;
-    Dwarf_Unsigned i;
+    Dwarf_Unsigned i = 0;
 
     if (aranges == NULL) {
         _dwarf_error(NULL, error, DW_DLE_ARANGES_NULL);
         return (DW_DLV_ERROR);
     }
-
     for (i = 0; i < arange_count; i++) {
         curr_arange = *(aranges + i);
         if (address >= curr_arange->ar_address &&
@@ -556,30 +547,25 @@ dwarf_get_arange(Dwarf_Arange * aranges,
 */
 int
 dwarf_get_cu_die_offset(Dwarf_Arange arange,
-                        Dwarf_Off * returned_offset,
-                        Dwarf_Error * error)
+    Dwarf_Off * returned_offset,
+    Dwarf_Error * error)
 {
     Dwarf_Debug dbg;
-    Dwarf_Off offset;
+    Dwarf_Off offset = 0;
 
     if (arange == NULL) {
         _dwarf_error(NULL, error, DW_DLE_ARANGE_NULL);
         return (DW_DLV_ERROR);
     }
-
-
     dbg = arange->ar_dbg;
-
-
     offset = arange->ar_info_offset;
-    if (!dbg->de_debug_info) {
+    if (!dbg->de_debug_info.dss_data) {
         int res = _dwarf_load_debug_info(dbg, error);
 
         if (res != DW_DLV_OK) {
             return res;
         }
     }
-
     *returned_offset = offset + _dwarf_length_of_cu_header(dbg, offset);
     return DW_DLV_OK;
 }
@@ -593,14 +579,13 @@ dwarf_get_cu_die_offset(Dwarf_Arange arange,
 */
 int
 dwarf_get_arange_cu_header_offset(Dwarf_Arange arange,
-                                  Dwarf_Off * cu_header_offset_returned,
-                                  Dwarf_Error * error)
+    Dwarf_Off * cu_header_offset_returned,
+    Dwarf_Error * error)
 {
     if (arange == NULL) {
         _dwarf_error(NULL, error, DW_DLE_ARANGE_NULL);
         return (DW_DLV_ERROR);
     }
-
     *cu_header_offset_returned = arange->ar_info_offset;
     return DW_DLV_OK;
 }
@@ -617,9 +602,9 @@ dwarf_get_arange_cu_header_offset(Dwarf_Arange arange,
 */
 int
 dwarf_get_arange_info(Dwarf_Arange arange,
-                      Dwarf_Addr * start,
-                      Dwarf_Unsigned * length,
-                      Dwarf_Off * cu_die_offset, Dwarf_Error * error)
+    Dwarf_Addr * start,
+    Dwarf_Unsigned * length,
+    Dwarf_Off * cu_die_offset, Dwarf_Error * error)
 {
     if (arange == NULL) {
         _dwarf_error(NULL, error, DW_DLE_ARANGE_NULL);
@@ -634,9 +619,8 @@ dwarf_get_arange_info(Dwarf_Arange arange,
         Dwarf_Debug dbg = arange->ar_dbg;
         Dwarf_Off offset = arange->ar_info_offset;
 
-        if (!dbg->de_debug_info) {
+        if (!dbg->de_debug_info.dss_data) {
             int res = _dwarf_load_debug_info(dbg, error);
-
             if (res != DW_DLV_OK) {
                 return res;
             }

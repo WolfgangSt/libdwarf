@@ -1,6 +1,6 @@
 /* 
   Copyright (C) 2000,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
-  Portions Copyright (C) 2007 David Anderson. All Rights Reserved.
+  Portions Copyright (C) 2007-2009 David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2 of the GNU General Public License as
@@ -101,6 +101,9 @@ typedef unsigned long long  __uint64_t;
 #endif
 #include <dwarf.h>
 #include <libdwarf.h>
+#ifdef HAVE_REGEX
+#include <regex.h>
+#endif
 
 typedef char * string;
 typedef int boolean;
@@ -110,6 +113,9 @@ typedef int boolean;
 #ifndef TRUE
 #define TRUE 1
 #endif
+#ifndef FAILED
+#define FAILED 1
+#endif
 
 /* size of attrib_buffer, defined in print_die.c */
 #define ATTRIB_BUFSIZ 999
@@ -118,6 +124,15 @@ typedef struct {
     int checks;
     int errors;
 } Dwarf_Check_Result;
+
+extern boolean search_is_on;
+extern char *search_any_text;
+extern char *search_match_text;
+extern char *search_regex_text;
+#ifdef HAVE_REGEX
+extern regex_t search_re;
+#endif
+extern boolean is_strstrnocase(const char *data, const char *pattern);
 
 extern int verbose;
 extern boolean dense;
@@ -131,7 +146,9 @@ extern boolean check_attr_tag;
 extern boolean check_tag_tree;
 extern boolean check_type_offset;
 extern boolean check_decl_file;
+extern boolean check_lines;
 extern boolean suppress_nested_name_search;
+extern boolean suppress_check_extensions_tables;
 
 extern int break_after_n_units;
 
@@ -143,8 +160,10 @@ extern Dwarf_Check_Result tag_tree_result;
 extern Dwarf_Check_Result type_offset_result;
 extern Dwarf_Check_Result decl_file_result;
 extern Dwarf_Check_Result ranges_result;
+extern Dwarf_Check_Result lines_result;
 
 extern boolean info_flag;
+extern boolean line_flag;
 extern boolean use_old_dwarf_loclist;
 
 extern char cu_name[ ];
@@ -154,6 +173,7 @@ extern Dwarf_Off fde_offset_for_cu_low;
 extern Dwarf_Off fde_offset_for_cu_high;
 
 
+extern char *program_name;
 extern int check_error;
 extern Dwarf_Error err;
 extern void print_error (Dwarf_Debug dbg, string msg,int res, Dwarf_Error err);
@@ -165,6 +185,7 @@ extern void print_frames (Dwarf_Debug dbg, int print_debug_frame,
 extern void print_ranges (Dwarf_Debug dbg);
 extern void print_pubnames (Dwarf_Debug dbg);
 extern void print_macinfo (Dwarf_Debug dbg);
+extern void print_infos (Dwarf_Debug dbg);
 extern void print_locs (Dwarf_Debug dbg);
 extern void print_abbrevs (Dwarf_Debug dbg);
 extern void print_strings (Dwarf_Debug dbg);
@@ -176,7 +197,6 @@ enum type_type_e {SGI_TYPENAME, DWARF_PUBTYPES} ;
 extern void print_types(Dwarf_Debug dbg,enum type_type_e type_type);
 extern void print_weaknames(Dwarf_Debug dbg);
 extern void print_exception_tables(Dwarf_Debug dbg);
-extern string get_fde_proc_name(Dwarf_Debug dbg, Dwarf_Addr low_pc);
 struct esb_s;
 extern void print_ranges_list_to_extra(Dwarf_Debug dbg,
     Dwarf_Unsigned off,
@@ -184,30 +204,37 @@ extern void print_ranges_list_to_extra(Dwarf_Debug dbg,
     Dwarf_Signed rangecount,
     Dwarf_Unsigned bytecount,
     struct esb_s *stringbuf);
+boolean should_skip_this_cu(Dwarf_Debug dbg, Dwarf_Die cu_die, Dwarf_Error err);
+
 
 extern void print_die_and_children(
         Dwarf_Debug dbg, 
         Dwarf_Die in_die,
         char **srcfiles,
         Dwarf_Signed cnt);
-extern void print_one_die(
+extern boolean print_one_die(
         Dwarf_Debug dbg, 
         Dwarf_Die die, 
         boolean print_information,
+        int die_indent_level,
         char **srcfiles,
-        Dwarf_Signed cnt);
+        Dwarf_Signed cnt,
+        boolean ignore_die_stack);
 
-#define DWARF_CHECK_ERROR(str) {\
+#define DWARF_CHECK_ERROR(var,str) {\
+        var.errors++; \
         printf("*** DWARF CHECK: %s ***\n", str);\
         check_error ++; \
 }
 
-#define DWARF_CHECK_ERROR2(str1, str2) {\
+#define DWARF_CHECK_ERROR2(var,str1, str2) {\
+        var.errors++; \
         printf("*** DWARF CHECK: %s: %s ***\n", str1, str2);\
         check_error ++; \
 }
 
-#define DWARF_CHECK_ERROR3(str1, str2,strexpl) {\
+#define DWARF_CHECK_ERROR3(var,str1, str2,strexpl) {\
+        var.errors++; \
         printf("*** DWARF CHECK: %s -> %s: %s ***\n", str1, str2,strexpl);\
         check_error ++; \
 }

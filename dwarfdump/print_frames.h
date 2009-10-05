@@ -1,5 +1,6 @@
 /*
   Copyright (C) 2006 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright (C) 2009 David Anderson.  All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2 of the GNU General Public License as
@@ -47,3 +48,11 @@ int
                 Dwarf_Unsigned cie_index, 
                 Dwarf_Half address_size,
                 struct dwconf_s * config_data);
+
+void
+get_string_from_locs(Dwarf_Debug dbg,
+    Dwarf_Ptr bytes_in,
+    Dwarf_Unsigned block_len,
+    Dwarf_Half addr_size, 
+    struct esb_s *out_string);
+

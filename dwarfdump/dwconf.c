@@ -52,6 +52,8 @@ enum linetype_e {
     LT_FRAME_INTERFACE,
     LT_CFA_REG,
     LT_INITIAL_REG_VALUE,
+    LT_SAME_VAL_REG,
+    LT_UNDEFINED_VAL_REG,
     LT_REG_TABLE_SIZE,
     LT_ENDABI
 };
@@ -70,6 +72,8 @@ static char name_reg[] = "reg:";
 static char name_frame_interface[] = "frame_interface:";
 static char name_cfa_reg[] = "cfa_reg:";
 static char name_initial_reg_value[] = "initial_reg_value:";
+static char name_same_val_reg[] = "same_val_reg:";
+static char name_undefined_val_reg[] = "undefined_val_reg:";
 static char name_reg_table_size[] = "reg_table_size:";
 static char name_endabi[] = "endabi:";
 
@@ -79,6 +83,8 @@ static struct comtable_s comtable[] = {
     {LT_FRAME_INTERFACE, name_frame_interface},
     {LT_CFA_REG, name_cfa_reg},
     {LT_INITIAL_REG_VALUE, name_initial_reg_value},
+    {LT_SAME_VAL_REG, name_same_val_reg},
+    {LT_UNDEFINED_VAL_REG, name_undefined_val_reg},
     {LT_REG_TABLE_SIZE, name_reg_table_size},
     {LT_ENDABI, name_endabi},
 };
@@ -582,14 +588,14 @@ make_a_number(char *cmd, char *filename, unsigned long
     val = strtoul(tok->tk_data, &endnum, 0);
     if (val == 0 && endnum == (tok->tk_data)) {
         printf("dwarfdump.conf error: "
-               "%s missing register number (\"%s\" not valid)  %s line %lu",
+               "%s missing register number (\"%s\" not valid)  %s line %lu\n",
                cmd, tok->tk_data, filename, lineno);
         ++errcount;
         return FALSE;
     }
     if (endnum != (tok->tk_data + tok->tk_len)) {
         printf("dwarfdump.conf error: "
-               "%s Missing register number (\"%s\" not valid)  %s line %lu",
+               "%s Missing register number (\"%s\" not valid)  %s line %lu\n",
                cmd, tok->tk_data, filename, lineno);
         ++errcount;
         return FALSE;
@@ -771,6 +777,77 @@ parseinitial_reg_value(char *cp, char *fname,
     }
 }
 
+static int
+parsesame_val_reg(char *cp, char *fname,
+    unsigned long lineno,
+    struct dwconf_s *conf, struct comtable_s *comtab)
+{
+    size_t clen = comtab->namelen;
+    struct token_s tok;
+    unsigned long val = 0;
+    int ok = FALSE;
+
+    cp = cp + clen + 1;
+    cp = get_token(cp, &tok);
+    if (tok.tk_len == 0) {
+        printf("dwarfdump.conf error: "
+               "%s missing same_reg value %s line %lu",
+               comtab->name, fname, lineno);
+        ++errcount;
+        return FALSE;
+    }
+
+    ok = make_a_number(comtab->name, fname, lineno, &tok, &val);
+
+    if (!ok) {
+
+        ++errcount;
+        return FALSE;
+    }
+    conf->cf_same_val = (int) val;
+    {
+        int res = ensure_has_no_more_tokens(cp, fname, lineno);
+
+        return res;
+    }
+}
+
+static int
+parseundefined_val_reg(char *cp, char *fname,
+    unsigned long lineno,
+    struct dwconf_s *conf, struct comtable_s *comtab)
+{
+    size_t clen = comtab->namelen;
+    struct token_s tok;
+    unsigned long val = 0;
+    int ok = FALSE; 
+
+    cp = cp + clen + 1;
+    cp = get_token(cp, &tok);
+    if (tok.tk_len == 0) {
+        printf("dwarfdump.conf error: "
+               "%s missing undefined_reg value %s line %lu",
+               comtab->name, fname, lineno);
+        ++errcount;
+        return FALSE; 
+    }
+
+    ok = make_a_number(comtab->name, fname, lineno, &tok, &val);
+
+    if (!ok) {
+
+        ++errcount;
+        return FALSE;
+    }
+    conf->cf_undefined_val = (int) val;
+    {
+        int res = ensure_has_no_more_tokens(cp, fname, lineno);
+
+        return res;
+    }
+}
+
+
 
 /* We are guaranteed it's a table size command, parse it
     and record the table size.
@@ -867,6 +944,8 @@ parse_abi(FILE * stream, char *fname, char *abiname,
     unsigned long frame_interface_lineno = 0;
     unsigned long initial_reg_value_lineno = 0;
     unsigned long reg_table_size_lineno = 0;
+    unsigned long same_val_reg_lineno = 0;
+    unsigned long undefined_val_reg_lineno = 0;
     unsigned long cfa_reg_lineno = 0;
     static int first_time_done = 0;
     struct comtable_s *comtabp = 0;
@@ -950,15 +1029,38 @@ parse_abi(FILE * stream, char *fname, char *abiname,
         case LT_INITIAL_REG_VALUE:
             if (initial_reg_value_lineno > 0) {
                 printf
-                    ("dwarfdump: Encountered duplicate initial_reg_value_lineno: "
+                    ("dwarfdump: Encountered duplicate initial_reg_value: "
                      "%s line %lu previous initial_reg_value: line %lu\n",
                      fname, lineno, initial_reg_value_lineno);
                 ++errcount;
             }
             initial_reg_value_lineno = lineno;
-
             parseinitial_reg_value(line, fname,
-                                   lineno, &localconf, comtabp);
+                lineno, &localconf, comtabp);
+            break;
+        case LT_SAME_VAL_REG:
+            if (same_val_reg_lineno > 0) {
+                ++errcount;
+                printf 
+                    ("dwarfdump: Encountered duplicate same_val_reg: "
+                     "%s line %lu previous initial_reg_value: line %lu\n",
+                     fname, lineno, initial_reg_value_lineno);
+            }
+            same_val_reg_lineno = lineno;
+            parsesame_val_reg(line, fname,
+                lineno, &localconf, comtabp);
+            break;
+        case LT_UNDEFINED_VAL_REG:
+            if (undefined_val_reg_lineno > 0) {
+                ++errcount;
+                printf 
+                    ("dwarfdump: Encountered duplicate undefined_val_reg: "
+                     "%s line %lu previous initial_reg_value: line %lu\n",
+                     fname, lineno, initial_reg_value_lineno);
+            }
+            undefined_val_reg_lineno = lineno;
+            parseundefined_val_reg(line, fname,
+                lineno, &localconf, comtabp);
             break;
         case LT_REG_TABLE_SIZE:
             if (reg_table_size_lineno > 0) {
@@ -969,7 +1071,7 @@ parse_abi(FILE * stream, char *fname, char *abiname,
             }
             reg_table_size_lineno = lineno;
             parsereg_table_size(line, fname,
-                                lineno, &localconf, comtabp);
+                lineno, &localconf, comtabp);
             break;
         case LT_ENDABI:
             parseendabi(line, fname, abiname, lineno, comtabp);
@@ -983,7 +1085,6 @@ parse_abi(FILE * stream, char *fname, char *abiname,
                        fname, (unsigned long) lineno);
                 ++errcount;
             }
-
             *out = localconf;
             return TRUE;
         default:
@@ -1053,6 +1154,8 @@ init_conf_file_data(struct dwconf_s *config_file_data)
     config_file_data->cf_initial_rule_value =
         DW_FRAME_REG_INITIAL_VALUE;
     config_file_data->cf_cfa_reg = DW_FRAME_CFA_COL;
+    config_file_data->cf_same_val = DW_FRAME_SAME_VAL;
+    config_file_data->cf_undefined_val = DW_FRAME_UNDEFINED_VAL;
     config_file_data->cf_regs = regnames;
     config_file_data->cf_named_regs_table_size = base_table_count;
     config_file_data->cf_regs_malloced = 0;
@@ -1077,21 +1180,29 @@ static char *genericregnames[] = {
   "r20",
 };
 
-/* A 'generic' ABI. For up to 1000 registers. 
+/* A 'generic' ABI. For up to 1200 registers. 
    Perhaps cf_initial_rule_value should be d
    UNDEFINED VALUE (1034) instead, but for the purposes of
    getting the dwarfdump output correct
    either will work.
 */
 void
-init_generic_config_1000_regs(struct dwconf_s *config_file_data)
+init_generic_config_1200_regs(struct dwconf_s *config_file_data)
 {
     unsigned long generic_table_count =
         sizeof(genericregnames) / sizeof(genericregnames[0]);
     config_file_data->cf_interface_number = 3;
-    config_file_data->cf_table_entry_count = 1000;
-    config_file_data->cf_initial_rule_value = 1035; /* SAME VALUE */
-    config_file_data->cf_cfa_reg = 1036;
+    config_file_data->cf_table_entry_count = 1200;
+    /* There is no defined name for cf_initial_rule_value,
+       cf_same_val, or cf_undefined_val in libdwarf.h, 
+       these must just be high enough to be higher than 
+       any real register number. 
+       DW_FRAME_CFA_COL3 must also be higher than any
+       real register number. */
+    config_file_data->cf_initial_rule_value = 1235; /* SAME VALUE */
+    config_file_data->cf_cfa_reg =  DW_FRAME_CFA_COL3;
+    config_file_data->cf_same_val = 1235; 
+    config_file_data->cf_undefined_val = 1234;
     config_file_data->cf_regs = genericregnames;
     config_file_data->cf_named_regs_table_size = generic_table_count;
     config_file_data->cf_regs_malloced = 0;
@@ -1112,30 +1223,24 @@ print_reg_from_config_data(Dwarf_Signed reg,
         fputs("cfa",stdout);
         return;
     }
-    if (reg == DW_FRAME_CFA_COL3) {
-        /* This should not be necessary, but sometimes one forgets to
-           do the cfa_reg: command in dwarfdump.conf */
-        fputs("cfa",stdout);
-        return;
-    }
-    if (reg == DW_FRAME_UNDEFINED_VAL) {
+    if (reg == config_data->cf_undefined_val) {
         fputs("u",stdout);
         return;
     }
-    if (reg == DW_FRAME_SAME_VAL) {
+    if (reg == config_data->cf_same_val) {
         fputs("s",stdout);
         return;
     }
     if (config_data->cf_regs == 0 ||
         reg < 0 || 
         reg >= config_data->cf_named_regs_table_size) {
-        printf("r%lld", (signed long long) reg);
+        printf("r%" DW_PR_DSd "", (Dwarf_Signed) reg);
         return;
     }
     name = config_data->cf_regs[reg];
     if (!name) {
         /* Can happen, the reg names table can be sparse. */
-        printf("r%lld", (signed long long) reg);
+        printf("r%" DW_PR_DSd "", (Dwarf_Signed) reg);
         return;
     }
     fputs(name,stdout);

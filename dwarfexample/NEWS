@@ -1,0 +1,3 @@
+July 8, 2009 
+  Created a sample libdwarf consumer. Using BSD license so
+  anyone can use it.  And a trivial Makefile.

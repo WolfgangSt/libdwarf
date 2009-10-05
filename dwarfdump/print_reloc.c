@@ -436,8 +436,8 @@ print_reloc_information_64(int section_no, Dwarf_Small * buf,
            }
         }
 
-        printf("%5llu\t<%3ld> %-34s%s\n",
-            (unsigned long long int) (p->r_offset),
+        printf("%5" DW_PR_DUu "\t<%3ld> %-34s%s\n",
+            (Dwarf_Unsigned) (p->r_offset),
             (long)p->r_sym,
             name,
             get_reloc_type_names(p->r_type));

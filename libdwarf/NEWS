@@ -1,3 +1,48 @@
+July 7, 2009
+  Implemented support for elf 'rela' relocations so libdwarf and dwarfdump
+  can read *nix .o files with such relocations reasonably, 
+  at least for some machines
+  (see dwarf_elf_access.c for EM_  in 'case' statements.)
+  This changes the binary access for non-Elf object users (folks
+  who have coded there own non-Elf access routines do reference
+  internals of dwarf_opaque.h), but the new data can be left zero
+  and the rest of the code should work fine.
+  dwarf_opaque.h gathers section data in Dwarf_Section_s structs
+  which simplifies the code in dwarf_init_finish.c and clarifies
+  what fields are section related.
+July 4, 2009
+  When something erroneous is detected in a die
+  information about the CU context may be of interest.
+  So we added dwarf_CU_dieoffset_given_die(), a function which allows
+  clients to find the relevant CU die for any die.  
+  The consumer can use normal attribute access functions to 
+  print information about that CU die (and the erroneous die,
+  of course).  See the libdwarf consumer document for more
+  information.
+April 27, 2009
+  Interface additions: dwarf_loclist_from_expr_a() and
+  dwarf_get_ranges_a() are new interfaces like
+  dwarf_loclist_from_expr() and dwarf_get_ranges() respectively,
+  but with arguments allowing
+  full support for different CIEs
+  in an executable  having different address-sizes
+  (and their compilation unit DIEs if .debug_info is present).
+  dwarf_get_loclist_entry() does not support
+  differing address sizes per CIE/CU.
+April 4, 2009
+  Added new functions dwarf_set_frame_cfa_value()
+  dwarf_set_frame_same_value(), and
+  dwarf_set_frame_undefined_value(). These are essential
+  for ABIs where the real register numbers exceed 1033
+  (such as ppc).  Failing to use these leads to 
+  frame instructions  DW_CFA_undefined and
+  DW_CFA_same_value emitting values that cannot be
+  interpreted correctly by a libdwarf consumer.
+  See dwarfdump for examples of use.
+Feb 14, 2009
+  Added configure option --enable-nonstandardprintf
+  which makes it easy to get printf of Dwarf_Unsigned (etc)
+  types correct even for non-standard compilers.
 Dec 30, 2008
   Added interfaces for getting and printing the .debug_ranges
   data.

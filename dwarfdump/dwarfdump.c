@@ -1,6 +1,6 @@
 /* 
   Copyright (C) 2000,2002,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
-  Portions Copyright (C) 2007 David Anderson. All Rights Reserved.
+  Portions Copyright (C) 2007-2009 David Anderson. All Rights Reserved.
   Portions Copyright 2007 Sun Microsystems, Inc. All rights reserved.
   
 
@@ -41,10 +41,7 @@ $Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/dwarfdump.c,v 1.48 200
    SGI has moved from the Crittenden Lane address.
 */
 
-
-
 #include "globals.h"
-
 /* for 'open' */
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -53,20 +50,20 @@ $Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/dwarfdump.c,v 1.48 200
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
 #endif
-
 #include "makename.h"
 #include "dwconf.h"
+
+#define DWARFDUMP_VERSION " Wed Jun 17 15:26:11 PDT 2009  "
+
 extern char *optarg;
 
 #define OKAY 0
-#define FAILED 1
 #define BYTES_PER_INSTRUCTION 4
 
 static string process_args(int argc, char *argv[]);
-static void print_infos(Dwarf_Debug dbg);
 static void print_usage_message(void);
 
-static string program_name;
+char * program_name;
 int check_error = 0;
 
 /* defined in print_sections.c, die for the current compile unit, 
@@ -80,7 +77,7 @@ boolean use_old_dwarf_loclist = FALSE;  /* This so both dwarf_loclist()
                                            tested. Defaults to new
                                            dwarf_loclist_n() */
 
-static boolean line_flag = FALSE;
+boolean line_flag = FALSE;
 static boolean abbrev_flag = FALSE;
 static boolean frame_flag = FALSE;      /* .debug_frame section. */
 static boolean eh_frame_flag = FALSE;   /* GNU .eh_frame section. */
@@ -109,8 +106,10 @@ boolean check_attr_tag = FALSE;
 boolean check_tag_tree = FALSE;
 boolean check_type_offset = FALSE;
 boolean check_decl_file = FALSE;
+boolean check_lines = FALSE;
 boolean check_ranges = FALSE;
-boolean generic_1000_regs = FALSE;
+boolean generic_1200_regs = FALSE;
+boolean suppress_check_extensions_tables = FALSE;
 /* suppress_nested_name_search is a band-aid. 
    A workaround. A real fix for N**2 behavior is needed. 
 */
@@ -127,6 +126,17 @@ boolean suppress_nested_name_search = FALSE;
 int break_after_n_units = INT_MAX;
 
 static boolean dwarf_check = FALSE;
+
+/* -S option: strings for 'any' and 'match' */
+boolean search_is_on = FALSE;
+char *search_any_text = 0;
+char *search_match_text = 0;
+char *search_regex_text = 0;
+#ifdef HAVE_REGEX
+/* -S option: the compiled_regex */
+regex_t search_re;
+#endif
+
 
 /* These configure items are for the 
    frame data.
@@ -164,6 +174,9 @@ Dwarf_Check_Result tag_tree_result;
 Dwarf_Check_Result type_offset_result;
 Dwarf_Check_Result decl_file_result;
 Dwarf_Check_Result ranges_result;
+/* The awkward way lines_result interfaces with libdwarf means
+   that the checks count may be less than the count of errors noted. */
+Dwarf_Check_Result lines_result;
 
 Dwarf_Error err;
 
@@ -248,6 +261,11 @@ main(int argc, char *argv[])
     /* Trivial malloc space cleanup. */
     clean_up_die_esb();
     clean_up_syms_malloc_data();
+#ifdef HAVE_REGEX
+    if(search_regex_text) {
+        regfree(&search_re);
+    }
+#endif
 
     if (check_error)
         return FAILED;
@@ -282,14 +300,19 @@ process_one_file(Elf * elf, string file_name, int archive,
         printf("\narchive member \t%s\n",
                mem_header ? mem_header->ar_name : "");
     }
-    dwarf_set_frame_rule_inital_value(dbg,
-                                      config_file_data->
-                                      cf_initial_rule_value);
+    dwarf_set_frame_rule_initial_value(dbg,
+        config_file_data->cf_initial_rule_value);
     dwarf_set_frame_rule_table_size(dbg,
-                                    config_file_data->
-                                    cf_table_entry_count);
+        config_file_data->cf_table_entry_count);
+    dwarf_set_frame_cfa_value(dbg,
+         config_file_data->cf_cfa_reg);
+    dwarf_set_frame_same_value(dbg,
+         config_file_data->cf_same_val);
+    dwarf_set_frame_undefined_value(dbg,
+         config_file_data->cf_undefined_val);
 
-    if (info_flag || line_flag || cu_name_flag)
+
+    if (info_flag || line_flag || cu_name_flag || search_is_on)
         print_infos(dbg);
     if (pubnames_flag)
         print_pubnames(dbg);
@@ -341,6 +364,8 @@ process_one_file(Elf * elf, string file_name, int archive,
         PRINT_CHECK_RESULT("decl_file", decl_file_result)
     if (check_ranges)
         PRINT_CHECK_RESULT("ranges", ranges_result)
+    if (check_lines )
+        PRINT_CHECK_RESULT("line table", lines_result)
     dres = dwarf_finish(dbg, &err);
     if (dres != DW_DLV_OK) {
         print_error(dbg, "dwarf_finish", dres, err);
@@ -377,7 +402,7 @@ process_args(int argc, char *argv[])
 
     while ((c =
             getopt(argc, argv,
-                   "abcdefFgGhH:ik:lmMnNoprRst:u:vVwx:yz")) != EOF) {
+                   "abcCdefFgGhH:ik:lmMnNoprRsS:t:u:vVwx:yz")) != EOF) {
         switch (c) {
         case 'M':
             show_form_used =  TRUE;
@@ -411,6 +436,9 @@ process_args(int argc, char *argv[])
                     break;
                 }
             }
+            break;
+        case 'C':
+            suppress_check_extensions_tables = TRUE;
             break;
         case 'g':
             use_old_dwarf_loclist = TRUE;
@@ -451,8 +479,7 @@ process_args(int argc, char *argv[])
             ranges_flag = TRUE;
             break;
         case 'R':
-            generic_1000_regs = TRUE;
-            info_flag = TRUE;
+            generic_1200_regs = TRUE;
             break;
         case 'm':
             macinfo_flag = TRUE;
@@ -463,6 +490,52 @@ process_args(int argc, char *argv[])
         case 's':
             string_flag = TRUE;
             break;
+        case 'S':
+            /* -S option: strings for 'any' and 'match' */
+            {
+                boolean err = TRUE;
+                search_is_on = TRUE;
+                /* -S text */
+                if (strncmp(optarg,"match=",6) == 0) {
+                    search_match_text = makename(&optarg[6]);
+                    if (strlen(search_match_text) > 0) {
+                        err = FALSE;
+                    }
+                }
+                else {
+                    if (strncmp(optarg,"any=",4) == 0) {
+                        search_any_text = makename(&optarg[4]);
+                        if (strlen(search_any_text) > 0) {
+                            err = FALSE;
+                        }
+                    }
+#ifdef HAVE_REGEX
+                    else {
+                        if (strncmp(optarg,"regex=",6) == 0) {
+                            search_regex_text = makename(&optarg[6]);
+                            if (strlen(search_regex_text) > 0) {
+                                if (regcomp(&search_re,search_regex_text,
+                                    REG_EXTENDED)) {
+                                    fprintf(stderr,
+                                        "regcomp: unable to compile %s\n",
+                                        search_regex_text);
+                                }
+                                else {
+                                    err = FALSE;
+                                }
+                            }
+                        }
+                    }
+#endif /* HAVE_REGEX */
+                }
+                if (err) {
+                    fprintf(stderr,"-S any=<text> or -S match=<text> or -S regex=<text>\n");
+                    fprintf(stderr, "is allowed, not -S %s\n",optarg);
+                    usage_error = TRUE;
+                }
+            }
+            break;
+
         case 'a':
             do_all();
             break;
@@ -471,7 +544,8 @@ process_args(int argc, char *argv[])
             break;
         case 'V':
             {
-            printf("%s\n","Version 4May2007");
+                printf("%s\n",DWARFDUMP_VERSION);
+                exit(0);
             }
             break;
         case 'd':
@@ -494,10 +568,14 @@ process_args(int argc, char *argv[])
                 pubnames_flag = info_flag = TRUE;
                 check_decl_file = TRUE;
                 check_ranges = TRUE;
+                check_lines = TRUE;
                 break;
             case 'e':
                 check_pubname_attr = TRUE;
                 pubnames_flag = TRUE;
+                break;
+            case 'f':
+                printf("-kf (check fdes) not supported");
                 break;
             case 'r':
                 check_attr_tag = TRUE;
@@ -561,13 +639,13 @@ process_args(int argc, char *argv[])
     }
 
     init_conf_file_data(&config_file_data);
-    if (config_file_abi && generic_1000_regs) {
+    if (config_file_abi && generic_1200_regs) {
         printf("Specifying both -R and -x abi= is not allowed. Use one "
               "or the other.  -x abi= ignored.\n");
         config_file_abi = FALSE;
     }
-    if(generic_1000_regs) {
-        init_generic_config_1000_regs(&config_file_data);
+    if(generic_1200_regs) {
+        init_generic_config_1200_regs(&config_file_data);
     }
     if (config_file_abi && (frame_flag || eh_frame_flag)) {
         int res = find_conf_file_and_read_config(config_file_path,
@@ -586,207 +664,76 @@ process_args(int argc, char *argv[])
         print_usage_message();
         exit(FAILED);
     }
-    return argv[optind];
+    return argv[optind]; 
 }
+
+static const char *usage_text[] = {
+"options:\t-a\tprint all .debug_* sections",
+"\t\t-b\tprint abbrev section",
+"\t\t-c\tprint loc section",
+"\t\t-C\tactivate printing (with -i) of warnings about",
+"\t\t\tcertain common extensions of DWARF.",
+"\t\t-d\tdense: one line per entry (info section only)",
+"\t\t-e\tellipsis: short names for tags, attrs etc.",
+"\t\t-f\tprint dwarf frame section",
+"\t\t-F\tprint gnu .eh_frame section",
+"\t\t-g\t(use incomplete loclist support)",
+"\t\t-G\tshow global die offsets",
+"\t\t-h\tprint IRIX exception tables (unsupported)",
+"\t\t-H <num>\tlimit out put to the first <num> major units",
+"\t\t\t  example: to stop after <num> compilation units",
+"\t\t-i\tprint info section",
+"\t\t-k[aerty] check dwarf information",
+"\t\t   a\tdo all checks",
+"\t\t   e\texamine attributes of pubnames",
+"\t\t   r\texamine tag-attr relation",
+"\t\t   t\texamine tag-tag relations",
+"\t\t   y\texamine type info",
+"\t\t\tUnless -C option given certain common tag-attr and tag-tag",
+"\t\t\textensions are assumed to be ok (not reported).",
+"\t\t-l\tprint line section",
+"\t\t-m\tprint macinfo section",
+"\t\t-M\tprint the form name for each attribute",
+"\t\t-o\tprint relocation info",
+"\t\t-p\tprint pubnames section",
+"\t\t-N\tprint ranges section",
+"\t\t-n\tsuppress frame information function name lookup",
+"\t\t-r\tprint aranges section",
+"\t\t-R\tPrint frame register names as r33 etc",
+"\t\t  \t    and allow up to 1200 registers.",
+"\t\t  \t    Print using a 'generic' register set.",
+"\t\t-s\tprint string section",
+"\t\t-S <option>=<text>\tsearch for <text> in attributes",
+"\t\t  \twith <option>:",
+"\t\t  \t-S any=<text>\tany <text>",
+"\t\t  \t-S match=<text>\tmatching <text>",
+#ifdef HAVE_REGEX
+"\t\t  \t-S regex=<text>\tuse regular expression matching", 
+#endif
+"\t\t  \t (only one -S option allowed, any= and regex= ",
+"\t\t  \t  only usable if the functions required are ",
+"\t\t  \t  found at configure time)",
+"\t\t-t[afv] static: ",
+"\t\t   a\tprint both sections",
+"\t\t   f\tprint static func section",
+"\t\t   v\tprint static var section",
+"\t\t-u<file> print sections only for specified file",
+"\t\t-v\tverbose: show more information",
+"\t\t-vv verbose: show even more information",
+"\t\t-V print version information",
+"\t\t-x name=<path>\tname dwarfdump.conf",
+"\t\t-x abi=<abi>\tname abi in dwarfdump.conf",
+"\t\t-w\tprint weakname section",
+"\t\t-y\tprint type section",
+0};
 
 static void
 print_usage_message(void)
 {
-    fprintf(stderr, "Usage:  %s <options> <object file>\n",
-            program_name);
-    fprintf(stderr, "options:\t-a\tprint all .debug_* sections\n");
-    fprintf(stderr, "\t\t-b\tprint abbrev section\n");
-    fprintf(stderr, "\t\t-c\tprint loc section\n");
-    fprintf(stderr,
-            "\t\t-d\tdense: one line per entry (info section only)\n");
-    fprintf(stderr,
-            "\t\t-e\tellipsis: short names for tags, attrs etc.\n");
-    fprintf(stderr, "\t\t-f\tprint dwarf frame section\n");
-    fprintf(stderr, "\t\t-F\tprint gnu .eh_frame section\n");
-    fprintf(stderr, "\t\t-g\t(use incomplete loclist support)\n");
-    fprintf(stderr, "\t\t-G\tshow global die offsets\n");
-    fprintf(stderr, "\t\t-h\tprint IRIX exception tables (unsupported)\n");
-    fprintf(stderr, "\t\t-H <num>\tlimit out put to the first <num> major units\n");
-    fprintf(stderr, "\t\t\t  example: to stop after <num> compilation units\n");
-    fprintf(stderr, "\t\t-i\tprint info section\n");
-    fprintf(stderr, "\t\t-k[aerty] check dwarf information\n");
-    fprintf(stderr, "\t\t   a\tdo all checks\n");
-    fprintf(stderr, "\t\t   e\texamine attributes of pubnames\n");
-    fprintf(stderr, "\t\t   r\texamine attr-tag relation\n");
-    fprintf(stderr, "\t\t   t\texamine tag trees\n");
-    fprintf(stderr, "\t\t   y\texamine type info\n");
-    fprintf(stderr, "\t\t-l\tprint line section\n");
-    fprintf(stderr, "\t\t-m\tprint macinfo section\n");
-    fprintf(stderr, "\t\t-M\tprint the form name for each attribute\n");
-    fprintf(stderr, "\t\t-o\tprint relocation info\n");
-    fprintf(stderr, "\t\t-p\tprint pubnames section\n");
-    fprintf(stderr, "\t\t-N\tprint ranges section\n");
-    fprintf(stderr, "\t\t-r\tprint aranges section\n");
-    fprintf(stderr, "\t\t-R\tPrint frame register names as r33 etc\n");
-    fprintf(stderr, "\t\t  \t    and allow up to 1000 registers.\n");
-    fprintf(stderr, "\t\t  \t    Print using a 'generic' register set.\n");
-    fprintf(stderr, "\t\t-s\tprint string section\n");
-    fprintf(stderr, "\t\t-t[afv] static: \n");
-    fprintf(stderr, "\t\t   a\tprint both sections\n");
-    fprintf(stderr, "\t\t   f\tprint static func section\n");
-    fprintf(stderr, "\t\t   v\tprint static var section\n");
-    fprintf(stderr,
-            "\t\t-u<file> print sections only for specified file\n");
-    fprintf(stderr, "\t\t-v\tverbose: show more information\n");
-    fprintf(stderr, "\t\t-vv verbose: show even more information\n");
-    fprintf(stderr, "\t\t-V print version information\n");      
-    fprintf(stderr, "\t\t-x name=<path>\tname dwarfdump.conf\n");
-    fprintf(stderr, "\t\t-x abi=<abi>\tname abi in dwarfdump.conf\n");
-    fprintf(stderr, "\t\t-w\tprint weakname section\n");
-    fprintf(stderr, "\t\t-y\tprint type section\n");
-
-}
-
-/* process each compilation unit in .debug_info */
-static void
-print_infos(Dwarf_Debug dbg)
-{
-    Dwarf_Unsigned cu_header_length = 0;
-    Dwarf_Unsigned abbrev_offset = 0;
-    Dwarf_Half version_stamp = 0;
-    Dwarf_Half address_size = 0;
-    Dwarf_Die cu_die = 0;
-    Dwarf_Unsigned next_cu_offset = 0;
-    int nres = DW_DLV_OK;
-    int   cu_count = 0;
-
-    if (info_flag)
-        printf("\n.debug_info\n");
-
-    /* Loop until it fails.  */
-    while ((nres =
-            dwarf_next_cu_header(dbg, &cu_header_length, &version_stamp,
-                                 &abbrev_offset, &address_size,
-                                 &next_cu_offset, &err))
-           == DW_DLV_OK) {
-        if(cu_count >=  break_after_n_units) {
-            printf("Break at %d\n",cu_count);
-            break;
-        }
-        int sres = 0;
-        if (cu_name_flag) {
-            int tres = 0;
-            Dwarf_Half tag = 0;
-            Dwarf_Attribute attrib = 0;
-            Dwarf_Half theform = 0;
-            int fres = 0;
-            int ares = 0;
-
-            sres = dwarf_siblingof(dbg, NULL, &cu_die, &err);
-            if (sres != DW_DLV_OK) {
-                print_error(dbg, "siblingof cu header", sres, err);
-            }
-            tres = dwarf_tag(cu_die, &tag, &err);
-            if (tres != DW_DLV_OK) {
-                print_error(dbg, "tag of cu die", tres, err);
-            }
-            ares = dwarf_attr(cu_die, DW_AT_name, &attrib, &err);
-            if (ares != DW_DLV_OK) {
-                print_error(dbg, "dwarf DW_AT_name ", ares, err);
-            }
-            fres = dwarf_whatform(attrib, &theform, &err);
-            if (fres != DW_DLV_OK) {
-                print_error(dbg, "dwarf_whatform problem ", fres, err);
-            } else if (theform == DW_FORM_string
-                       || theform == DW_FORM_strp) {
-                string temps;
-                int strres;
-                string p;
-
-                strres = dwarf_formstring(attrib, &temps, &err);
-                p = temps;
-                if (strres != DW_DLV_OK) {
-                    print_error(dbg,
-                                "formstring failed unexpectedly",
-                                strres, err);
-                }
-                if (cu_name[0] != '/') {
-                    p = strrchr(temps, '/');
-                    if (p == NULL) {
-                        p = temps;
-                    } else {
-                        p++;
-                    }
-                }
-                if (strcmp(cu_name, p)) {
-                    continue;
-                }
-            } else {
-                print_error(dbg,
-                            "dwarf_whatform unexpected value",
-                            fres, err);
-            }
-            dwarf_dealloc(dbg, attrib, DW_DLA_ATTR);
-            dwarf_dealloc(dbg, cu_die, DW_DLA_DIE);
-        }
-        if (verbose) {
-            if (dense) {
-                printf("<%s>", "cu_header");
-                printf(" %s<%llu>", "cu_header_length",
-                       cu_header_length);
-                printf(" %s<%d>", "version_stamp", version_stamp);
-                printf(" %s<%llu>", "abbrev_offset", abbrev_offset);
-                printf(" %s<%d>\n", "address_size", address_size);
-
-            } else {
-                printf("\nCU_HEADER:\n");
-                printf("\t\t%-28s%llu\n", "cu_header_length",
-                       cu_header_length);
-                printf("\t\t%-28s%d\n", "version_stamp", version_stamp);
-                printf("\t\t%-28s%llu\n", "abbrev_offset",
-                       abbrev_offset);
-                printf("\t\t%-28s%d", "address_size", address_size);
-            }
-        }
-
-        /* process a single compilation unit in .debug_info. */
-        sres = dwarf_siblingof(dbg, NULL, &cu_die, &err);
-        if (sres == DW_DLV_OK) {
-            if (info_flag || cu_name_flag) {
-                Dwarf_Signed cnt = 0;
-                char **srcfiles = 0;
-                int srcf = dwarf_srcfiles(cu_die,
-                                          &srcfiles, &cnt, &err);
-
-                if (srcf != DW_DLV_OK) {
-                    srcfiles = 0;
-                    cnt = 0;
-                }
-
-                print_die_and_children(dbg, cu_die, srcfiles, cnt);
-                if (srcf == DW_DLV_OK) {
-                    int si;
-
-                    for (si = 0; si < cnt; ++si) {
-                        dwarf_dealloc(dbg, srcfiles[si], DW_DLA_STRING);
-                    }
-                    dwarf_dealloc(dbg, srcfiles, DW_DLA_LIST);
-                }
-            }
-            if (line_flag)
-                print_line_numbers_this_cu(dbg, cu_die);
-            dwarf_dealloc(dbg, cu_die, DW_DLA_DIE);
-        } else if (sres == DW_DLV_NO_ENTRY) {
-            /* do nothing I guess. */
-        } else {
-            print_error(dbg, "Regetting cu_die", sres, err);
-        }
-        ++cu_count;
-        cu_offset = next_cu_offset;
-    }
-    if (nres == DW_DLV_ERROR) {
-        string errmsg = dwarf_errmsg(err);
-        Dwarf_Unsigned myerr = dwarf_errno(err);
-
-        fprintf(stderr, "%s ERROR:  %s:  %s (%lu)\n",
-                program_name, "attempting to print .debug_info",
-                errmsg, (unsigned long) myerr);
-        fprintf(stderr, "attempting to continue.\n");
+    unsigned i;
+    fprintf(stderr,"Usage:  %s  <options> <object file>\n", program_name);
+    for (i = 0; usage_text[i]; ++i) {
+        fprintf(stderr,"%s\n", usage_text[i]);
     }
 }
 
@@ -814,4 +761,66 @@ print_error(Dwarf_Debug dbg, string msg, int dwarf_code,
     fflush(stderr);
     exit(FAILED);
 
+}
+
+/* Predicate function. Returns 'true' if the CU should
+ * be skipped as the DW_AT_name of the CU
+ * does not match the command-line-supplied
+ * cu name.  Else returns false.*/
+boolean
+should_skip_this_cu(Dwarf_Debug dbg, Dwarf_Die cu_die, Dwarf_Error err)
+{
+    Dwarf_Half tag;
+    Dwarf_Attribute attrib;
+    Dwarf_Half theform;
+    int dares;
+    int tres;
+    int fres;
+
+    tres = dwarf_tag(cu_die, &tag, &err);
+    if (tres != DW_DLV_OK) {
+        print_error(dbg, "dwarf_tag in aranges",
+            tres, err);
+    }
+    dares = dwarf_attr(cu_die, DW_AT_name, &attrib,
+                                       &err);
+    if (dares != DW_DLV_OK) {
+        print_error(dbg, "dwarf_attr arange"
+            " derived die has no name",
+            dares, err);
+        }
+    fres = dwarf_whatform(attrib, &theform, &err);
+    if (fres == DW_DLV_OK) {
+        if (theform == DW_FORM_string
+            || theform == DW_FORM_strp) {
+            char * temps = 0;
+            int sres = dwarf_formstring(attrib, &temps,
+                &err);
+            if (sres == DW_DLV_OK) {
+                char *p = temps;
+                if (cu_name[0] != '/') {
+                    p = strrchr(temps, '/');
+                    if (p == NULL) {
+                        p = temps;
+                    } else {
+                        p++;
+                    }
+                }
+                if (strcmp(cu_name, p)) {
+                   // skip this cu.
+                   return TRUE;
+                }
+            } else {
+                print_error(dbg,
+                "arange: string missing",
+                sres, err);
+            }
+         }
+     } else {
+         print_error(dbg,
+             "dwarf_whatform unexpected value",
+             fres, err);
+     }
+     dwarf_dealloc(dbg, attrib, DW_DLA_ATTR);
+     return FALSE;
 }

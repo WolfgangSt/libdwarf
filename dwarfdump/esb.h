@@ -48,10 +48,10 @@ struct esb_s {
 };
 
 /* string length taken from string itself. */
-void esb_append(struct esb_s *data, string in_string);
+void esb_append(struct esb_s *data, const char * in_string);
 
 /* The 'len' is believed. Do not pass in strings < len bytes long. */
-void esb_appendn(struct esb_s *data, string in_string, size_t len);
+void esb_appendn(struct esb_s *data, const char * in_string, size_t len);
 
 /* Always returns an empty string or a non-empty string. Never 0. */
 string esb_get_string(struct esb_s *data);

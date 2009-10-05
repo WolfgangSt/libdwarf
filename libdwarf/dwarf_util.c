@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2000,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
-  Portions Copyright (C) 2007,2008 David Anderson. All Rights Reserved.
+  Copyright (C) 2000-2005 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright (C) 2007-2009 David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -58,8 +58,9 @@
 */
 Dwarf_Unsigned
 _dwarf_get_size_of_val(Dwarf_Debug dbg,
-                       Dwarf_Unsigned form,
-                       Dwarf_Small * val_ptr, int v_length_size)
+    Dwarf_Unsigned form,
+    Dwarf_Half address_size,
+    Dwarf_Small * val_ptr, int v_length_size)
 {
     Dwarf_Unsigned length = 0;
     Dwarf_Word leb128_length = 0;
@@ -133,10 +134,10 @@ _dwarf_get_size_of_val(Dwarf_Debug dbg,
                                    never happen. */
             }
             return (indir_len + _dwarf_get_size_of_val(dbg,
-                                                       form_indirect,
-                                                       val_ptr +
-                                                       indir_len,
-                                                       v_length_size));
+                   form_indirect,
+                   address_size,
+                   val_ptr + indir_len,
+                   v_length_size));
         }
 
     case DW_FORM_ref1:
@@ -308,7 +309,7 @@ _dwarf_get_abbrev_for_code(Dwarf_CU_Context cu_context, Dwarf_Unsigned code)
 
     abbrev_ptr = cu_context->cc_last_abbrev_ptr != NULL ?
         cu_context->cc_last_abbrev_ptr :
-        dbg->de_debug_abbrev + cu_context->cc_abbrev_offset;
+        dbg->de_debug_abbrev.dss_data + cu_context->cc_abbrev_offset;
 
     /* End of abbrev's for this cu, since abbrev code is 0. */
     if (*abbrev_ptr == 0) {
@@ -431,7 +432,7 @@ _dwarf_length_of_cu_header(Dwarf_Debug dbg, Dwarf_Unsigned offset)
     int local_length_size = 0;
     int local_extension_size = 0;
     Dwarf_Unsigned length = 0;
-    Dwarf_Small *cuptr = dbg->de_debug_info + offset;
+    Dwarf_Small *cuptr = dbg->de_debug_info.dss_data + offset;
 
     READ_AREA_LENGTH(dbg, length, Dwarf_Unsigned,
                      cuptr, local_length_size, local_extension_size);
@@ -467,22 +468,21 @@ _dwarf_length_of_cu_header_simple(Dwarf_Debug dbg)
 int
 _dwarf_load_debug_info(Dwarf_Debug dbg, Dwarf_Error * error)
 {
-    int res;
+    int res = DW_DLV_ERROR;
 
-    /* Testing de_debug_info allows us to avoid testing
-       de_debug_abbrev. One test instead of 2. .debug_info is useless
+    /* Testing de_debug_info.dss_data allows us to avoid testing
+       de_debug_abbrev.dss_data. 
+       One test instead of 2. .debug_info is useless
        without .debug_abbrev. */
-    if (dbg->de_debug_info) {
+    if (dbg->de_debug_info.dss_data) {
         return DW_DLV_OK;
     }
 
-    res = _dwarf_load_section(dbg, dbg->de_debug_abbrev_index,
-                              &dbg->de_debug_abbrev, error);
+    res = _dwarf_load_section(dbg, &dbg->de_debug_abbrev,error);
     if (res != DW_DLV_OK) {
         return res;
     }
-    res = _dwarf_load_section(dbg, dbg->de_debug_info_index,
-                              &dbg->de_debug_info, error);
+    res = _dwarf_load_section(dbg, &dbg->de_debug_info, error);
     return res;
 
 }
@@ -506,4 +506,18 @@ _dwarf_free_abbrev_hash_table_contents(Dwarf_Debug dbg,Dwarf_Hash_Table hash_tab
     /* Frees all the entries at once: an array. */
     dwarf_dealloc(dbg,hash_table->tb_entries,DW_DLA_HASH_TABLE_ENTRY);
 }
+
+int _dwarf_get_address_size(Dwarf_Debug dbg, Dwarf_Die die)
+{
+    Dwarf_CU_Context context = 0;
+    Dwarf_Half addrsize = 0;
+    if(!die) {
+        return dbg->de_pointer_size;
+    }
+    context = die->di_cu_context;
+    addrsize = context->cc_address_size;
+    return addrsize;
+}
+
+
 

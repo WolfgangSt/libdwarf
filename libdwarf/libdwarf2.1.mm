@@ -8,7 +8,7 @@
 .nr Hb 5
 \." ==============================================
 \." Put current date in the following at each rev
-.ds vE rev 1.72, 30 Dec 2008
+.ds vE rev 1.79, 07 July 2009
 \." ==============================================
 \." ==============================================
 .ds | |
@@ -89,7 +89,7 @@ and a copy of the standard.
 .H 2 "Copyright"
 Copyright 1993-2006 Silicon Graphics, Inc.
 
-Copyright 2007 David Anderson. 
+Copyright 2007-2009 David Anderson. 
 
 Permission is hereby granted to 
 copy or republish or use any or all of this document without
@@ -204,10 +204,44 @@ The following is a brief mention of the changes in this libdwarf from
 the libdwarf draft for DWARF Version 1 and recent changes.
 .H 2 "Items Changed"
 .P
+Added dwarf_set_reloc_application() and the default
+automatic application of Elf 'rela' relocations
+to DWARF sections (such rela sections appear in .o files, not
+in executables or shared objects, in general).
+The  dwarf_set_reloc_application() routine lets a consumer
+turn off the automatic application of 'rela' relocations
+if desired (it is not clear why anyone would really want to do that,
+but possibly a consumer could write its own relocation application).
+An example application that traverses a set of DIEs
+was added to the new dwarfexample directory (not
+in this libdwarf directory, but in parallel to it).
+(July 10, 2009)
+.P
+Added dwarf_get_TAG_name() (and the FORM AT and so on)
+interface functions so applications can get the string
+of the TAG, Attribute, etc as needed. (June 2009)
+.P
+Added dwarf_get_ranges_a() and dwarf_loclist_from_expr_a()
+functions which add arguments allowing a correct address_size
+when the address_size varies by compilation unit (a varying
+address_size is quite rare as of May 2009).
+(May 2009)
+.P
+Added dwarf_set_frame_same_value(), and
+dwarf_set_frame_undefined_value() to complete
+the set of frame-information functions needed to allow
+an application get all frame information
+returned correctly (meaning that it
+can be correctly interpreted) for all ABIs.  
+Documented dwarf_set_frame_cfa_value().
+Corrected spelling to dwarf_set_frame_rule_initial_value().
+(April 2009).
+.P
 Added support for various DWARF3 features, but primarily
 a new frame-information interface tailorable at run-time
 to more than a single ABI.
-See dwarf_set_frame_rule_inital_value() and dwarf_set_frame_rule_table_size().
+See dwarf_set_frame_rule_initial_value(), dwarf_set_frame_rule_table_size(),
+dwarf_set_frame_cfa_value().
 See also dwarf_get_fde_info_for_reg3() and
 dwarf_get_fde_info_for_cfa_reg3().  (April 2006)
 .P
@@ -226,9 +260,10 @@ to operate on the items in the .debug_pubnames section.
 All functions were modified to return solely an error code.
 Data is returned through pointer arguments.
 This makes writing safe and correct library-using-code far easier.
-For justification for this approach, see the book by
-Steve Maguire titled "Writing Solid Code" at your bookstore.
-
+For justification for this approach, see 
+the chapter titled "Candy Machine Interfaces"
+in the book "Writing Solid Code" by
+Steve Maguire.
 
 .H 2 "Items Removed"
 .P
@@ -1318,6 +1353,49 @@ descriptor, an app should use \f(CWdwarf_get_elf\fP
 and should call \f(CWelf_end\fP with the pointer returned
 through the \f(CWElf**\fP handle created by \f(CWint dwarf_init()\fP.
 
+.H 3 "dwarf_set_stringcheck()"
+.DS
+\f(CWint dwarf_set_stringcheck(
+        int stringcheck)\fP
+.DE
+The function
+\f(CWint dwarf_set_stringcheck()\fP sets a global flag
+and returns the previous value of the global flag.
+
+If the stringcheck global flag is zero (the default)
+libdwarf does not do string length validity checks.
+If the stringcheck global flag is non-zero 
+libdwarf does do string length validity checks (the checks
+do slow libdwarf down).
+
+The global flag is really just 8 bits long, upperbits are not noticed
+or recorded.
+
+.H 3 "dwarf_set_reloc_application()"
+.DS
+\f(CWint dwarf_set_reloc_application(
+        int apply)\fP
+.DE
+The function
+\f(CWint dwarf_set_reloc_application()\fP sets a global flag
+and returns the previous value of the global flag.
+
+If the reloc_application global flag is non-zero (the default)
+then the applicable .rela section (if one exists) will be
+processed and applied to any DWARF section when it is read in.
+If the reloc_application global flag is zero no such
+relocation-application is attempted.
+
+Not all 
+machine types (elf header e_machine) 
+or all relocations are supported, but then very few
+relocation types apply to DWARF debug sections.
+
+The global flag is really just 8 bits long, upperbits are not noticed
+or recorded. 
+
+It seems unlikely anyone will need to call this function.
+
 .H 2 "Debugging Information Entry Delivery Operations"
 These functions are concerned with accessing debugging information 
 entries. 
@@ -1374,10 +1452,34 @@ When it succeeds,
 \f(CWdwarf_siblingof()\fP returns
 \f(CWDW_DLV_OK\fP  and sets \f(CW*return_sib\fP to the \f(CWDwarf_Die\fP 
 descriptor of the sibling of \f(CWdie\fP.
+
 If \f(CWdie\fP is \fINULL\fP, the \f(CWDwarf_Die\fP descriptor of the
 first die in the compilation-unit is returned.  
 This die has the
-\f(CWDW_TAG_compile_unit\fP tag.
+\f(CWDW_TAG_compile_unit\fP,
+\f(CWDW_TAG_partial_unit\fP,
+or \f(CWDW_TAG_type_unit\fP
+tag.
+
+.in +2
+.DS
+\f(CWDwarf_Die return_sib = 0;
+Dwarf_Error error = 0;
+int res;
+/* in_die might be NULL or a vaid Dwarf_Die */
+res = dwarf_siblingof(dbg,in_die,&return_sib, &error);
+if (res == DW_DLV_OK) {
+   /* Use return_sib here. */
+   dwarf_dealloc(dbg, return_sib, DW_DLA_DIE);
+   /* return_sib is no longer usable for anything, we
+      ensure we do not use it accidentally with: */
+   return_sib = 0;
+}\fP
+.DE
+.in -2
+
+
+
 .H 3 "dwarf_child()"
 .DS
 \f(CWint dwarf_child(
@@ -1396,6 +1498,23 @@ of the first child of \f(CWdie\fP.
 The function 
 \f(CWdwarf_siblingof()\fP can be used with the return value of 
 \f(CWdwarf_child()\fP to access the other children of \f(CWdie\fP. 
+
+.in +2
+.DS
+\f(CWDwarf_Die return_kid = 0;
+Dwarf_Error error = 0;
+int res;
+
+res = dwarf_child(dbg,in_die,&return_kid, &error);
+if (res == DW_DLV_OK) {
+   /* Use return_kid here. */
+   dwarf_dealloc(dbg, return_kid, DW_DLA_DIE);
+   /* return_die is no longer usable for anything, we
+      ensure we do not use it accidentally with: */
+   return_kid = 0;
+}\fP
+.DE
+.in -2
 
 .H 3 "dwarf_offdie()"
 .DS
@@ -1426,6 +1545,24 @@ It is the user's
 responsibility to make sure that \f(CWoffset\fP is the start of a valid 
 debugging information entry.  The result of passing it an invalid 
 offset could be chaos.
+
+.in +2
+.DS
+\f(CWDwarf_Error error = 0;
+Dwarf_Die return_die = 0;
+int res;
+
+res = dwarf_offdie(dbg,die_offset,&return_die, &error);
+if (res == DW_DLV_OK) {
+   /* Use return_die here. */
+   dwarf_dealloc(dbg, return_die, DW_DLA_DIE);
+   /* return_die is no longer usable for anything, we
+      ensure we do not use it accidentally with: */
+   return_die = 0;
+}\fP
+.DE
+.in -2
+
 
 .\"#if 0
 .\".H 3 "Debugging Entry Delivery High-level Operations"
@@ -1561,6 +1698,57 @@ The function \f(CWdwarf_die_CU_offset()\fP is similar to
 represented by the \f(CWDwarf_Die\fP \f(CWdie\fP, from the 
 start of the compilation-unit that it belongs to rather than the start 
 of .debug_info (the \f(CWreturn_offset\fP is a CU-relative offset).  
+
+.H 3 "dwarf_CU_dieoffset_given_die()"
+.DS
+\f(CWint dwarf_CU_dieoffset_given_die(
+        Dwarf_Die given_die,
+  	Dwarf_Off *return_offset,
+        Dwarf_Error *error)\fP
+.DE
+The function \f(CWdwarf_CU_dieoffset_given_die()\fP is similar to 
+\f(CWdwarf_die_CU_offset()\fP, except that it puts the 
+global offset of the CU DIE owning \f(CWgiven_die\fP 
+of .debug_info (the \f(CWreturn_offset\fP is a global section offset).  
+.P
+This is useful when processing a DIE tree and encountering
+an error or other surprise in a DIE, as the \f(CWreturn_offset\fP
+can be passed to \f(CWdwarf_offdie()\fP to return a pointer
+to the CU die of the CU owning the \f(CWgiven_die\fP passed
+to \f(CWdwarf_CU_dieoffset_given_die()\fP. The consumer can
+extract information from the CU die and the \f(CWgiven_die\fP  
+(in the normal way) and print it.
+
+An example  (a snippet) of code using this function
+follows. It assumes that \f(CWin_die\fP is a DIE
+that, for some reason, you have decided needs CU context
+printed (assuming \f(CWprint_die_data\fP 
+does some reasonable printing).
+
+.in +2
+.DS
+int res;
+Dwarf_Off cudieoff = 0;
+Dwarf_Die cudie = 0;
+
+print_die_data(dbg,in_die);
+res = dwarf_CU_dieoffset_given_die(in_die,&cudieoff,&error);
+if(res != DW_DLV_OK) {
+    printf("FAIL: dwarf_CU_dieoffset_given_die did not work\n");
+    exit(1);
+}
+res = dwarf_offdie(dbg,cudieoff,&cudie,&error);
+if(res != DW_DLV_OK) {
+    printf("FAIL: dwarf_offdie did not work\n");
+    exit(1);
+}
+print_die_data(dbg,cudie);
+dwarf_dealloc(dbg,cudie, DW_DLA_DIE);
+.DE
+.in -2
+
+
+
 .H 3 "dwarf_die_CU_offset_range()"
 .DS
 \f(CWint dwarf_die_CU_offset_range(
@@ -2271,6 +2459,10 @@ Some sources of bytes of expressions are dwarf expressions
 in frame operations like \f(CWDW_CFA_def_cfa_expression\fP,
 \f(CWDW_CFA_expression\fP, and  \f(CWDW_CFA_val_expression\fP.
 .P
+Any address_size data in the location expression is assumed
+to be the same size as the default address_size for the object
+being read (normally 4 or 8).
+.P
 It returns \f(CWDW_DLV_ERROR\fP on error. 
 .P
 Storage allocated by a successful call of \f(CWdwarf_loclist_from_expr()\fP should 
@@ -2303,6 +2495,26 @@ if (lres == DW_DLV_OK) {
 .in -2
 .P
 
+.H 4 "dwarf_loclist_from_expr_a()"
+.DS
+\f(CWint dwarf_loclist_from_expr_a(
+        Dwarf_Ptr bytes_in, 
+        Dwarf_Unsigned bytes_len,
+        Dwarf_Half addr_size,
+        Dwarf_Locdesc **llbuf,
+        Dwarf_Signed  *listlen,
+        Dwarf_Error *error)\fP
+.DE
+The function \f(CWdwarf_loclist_from_expr_a()\fP 
+is identical to  \f(CWdwarf_loclist_from_expr()\fP
+in every way except that the caller passes the additional argument 
+\f(CWaddr_size\fP containing the address size (normally 4 or 8)
+applying this location expression.
+.P
+The \f(CWaddr_size\fP argument (added 27April2009) is needed
+to correctly interpret frame information as different compilation
+units can have different address sizes.
+DWARF4 adds address_size to the CIE header.
 
 .P
 .H 2 "Line Number Operations"
@@ -2410,7 +2622,11 @@ files named in the statement program prologue indicated by the given
 \f(CWdie\fP
 into \f(CW*srccount\fP.  
 Source files defined in the statement program are ignored.
-The given \f(CWdie\fP should have the tag \f(CWDW_TAG_compile_unit\fP.
+The given \f(CWdie\fP should have the tag 
+\f(CWDW_TAG_compile_unit\fP,
+\f(CWDW_TAG_partial_unit\fP,
+or \f(CWDW_TAG_type_unit\fP
+.
 The location pointed to by \f(CWsrcfiles\fP is set to point to a list
 of pointers to null-terminated strings that name the source
 files.  
@@ -3765,10 +3981,15 @@ dwarf_get_fde_info_for_reg() and dwarf_get_fde_info_for_all_regs() below)
 and works adequately for MIPS/IRIX DWARF2 and ABI/ISA sets
 that are sufficiently similar (but the settings for non-MIPS
 must be set into libdwarf.h and cannot be changed at runtime).
+These functions not a good choice for non-MIPS architectures nor
+were they a good design for MIPS either.
+It's better to switch entirely to the new functions mentioned
+in the next paragraph.
 .P
 A new interface  set of dwarf_get_fde_info_for_reg3(),
 dwarf_get_fde_info_for_cfa_reg3(), dwarf_get_fde_info_for_all_regs3()
-dwarf_set_frame_rule_inital_value(), dwarf_set_frame_rule_table_size()
+dwarf_set_frame_rule_initial_value(), dwarf_set_frame_rule_table_size()
+dwarf_set_frame_cfa_value()
 is more flexible
 and should work for many more architectures
 and the setting of  DW_FRAME_CFA_COL and the size of
@@ -3813,15 +4034,17 @@ separately accessible and not part of the table.
 The 'rule number' for the CFA is a number outside the table. 
 So the CFA is a marker, not a register number.
 See  DW_FRAME_CFA_COL3 in libdwarf.h and
-dwarf_get_fde_info_for_cfa_reg3().
+dwarf_get_fde_info_for_cfa_reg3() and
+dwarf_set_frame_rule_cfa_value().
 .P
 (b) When the column is not DW_FRAME_CFA_COL, the 'register'
 will and must be DW_FRAME_CFA_COL, implying that
 to get the final location for the column one must add
 the offset here plus the DW_FRAME_CFA_COL rule value.
 .P
-(c) When the column is DW_FRAME_CFA_COL, then the register
+(c) When the column is DW_FRAME_CFA_COL, then the 'register'
 number is (must be) a real hardware register .
+(This paragraph does not apply to the April 2006 new interface).
 If it were DW_FRAME_UNDEFINED_VAL or DW_FRAME_SAME_VAL
 it would be a marker, not a register number.
 .P
@@ -3908,7 +4131,7 @@ DW_FRAME_UNDEFINED_VAL:1034:means undefined value.
 DW_FRAME_SAME_VAL:1035:means 'same value' as
 ::caller had. Not a column or
 ::register value
-DW_FRAME_CFA_COL3:1036:means 'cfa register' is referred to,
+DW_FRAME_CFA_COL3:1436:means 'cfa register' is referred to,
 ::not a real register, not a column, but the cfa (the cfa
 ::does have a value, but in the DWARF3 libdwarf interface
 ::it does not have a 'real register number').
@@ -4303,7 +4526,7 @@ The function returns
 the previous value of the rules table size setting (taken from the 
 \f(CWdbg\fP structure).
 
-.H 4 "dwarf_set_frame_rule_inital_value()"
+.H 4 "dwarf_set_frame_rule_initial_value()"
 This allows consumers to set the initial value
 for rows in the frame tables.  By default it
 is taken from libdwarf.h and is DW_FRAME_REG_INITIAL_VALUE
@@ -4312,18 +4535,83 @@ The MIPS/IRIX default is DW_FRAME_SAME_VAL.
 Consumer code should set this appropriately and for
 many architectures (but probably not MIPS) DW_FRAME_UNDEFINED_VAL is an
 appropriate setting.
+Note: an earlier spelling of dwarf_set_frame_rule_inital_value()
+is still supported as an interface, but please change to use
+the new correctly spelled name.
 .DS
 \f(CWDwarf_Half
-dwarf_set_frame_rule_inital_value(Dwarf_Debug dbg,
+dwarf_set_frame_rule_initial_value(Dwarf_Debug dbg,
          Dwarf_Half value);\fP
 
 .DE
-\f(CWdwarf_set_frame_rule_inital_value()\fP sets the
+\f(CWdwarf_set_frame_rule_initial_value()\fP sets the
 value \f(CWvalue\fP as the initial value for this \f(CWdbg\fP
 when initializing rules tables.  The function returns
 the previous value of the initial setting (taken from the 
 \f(CWdbg\fP structure).
 
+.H 4 "dwarf_set_frame_cfa_value()"
+This allows consumers to set the number of the CFA register
+for rows in the frame tables.  By default it
+is taken from libdwarf.h and is \f(CWDW_FRAME_CFA_COL\fP.
+Consumer code should set this appropriately and for
+nearly all architectures \f(CWDW_FRAME_CFA_COL3\fP is an
+appropriate setting.
+.DS
+\f(CWDwarf_Half
+dwarf_set_frame_rule_cfa_value(Dwarf_Debug dbg,
+         Dwarf_Half value);\fP
+
+.DE
+\f(CWdwarf_set_frame_rule_cfa_value()\fP sets the
+value \f(CWvalue\fP as the  number of the cfa 'register rule'
+for this \f(CWdbg\fP
+when initializing rules tables.  The function returns
+the previous value of the initial setting (taken from the
+\f(CWdbg\fP structure).
+
+.H 4 "dwarf_set_frame_same_value()"
+This allows consumers to set the number of the pseudo-register
+when DW_CFA_same_value is the operation.  By default it
+is taken from libdwarf.h and is \f(CWDW_FRAME_SAME_VAL\fP.
+Consumer code should set this appropriately, though for
+many architectures \f(CWDW_FRAME_SAME_VAL\fP is an
+appropriate setting.
+.DS
+\f(CWDwarf_Half
+dwarf_set_frame_rule_same_value(Dwarf_Debug dbg,
+         Dwarf_Half value);\fP
+
+.DE
+\f(CWdwarf_set_frame_rule_same_value()\fP sets the
+value \f(CWvalue\fP as the  number of the register
+that is the pseudo-register set by the DW_CFA_same_value
+frame operation.
+The function returns
+the previous value of the initial setting (taken from the
+\f(CWdbg\fP structure).
+
+
+.H 4 "dwarf_set_frame_undefined_value()"
+This allows consumers to set the number of the pseudo-register
+ when DW_CFA_undefined_value is the operation.  By default it
+is taken from libdwarf.h and is \f(CWDW_FRAME_UNDEFINED_VAL\fP.
+Consumer code should set this appropriately, though for
+many architectures \f(CWDW_FRAME_UNDEFINED_VAL\fP is an
+appropriate setting.
+.DS
+\f(CWDwarf_Half
+dwarf_set_frame_rule_undefined_value(Dwarf_Debug dbg,
+         Dwarf_Half value);\fP
+
+.DE
+\f(CWdwarf_set_frame_rule_undefined_value()\fP sets the
+value \f(CWvalue\fP as the  number of the register
+that is the pseudo-register set by the DW_CFA_undefined_value
+frame operation.
+The function returns
+the previous value of the initial setting (taken from the
+\f(CWdbg\fP structure).
 
 
 .H 4 "dwarf_get_fde_info_for_reg3()"
@@ -4331,6 +4619,13 @@ This interface is suitable for DWARF3 and DWARF2.
 It returns the values for a particular real register
 (Not for the CFA register, see dwarf_get_fde_info_for_cfa_reg3()
 below).
+If the application is going to retrieve the value for more
+than a few \f(CWtable_column\fP values at this \f(CWpc_requested\fP
+(by calling this function multiple times)
+it is much more efficient to
+call dwarf_get_fde_info_for_all_regs3() (in spite
+of the additional setup that requires of the caller).
+
 .DS
 \f(CWint dwarf_get_fde_info_for_reg3(
         Dwarf_Fde fde,
@@ -4344,7 +4639,7 @@ below).
         Dwarf_Addr   *row_pc,
         Dwarf_Error  *error);\fP
 .DE
-\f(CWdwarf_get_fde_info_for_re3()\fP returns
+\f(CWdwarf_get_fde_info_for_reg3()\fP returns
 \f(CWDW_DLV_OK\fP on success. 
 It sets \f(CW*value_type\fP
 to one of  DW_EXPR_OFFSET (0),
@@ -4492,7 +4787,7 @@ of the register (see the earlier documentation of Dwarf_Regtable3).
 the Dwarf_Regtable3 documentation above for a description of
 the values for each row.
 
-\f(CWdwarf_get_fde_info_for_all_regs\fP returns \f(CWDW_DLV_ERROR\fP if there is an error. 
+\f(CWdwarf_get_fde_info_for_all_regs3\fP returns \f(CWDW_DLV_ERROR\fP if there is an error. 
 
 It is up to the caller to allocate space for 
 \f(CW*reg_table\fP and initialize it properly.
@@ -4657,6 +4952,19 @@ the high pc \f(CWhipc_offset\fP, low pc
 \f(CWdata\fP, the length of the location description data 
 \f(CWentry_len\fP, and the offset of the next location description 
 entry \f(CWnext_entry\fP.  
+.P
+This function will usually work correctly (meaning with most
+objects) but will not work correctly (and can crash
+an application calling it) if either
+some location list applies to a compilation unit with
+an address_size different from the overall address_size
+of the object file being read or if the .debug_loc section
+being read has random padding bytes between loclists.
+Neither of these characteristics necessarily represents
+a bug in the compiler/linker toolset that produced the 
+object file being read.  The DWARF standard
+allows both characteristics.
+.P
 \f(CWdwarf_dwarf_get_loclist_entry()\fP returns 
 \f(CWDW_DLV_OK\fP if successful.
 \f(CWDW_DLV_NO_ENTRY\fP is returned when the offset passed
@@ -4991,31 +5299,56 @@ and does not set \f(CW*addr_size\fP.
 .H 2 "Ranges Operations (.debug_ranges)"
 These functions provide information about the address ranges
 indicated by a  \f(CWDW_AT_ranges\fP attribute (the ranges are recorded
-in the  \f(CW.debug_ranges\fP section).  
-Each call of \f(CWdwarf_get_ranges()\fP returns a an array
+in the  \f(CW.debug_ranges\fP section) of a DIE.  
+Each call of \f(CWdwarf_get_ranges_a()\fP 
+or \f(CWdwarf_get_ranges()\fP 
+returns a an array
 of Dwarf_Ranges structs, each of which represents a single ranges
 entry.   The struct is defined in  \f(CWlibdwarf.h\fP.
 
+
 .H 3 "dwarf_get_ranges()"
+This is the original call and it will work fine when
+all compilation units have the same address_size.
+There is no \f(CWdie\fP argument to this original
+version of the function. 
+Other arguments (and deallocation) match the use
+of  \f(CWdwarf_get_ranges_a()\fP ( described next).
+
+.H 3 "dwarf_get_ranges_a()"
 .DS
-\f(CWint dwarf_get_ranges(
+\f(CWint dwarf_get_ranges_a(
         Dwarf_Debug dbg,
         Dwarf_Off  offset,
+        Dwarf_Die  die,
         Dwarf_Ranges **ranges,
         Dwarf_Signed * returned_ranges_count,
         Dwarf_Unsigned * returned_byte_count,
         Dwarf_Error *error)\fP
 .DE
-The function \f(CWdwarf_get_ranges()\fP returns 
+The function \f(CWdwarf_get_ranges_a()\fP returns 
 \f(CWDW_DLV_OK\fP and sets \f(CW*returned_ranges_count\fP to
 the count of the
 number of address ranges in the group of ranges 
 in the .debug_ranges section at offset  \f(CWoffset\fP
 (which ends with a pair of zeros of pointer-size).
+This function is new as of 27 April 2009.
 
 The
 \f(CWoffset\fP argument should be the value of 
 a \f(CWDW_AT_ranges\fP attribute of a Debugging Information Entry. 
+
+The
+\f(CWdie\fP argument should be the value of 
+a \f(CWDwarf_Die\fP pointer of a \f(CWDwarf_Die\fP with
+the attribute containing
+this range set offset.  Because each compilation unit
+has its own address_size field this argument is necessary to
+to correctly read ranges. (Most executables have the
+same address_size in every compilation unit, but
+some ABIs allow multiple address sized in an executable).
+If a NULL pointer is passed in libdwarf assumes
+a single address_size is appropriate for all ranges records.
 
 The call sets
 \f(CW*ranges\fP to point to a block of \f(CWDwarf_Ranges\fP 
@@ -5042,7 +5375,7 @@ dumper applications, most applications will not use it.
 Dwarf_Ranges *ranges;
 Dwarf_Unsigned bytes;
 int res;
-res = dwarf_get_ranges(dbg,off, &ranges,&cnt,&bytes,&error);
+res = dwarf_get_ranges_a(dbg,off,dieptr, &ranges,&cnt,&bytes,&error);
 if (res == DW_DLV_OK) {
         Dwarf_Signed i;
         for( i = 0; i < cnt; ++i ) {
@@ -5067,6 +5400,145 @@ to a block of \f(CWDwarf_Ranges\fP array and the
 number of structures in the block.  
 It frees all the data in the array of structures.
 
+.H 2 "TAG ATTR etc names as strings"
+These functions turn a value into a string.  
+So applications wanting the string "DW_TAG_compile_unit"
+given the value 0x11 (the value defined for this TAG) can do so easily.
+
+The general form is
+.in +2
+.DS
+\f(CWint dwarf_get_<something>_name(
+        unsigned value,
+        char **s_out,
+        );\fP
+.DE
+.in -2
+
+If the \f(CWvalue\fP passed in is known, the function
+returns \f(CWDW_DLV_OK\fP and places a pointer to the appropriate string
+into  \f(CW*s_out\fP.   The string is in static storage
+and applications must never free the string.
+If the \f(CWvalue\fP is not known, \f(CWDW_DLV_NO_ENTRY\fP is returned
+and \f(CW*s_out\fP is not set.  \f(CWDW_DLV_ERROR\fP is never returned.
+
+\f(CWLibdwarf\fP generates these functions at libdwarf build time
+by reading dwarf.h.
+
+All these follow this pattern rigidly, so the details of each
+are not repeated for each function.
+
+The choice of 'unsigned' for the value type argument (the code value)
+argument is somewhat arbitrary, 'int' could have been used.
+
+The library simply assumes the value passed in is applicable.
+So, for example,
+passing a TAG value code to  \f(CWdwarf_get_ACCESS_name()\fP
+is a coding error which libdwarf will process as if it was
+an accessibility code value.
+Examples of bad and good usage are:
+
+.in +2
+.DS
+\f(CW
+     const char * out;
+     int res;
+     /* The following is wrong, do not do it! */
+     res = dwarf_get_ACCESS_name(DW_TAG_entry_point,&out);
+     /* Nothing one does here with 'res' or 'out'
+        is meaningful. */
+
+     /* The following is meaningful.*/
+     res = dwarf_get_TAG_name(DW_TAG_entry_point,&out);
+     if( res == DW_DLV_OK) {
+        /* Here 'out' is a pointer one can use which
+           points to the string "DW_TAG_entry_point". */
+     } else {
+        /* Here 'out' has not been touched, it is 
+           uninitialized.  Do not use it. */
+     }
+\fP
+.DE
+.in -2
+
+
+
+
+.H 2 "dwarf_get_ACCESS_name()"
+Returns an accessibility code name  through the \f(CWs_out\fP pointer.
+.H 2 "dwarf_get_AT_name()"
+Returns an attribute code name  through the \f(CWs_out\fP pointer.
+.H 2 "dwarf_get_ATE_name()"
+Returns a base type encoding name  through the \f(CWs_out\fP pointer.
+.H 2 "dwarf_get_ADDR_name()"
+Returns an address type encoding name  through the \f(CWs_out\fP pointer.
+As of this writing only  \f(CWDW_ADDR_none\fP is defined in  \f(CWdwarf.h\fP.
+.H 2 "dwarf_get_ATCF_name()"
+Returns a SUN code flag encoding name  through the \f(CWs_out\fP pointer.
+This code flag is entirely a DWARF extension.
+.H 2 "dwarf_get_CHILDREN_name()"
+Returns a child determination name (which
+is seen in the abbreviations section data) through the \f(CWs_out\fP pointer.
+The only value this recognizes for a 'yes' value is 1.
+As a flag value this is not quite correct (any non-zero value means
+yes) but dealing with this is left up to client code (normally
+compilers really do emit a value of 1 for a flag).
+.H 2 "dwarf_get_children_name()"
+Returns a child determination name through the \f(CWs_out\fP pointer,
+though this version is really a libdwarf artifact.
+The standard function is  \f(CWdwarf_get_CHILDREN_name()\fP
+which appears just above.
+As a flag value this is not quite correct (any non-zero value means
+yes) but dealing with this is left up to client code (normally
+compilers really do emit a value of 1 for a flag).
+.H 2 "dwarf_get_CC_name()"
+Returns  a calling convention case code name through the \f(CWs_out\fP pointer.
+.H 2 "dwarf_get_CFA_name()"
+Returns  a call frame information instruction
+name through the \f(CWs_out\fP pointer.
+.H 2 "dwarf_get_DS_name()"
+Returns a decimal sign code name  through the \f(CWs_out\fP pointer.
+.H 2 "dwarf_get_DSC_name()"
+Returns  a discriminant descriptor code name through the \f(CWs_out\fP pointer.
+.H 2 "dwarf_get_EH_name()"
+Returns  a GNU exception header
+code name through the \f(CWs_out\fP pointer.
+.H 2 "dwarf_get_END_name()"
+Returns an endian code name  through the \f(CWs_out\fP pointer.
+.H 2 "dwarf_get_FORM_name()"
+Returns an form code name  through the \f(CWs_out\fP pointer.
+.H 2 "dwarf_get_FRAME_name()"
+Returns a frame code name  through the \f(CWs_out\fP pointer.
+These are dependent on the particular ABI, so unless the
+\f(CWdwarf.h\fP used to generate libdwarf matches your ABI
+these names are unlikely to be very useful and certainly
+won't be entirely appropriate.
+.H 2 "dwarf_get_ID_name()"
+Returns  an identifier case code name through the \f(CWs_out\fP pointer.
+.H 2 "dwarf_get_INL_name()"
+Returns  an inline code name through the \f(CWs_out\fP pointer.
+.H 2 "dwarf_get_LANG_name()"
+Returns  a language code name through the \f(CWs_out\fP pointer.
+.H 2 "dwarf_get_LNE_name()"
+Returns  a line table extended
+opcode code name through the \f(CWs_out\fP pointer.
+.H 2 "dwarf_get_LNS_name()"
+Returns  a line table standard
+opcode code name through the \f(CWs_out\fP pointer.
+.H 2 "dwarf_get_MACINFO_name()"
+Returns  a macro information macinfo
+code name through the \f(CWs_out\fP pointer.
+.H 2 "dwarf_get_OP_name()"
+Returns  a DWARF expression operation
+code name through the \f(CWs_out\fP pointer.
+.H 2 "dwarf_get_ORD_name()"
+Returns  an array ordering code name through the \f(CWs_out\fP pointer.
+.H 2 "dwarf_get_TAG_name()"
+Returns  a TAG name through the \f(CWs_out\fP pointer.
+.H 2 "dwarf_get_VIRTUALITY_name()"
+Returns  a virtuality code name through the \f(CWs_out\fP pointer.
+.H 2 "dwarf_get_VIS_name()"
+Returns a visibility code name  through the \f(CWs_out\fP pointer.
 
 
 .H 2 "Utility Operations"

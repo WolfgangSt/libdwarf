@@ -1,7 +1,7 @@
 /*
 
-  Copyright (C) 2000,2002,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
-  Portions Copyright (C) 2007 David Anderson. All Rights Reserved.
+  Copyright (C) 2000-2005 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright (C) 2007-2009 David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -90,16 +90,14 @@ dwarf_get_globals(Dwarf_Debug dbg,
     Dwarf_Global ** globals,
     Dwarf_Signed * return_count, Dwarf_Error * error)
 {
-    int res = _dwarf_load_section(dbg,
-        dbg->de_debug_pubnames_index,
-        &dbg->de_debug_pubnames, error);
+    int res = _dwarf_load_section(dbg, &dbg->de_debug_pubnames,error);
     if (res != DW_DLV_OK) {
         return res;
     }
 
     return _dwarf_internal_get_pubnames_like_data(dbg,
-        dbg->de_debug_pubnames,
-        dbg->de_debug_pubnames_size,
+        dbg->de_debug_pubnames.dss_data,
+        dbg->de_debug_pubnames.dss_size,
         globals, 
         return_count,
         error,
@@ -209,7 +207,7 @@ _dwarf_internal_get_pubnames_like_data(Dwarf_Debug dbg,
         return (DW_DLV_ERROR);
     }
     /* We will eventually need the .debug_info data. Load it now. */
-    if (!dbg->de_debug_info) {
+    if (!dbg->de_debug_info.dss_data) {
         int res = _dwarf_load_debug_info(dbg, error);
 
         if (res != DW_DLV_OK) {
@@ -523,8 +521,8 @@ dwarf_global_name_offsets(Dwarf_Global global,
         _dwarf_error(NULL, error, DW_DLE_DBG_NULL);
         return (DW_DLV_ERROR);
     }
-    if (dbg->de_debug_info_size &&
-        ((off + MIN_CU_HDR_SIZE) >= dbg->de_debug_info_size)) {
+    if (dbg->de_debug_info.dss_size &&
+        ((off + MIN_CU_HDR_SIZE) >= dbg->de_debug_info.dss_size)) {
         _dwarf_error(NULL, error, DW_DLE_OFFSET_BAD);
         return (DW_DLV_ERROR);
     }
@@ -545,7 +543,7 @@ dwarf_global_name_offsets(Dwarf_Global global,
            _dwarf_length_of_cu_header() will step off the end and
            therefore must not be used. 10 is a meaningless heuristic,
            but no CU header is that small so it is safe. */
-        if ((off + 10) >= dbg->de_debug_info_size) {
+        if ((off + 10) >= dbg->de_debug_info.dss_size) {
             _dwarf_error(NULL, error, DW_DLE_OFFSET_BAD);
             return (DW_DLV_ERROR);
         }
@@ -563,16 +561,16 @@ dwarf_global_name_offsets(Dwarf_Global global,
         New June, 2001.
         Used by SGI debuggers.
         No error is possible.
+
+        See also dwarf_CU_dieoffset_given_die().
 */
 
 /* ARGSUSED */
 int
 dwarf_get_cu_die_offset_given_cu_header_offset(Dwarf_Debug dbg,
-                                               Dwarf_Off
-                                               in_cu_header_offset,
-                                               Dwarf_Off *
-                                               out_cu_die_offset,
-                                               Dwarf_Error * err)
+    Dwarf_Off in_cu_header_offset,
+    Dwarf_Off * out_cu_die_offset,
+    Dwarf_Error * err)
 {
     Dwarf_Off len =
         _dwarf_length_of_cu_header(dbg, in_cu_header_offset);
@@ -580,5 +578,30 @@ dwarf_get_cu_die_offset_given_cu_header_offset(Dwarf_Debug dbg,
     Dwarf_Off newoff = in_cu_header_offset + len;
 
     *out_cu_die_offset = newoff;
+    return DW_DLV_OK;
+}
+/* dwarf_CU_dieoffset_given_die returns
+   the global debug_info section offset of the CU die
+   that is the CU containing the given (passed-in) die. 
+   This information makes it possible for a consumer to
+   find and print context information for any die. 
+
+   Use dwarf_offdie() passing in the offset this returns
+   to get a die pointer to the CU die.
+ */  
+int 
+dwarf_CU_dieoffset_given_die(Dwarf_Die die,
+    Dwarf_Off*       return_offset,
+    Dwarf_Error*     error)
+{   
+    Dwarf_Off  dieoff = 0;
+    Dwarf_CU_Context cucontext = 0;
+    
+    CHECK_DIE(die, DW_DLV_ERROR);
+    cucontext = die->di_cu_context;
+    dieoff =  cucontext->cc_debug_info_offset;
+    /* The following call cannot fail, so no error check. */
+    dwarf_get_cu_die_offset_given_cu_header_offset(
+       cucontext->cc_dbg, dieoff, return_offset,error);
     return DW_DLV_OK;
 }

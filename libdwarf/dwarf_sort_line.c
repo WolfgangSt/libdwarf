@@ -1,6 +1,6 @@
 /*
   Copyright (C) 2000,2002,2004,2006 Silicon Graphics, Inc.  All Rights Reserved.
-  Portions Copyright (C) 2007,2008 David Anderson. All Rights Reserved.
+  Portions Copyright (C) 2007-2009 David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -383,11 +383,12 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
         Dwarf_Small *line_ptr_out = 0;
         Dwarf_Error error;
         int dres = dwarf_read_line_table_prefix(dbg,
-                                                line_ptr,
-                                                remaining_bytes,
-                                                &line_ptr_out,
-                                                &prefix, 
-                                                NULL, NULL,&error);
+            line_ptr,
+            remaining_bytes,
+            &line_ptr_out,
+            &prefix, 
+            NULL, NULL,&error,
+            NULL);
 
         if (dres == DW_DLV_ERROR) {
             dwarf_free_line_table_prefix(&prefix);
@@ -566,7 +567,6 @@ _dwarf_update_line_sec(Dwarf_Small * line_ptr,
                            local so we record it wrong. declare an
                            error. */
                         dwarf_free_line_table_prefix(&prefix);
-
                         *err_code = DW_DLE_LINE_NUM_OPERANDS_BAD;
                         free_area_data(area_base);
                         return (DW_DLV_ERROR);

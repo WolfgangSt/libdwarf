@@ -1,7 +1,7 @@
 /*
 
-  Copyright (C) 2000,2002,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
-  Portions Copyright (C) 2007,2008  David Anderson. All Rights Reserved.
+  Copyright (C) 2000-2005 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright (C) 2007-2009  David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -73,12 +73,12 @@ static void _dwarf_free_special_error(Dwarf_Ptr space);
 
 #ifdef DWARF_SIMPLE_MALLOC
 static void _dwarf_simple_malloc_add_to_list(Dwarf_Debug dbg,
-                                             Dwarf_Ptr addr,
-                                             unsigned long size,
-                                             short alloc_type);
+    Dwarf_Ptr addr,
+    unsigned long size,
+    short alloc_type);
 static void _dwarf_simple_malloc_delete_from_list(Dwarf_Debug dbg,
-                                                  Dwarf_Ptr space,
-                                                  short alloc_type);
+    Dwarf_Ptr space,
+    short alloc_type);
 void _dwarf_simple_malloc_botch(int err);
 
 #endif /* DWARF_SIMPLE_MALLOC */
@@ -668,62 +668,68 @@ dwarf_dealloc(Dwarf_Debug dbg,
     dwarf_malloc_check_dealloc_data(space, type);
     if (index == 0) {
         if (type == DW_DLA_STRING) {
-            if ((Dwarf_Small *) space >= dbg->de_debug_info &&
+            if ((Dwarf_Small *) space >= dbg->de_debug_info.dss_data &&
                 (Dwarf_Small *) space <
-                dbg->de_debug_info + dbg->de_debug_info_size)
+                dbg->de_debug_info.dss_data + dbg->de_debug_info.dss_size)
                 return;
 
-            if (dbg->de_debug_line != NULL &&
-                (Dwarf_Small *) space >= dbg->de_debug_line &&
+            if (dbg->de_debug_line.dss_data != NULL &&
+                (Dwarf_Small *) space >= dbg->de_debug_line.dss_data &&
                 (Dwarf_Small *) space <
-                dbg->de_debug_line + dbg->de_debug_line_size)
+                dbg->de_debug_line.dss_data + dbg->de_debug_line.dss_size)
                 return;
 
-            if (dbg->de_debug_pubnames != NULL &&
-                (Dwarf_Small *) space >= dbg->de_debug_pubnames &&
+            if (dbg->de_debug_pubnames.dss_data != NULL &&
+                (Dwarf_Small *) space >= dbg->de_debug_pubnames.dss_data &&
                 (Dwarf_Small *) space <
-                dbg->de_debug_pubnames + dbg->de_debug_pubnames_size)
+                dbg->de_debug_pubnames.dss_data + 
+                dbg->de_debug_pubnames.dss_size)
                 return;
 
-            if (dbg->de_debug_frame != NULL &&
-                (Dwarf_Small *) space >= dbg->de_debug_frame &&
+            if (dbg->de_debug_frame.dss_data != NULL &&
+                (Dwarf_Small *) space >= dbg->de_debug_frame.dss_data &&
                 (Dwarf_Small *) space <
-                dbg->de_debug_frame + dbg->de_debug_frame_size)
+                dbg->de_debug_frame.dss_data + dbg->de_debug_frame.dss_size)
                 return;
 
-            if (dbg->de_debug_str != NULL &&
-                (Dwarf_Small *) space >= dbg->de_debug_str &&
+            if (dbg->de_debug_str.dss_data != NULL &&
+                (Dwarf_Small *) space >= dbg->de_debug_str.dss_data &&
                 (Dwarf_Small *) space <
-                dbg->de_debug_str + dbg->de_debug_str_size)
+                dbg->de_debug_str.dss_data + dbg->de_debug_str.dss_size)
                 return;
 
-            if (dbg->de_debug_funcnames != NULL &&
-                (Dwarf_Small *) space >= dbg->de_debug_funcnames &&
+            if (dbg->de_debug_funcnames.dss_data != NULL &&
+                (Dwarf_Small *) space >= dbg->de_debug_funcnames.dss_data &&
                 (Dwarf_Small *) space <
-                dbg->de_debug_funcnames + dbg->de_debug_funcnames_size)
+                dbg->de_debug_funcnames.dss_data + 
+                dbg->de_debug_funcnames.dss_size)
                 return;
 
-            if (dbg->de_debug_typenames != NULL &&
-                (Dwarf_Small *) space >= dbg->de_debug_typenames &&
+            if (dbg->de_debug_typenames.dss_data != NULL &&
+                (Dwarf_Small *) space >= dbg->de_debug_typenames.dss_data &&
                 (Dwarf_Small *) space <
-                dbg->de_debug_typenames + dbg->de_debug_typenames_size)
+                dbg->de_debug_typenames.dss_data + 
+                dbg->de_debug_typenames.dss_size)
                 return;
-            if (dbg->de_debug_pubtypes != NULL &&
-                (Dwarf_Small *) space >= dbg->de_debug_pubtypes &&
+            if (dbg->de_debug_pubtypes.dss_data != NULL &&
+                (Dwarf_Small *) space >= dbg->de_debug_pubtypes.dss_data &&
                 (Dwarf_Small *) space <
-                dbg->de_debug_pubtypes + dbg->de_debug_pubtypes_size)
-                return;
-
-            if (dbg->de_debug_varnames != NULL &&
-                (Dwarf_Small *) space >= dbg->de_debug_varnames &&
-                (Dwarf_Small *) space <
-                dbg->de_debug_varnames + dbg->de_debug_varnames_size)
+                    dbg->de_debug_pubtypes.dss_data + 
+                    dbg->de_debug_pubtypes.dss_size)
                 return;
 
-            if (dbg->de_debug_weaknames != NULL &&
-                (Dwarf_Small *) space >= dbg->de_debug_weaknames &&
+            if (dbg->de_debug_varnames.dss_data != NULL &&
+                (Dwarf_Small *) space >= dbg->de_debug_varnames.dss_data &&
                 (Dwarf_Small *) space <
-                dbg->de_debug_weaknames + dbg->de_debug_weaknames_size)
+                dbg->de_debug_varnames.dss_data + 
+                dbg->de_debug_varnames.dss_size)
+                return;
+
+            if (dbg->de_debug_weaknames.dss_data != NULL &&
+                (Dwarf_Small *) space >= dbg->de_debug_weaknames.dss_data &&
+                (Dwarf_Small *) space <
+                dbg->de_debug_weaknames.dss_data + 
+                dbg->de_debug_weaknames.dss_size)
                 return;
 
 #ifdef DWARF_SIMPLE_MALLOC
@@ -1005,6 +1011,18 @@ _dwarf_recursive_free(Dwarf_Alloc_Area alloc_area)
 }
 #endif
 
+/* In the 'rela' relocation case we might have malloc'd
+   space to ensure it is read-write. In that case, free the space.  */
+static void 
+rela_free(struct Dwarf_Section_s * sec)
+{
+    if (sec->dss_data_was_malloc) {
+        free(sec->dss_data);
+    }
+    sec->dss_data = 0;
+    sec->dss_data_was_malloc = 0;
+}
+
 /*
     Used to free all space allocated for this Dwarf_Debug.
     The caller should assume that the Dwarf_Debug pointer 
@@ -1073,6 +1091,22 @@ _dwarf_free_all_of_one_debug(Dwarf_Debug dbg)
     }
 
 #endif
+    rela_free(&dbg->de_debug_info);
+    rela_free(&dbg->de_debug_abbrev);
+    rela_free(&dbg->de_debug_line);
+    rela_free(&dbg->de_debug_loc);
+    rela_free(&dbg->de_debug_aranges);
+    rela_free(&dbg->de_debug_macinfo);
+    rela_free(&dbg->de_debug_pubnames);
+    rela_free(&dbg->de_debug_str);
+    rela_free(&dbg->de_debug_frame);
+    rela_free(&dbg->de_debug_frame_eh_gnu);
+    rela_free(&dbg->de_debug_pubtypes);
+    rela_free(&dbg->de_debug_funcnames);
+    rela_free(&dbg->de_debug_typenames);
+    rela_free(&dbg->de_debug_varnames);
+    rela_free(&dbg->de_debug_weaknames);
+    rela_free(&dbg->de_debug_ranges);
 
     memset(dbg, 0, sizeof(*dbg)); /* Prevent accidental use later. */
     free(dbg);

@@ -67,6 +67,12 @@ libdwarf.h
   If it's too large nothing is harmed (but some extra space taken
   at run time).
 
+If your printf does not support C standard %llx etc,
+(such as MSWindows with long long), configure
+option --enable-nonstandardprintf
+and defines like DW_PR_DUx etc in libdwarf.h
+provide a way to configure for that relatively easily.
+
 
 The .debug_frame is so very architecture dependent
 and because the host (where libdwarf/dwarfdump are executed)

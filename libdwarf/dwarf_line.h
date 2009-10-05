@@ -1,6 +1,7 @@
 /*
 
   Copyright (C) 2000, 2004, 2006 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright (C) 2009 David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -320,4 +321,5 @@ int dwarf_read_line_table_prefix(Dwarf_Debug dbg,
      * when there is a surprising 'gap' in the .debug_line info. */
     Dwarf_Small ** bogus_bytes_ptr,
     Dwarf_Unsigned * bogus_bytes_count,
-    Dwarf_Error * err);
+    Dwarf_Error * err,
+    int * err_count_out);

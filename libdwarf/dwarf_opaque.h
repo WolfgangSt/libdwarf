@@ -1,7 +1,7 @@
 /*
 
-  Copyright (C) 2000,2002,2003,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
-  Portions Copyright (C) 2007,2008  David Anderson. All Rights Reserved.
+  Copyright (C) 2000-2005 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright (C) 2007-2009  David Anderson. All Rights Reserved.
   Portions Copyright (C) 2008  Arxan Technologies, Inc. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
@@ -89,6 +89,11 @@ struct Dwarf_Attribute_s {
 
     Each die will also contain a pointer to such a struct to 
     record the context for that die.  
+
+    Notice that a pointer to the CU DIE itself is 
+    Dwarf_Off off2 = cu_context->cc_debug_info_offset;
+    cu_die_info_ptr = dbg->de_debug_info.dss_data +
+            off2 + _dwarf_length_of_cu_header(dbg, off2);
     
     **Updated by dwarf_next_cu_header in dwarf_die_deliv.c
 */
@@ -103,12 +108,53 @@ struct Dwarf_CU_Context_s {
     Dwarf_Sword cc_abbrev_offset;
     Dwarf_Small cc_address_size;
     /* cc_debug_info_offset is the offset in the section
-       of the CU header of this CU. */
+       of the CU header of this CU.  Dwarf_Word
+       should be large enough. */
     Dwarf_Word cc_debug_info_offset;
     Dwarf_Byte_Ptr cc_last_abbrev_ptr;
     Dwarf_Hash_Table cc_abbrev_hash_table;
     Dwarf_CU_Context cc_next;
     /*unsigned char cc_offset_length; */
+};
+
+/* Consolidates section-specific data in one place.
+   Section is an Elf specific term, intended as a general
+   term (for non-Elf objects some code must synthesize the 
+   values somehow).
+   Makes adding more section-data much simpler. */
+struct Dwarf_Section_s {
+    Dwarf_Small *  dss_data;
+    Dwarf_Unsigned dss_size;
+    Dwarf_Word     dss_index;
+    /* dss_addr is the 'section address' which is only
+       non-zero for a GNU eh section.
+       Purpose: to handle DW_EH_PE_pcrel encoding. Leaving
+       it zero is fine for non-elf.  */
+    Dwarf_Addr     dss_addr;
+    Dwarf_Small    dss_data_was_malloc;
+
+    /* For non-elf, leaving the following fields zero
+       will mean they are ignored. */
+    /* dss_link should be zero unless a section has a link
+       to another (sh_link).  Used to access relocation data for
+       a section (and for symtab section, access its strtab). */
+    Dwarf_Word     dss_link;
+    /* The following is used when reading .rela sections
+       (such sections appear in some .o files). */
+    Dwarf_Half     dss_reloc_index; /* Zero means ignore the reloc fields. */
+    Dwarf_Small *  dss_reloc_data;
+    Dwarf_Unsigned dss_reloc_size;
+    Dwarf_Addr     dss_reloc_addr;
+    /* dss_reloc_symtab is the sh_link of a .rela to its .symtab, leave
+       it 0 if non-meaningful. */
+    Dwarf_Addr     dss_reloc_symtab;
+    /* dss_reloc_link should be zero unless a reloc section has a link
+       to another (sh_link).  Used to access the symtab for relocations
+       a section. */
+    Dwarf_Word     dss_reloc_link;
+    /* Pointer to the elf symtab, used for elf .rela. Leave it 0
+       if not relevant. */
+    struct Dwarf_Section_s *dss_symtab;
 };
 
 struct Dwarf_Debug_s {
@@ -190,51 +236,33 @@ struct Dwarf_Debug_s {
     Dwarf_Fde *de_fde_data_eh;
     Dwarf_Signed de_fde_count_eh;
 
-    Dwarf_Small *de_debug_info;
-    Dwarf_Small *de_debug_abbrev;
-    Dwarf_Small *de_debug_line;
-    Dwarf_Small *de_debug_loc;
-    Dwarf_Small *de_debug_aranges;
-    Dwarf_Small *de_debug_macinfo;
-    Dwarf_Small *de_debug_pubnames;
-    Dwarf_Small *de_debug_str;
-    Dwarf_Small *de_debug_frame;
-    Dwarf_Small *de_debug_pubtypes; /* DWARF3 .debug_pubtypes */
-    Dwarf_Small *de_debug_frame_eh_gnu;	/* gnu for the g++ eh_frame
-					   section */
-    Dwarf_Addr   de_debug_frame_eh_addr; /* gnu for the g++ eh_frame
-                                           section. Section address
-		                           from Elf. Purpose: to handle
-					DW_EH_PE_pcrel encoding. */
+    struct Dwarf_Section_s de_debug_info; 
+    struct Dwarf_Section_s de_debug_abbrev;
+    struct Dwarf_Section_s de_debug_line;
+    struct Dwarf_Section_s de_debug_loc;
+    struct Dwarf_Section_s de_debug_aranges;
+    struct Dwarf_Section_s de_debug_macinfo;
+    struct Dwarf_Section_s de_debug_pubnames;
+    struct Dwarf_Section_s de_debug_str;
+    struct Dwarf_Section_s de_debug_frame;
 
-    Dwarf_Small *de_debug_funcnames;
-    Dwarf_Small *de_debug_typenames; /* SGI IRIX extension essentially
+    /* gnu: the g++ eh_frame section */
+    struct Dwarf_Section_s de_debug_frame_eh_gnu;
+
+    struct Dwarf_Section_s de_debug_pubtypes; /* DWARF3 .debug_pubtypes */
+
+    struct Dwarf_Section_s de_debug_funcnames;
+    struct Dwarf_Section_s de_debug_typenames; /* SGI IRIX extension essentially
 			identical to DWARF3 .debug_pubtypes. */
-    Dwarf_Small *de_debug_varnames;
-    Dwarf_Small *de_debug_weaknames;
-    Dwarf_Small *de_debug_ranges;	
+    struct Dwarf_Section_s de_debug_varnames;
+    struct Dwarf_Section_s de_debug_weaknames;
+    struct Dwarf_Section_s de_debug_ranges;	
 
-    Dwarf_Unsigned de_debug_info_size;
-    Dwarf_Unsigned de_debug_abbrev_size;
-    Dwarf_Unsigned de_debug_line_size;
-    Dwarf_Unsigned de_debug_loc_size;
-    Dwarf_Unsigned de_debug_aranges_size;
-    Dwarf_Unsigned de_debug_macinfo_size;
-    Dwarf_Unsigned de_debug_pubnames_size;
-    Dwarf_Unsigned de_debug_str_size;
-    Dwarf_Unsigned de_debug_pubtypes_size; /* DWARF3 .debug_pubtypes*/
+    /* For non-elf, simply leave the following two structs zeroed and
+       they will be ignored. */
+    struct Dwarf_Section_s de_elf_symtab;	
+    struct Dwarf_Section_s de_elf_strtab;	
 
-
-    Dwarf_Unsigned de_debug_frame_size;
-
-    Dwarf_Unsigned de_debug_frame_size_eh_gnu;	/* gnu for the g++
-					   eh_frame section */
-
-    Dwarf_Unsigned de_debug_funcnames_size;
-    Dwarf_Unsigned de_debug_typenames_size;
-    Dwarf_Unsigned de_debug_varnames_size;
-    Dwarf_Unsigned de_debug_weaknames_size;
-    Dwarf_Unsigned de_debug_ranges_size;
 
     void *(*de_copy_word) (void *, const void *, size_t);
     unsigned char de_same_endian;
@@ -242,37 +270,14 @@ struct Dwarf_Debug_s {
 	it was dwarf_init (not dwarf_elf_init)
 	so must elf_end() */
 
-    /*
-       The following are used for storing section indicies.
-
-       After a Dwarf_Debug is initialized, a zero for any of
-       these indicies indicates an absent section.
-
-       If the ELF spec is ever changed to permit 32-bit section
-       indicies, these will need to be changed.
-     */
-    Dwarf_Half de_debug_aranges_index;
-    Dwarf_Half de_debug_line_index;
-    Dwarf_Half de_debug_loc_index;
-    Dwarf_Half de_debug_macinfo_index;
-    Dwarf_Half de_debug_pubnames_index;
-    Dwarf_Half de_debug_funcnames_index;
-    Dwarf_Half de_debug_typenames_index;
-    Dwarf_Half de_debug_varnames_index;
-    Dwarf_Half de_debug_weaknames_index;
-    Dwarf_Half de_debug_frame_index;
-    Dwarf_Half de_debug_frame_eh_gnu_index;
-    Dwarf_Half de_debug_str_index;
-    Dwarf_Half de_debug_info_index;
-    Dwarf_Half de_debug_abbrev_index;
-    Dwarf_Half de_debug_pubtypes_index; /* DWARF3 .debug_pubtypes */
-    Dwarf_Half de_debug_ranges_index; /* DWARF3 .debug_ranges */
-
     /* Default is DW_FRAME_INITIAL_VALUE from header. */
     Dwarf_Half de_frame_rule_initial_value;  
 
     /* Default is   DW_FRAME_LAST_REG_NUM. */
     Dwarf_Half de_frame_reg_rules_entry_count; 
+    Dwarf_Half de_frame_cfa_col_number; 
+    Dwarf_Half de_frame_same_value_number; 
+    Dwarf_Half de_frame_undefined_value_number; 
 
 
     unsigned char de_big_endian_object; /* non-zero if big-endian
@@ -307,6 +312,5 @@ void *_dwarf_memcpy_swap_bytes(void *s1, const void *s2, size_t len);
     used to load the section.
  */
 int _dwarf_load_section(Dwarf_Debug,
-		        Dwarf_Half,
-			Dwarf_Small **,
-			Dwarf_Error *);
+    struct Dwarf_Section_s *,
+    Dwarf_Error *);

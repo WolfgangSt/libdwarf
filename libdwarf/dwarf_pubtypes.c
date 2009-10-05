@@ -1,6 +1,7 @@
 /*
 
   Copyright (C) 2000,2002,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright (C) 2009 David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -47,20 +48,20 @@ dwarf_get_pubtypes(Dwarf_Debug dbg,
     Dwarf_Type ** types,
     Dwarf_Signed * ret_type_count, Dwarf_Error * error)
 {
-    int res = _dwarf_load_section(dbg,
-        dbg->de_debug_pubtypes_index,
-        &dbg->de_debug_pubtypes, error);
+    int res = _dwarf_load_section(dbg, &dbg->de_debug_pubtypes,error);
     if (res != DW_DLV_OK) {
         return res;
     }
 
     return _dwarf_internal_get_pubnames_like_data(dbg, 
-        dbg->de_debug_pubtypes, 
-        dbg->de_debug_pubtypes_size, 
-        (Dwarf_Global **) types, /* Type punning for sections with identical format. */
+        dbg->de_debug_pubtypes.dss_data, 
+        dbg->de_debug_pubtypes.dss_size, 
+        (Dwarf_Global **) types, /* Type punning for sections 
+            with identical format. */
         ret_type_count, error, 
         DW_DLA_PUBTYPES_CONTEXT, 
-        DW_DLA_GLOBAL, /* We don't have DW_DLA_PUBTYPES, so use DW_DLA_GLOBAL. */
+        DW_DLA_GLOBAL, /* We don't have DW_DLA_PUBTYPES, 
+            so use DW_DLA_GLOBAL. */
         DW_DLE_DEBUG_PUBTYPES_LENGTH_BAD,
         DW_DLE_DEBUG_PUBTYPES_VERSION_ERROR);
 }
@@ -78,7 +79,8 @@ dwarf_pubtypes_dealloc(Dwarf_Debug dbg, Dwarf_Type * dwgl,
         (Dwarf_Global *) dwgl, 
         count, 
         DW_DLA_PUBTYPES_CONTEXT, 
-        DW_DLA_GLOBAL, /* We don't have DW_DLA_PUBTYPES, so use DW_DLA_GLOBAL. */
+        DW_DLA_GLOBAL, /* We don't have DW_DLA_PUBTYPES, 
+            so use DW_DLA_GLOBAL. */
         DW_DLA_LIST);
     return;
 }

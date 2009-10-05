@@ -1,0 +1,3 @@
+July 8, 2008 David Anderson <davea42@earthlink.net>
+   * Makefile: New trivial Makefile to build the example.
+   * simplereader.c: New trivial example using libdwarf.

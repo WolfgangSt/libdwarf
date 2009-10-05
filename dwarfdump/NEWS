@@ -1,3 +1,38 @@
+June 22, 2009
+  Added the -S option to dwarfdump.
+June 10, 2009
+  Moved the gennames.c code to libdwarf.
+May 4, 2009
+  Replaced awk source-generation of certain functions
+  with new gennames.c code.
+  Now we can print an object with an address_size that
+  varies by compilation unit.
+April 4, 2009
+  Corrected aspects of the frame-printing by ensuring we pass
+  all the information libdwarf needs for fully consistent behavior.
+  Three newly defined libdwarf calls calls made to ensure
+  that better behavior (specifically having dwarfdump consistently
+  recognize when registers are the cfa, undefined-value or same-value
+  pseudo registers). Updated dwarfdump.conf to set these same
+  things consistently.
+Mar 22, 2009
+  The -f and -F flags no longer also imply -i (it just
+  did not make sense to tie them (cannot recall why
+  it might have been tied before).
+Mar 20, 2009
+  Moved print_* functions from print_sections.c to individual
+  source files. Hopefully making the code a bit easier
+  to read.
+Feb 16, 2009
+  Added the -C option.  It is a sort of 'pedantic' option
+  as it turns on warnings about certain commonly used
+  non-standard tag->tag and tag->attr relationships.
+  Added the tag_attr_ext.list  tag_tree_ext.list files which
+  define the 'common use' extensions.
+Feb 14, 2009
+  Added configure option --enable-nonstandardprintf
+  which makes it easy to get printf of Dwarf_Unsigned (etc)
+  types correct even for non-standard compilers.
 December 30, 2008
   Now we print the .debug_ranges section (with -N) 
   and the data for DW_AT_ranges (with -i).

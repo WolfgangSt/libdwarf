@@ -1,6 +1,6 @@
 /*
 
-  Copyright (C) 2008 David Anderson. All Rights Reserved.
+  Copyright (C) 2008-2009 David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -51,10 +51,9 @@ struct ranges_entry {
 
 
 #define MAX_ADDR ((address_size == 8)?0xffffffffffffffffULL:0xffffffff)
-
-
-int dwarf_get_ranges(Dwarf_Debug dbg,
+int dwarf_get_ranges_a(Dwarf_Debug dbg,
     Dwarf_Off rangesoffset,
+    Dwarf_Die die,
     Dwarf_Ranges ** rangesbuf,
     Dwarf_Signed * listlen,
     Dwarf_Unsigned * bytecount,
@@ -63,29 +62,29 @@ int dwarf_get_ranges(Dwarf_Debug dbg,
     Dwarf_Small *rangeptr = 0;
     Dwarf_Small *beginrangeptr = 0;
     Dwarf_Small *section_end = 0;
-    unsigned address_size = 0;
     unsigned entry_count = 0;
     struct ranges_entry *base = 0;
     struct ranges_entry *last = 0;
     struct ranges_entry *curre = 0;
     Dwarf_Ranges * ranges_data_out = 0;
     unsigned copyindex = 0;
+    Dwarf_Half address_size = 0;
+    int res = DW_DLV_ERROR;
 
-    int res = _dwarf_load_section(dbg,
-        dbg->de_debug_ranges_index,
-        &dbg->de_debug_ranges, error);
+    res = _dwarf_load_section(dbg, &dbg->de_debug_ranges,error);
     if (res != DW_DLV_OK) {
         return res;
     }
-    if(rangesoffset >= dbg->de_debug_ranges_size) {
+    if(rangesoffset >= dbg->de_debug_ranges.dss_size) {
         _dwarf_error(dbg, error, DW_DLE_DEBUG_RANGES_OFFSET_BAD);
         return (DW_DLV_ERROR);
 
     }
-    section_end = dbg->de_debug_ranges + dbg->de_debug_ranges_size;
-    rangeptr = dbg->de_debug_ranges + rangesoffset;
+    address_size = _dwarf_get_address_size(dbg, die);
+    section_end = dbg->de_debug_ranges.dss_data + 
+        dbg->de_debug_ranges.dss_size;
+    rangeptr = dbg->de_debug_ranges.dss_data + rangesoffset;
     beginrangeptr = rangeptr;
-    address_size = dbg->de_pointer_size; 
 
     for(;;) {
         struct ranges_entry * re = calloc(sizeof(struct ranges_entry),1);
@@ -143,11 +142,23 @@ int dwarf_get_ranges(Dwarf_Debug dbg,
         curre = curre->next;
         free(r);
     }
-    // Callers will often not care about the bytes used.
+    /* Callers will often not care about the bytes used. */
     if(bytecount) {
         *bytecount = rangeptr - beginrangeptr;
     }
     return DW_DLV_OK; 
+}
+int dwarf_get_ranges(Dwarf_Debug dbg,
+    Dwarf_Off rangesoffset,
+    Dwarf_Ranges ** rangesbuf,
+    Dwarf_Signed * listlen,
+    Dwarf_Unsigned * bytecount,
+    Dwarf_Error * error)
+{
+    Dwarf_Die die = 0;
+    int res = dwarf_get_ranges_a(dbg,rangesoffset,die,
+        rangesbuf,listlen,bytecount,error);
+    return res;
 }
 
 void 

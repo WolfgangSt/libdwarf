@@ -1,7 +1,7 @@
 /*
 
-  Copyright (C) 2000,2001,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
-  Portions Copyright (C) 2008 David Anderson. All Rights Reserved.
+  Copyright (C) 2000-2005 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright (C) 2009 David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -49,25 +49,25 @@
 
 int
 dwarf_get_abbrev(Dwarf_Debug dbg,
-                 Dwarf_Unsigned offset,
-                 Dwarf_Abbrev * returned_abbrev,
-                 Dwarf_Unsigned * length,
-                 Dwarf_Unsigned * abbr_count, Dwarf_Error * error)
+    Dwarf_Unsigned offset,
+    Dwarf_Abbrev * returned_abbrev,
+    Dwarf_Unsigned * length,
+    Dwarf_Unsigned * abbr_count, Dwarf_Error * error)
 {
-    Dwarf_Small *abbrev_ptr;
-    Dwarf_Small *abbrev_section_end;
-    Dwarf_Half attr;
-    Dwarf_Half attr_form;
-    Dwarf_Abbrev ret_abbrev;
+    Dwarf_Small *abbrev_ptr = 0;
+    Dwarf_Small *abbrev_section_end = 0;
+    Dwarf_Half attr = 0;
+    Dwarf_Half attr_form = 0;
+    Dwarf_Abbrev ret_abbrev = 0;
     Dwarf_Unsigned labbr_count = 0;
-    Dwarf_Unsigned utmp;
+    Dwarf_Unsigned utmp = 0;
 
 
     if (dbg == NULL) {
         _dwarf_error(NULL, error, DW_DLE_DBG_NULL);
         return (DW_DLV_ERROR);
     }
-    if (dbg->de_debug_abbrev == 0) {
+    if (dbg->de_debug_abbrev.dss_data == 0) {
         /* Loads abbrev section (and .debug_info as we do those
            together). */
         int res = _dwarf_load_debug_info(dbg, error);
@@ -77,7 +77,7 @@ dwarf_get_abbrev(Dwarf_Debug dbg,
         }
     }
 
-    if (offset >= dbg->de_debug_abbrev_size) {
+    if (offset >= dbg->de_debug_abbrev.dss_size) {
         return (DW_DLV_NO_ENTRY);
     }
 
@@ -99,9 +99,9 @@ dwarf_get_abbrev(Dwarf_Debug dbg,
     if (length != NULL)
         *length = 1;
 
-    abbrev_ptr = dbg->de_debug_abbrev + offset;
+    abbrev_ptr = dbg->de_debug_abbrev.dss_data + offset;
     abbrev_section_end =
-        dbg->de_debug_abbrev + dbg->de_debug_abbrev_size;
+        dbg->de_debug_abbrev.dss_data + dbg->de_debug_abbrev.dss_size;
 
     DECODE_LEB128_UWORD(abbrev_ptr, utmp);
     ret_abbrev->ab_code = (Dwarf_Word) utmp;
@@ -140,7 +140,7 @@ dwarf_get_abbrev(Dwarf_Debug dbg,
     }
 
     if (length != NULL)
-        *length = abbrev_ptr - dbg->de_debug_abbrev - offset;
+        *length = abbrev_ptr - dbg->de_debug_abbrev.dss_data - offset;
 
     *returned_abbrev = ret_abbrev;
     *abbr_count = labbr_count;
@@ -149,8 +149,8 @@ dwarf_get_abbrev(Dwarf_Debug dbg,
 
 int
 dwarf_get_abbrev_code(Dwarf_Abbrev abbrev,
-                      Dwarf_Unsigned * returned_code,
-                      Dwarf_Error * error)
+    Dwarf_Unsigned * returned_code,
+    Dwarf_Error * error)
 {
     if (abbrev == NULL) {
         _dwarf_error(NULL, error, DW_DLE_DWARF_ABBREV_NULL);
@@ -165,7 +165,7 @@ dwarf_get_abbrev_code(Dwarf_Abbrev abbrev,
    over 16 bits.  */
 int
 dwarf_get_abbrev_tag(Dwarf_Abbrev abbrev,
-                     Dwarf_Half * returned_tag, Dwarf_Error * error)
+    Dwarf_Half * returned_tag, Dwarf_Error * error)
 {
     if (abbrev == NULL) {
         _dwarf_error(NULL, error, DW_DLE_DWARF_ABBREV_NULL);
@@ -179,8 +179,8 @@ dwarf_get_abbrev_tag(Dwarf_Abbrev abbrev,
 
 int
 dwarf_get_abbrev_children_flag(Dwarf_Abbrev abbrev,
-                               Dwarf_Signed * returned_flag,
-                               Dwarf_Error * error)
+    Dwarf_Signed * returned_flag,
+    Dwarf_Error * error)
 {
     if (abbrev == NULL) {
         _dwarf_error(NULL, error, DW_DLE_DWARF_ABBREV_NULL);
@@ -194,10 +194,10 @@ dwarf_get_abbrev_children_flag(Dwarf_Abbrev abbrev,
 
 int
 dwarf_get_abbrev_entry(Dwarf_Abbrev abbrev,
-                       Dwarf_Signed index,
-                       Dwarf_Half * returned_attr_num,
-                       Dwarf_Signed * form,
-                       Dwarf_Off * offset, Dwarf_Error * error)
+    Dwarf_Signed index,
+    Dwarf_Half * returned_attr_num,
+    Dwarf_Signed * form,
+    Dwarf_Off * offset, Dwarf_Error * error)
 {
     Dwarf_Byte_Ptr abbrev_ptr = 0;
     Dwarf_Byte_Ptr abbrev_end = 0;
@@ -224,12 +224,12 @@ dwarf_get_abbrev_entry(Dwarf_Abbrev abbrev,
 
     abbrev_ptr = abbrev->ab_abbrev_ptr;
     abbrev_end =
-        abbrev->ab_dbg->de_debug_abbrev +
-        abbrev->ab_dbg->de_debug_abbrev_size;
+        abbrev->ab_dbg->de_debug_abbrev.dss_data +
+        abbrev->ab_dbg->de_debug_abbrev.dss_size;
 
     for (attr = 1, attr_form = 1;
          index >= 0 && abbrev_ptr < abbrev_end && (attr != 0 ||
-                                                   attr_form != 0);
+             attr_form != 0);
          index--) {
         Dwarf_Unsigned utmp4;
 
@@ -252,7 +252,7 @@ dwarf_get_abbrev_entry(Dwarf_Abbrev abbrev,
     if (form != NULL)
         *form = attr_form;
     if (offset != NULL)
-        *offset = mark_abbrev_ptr - abbrev->ab_dbg->de_debug_abbrev;
+        *offset = mark_abbrev_ptr - abbrev->ab_dbg->de_debug_abbrev.dss_data;
 
     *returned_attr_num = (attr);
     return DW_DLV_OK;

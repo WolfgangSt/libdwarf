@@ -69,11 +69,13 @@ struct dwconf_s {
        is DW_FRAME_SAME_VAL(1035). For other ISA/ABIs may be
        DW_FRAME_UNDEFINED_VAL(1034). */
     int cf_initial_rule_value;
+    int cf_same_val;
+    int cf_undefined_val;
 
     /* The number of the cfa 'register'. For cf_interface_number 2 of 
        MIPS this is 0. For other architectures (and anytime using
        cf_interface_number 3) this should be outside the table, a
-       special value such as 1036, not a table column at all).  */
+       special value such as 1436, not a table column at all).  */
     int cf_cfa_reg;
 };
 
@@ -88,4 +90,4 @@ void print_reg_from_config_data(Dwarf_Signed reg,
                 struct dwconf_s *config_data);
 
 
-void init_generic_config_1000_regs(struct dwconf_s *conf);
+void init_generic_config_1200_regs(struct dwconf_s *conf);

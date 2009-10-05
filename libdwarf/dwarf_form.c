@@ -2,7 +2,7 @@
 
   Copyright (C) 2000,2002,2004,2005  Silicon Graphics, Inc.  All Rights Reserved.
   Portions Copyright 2007 Sun Microsystems, Inc. All rights reserved.
-  Portions Copyright 2008 David Anderson. All rights reserved.
+  Portions Copyright 2008,2009 David Anderson. All rights reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -713,7 +713,7 @@ dwarf_formblock(Dwarf_Attribute attr,
 
     /* Check that block lies within current cu in .debug_info. */
     if (attr->ar_debug_info_ptr + length >=
-        dbg->de_debug_info + cu_context->cc_debug_info_offset +
+        dbg->de_debug_info.dss_data + cu_context->cc_debug_info_offset +
         cu_context->cc_length + cu_context->cc_length_size +
         cu_context->cc_extension_size) {
         _dwarf_error(dbg, error, DW_DLE_ATTR_FORM_SIZE_BAD);
@@ -729,7 +729,7 @@ dwarf_formblock(Dwarf_Attribute attr,
     ret_block->bl_len = length;
     ret_block->bl_data = (Dwarf_Ptr) data;
     ret_block->bl_from_loclist = 0;
-    ret_block->bl_section_offset = data - dbg->de_debug_info;
+    ret_block->bl_section_offset = data - dbg->de_debug_info.dss_data;
 
 
     *return_block = ret_block;
@@ -775,7 +775,7 @@ dwarf_formstring(Dwarf_Attribute attr,
         if (0 == dbg->de_assume_string_in_bounds) {
             /* Check that string lies within current cu in .debug_info. 
              */
-            void *end = dbg->de_debug_info +
+            void *end = dbg->de_debug_info.dss_data +
                 cu_context->cc_debug_info_offset +
                 cu_context->cc_length + cu_context->cc_length_size +
                 cu_context->cc_extension_size;
@@ -793,24 +793,22 @@ dwarf_formstring(Dwarf_Attribute attr,
                        attr->ar_debug_info_ptr,
                        cu_context->cc_length_size);
 
-        res =
-            _dwarf_load_section(dbg,
-                                dbg->de_debug_str_index,
-                                &dbg->de_debug_str, error);
+        res = _dwarf_load_section(dbg, &dbg->de_debug_str,error);
         if (res != DW_DLV_OK) {
             return res;
         }
         if (0 == dbg->de_assume_string_in_bounds) {
             /* Check that string lies within current cu in .debug_info. 
              */
-            void *end = dbg->de_debug_str + dbg->de_debug_str_size;
-            void*begin = dbg->de_debug_str + offset;
+            void *end = dbg->de_debug_str.dss_data + 
+                dbg->de_debug_str.dss_size;
+            void*begin = dbg->de_debug_str.dss_data + offset;
             if (0 == _dwarf_string_valid(begin, end)) {
                 _dwarf_error(dbg, error, DW_DLE_STRP_OFFSET_BAD);
                 return (DW_DLV_ERROR);
             }
         }
-        *return_str = (char *) (dbg->de_debug_str + offset);
+        *return_str = (char *) (dbg->de_debug_str.dss_data + offset);
         return DW_DLV_OK;
     }
 

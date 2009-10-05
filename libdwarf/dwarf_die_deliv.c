@@ -1,7 +1,7 @@
 /*
 
-  Copyright (C) 2000,2001,2002,2003,2004,2005,2006 Silicon Graphics, Inc.  All Rights Reserved.
-  Portions Copyright (C) 2007,2008 David Anderson. All Rights Reserved.
+  Copyright (C) 2000-2006 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright (C) 2007-2009 David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -168,7 +168,7 @@ _dwarf_make_CU_Context(Dwarf_Debug dbg,
     }
     cu_context->cc_dbg = dbg;
 
-    cu_ptr = (Dwarf_Byte_Ptr) (dbg->de_debug_info + offset);
+    cu_ptr = (Dwarf_Byte_Ptr) (dbg->de_debug_info.dss_data + offset);
 
     /* READ_AREA_LENGTH updates cu_ptr for consumed bytes */
     READ_AREA_LENGTH(dbg, length, Dwarf_Unsigned,
@@ -193,18 +193,26 @@ _dwarf_make_CU_Context(Dwarf_Debug dbg,
     if ((length < CU_VERSION_STAMP_SIZE + local_length_size +
          CU_ADDRESS_SIZE_SIZE) ||
         (offset + length + local_length_size +
-         local_extension_size > dbg->de_debug_info_size)) {
+         local_extension_size > dbg->de_debug_info.dss_size)) {
 
         dwarf_dealloc(dbg, cu_context, DW_DLA_CU_CONTEXT);
         _dwarf_error(dbg, error, DW_DLE_CU_LENGTH_ERROR);
         return (NULL);
     }
 
+#ifdef notdef
+    /* It is legal for a CU to have a different 
+       address_size (de_pointer_size)
+       than other CUs and different from the 'base' address_size,
+       so the following 'if' is no longer appropriate.  
+       Only DWARF4 really supports this fully, as only in DWARF
+       does the CIE have an address_size field. */
     if (cu_context->cc_address_size != dbg->de_pointer_size) {
         dwarf_dealloc(dbg, cu_context, DW_DLA_CU_CONTEXT);
         _dwarf_error(dbg, error, DW_DLE_CU_ADDRESS_SIZE_BAD);
         return (NULL);
     }
+#endif
 
     if (cu_context->cc_version_stamp != CURRENT_VERSION_STAMP
         && cu_context->cc_version_stamp != CURRENT_VERSION_STAMP3
@@ -214,7 +222,7 @@ _dwarf_make_CU_Context(Dwarf_Debug dbg,
         return (NULL);
     }
 
-    if (abbrev_offset >= dbg->de_debug_abbrev_size) {
+    if (abbrev_offset >= dbg->de_debug_abbrev.dss_size) {
         dwarf_dealloc(dbg, cu_context, DW_DLA_CU_CONTEXT);
         _dwarf_error(dbg, error, DW_DLE_ABBREV_OFFSET_ERROR);
         return (NULL);
@@ -277,7 +285,7 @@ dwarf_next_cu_header(Dwarf_Debug dbg,
        this has to be the first one. */
     if (dbg->de_cu_context == NULL) {
         new_offset = 0;
-        if (!dbg->de_debug_info) {
+        if (!dbg->de_debug_info.dss_data) {
             int res = _dwarf_load_debug_info(dbg, error);
 
             if (res != DW_DLV_OK) {
@@ -298,7 +306,7 @@ dwarf_next_cu_header(Dwarf_Debug dbg,
        of debug_info section, and reset de_cu_debug_info_offset to
        enable looping back through the cu's. */
     if ((new_offset + _dwarf_length_of_cu_header_simple(dbg)) >=
-        dbg->de_debug_info_size) {
+        dbg->de_debug_info.dss_size) {
         dbg->de_cu_context = NULL;
         return (DW_DLV_NO_ENTRY);
     }
@@ -477,9 +485,10 @@ _dwarf_next_die_info_ptr(Dwarf_Byte_Ptr die_info_ptr,
         no_sibling_attr:
         if (attr_form != 0) {
             info_ptr += _dwarf_get_size_of_val(cu_context->cc_dbg,
-                                               attr_form, info_ptr,
-                                               cu_context->
-                                               cc_length_size);
+                    attr_form, 
+                    cu_context->cc_address_size,
+                    info_ptr,
+                    cu_context->cc_length_size);
             /* It is ok for info_ptr == die_info_end, as we will test
                later before using a too-large info_ptr */
             if (info_ptr > die_info_end) {
@@ -551,7 +560,7 @@ dwarf_siblingof(Dwarf_Debug dbg,
         }
 
         off2 = dbg->de_cu_context->cc_debug_info_offset;
-        die_info_ptr = dbg->de_debug_info +
+        die_info_ptr = dbg->de_debug_info.dss_data +
             off2 + _dwarf_length_of_cu_header(dbg, off2);
     } else {
         /* Find sibling die. */
@@ -566,7 +575,7 @@ dwarf_siblingof(Dwarf_Debug dbg,
         if (*die_info_ptr == 0) {
             return (DW_DLV_NO_ENTRY);
         }
-        cu_info_start = dbg->de_debug_info +
+        cu_info_start = dbg->de_debug_info.dss_data +
             die->di_cu_context->cc_debug_info_offset;
         die_info_end = cu_info_start + die->di_cu_context->cc_length +
             die->di_cu_context->cc_length_size +
@@ -678,7 +687,7 @@ dwarf_child(Dwarf_Die die,
     if ((*die_info_ptr) == 0)
         return (DW_DLV_NO_ENTRY);
 
-    die_info_end = dbg->de_debug_info +
+    die_info_end = dbg->de_debug_info.dss_data +
         die->di_cu_context->cc_debug_info_offset +
         die->di_cu_context->cc_length +
         die->di_cu_context->cc_length_size +
@@ -727,7 +736,7 @@ dwarf_child(Dwarf_Die die,
 }
 
 /*
-        Given a die offset, this returns
+        Given a (global, not cu_relative) die offset, this returns
         a pointer to a DIE thru *new_die.
         It is up to the caller to do a
         dwarf_dealloc(dbg,*new_die,DW_DLE_DIE);
@@ -773,7 +782,7 @@ dwarf_offdie(Dwarf_Debug dbg,
         do {
             if ((new_cu_offset +
                  _dwarf_length_of_cu_header_simple(dbg)) >=
-                dbg->de_debug_info_size) {
+                dbg->de_debug_info.dss_size) {
                 _dwarf_error(dbg, error, DW_DLE_OFFSET_BAD);
                 return (DW_DLV_ERROR);
             }
@@ -810,7 +819,7 @@ dwarf_offdie(Dwarf_Debug dbg,
     }
     die->di_cu_context = cu_context;
 
-    info_ptr = dbg->de_debug_info + offset;
+    info_ptr = dbg->de_debug_info.dss_data + offset;
     die->di_debug_info_ptr = info_ptr;
     DECODE_LEB128_UWORD(info_ptr, utmp);
     abbrev_code = utmp;

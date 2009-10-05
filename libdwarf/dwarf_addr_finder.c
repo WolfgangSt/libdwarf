@@ -335,8 +335,7 @@ handle_attr_locdesc(Dwarf_Debug dbg, Dwarf_Die die, Dwarf_Half attrnum,
                 llbuf = 0;
                 if (res == DW_DLV_OK) {
                     Dwarf_Signed count;
-                    int lres =
-                        dwarf_loclist(attr, &llbuf, &count, perr);
+                    int lres = dwarf_loclist(attr, &llbuf, &count, perr);
                     if (lres != DW_DLV_OK) {
                         return lres;
                     }
@@ -428,9 +427,7 @@ process_this_die_attrs(Dwarf_Debug dbg, Dwarf_Die newdie, int *errval)
            we have lines left unconnected to a CU. of course such 
            lines will not, at present, be used by gnome. This is
            not ideal as coded due to the dwarf_line.c issue. */
-        int lres;
-
-        lres = handle_debug_line(dbg, newdie, send_addr_note, errval);
+        int lres = handle_debug_line(dbg, newdie, send_addr_note, errval);
         if (lres == DW_DLV_ERROR) {
             return lres;
         }

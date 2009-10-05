@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2000,2001,2003,2004,2005,2006 Silicon Graphics, Inc.  All Rights Reserved.
   Portions Copyright 2002,2007 Sun Microsystems, Inc. All rights reserved.
-  Portions Copyright 2007,2008 David Anderson. All rights reserved.
+  Portions Copyright 2007-2009 David Anderson. All rights reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License
@@ -126,10 +126,12 @@ extern "C" {
 #define DW_TAG_unspecified_type         0x3b  /* DWARF3 */
 #define DW_TAG_partial_unit             0x3c  /* DWARF3 */
 #define DW_TAG_imported_unit            0x3d  /* DWARF3 */
-				 /* Do not use DW_TAG_mutable_type */
+        /* Do not use DW_TAG_mutable_type */
 #define DW_TAG_mutable_type 0x3e /* Withdrawn from DWARF3 by DWARF3f. */
 #define DW_TAG_condition                0x3f  /* DWARF3f */
 #define DW_TAG_shared_type              0x40  /* DWARF3f */
+#define DW_TAG_type_unit                0x41  /* DWARF4 */
+#define DW_TAG_rvalue_reference_type    0x42  /* DWARF4 */
 #define DW_TAG_lo_user                  0x4080
 
 #define DW_TAG_MIPS_loop                0x4081
@@ -145,13 +147,13 @@ extern "C" {
 #define DW_TAG_GNU_EINCL                0x4105 /* GNU */
 
 /* ALTIUM extensions */
-	/* DSP-C/Starcore __circ qualifier */
+    /* DSP-C/Starcore __circ qualifier */
 #define DW_TAG_ALTIUM_circ_type         0x5101 /* ALTIUM */
-	/* Starcore __mwa_circ qualifier */ 
+    /* Starcore __mwa_circ qualifier */ 
 #define DW_TAG_ALTIUM_mwa_circ_type     0x5102 /* ALTIUM */
-	/* Starcore __rev_carry qualifier */
+    /* Starcore __rev_carry qualifier */
 #define DW_TAG_ALTIUM_rev_carry_type    0x5103 /* ALTIUM */
-	/* M16 __rom qualifier */
+    /* M16 __rom qualifier */
 #define DW_TAG_ALTIUM_rom               0x5111 /* ALTIUM */
 
 /* The following 3 are extensions to support UPC */
@@ -163,20 +165,20 @@ extern "C" {
 #define DW_TAG_PGI_kanji_type           0xa000 /* PGI */
 #define DW_TAG_PGI_interface_block      0xa020 /* PGI */
 /* The following are SUN extensions */
-#define DW_TAG_SUN_function_template	0x4201 /* SUN */
-#define DW_TAG_SUN_class_template	0x4202 /* SUN */
-#define DW_TAG_SUN_struct_template	0x4203 /* SUN */
-#define DW_TAG_SUN_union_template	0x4204 /* SUN */
-#define DW_TAG_SUN_indirect_inheritance	0x4205 /* SUN */
+#define DW_TAG_SUN_function_template    0x4201 /* SUN */
+#define DW_TAG_SUN_class_template       0x4202 /* SUN */
+#define DW_TAG_SUN_struct_template      0x4203 /* SUN */
+#define DW_TAG_SUN_union_template       0x4204 /* SUN */
+#define DW_TAG_SUN_indirect_inheritance 0x4205 /* SUN */
 #define DW_TAG_SUN_codeflags            0x4206 /* SUN */
 #define DW_TAG_SUN_memop_info           0x4207 /* SUN */
 #define DW_TAG_SUN_omp_child_func       0x4208 /* SUN */
-#define DW_TAG_SUN_rtti_descriptor	0x4209 /* SUN */
-#define	DW_TAG_SUN_dtor_info		0x420a /* SUN */
-#define	DW_TAG_SUN_dtor			0x420b /* SUN */
-#define	DW_TAG_SUN_f90_interface	0x420c /* SUN */
+#define DW_TAG_SUN_rtti_descriptor      0x4209 /* SUN */
+#define DW_TAG_SUN_dtor_info            0x420a /* SUN */
+#define DW_TAG_SUN_dtor                 0x420b /* SUN */
+#define DW_TAG_SUN_f90_interface        0x420c /* SUN */
 #define DW_TAG_SUN_fortran_vax_structure 0x420d /* SUN */
-#define	DW_TAG_SUN_hi	        	0x42ff /* SUN */
+#define DW_TAG_SUN_hi                   0x42ff /* SUN */
     
 
 #define DW_TAG_hi_user                  0xffff
@@ -210,6 +212,7 @@ extern "C" {
 #define DW_FORM_sec_offset              0x17 /* DWARF4 */
 #define DW_FORM_exprloc                 0x18 /* DWARF4 */
 #define DW_FORM_flag_present            0x19 /* DWARF4 */
+#define DW_FORM_ref_sig8                0x20 /* DWARF4 */
 
 #define DW_AT_sibling                           0x01
 #define DW_AT_location                          0x02
@@ -302,8 +305,13 @@ extern "C" {
 #define DW_AT_elemental                         0x66 /* DWARF3f */
 #define DW_AT_pure                              0x67 /* DWARF3f */
 #define DW_AT_recursive                         0x68 /* DWARF3f */
-#define DW_AT_main_subprogram                   0x69 /* DWARF4 */
+#define DW_AT_signature                         0x69 /* DWARF4 */
+#define DW_AT_main_subprogram                   0x6a /* DWARF4 */
+#define DW_AT_data_bit_offset                   0x6b /* DWARF4 */
+#define DW_AT_const_expr                        0x6c /* DWARF4 */
 
+/* In extensions, we attempt to include the vendor extension
+   in the name even when the vendor leaves it out. */
 
 /* HP extensions. */
 #define DW_AT_HP_block_index                    0x2000  /* HP */
@@ -317,7 +325,7 @@ extern "C" {
 #define DW_AT_MIPS_epilog_begin                 0x2004 /* MIPS/SGI */
 #define DW_AT_MIPS_loop_unroll_factor           0x2005 /* MIPS/SGI */
 #define DW_AT_MIPS_software_pipeline_depth      0x2006 /* MIPS/SGI */
-#define DW_AT_MIPS_linkage_name                 0x2007 /* MIPS/SGI */
+#define DW_AT_MIPS_linkage_name                 0x2007 /* MIPS/SGI, GNU, and others.*/
 #define DW_AT_MIPS_stride                       0x2008 /* MIPS/SGI */
 #define DW_AT_MIPS_abstract_name                0x2009 /* MIPS/SGI */
 #define DW_AT_MIPS_clone_origin                 0x200a /* MIPS/SGI */
@@ -344,6 +352,13 @@ extern "C" {
 #define DW_AT_HP_linkage_name                   0x201a /* HP */
 #define DW_AT_HP_prof_flags                     0x201b /* HP */
 
+#define DW_AT_CPQ_discontig_ranges              0x2001 /* COMPAQ/HP */
+#define DW_AT_CPQ_semantic_events               0x2002 /* COMPAQ/HP */
+#define DW_AT_CPQ_split_lifetimes_var           0x2003 /* COMPAQ/HP */
+#define DW_AT_CPQ_split_lifetimes_rtn           0x2004 /* COMPAQ/HP */
+#define DW_AT_CPQ_prologue_length               0x2005 /* COMPAQ/HP */
+
+#define DW_AT_INTEL_other_endian                0x2026 /* Intel, 1 if byte swapped. */
 
 /* GNU extensions. */
 #define DW_AT_sf_names                          0x2101 /* GNU */
@@ -354,30 +369,20 @@ extern "C" {
 #define DW_AT_body_end                          0x2106 /* GNU */
 #define DW_AT_GNU_vector                        0x2107 /* GNU */
 
-
 /* ALTIUM extension: ALTIUM Compliant location lists (flag) */
 #define DW_AT_ALTIUM_loclist    0x2300          /* ALTIUM  */
 
-/* PGI (STMicroelectronics) extensions. */
-#define DW_AT_PGI_lbase                         0x3a00 /* PGI */
-#define DW_AT_PGI_soffset                       0x3a01 /* PGI */
-#define DW_AT_PGI_lstride                       0x3a02 /* PGI */
-
-
-/* UPC extension */
-#define DW_AT_upc_threads_scaled                0x3210 /* UPC */
-
 /* Sun extensions */
-#define DW_AT_SUN_template			0x2201 /* SUN */
+#define DW_AT_SUN_template                      0x2201 /* SUN */
 #define DW_AT_VMS_rtnbeg_pd_address             0x2201 /* VMS */
-#define DW_AT_SUN_alignment			0x2202 /* SUN */
-#define DW_AT_SUN_vtable			0x2203 /* SUN */
-#define DW_AT_SUN_count_guarantee		0x2204 /* SUN */
-#define DW_AT_SUN_command_line			0x2205 /* SUN */
-#define DW_AT_SUN_vbase				0x2206 /* SUN */
-#define DW_AT_SUN_compile_options		0x2207 /* SUN */
-#define DW_AT_SUN_language			0x2208 /* SUN */
-#define DW_AT_SUN_browser_file			0x2209 /* SUN */
+#define DW_AT_SUN_alignment                     0x2202 /* SUN */
+#define DW_AT_SUN_vtable                        0x2203 /* SUN */
+#define DW_AT_SUN_count_guarantee               0x2204 /* SUN */
+#define DW_AT_SUN_command_line                  0x2205 /* SUN */
+#define DW_AT_SUN_vbase                         0x2206 /* SUN */
+#define DW_AT_SUN_compile_options               0x2207 /* SUN */
+#define DW_AT_SUN_language                      0x2208 /* SUN */
+#define DW_AT_SUN_browser_file                  0x2209 /* SUN */
 #define DW_AT_SUN_vtable_abi                    0x2210 /* SUN */
 #define DW_AT_SUN_func_offsets                  0x2211 /* SUN */
 #define DW_AT_SUN_cf_kind                       0x2212 /* SUN */
@@ -395,26 +400,40 @@ extern "C" {
 #define DW_AT_SUN_amd64_parmdump                0x2224 /* SUN */
 #define DW_AT_SUN_part_link_name                0x2225 /* SUN */
 #define DW_AT_SUN_link_name                     0x2226 /* SUN */
-#define DW_AT_SUN_pass_with_const		0x2227 /* SUN */
-#define	DW_AT_SUN_return_with_const		0x2228 /* SUN */
+#define DW_AT_SUN_pass_with_const               0x2227 /* SUN */
+#define DW_AT_SUN_return_with_const             0x2228 /* SUN */
 #define DW_AT_SUN_import_by_name                0x2229 /* SUN */
 #define DW_AT_SUN_f90_pointer                   0x222a /* SUN */
 #define DW_AT_SUN_pass_by_ref                   0x222b /* SUN */
 #define DW_AT_SUN_f90_allocatable               0x222c /* SUN */
 #define DW_AT_SUN_f90_assumed_shape_array       0x222d /* SUN */
 #define DW_AT_SUN_c_vla                         0x222e /* SUN */
-#define DW_AT_SUN_return_value_ptr		0x2230 /* SUN */
-#define	DW_AT_SUN_dtor_start          		0x2231 /* SUN */
-#define	DW_AT_SUN_dtor_length          		0x2232 /* SUN */
-#define	DW_AT_SUN_dtor_state_initial  		0x2233 /* SUN */
-#define	DW_AT_SUN_dtor_state_final    		0x2234 /* SUN */
-#define	DW_AT_SUN_dtor_state_deltas   		0x2235 /* SUN */
-#define	DW_AT_SUN_import_by_lname               0x2236 /* SUN */
-#define	DW_AT_SUN_f90_use_only                  0x2237 /* SUN */
-#define DW_AT_SUN_namelist_spec			0x2238 /* SUN */
-#define DW_AT_SUN_is_omp_child_func		0x2239 /* SUN */
-#define DW_AT_SUN_fortran_main_alias		0x223a /* SUN */
+#define DW_AT_SUN_return_value_ptr              0x2230 /* SUN */
+#define DW_AT_SUN_dtor_start                    0x2231 /* SUN */
+#define DW_AT_SUN_dtor_length                   0x2232 /* SUN */
+#define DW_AT_SUN_dtor_state_initial            0x2233 /* SUN */
+#define DW_AT_SUN_dtor_state_final              0x2234 /* SUN */
+#define DW_AT_SUN_dtor_state_deltas             0x2235 /* SUN */
+#define DW_AT_SUN_import_by_lname               0x2236 /* SUN */
+#define DW_AT_SUN_f90_use_only                  0x2237 /* SUN */
+#define DW_AT_SUN_namelist_spec                 0x2238 /* SUN */
+#define DW_AT_SUN_is_omp_child_func             0x2239 /* SUN */
+#define DW_AT_SUN_fortran_main_alias            0x223a /* SUN */
 #define DW_AT_SUN_fortran_based                 0x223b /* SUN */
+
+/* UPC extension */
+#define DW_AT_upc_threads_scaled                0x3210 /* UPC */
+
+/* PGI (STMicroelectronics) extensions. */
+#define DW_AT_PGI_lbase                         0x3a00 /* PGI. Block, constant, reference. This attribute is an ASTPLAB extension used to describe the array local base.  */
+#define DW_AT_PGI_soffset                       0x3a01  /* PGI. Block, constant, reference. ASTPLAB adds this attribute to describe the section offset, or the offset to the first element in the dimension. */ 
+#define DW_AT_PGI_lstride                       0x3a02  /* PGI. Block, constant, reference. ASTPLAB adds this attribute to describe the linear stride or the distance between elements in the dimension. */
+
+/* Apple Extensions for closures  */
+#define DW_AT_APPLE_closure                     0x3fe4 /* Apple */
+/* Apple Extensions for Objective-C runtime info */
+#define DW_AT_APPLE_major_runtime_vers          0x3fe5 /* Apple */
+#define DW_AT_APPLE_runtime_class               0x3fe6 /* Apple */
 
 
 #define DW_AT_hi_user                           0x3fff
@@ -590,6 +609,12 @@ extern "C" {
 #define DW_OP_HP_unmod_range            0xe5 /* HP */
 #define DW_OP_HP_tls                    0xe6 /* HP */
 
+#define DW_OP_INTEL_bit_piece           0xe8 /* Intel: made obsolete by DW_OP_bit_piece above. */
+
+
+   /* Apple extension. */
+#define DW_OP_APPLE_uninit              0xf0 /* Apple */ 
+
 #define DW_OP_hi_user                   0xff
 
 #define DW_ATE_address                  0x1
@@ -652,7 +677,7 @@ extern "C" {
 #define DW_END_lo_user                  0x40 /* DWARF3f */
 #define DW_END_hi_user                  0xff /* DWARF3f */
 
-/* for use with DW_TAG_SUN_codeflags
+/* For use with DW_TAG_SUN_codeflags
  * If DW_TAG_SUN_codeflags is accepted as a dwarf standard, then
  * standard dwarf ATCF entries start at 0x01
  */
@@ -773,6 +798,7 @@ extern "C" {
 #define DW_LNE_end_sequence             0x01
 #define DW_LNE_set_address              0x02
 #define DW_LNE_define_file              0x03
+#define DW_LNE_set_discriminator        0x04  /* DWARF4 */
 
 /* HP extensions. */
 #define DW_LNE_HP_negate_is_UV_update       0x11 /* 17 HP */
@@ -844,35 +870,39 @@ extern "C" {
    The upper 4 bits indicate how the value is to be applied. 
    The lower 4 bits indicate the format of the data.
 */
-#define DW_EH_PE_absptr	  0x00  /* GNU */
+#define DW_EH_PE_absptr   0x00  /* GNU */
 #define DW_EH_PE_uleb128  0x01  /* GNU */
-#define DW_EH_PE_udata2	  0x02  /* GNU */
-#define DW_EH_PE_udata4	  0x03  /* GNU */
-#define DW_EH_PE_udata8	  0x04  /* GNU */
+#define DW_EH_PE_udata2   0x02  /* GNU */
+#define DW_EH_PE_udata4   0x03  /* GNU */
+#define DW_EH_PE_udata8   0x04  /* GNU */
 #define DW_EH_PE_sleb128  0x09  /* GNU */
 #define DW_EH_PE_sdata2   0x0A  /* GNU */
-#define DW_EH_PE_sdata4	  0x0B  /* GNU */
-#define DW_EH_PE_sdata8	  0x0C  /* GNU */
+#define DW_EH_PE_sdata4   0x0B  /* GNU */
+#define DW_EH_PE_sdata8   0x0C  /* GNU */
 
-#define DW_EH_PE_pcrel	  0x10  /* GNU */
+#define DW_EH_PE_pcrel    0x10  /* GNU */
 #define DW_EH_PE_textrel  0x20  /* GNU */
 #define DW_EH_PE_datarel  0x30  /* GNU */
 #define DW_EH_PE_funcrel  0x40  /* GNU */
 #define DW_EH_PE_aligned  0x50  /* GNU */
 
-#define DW_EH_PE_omit     0xff  /* GNU.  Means  no value present. */
+#define DW_EH_PE_omit     0xff  /* GNU.  Means no value present. */
 
 
 /* Mapping from machine registers and pseudo-regs into the .debug_frame table.
    DW_FRAME entries are machine specific. These describe
-   MIPS/SGI R3000, R4K, R4400.
-   And (simultaneously) a mapping from hardware register number to
+   MIPS/SGI R3000, R4K, R4400 and all later MIPS/SGI IRIX machines.
+   They describe a mapping from hardware register number to
    the number used in the table to identify that register.
 
    The CFA (Canonical Frame Address) described in DWARF is called
    the Virtual Frame Pointer on MIPS/SGI machines.
 
-                             Rule describes:
+   The DW_FRAME* names here are MIPS/SGI specfic.
+   Libdwarf interfaces defined in 2008 make the FRAME definitions
+   here (and the fixed table sizes they imply) obsolete.
+   They are left here for compatibility. 
+   
 */
 /* Column used for CFA. Assumes reg 0 never appears as
    a register in DWARF info.  */

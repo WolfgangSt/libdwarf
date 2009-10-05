@@ -1,5 +1,7 @@
 /* 
   Copyright (C) 2000,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright (C) 2009 SN Systems Ltd. All Rights Reserved.
+  Portions Copyright (C) 2009 David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2 of the GNU General Public License as
@@ -36,13 +38,15 @@ $Header: /plroot/cmplrs.src/v7.4.5m/.RCS/PL/dwarfdump/RCS/tag_attr.c,v 1.8 2005/
 #include <stdio.h>
 #include <stdlib.h>             /* For exit() declaration etc. */
 #include <errno.h>              /* For errno declaration. */
+#include <getopt.h>  
 
+#include "globals.h"
+#include "naming.h"
+#include "common.h"
+#include "tag_common.h"
+#include "naming.h"
 
-/*  The following is the magic token used to 
-    distinguish real tags/attrs from group-delimiters. 
-    Blank lines have been eliminated by an awk script.
-*/
-#define MAGIC_TOKEN_VALUE 0xffffffff
+boolean ellipsis = FALSE; /* So we can use naming.c */
 
 /* Expected input format 
 
@@ -62,180 +66,118 @@ No blank lines or commentary allowed, no symbols, just numbers.
 
 */
 
+unsigned int tag_attr_combination_table[ATTR_TABLE_ROW_MAXIMUM][ATTR_TABLE_COLUMN_MAXIMUM];
 
-/* We don't need really long lines: the input file is simple. */
-#define MAX_LINE_SIZE 1000
 
-/* 1 more than the higest number in the DW_TAG defines. */
-#define TABLE_SIZE 0x41
-
-/* Enough entries to have a bit for each standard legal attr. */
-#define COLUMN_COUNT 4
-
-/* Bits per 'int' to mark legal attrs. */
-#define BITS_PER_WORD 32
-
-static unsigned int
-    tag_attr_combination_table[TABLE_SIZE][COLUMN_COUNT];
-static char *tag_name[] = {
-    "0x00",
-    "0x01 DW_TAG_array_type",
-    "0x02 DW_TAG_class_type",
-    "0x03 DW_TAG_entry_point",
-    "0x04 DW_TAG_enumeration_type",
-    "0x05 DW_TAG_formal_parameter",
-    "0x06",
-    "0x07",
-    "0x08 DW_TAG_imported_declaration",
-    "0x09",
-    "0x0a DW_TAG_label",
-    "0x0b DW_TAG_lexical_block",
-    "0x0c",
-    "0x0d DW_TAG_member",
-    "0x0e",
-    "0x0f DW_TAG_pointer_type",
-    "0x10 DW_TAG_reference_type",
-    "0x11 DW_TAG_compile_unit",
-    "0x12 DW_TAG_string_type",
-    "0x13 DW_TAG_structure_type",
-    "0x14",
-    "0x15 DW_TAG_subroutine_type",
-    "0x16 DW_TAG_typedef",
-    "0x17 DW_TAG_union_type",
-    "0x18 DW_TAG_unspecified_parameters",
-    "0x19 DW_TAG_variant",
-    "0x1a DW_TAG_common_block",
-    "0x1b DW_TAG_common_inclusion",
-    "0x1c DW_TAG_inheritance",
-    "0x1d DW_TAG_inlined_subroutine",
-    "0x1e DW_TAG_module",
-    "0x1f DW_TAG_ptr_to_member_type",
-    "0x20 DW_TAG_set_type",
-    "0x21 DW_TAG_subrange_type",
-    "0x22 DW_TAG_with_stmt",
-    "0x23 DW_TAG_access_declaration",
-    "0x24 DW_TAG_base_type",
-    "0x25 DW_TAG_catch_block",
-    "0x26 DW_TAG_const_type",
-    "0x27 DW_TAG_constant",
-    "0x28 DW_TAG_enumerator",
-    "0x29 DW_TAG_file_type",
-    "0x2a DW_TAG_friend",
-    "0x2b DW_TAG_namelist",
-    "0x2c DW_TAG_namelist_item",
-    "0x2d DW_TAG_packed_type",
-    "0x2e DW_TAG_subprogram",
-    "0x2f DW_TAG_template_type_parameter",
-    "0x30 DW_TAG_template_value_parameter",
-    "0x31 DW_TAG_thrown_type",
-    "0x32 DW_TAG_try_block",
-    "0x33 DW_TAG_variant_part",
-    "0x34 DW_TAG_variable",
-    "0x35 DW_TAG_volatile_type",
-    "0x36 DW_TAG_dwarf_procedure",
-    "0x37 DW_TAG_restrict_type",
-    "0x38 DW_TAG_interface_type",
-    "0x39 DW_TAG_namespace",
-    "0x3a DW_TAG_imported_module",
-    "0x3b DW_TAG_unspecified_type",
-    "0x3c DW_TAG_partial_unit",
-    "0x3d DW_TAG_imported_unit",
-    "0x3e",                     /* was DW_TAG_mutable_type, removed
-                                   from DWARF3f. */
-    "0x3f DW_TAG_condition",
-    "0x40 DW_TAG_shared_type",
+static const char *usage[] = {
+  "Usage: tag_attr_build <options>\n",
+  "    -i input-table-path\n",
+  "    -o output-table-path\n",
+  "    -s (Generate standard attribute table)\n",
+  "    -e (Generate extended attribute table (common extensions))\n",
+  ""
 };
 
-static int linecount = 0;
-static char line_in[MAX_LINE_SIZE];
+char *input_name = 0;
+char *output_name = 0;
+int standard_flag = FALSE;
+int extended_flag = FALSE;
 
-#define IS_EOF 1
-#define NOT_EOF 0
-
-#define MAX_LINE_SIZE 1000
-
-
-static void
-bad_line_input(char *msg)
+/* process arguments */
+void
+process_args(int argc, char *argv[])
 {
-    fprintf(stderr,
-            "tag_attr table build failed %s, line %d: \"%s\"  \n",
-            msg, linecount, line_in);
-    exit(1);
+    int c = 0;
+    boolean usage_error = FALSE;
 
-}
-static void
-trim_newline(char *line, int max)
-{
-    char *end = line + max - 1;
-
-    for (; *line && (line < end); ++line) {
-        if (*line == '\n') {
-            /* Found newline, drop it */
-            *line = 0;
-            return;
+    while ((c = getopt(argc, argv, "i:o:se")) != EOF) {
+        switch (c) {
+        case 'i':
+            input_name = optarg;
+            break;
+        case 'o':
+            output_name = optarg;
+            break;
+        case 'e':
+            extended_flag = TRUE;
+            break;
+        case 's':
+            standard_flag = TRUE;
+            break;
+        default:
+            usage_error = TRUE;
+            break;
         }
     }
 
-    return;
+    if (usage_error || 1 == optind || optind != argc) {
+        print_usage_message(usage);
+        exit(FAILED);
+    }
 }
 
 
-/* Reads a value from the text table. 
-   Exits  with non-zero status 
-   if the table is erroneous in some way. 
-*/
-static int
-read_value(unsigned int *outval)
-{
-    char *res = 0;
-    FILE *file = stdin;
-    unsigned long lval;
-    char *strout = 0;
-
-    ++linecount;
-    *outval = 0;
-    res = fgets(line_in, sizeof(line_in), file);
-    if (res == 0) {
-        if (ferror(file)) {
-            fprintf(stderr,
-                    "tag_attr: Error reading table, %d lines read\n",
-                    linecount);
-            exit(1);
-        }
-        if (feof(file)) {
-            return IS_EOF;
-        }
-        /* impossible */
-        fprintf(stderr, "tag_attr: Impossible error reading table, "
-                "%d lines read\n", linecount);
-        exit(1);
-    }
-    trim_newline(line_in, sizeof(line_in));
-    errno = 0;
-    lval = strtoul(line_in, &strout, 0);
-    if (strout == line_in) {
-        bad_line_input("bad number input!");
-    }
-    if (errno != 0) {
-        int myerr = errno;
-
-        fprintf(stderr, "tag_attr errno %d\n", myerr);
-        bad_line_input("invalid number on line");
-    }
-    *outval = (int) lval;
-    return NOT_EOF;
-}
 
 int
-main()
+main(int argc, char **argv)
 {
-    int i;
-    unsigned int num;
-    int input_eof;
+    int i = 0;
+    unsigned int num = 0;
+    int input_eof = 0;
+    int table_rows = 0;
+    int table_columns = 0;
+    int current_row = 0;
+    FILE * fileInp = 0;
+    FILE * fileOut = 0;
+
+    print_version(argv[0]);
+    process_args(argc,argv);
+    print_args(argc,argv);
+
+    if (!input_name ) {
+        fprintf(stderr,"Input name required, not supplied.\n");
+        print_usage_message(usage);
+        exit(FAILED);
+    }
+    fileInp = fopen(input_name,"r");
+    if (!fileInp) {
+        fprintf(stderr,"Invalid input filename, could not open '%s'\n",
+            input_name);
+        print_usage_message(usage);
+        exit(FAILED);
+    }
 
 
-    input_eof = read_value(&num);       /* 0xffffffff */
+    if (!output_name ) {
+        fprintf(stderr,"Output name required, not supplied.\n");
+        print_usage_message(usage);
+        exit(FAILED);
+    }
+    fileOut = fopen(output_name,"w");
+    if (!fileOut) {
+        fprintf(stderr,"Invalid output filename, could not open: '%s'\n",
+            output_name);
+        print_usage_message(usage);
+        exit(FAILED);
+    }
+    if ((standard_flag && extended_flag) || 
+        (!standard_flag && !extended_flag)) {
+        fprintf(stderr,"Invalid table type\n");
+        fprintf(stderr,"Choose -e  or -s .\n"); 
+        print_usage_message(usage);
+        exit(FAILED);
+    }
+
+
+    if(standard_flag) {
+        table_rows = STD_ATTR_TABLE_ROWS;
+        table_columns = STD_ATTR_TABLE_COLUMNS;
+    } else {
+        table_rows = EXT_ATTR_TABLE_ROWS;
+        table_columns = EXT_ATTR_TABLE_COLS;
+    }
+
+    input_eof = read_value(&num,fileInp);       /* 0xffffffff */
     if (IS_EOF == input_eof) {
         bad_line_input("Empty input file");
     }
@@ -244,45 +186,96 @@ main()
     }
     while (!feof(stdin)) {
         unsigned int tag;
+        int curcol = 0;
 
-        input_eof = read_value(&tag);
+        input_eof = read_value(&tag,fileInp);
         if (IS_EOF == input_eof) {
             /* Reached normal eof */
             break;
         }
-        if (tag >= TABLE_SIZE) {
-            bad_line_input("tag value exceeds table size");
+        if(standard_flag) {
+            if (tag >= table_rows ) {
+               bad_line_input("tag value exceeds standard table size");
+            }
+        } else {
+            if(current_row >= table_rows) {
+               bad_line_input("too many extended table rows.");
+            }
+            tag_attr_combination_table[current_row][0] = tag;
         }
-        input_eof = read_value(&num);
+
+        input_eof = read_value(&num,fileInp);
         if (IS_EOF == input_eof) {
             bad_line_input("Not terminated correctly..");
         }
+        curcol = 1;
         while (num != MAGIC_TOKEN_VALUE) {
-            unsigned idx = num / BITS_PER_WORD;
-            unsigned bit = num % BITS_PER_WORD;
+            if(standard_flag) {
+                unsigned idx = num / BITS_PER_WORD;
+                unsigned bit = num % BITS_PER_WORD;
 
-            if (idx >= COLUMN_COUNT) {
-                bad_line_input
-                    ("too many attributes: table incomplete.");
+                if (idx >= table_columns) {
+                    bad_line_input
+                        ("too many attributes: table incomplete.");
+                }
+                tag_attr_combination_table[tag][idx] |= (1 << bit);
+            } else {
+                if (curcol >= table_columns) {
+                    bad_line_input("too many attributes: table incomplete.");
+                } 
+                tag_attr_combination_table[current_row][curcol] = num;
+                curcol++;
+                
             }
-            tag_attr_combination_table[tag][idx] |= (1 << bit);
-            input_eof = read_value(&num);
+            input_eof = read_value(&num,fileInp);
             if (IS_EOF == input_eof) {
                 bad_line_input("Not terminated correctly.");
             }
         }
+        ++current_row;
     }
-    printf("static unsigned int tag_attr_combination_table [ ][%d]"
-           " = {\n", COLUMN_COUNT);
-    for (i = 0; i < TABLE_SIZE; i++) {
-        printf("/* %-37s*/\n", tag_name[i]);
-        printf("    { %#.8x, %#.8x, %#.8x, %#.8x,},\n",
-               tag_attr_combination_table[i][0],
-               tag_attr_combination_table[i][1],
-               tag_attr_combination_table[i][2],
-               tag_attr_combination_table[i][3]
-            );
+    fprintf(fileOut,"/* Generated code, do not edit. */\n");
+    fprintf(fileOut,"/* Generated on %s  %s */\n",__DATE__,__TIME__);
+    if (standard_flag) {
+      fprintf(fileOut,"#define ATTR_TREE_ROW_COUNT %d\n\n",table_rows);
+      fprintf(fileOut,"#define ATTR_TREE_COLUMN_COUNT %d\n\n",table_columns);
+      fprintf(fileOut,
+          "static unsigned int tag_attr_combination_table"
+          "[ATTR_TREE_ROW_COUNT][ATTR_TREE_COLUMN_COUNT] = {\n");
     }
-    printf("};\n");
+    else {
+      fprintf(fileOut,"/* Common extensions */\n");
+      fprintf(fileOut,"#define ATTR_TREE_EXT_ROW_COUNT %d\n\n",table_rows);
+      fprintf(fileOut,"#define ATTR_TREE_EXT_COLUMN_COUNT %d\n\n",
+          table_columns);
+      fprintf(fileOut,
+          "static unsigned int tag_attr_combination_ext_table"
+          "[ATTR_TREE_EXT_ROW_COUNT][ATTR_TREE_EXT_COLUMN_COUNT] = {\n");
+    }
+
+    for (i = 0; i < table_rows; i++) {
+        int j = 0;
+        int printonerr = 0;
+        const char *name = 0;
+        if(standard_flag) {
+            name = get_TAG_name(i,printonerr);
+            fprintf(fileOut,"/* %d %-37s*/\n",i,name); 
+        } else {
+            int k = tag_attr_combination_table[i][0];
+            name = get_TAG_name(k,printonerr);           
+            fprintf(fileOut,"/* %u %-37s*/\n",k,name);
+        }
+        fprintf(fileOut,"    { ");
+        for(j = 0; j < table_columns; ++j ) {
+            fprintf(fileOut,"0x%08x,",tag_attr_combination_table[i][j]);
+        }
+        fprintf(fileOut,"},\n");
+    }
+    fprintf(fileOut,"};\n");
     return (0);
 }
+/* A fake so we can use dwarf_names.c */
+void print_error (Dwarf_Debug dbg, string msg,int res, Dwarf_Error err)
+{
+}
+

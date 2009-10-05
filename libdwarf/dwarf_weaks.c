@@ -1,6 +1,7 @@
 /*
 
-  Copyright (C) 2000,2002,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
+  Copyright (C) 2000-2005 Silicon Graphics, Inc.  All Rights Reserved.
+  Portions Copyright (C) 2009 David Anderson. All Rights Reserved.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2.1 of the GNU Lesser General Public License 
@@ -46,17 +47,16 @@ dwarf_get_weaks(Dwarf_Debug dbg,
     Dwarf_Weak ** weaks,
     Dwarf_Signed * ret_weak_count, Dwarf_Error * error)
 {
-    int res = _dwarf_load_section(dbg,
-        dbg->de_debug_weaknames_index,
-        &dbg->de_debug_weaknames, error);
+    int res = _dwarf_load_section(dbg, &dbg->de_debug_weaknames,error);
     if (res != DW_DLV_OK) {
         return res;
     }
 
     return _dwarf_internal_get_pubnames_like_data(dbg, 
-        dbg->de_debug_weaknames, 
-        dbg->de_debug_weaknames_size, 
-        (Dwarf_Global **) weaks, /* Type punning for sections with identical format. */
+        dbg->de_debug_weaknames.dss_data, 
+        dbg->de_debug_weaknames.dss_size, 
+        (Dwarf_Global **) weaks, /* Type punning for sections 
+            with identical format. */
         ret_weak_count,
         error,
         DW_DLA_WEAK_CONTEXT,
@@ -72,7 +72,7 @@ dwarf_get_weaks(Dwarf_Debug dbg,
 
 void
 dwarf_weaks_dealloc(Dwarf_Debug dbg, Dwarf_Weak * dwgl,
-                    Dwarf_Signed count)
+    Dwarf_Signed count)
 {
     _dwarf_internal_globals_dealloc(dbg, (Dwarf_Global *) dwgl,
         count,
@@ -99,7 +99,7 @@ dwarf_weakname(Dwarf_Weak weak_in, char **ret_name, Dwarf_Error * error)
 
 int
 dwarf_weak_die_offset(Dwarf_Weak weak_in,
-                      Dwarf_Off * weak_off, Dwarf_Error * error)
+    Dwarf_Off * weak_off, Dwarf_Error * error)
 {
     Dwarf_Global weak = (Dwarf_Global) weak_in;
 
@@ -109,7 +109,7 @@ dwarf_weak_die_offset(Dwarf_Weak weak_in,
 
 int
 dwarf_weak_cu_offset(Dwarf_Weak weak_in,
-                     Dwarf_Off * weak_off, Dwarf_Error * error)
+    Dwarf_Off * weak_off, Dwarf_Error * error)
 {
     Dwarf_Global weak = (Dwarf_Global) weak_in;
 
@@ -119,13 +119,12 @@ dwarf_weak_cu_offset(Dwarf_Weak weak_in,
 
 int
 dwarf_weak_name_offsets(Dwarf_Weak weak_in,
-                        char **weak_name,
-                        Dwarf_Off * die_offset,
-                        Dwarf_Off * cu_offset, Dwarf_Error * error)
+    char **weak_name,
+    Dwarf_Off * die_offset,
+    Dwarf_Off * cu_offset, Dwarf_Error * error)
 {
     Dwarf_Global weak = (Dwarf_Global) weak_in;
 
     return dwarf_global_name_offsets(weak,
-                                     weak_name,
-                                     die_offset, cu_offset, error);
+        weak_name, die_offset, cu_offset, error);
 }
