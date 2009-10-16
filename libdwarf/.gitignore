@@ -1,1 +1,7 @@
+Makefile
 config.h
+config.log
+config.status
+dwarf_names*
+gennames
+
